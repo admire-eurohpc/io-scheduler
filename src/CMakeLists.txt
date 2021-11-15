@@ -36,6 +36,9 @@ target_link_libraries(
   scord
   PRIVATE config
           logger
+          Mercury::Mercury
+          Argobots::Argobots
+          Margo::Margo
           fmt::fmt
           Boost::program_options
 )

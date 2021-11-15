@@ -115,6 +115,28 @@ find_package(
   REQUIRED
 )
 
+message(STATUS "[${PROJECT_NAME}] Checking for Mercury")
+find_package(
+  Mercury
+  2.0.1
+  REQUIRED
+)
+
+message(STATUS "[${PROJECT_NAME}] Checking for Argobots")
+find_package(
+  Argobots
+  1.1
+  REQUIRED
+)
+
+message(STATUS "[${PROJECT_NAME}] Checking for Margo")
+find_package(
+  Margo
+  0.9.6
+  REQUIRED
+)
+
+
 ### {fmt}: required for sensible output formatting
 message(STATUS "[${PROJECT_NAME}] Downloading and building {fmt}")
 FetchContent_Declare(

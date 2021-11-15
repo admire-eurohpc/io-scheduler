@@ -36,6 +36,7 @@ target_link_libraries(
   scord
   PRIVATE config
           logger
+          transport_library
           Mercury::Mercury
           Argobots::Argobots
           Margo::Margo

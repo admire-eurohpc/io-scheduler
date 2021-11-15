@@ -65,15 +65,22 @@ include(FetchContent)
 include(GNUInstallDirs)
 
 # Make sure that CMake can find our internal modules
-list(
-  PREPEND
-  CMAKE_MODULE_PATH
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
-)
+list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # ##############################################################################
 # Project configuration options
 # ##############################################################################
+
+### transport library
+set(SCORD_TRANSPORT_LIBRARY
+    "libfabric"
+    CACHE STRING
+          "Transport library used by ${PROJECT_NAME} (default: libfabric)"
+)
+set_property(CACHE SCORD_TRANSPORT_LIBRARY PROPERTY STRINGS libfabric ucx)
+message(
+  STATUS "[${PROJECT_NAME}] Transport library: ${SCORD_TRANSPORT_LIBRARY}"
+)
 
 ### server bind address
 set(SCORD_BIND_ADDRESS
@@ -98,44 +105,40 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Check for and/or download dependencies
 # ##############################################################################
 
+### some dependencies don't provide CMake modules, but rely on pkg-config
+### instead, make sure that pkg-config is available
+find_package(PkgConfig REQUIRED)
+
 ### boost libraries: required for processing program options
 message(STATUS "[${PROJECT_NAME}] Checking for boost libraries")
-find_package(
-  Boost
-  1.53
-  REQUIRED
-  COMPONENTS program_options
-)
+find_package(Boost 1.53 REQUIRED COMPONENTS program_options)
 
 ### yaml-cpp: required for reading configuration files
 message(STATUS "[${PROJECT_NAME}] Checking for yaml-cpp")
-find_package(
-  YAMLCpp
-  0.6.2
-  REQUIRED
-)
+find_package(YAMLCpp 0.6.2 REQUIRED)
 
+### transport library
+if (SCORD_TRANSPORT_LIBRARY STREQUAL libfabric)
+  pkg_check_modules(libfabric REQUIRED IMPORTED_TARGET GLOBAL libfabric)
+  add_library(transport_library ALIAS PkgConfig::libfabric)
+elseif(SCORD_TRANSPORT_LIBRARY STREQUAL ucx)
+  pkg_check_modules(ucx REQUIRED IMPORTED_TARGET GLOBAL ucx)
+  add_library(transport_library ALIAS PkgConfig::ucx)
+else()
+  message(FATAL_ERROR "Unknown transport library: ${SCORD_TRANSPORT_LIBRARY}")
+endif ()
+
+### Mercury
 message(STATUS "[${PROJECT_NAME}] Checking for Mercury")
-find_package(
-  Mercury
-  2.0.1
-  REQUIRED
-)
+find_package(Mercury 2.0.1 REQUIRED)
 
+### Argobots
 message(STATUS "[${PROJECT_NAME}] Checking for Argobots")
-find_package(
-  Argobots
-  1.1
-  REQUIRED
-)
+find_package(Argobots 1.1 REQUIRED)
 
+### Margo
 message(STATUS "[${PROJECT_NAME}] Checking for Margo")
-find_package(
-  Margo
-  0.9.6
-  REQUIRED
-)
-
+find_package(Margo 0.9.6 REQUIRED)
 
 ### {fmt}: required for sensible output formatting
 message(STATUS "[${PROJECT_NAME}] Downloading and building {fmt}")

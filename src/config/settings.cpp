@@ -34,9 +34,7 @@ namespace fs = std::filesystem;
 
 namespace scord::config {
 
-settings::settings() {
-    this->load_defaults();
-}
+settings::settings() = default;
 
 settings::settings(const std::string& progname, bool daemonize, bool use_syslog,
                    bool use_console, const fs::path& log_file,

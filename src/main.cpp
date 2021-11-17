@@ -55,8 +55,6 @@ int
 main(int argc, char* argv[]) {
 
     scord::config::settings cfg;
-    cfg.load_defaults();
-
 
     // define the command line options allowed
     bpo::options_description opt_desc("Options");

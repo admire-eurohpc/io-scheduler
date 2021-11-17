@@ -32,6 +32,8 @@
 #include <utility>
 #include <netinet/in.h>
 
+#include "defaults.hpp"
+
 namespace fs = std::filesystem;
 
 namespace scord::config {
@@ -97,13 +99,13 @@ struct settings {
 
     settings();
 
-    settings(const std::string& progname, bool daemonize, bool use_syslog,
-             bool use_console, const fs::path& log_file,
-             const uint32_t log_file_max_size, const fs::path& global_socket,
-             const fs::path& control_socket, const std::string& bind_address,
-             uint32_t remote_port, const fs::path& pidfile, uint32_t workers,
-             uint32_t backlog_size, const fs::path& cfgfile,
-             const std::list<namespace_def>& defns);
+    settings(std::string progname, bool daemonize, bool use_syslog,
+             bool use_console, fs::path log_file,
+             const uint32_t log_file_max_size, fs::path global_socket,
+             fs::path control_socket, std::string transport_protocol,
+             std::string bind_address, uint32_t remote_port, fs::path pidfile,
+             uint32_t workers, uint32_t backlog_size, fs::path cfgfile,
+             std::list<namespace_def> defns);
 
     void
     load_defaults();
@@ -175,6 +177,12 @@ struct settings {
     control_socket(const fs::path& control_socket);
 
     std::string
+    transport_protocol() const;
+
+    void
+    transport_protocol(const std::string& transport_protocol);
+
+    std::string
     bind_address() const;
 
     void
@@ -198,12 +206,6 @@ struct settings {
     void
     workers_in_pool(uint32_t workers_in_pool);
 
-    fs::path
-    staging_directory() const;
-
-    void
-    staging_directory(const fs::path& staging_directory);
-
     uint32_t
     backlog_size() const;
 
@@ -222,21 +224,21 @@ struct settings {
     void
     default_namespaces(const std::list<namespace_def>& default_namespaces);
 
-    std::string m_progname;
-    bool m_daemonize;
-    bool m_use_syslog;
-    bool m_use_console;
-    fs::path m_log_file;
-    uint32_t m_log_file_max_size;
-    fs::path m_global_socket;
-    fs::path m_control_socket;
-    std::string m_bind_address;
-    in_port_t m_remote_port;
-    fs::path m_daemon_pidfile;
-    uint32_t m_workers_in_pool;
-    fs::path m_staging_directory;
-    uint32_t m_backlog_size;
-    fs::path m_config_file;
+    std::string m_progname = defaults::progname;
+    bool m_daemonize = defaults::daemonize;
+    bool m_use_syslog = defaults::use_syslog;
+    bool m_use_console = defaults::use_console;
+    fs::path m_log_file = defaults::log_file;
+    uint32_t m_log_file_max_size = defaults::log_file_max_size;
+    fs::path m_global_socket = defaults::global_socket;
+    fs::path m_control_socket = defaults::control_socket;
+    std::string m_transport_protocol = defaults::transport_protocol;
+    std::string m_bind_address = defaults::bind_address;
+    in_port_t m_remote_port = defaults::remote_port;
+    fs::path m_daemon_pidfile = defaults::pidfile;
+    uint32_t m_workers_in_pool = defaults::workers_in_pool;
+    uint32_t m_backlog_size = defaults::backlog_size;
+    fs::path m_config_file = defaults::config_file;
     std::list<namespace_def> m_default_namespaces;
 };
 

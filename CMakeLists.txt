@@ -22,33 +22,40 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-
 # ##############################################################################
-# Configure CMake
+# Define the CMake project and configure CMake
 # ##############################################################################
 
 # FetchContent_MakeAvailable() was introduced in 3.14
 cmake_minimum_required(VERSION 3.14)
 
-# Set default build type and also populate a list of available options
-set(default_build_type "Release")
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message(STATUS "[hermes] Setting build type to '${default_build_type}' as none was specified.")
-  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
-      STRING "Choose the type of build." FORCE)
-  # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
-
-# ##############################################################################
-# Define the CMake project
-# ##############################################################################
 project(
   scord
   VERSION 0.1.0
   LANGUAGES CXX
 )
+
+# Set default build type and also populate a list of available options
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+if(NOT is_multi_config)
+  set(default_build_type "Release")
+  set(allowed_build_types Debug Release MinSizeRel RelWithDebInfo)
+
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${allowed_build_types}")
+
+  if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE
+        "${default_build_type}"
+        CACHE STRING "Choose the type of build." FORCE
+    )
+  elseif(NOT CMAKE_BUILD_TYPE IN_LIST allowed_build_types)
+    message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+  endif()
+endif()
+
+# make sure that debug versions for targets are used (if provided) in Debug mode
+set_property(GLOBAL APPEND PROPERTY DEBUG_CONFIGURATIONS Debug)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -118,7 +125,7 @@ message(STATUS "[${PROJECT_NAME}] Checking for yaml-cpp")
 find_package(YAMLCpp 0.6.2 REQUIRED)
 
 ### transport library
-if (SCORD_TRANSPORT_LIBRARY STREQUAL libfabric)
+if(SCORD_TRANSPORT_LIBRARY STREQUAL libfabric)
   pkg_check_modules(libfabric REQUIRED IMPORTED_TARGET GLOBAL libfabric)
   add_library(transport_library ALIAS PkgConfig::libfabric)
 elseif(SCORD_TRANSPORT_LIBRARY STREQUAL ucx)
@@ -126,7 +133,7 @@ elseif(SCORD_TRANSPORT_LIBRARY STREQUAL ucx)
   add_library(transport_library ALIAS PkgConfig::ucx)
 else()
   message(FATAL_ERROR "Unknown transport library: ${SCORD_TRANSPORT_LIBRARY}")
-endif ()
+endif()
 
 ### Mercury
 message(STATUS "[${PROJECT_NAME}] Checking for Mercury")

@@ -36,11 +36,12 @@
 #include <server.hpp>
 #include <config/settings.hpp>
 #include <logger/logger.hpp>
+#include <network/engine.hpp>
+#include <utils/signal_listener.hpp>
 
 namespace scord {
 
-server::server()
-    : m_is_paused(false), m_settings(std::make_unique<config::settings>()) {}
+server::server() : m_settings(std::make_unique<config::settings>()) {}
 
 server::~server() = default;
 
@@ -201,6 +202,9 @@ server::signal_handler(int signum) {
         case SIGHUP:
             LOGGER_WARN("A signal (SIGHUP) occurred.");
             break;
+
+        default:
+            break;
     }
 }
 
@@ -234,181 +238,33 @@ server::init_logger() {
 }
 
 void
-server::init_event_handlers() {
+server::install_signal_handlers() {
 
-#if 0
-    LOGGER_INFO(" * Creating event listener...");
+    LOGGER_INFO(" * Installing signal handlers...");
+
+    m_signal_listener = std::make_unique<utils::signal_listener>();
+
+    m_signal_listener->set_handler(std::bind(&server::signal_handler, // NOLINT
+                                             this, std::placeholders::_1),
+                                   SIGHUP, SIGTERM, SIGINT);
+
+    // This call does not block. Instead, it starts an internal std::thread
+    // responsible for processing incoming signals
+    m_signal_listener->run();
+}
+
+void
+server::install_rpc_handlers() {
+
+    LOGGER_INFO(" * Creating RPC listener...");
 
     // create (but not start) the API listener
     // and register handlers for each request type
-    try {
-        m_ipc_service = std::make_unique<api_listener>();
-    } catch(const std::exception& e) {
-        LOGGER_ERROR("Failed to create the event listener. This should "
-                     "not happen under normal conditions.");
-        exit(EXIT_FAILURE);
-    }
+    m_network_engine = std::make_unique<network::rpc_acceptor>(
+            m_settings->transport_protocol(), m_settings->bind_address(),
+            m_settings->remote_port());
 
-    boost::system::error_code ec;
-    mode_t old_mask = ::umask(0);
-
-    // setup socket for control API
-    // (note that if we find any socket files at this point, where no pidfile
-    // was found during initialization, they must be stale sockets from
-    // another run. Just remove them).
-    if(fs::exists(m_settings->control_socket())) {
-        fs::remove(m_settings->control_socket(), ec);
-
-        if(ec) {
-            LOGGER_ERROR("Failed to remove stale control API socket: {}",
-                         ec.message());
-            teardown();
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    ::umask(S_IXUSR | S_IRWXG | S_IRWXO); // u=rw-, g=---, o=---
-
-    try {
-        m_ipc_service->register_endpoint(m_settings->control_socket());
-    } catch(const std::exception& e) {
-        LOGGER_ERROR("Failed to create control API socket: {}", e.what());
-        teardown();
-        exit(EXIT_FAILURE);
-    }
-
-    // setup socket for user API
-    if(fs::exists(m_settings->global_socket())) {
-        fs::remove(m_settings->global_socket(), ec);
-
-        if(ec) {
-            LOGGER_ERROR("Failed to remove stale user API socket: {}",
-                         ec.message());
-            teardown();
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    ::umask(S_IXUSR | S_IXGRP | S_IXOTH); // u=rw-, g=rw-, o=rw-
-
-    try {
-        m_ipc_service->register_endpoint(m_settings->global_socket());
-    } catch(const std::exception& e) {
-        LOGGER_ERROR("Failed to create user API socket: {}", e.what());
-        teardown();
-        exit(EXIT_FAILURE);
-    }
-
-    // restore the umask
-    ::umask(old_mask);
-
-    try {
-
-        const std::string bind_address =
-                m_settings->bind_address() + ":" +
-                std::to_string(m_settings->remote_port());
-
-        m_network_service = std::make_shared<hermes::async_engine>(
-                hermes::transport::ofi_tcp, bind_address, true);
-    } catch(const std::exception& e) {
-        LOGGER_ERROR("Failed to create remote listener: {}", e.what());
-        teardown();
-        exit(EXIT_FAILURE);
-    }
-
-#if 0
-    // setup socket for remote connections
-    try {
-        m_ipc_service->register_endpoint(m_settings->remote_port());
-    }
-    catch(const std::exception& e) {
-        LOGGER_ERROR("Failed to create socket for remote connections: {}",
-                e.what());
-        teardown();
-        exit(EXIT_FAILURE);
-    }
-#endif
-
-
-    LOGGER_INFO(" * Installing message handlers...");
-
-    /* user-level functionalities */
-    m_ipc_service->register_callback(api::request_type::iotask_create,
-                                     std::bind(&server::iotask_create_handler,
-                                               this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(api::request_type::iotask_status,
-                                     std::bind(&server::iotask_status_handler,
-                                               this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(
-            api::request_type::ping,
-            std::bind(&server::ping_handler, this, std::placeholders::_1));
-
-    /* admin-level functionalities */
-    m_ipc_service->register_callback(
-            api::request_type::job_register,
-            std::bind(&server::job_register_handler, this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(
-            api::request_type::job_update,
-            std::bind(&server::job_update_handler, this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(
-            api::request_type::job_unregister,
-            std::bind(&server::job_remove_handler, this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(
-            api::request_type::process_register,
-            std::bind(&server::process_add_handler, this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(api::request_type::process_unregister,
-                                     std::bind(&server::process_remove_handler,
-                                               this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(api::request_type::backend_register,
-                                     std::bind(&server::namespace_register_handler,
-                                               this, std::placeholders::_1));
-
-    /*    m_ipc_service->register_callback(
-                api::request_type::backend_update,
-                std::bind(&server::namespace_update_handler, this,
-       std::placeholders::_1));*/
-
-    m_ipc_service->register_callback(api::request_type::backend_unregister,
-                                     std::bind(&server::namespace_remove_handler,
-                                               this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(api::request_type::global_status,
-                                     std::bind(&server::global_status_handler,
-                                               this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(
-            api::request_type::command,
-            std::bind(&server::command_handler, this, std::placeholders::_1));
-
-    m_ipc_service->register_callback(api::request_type::bad_request,
-                                     std::bind(&server::unknown_request_handler,
-                                               this, std::placeholders::_1));
-
-    /* remote event handlers */
-    m_network_service->register_handler<rpc::push_resource>(std::bind(
-            &server::push_resource_handler, this, std::placeholders::_1));
-
-    m_network_service->register_handler<rpc::pull_resource>(std::bind(
-            &server::pull_resource_handler, this, std::placeholders::_1));
-
-    m_network_service->register_handler<rpc::stat_resource>(std::bind(
-            &server::stat_resource_handler, this, std::placeholders::_1));
-
-
-    // signal handlers must be installed AFTER daemonizing
-    LOGGER_INFO(" * Installing signal handlers...");
-
-    m_ipc_service->set_signal_handler(
-            std::bind(&server::signal_handler, this, std::placeholders::_1),
-            SIGHUP, SIGTERM, SIGINT);
-#endif
+    m_network_engine->register_rpcs();
 } // namespace scord
 
 void
@@ -512,26 +368,15 @@ server::run() {
 
     LOGGER_INFO("[[ Starting up ]]");
 
-    //    init_task_manager();
-    //    init_event_handlers();
-    //    init_namespace_manager();
-    //    load_backend_plugins();
-    //    load_default_namespaces();
-
-    // load plugins now so that when we propagate the daemon context to them
-    // everything is set up
-    //    load_transfer_plugins();
-
-    // start the listener for remote transfers
-    // N.B. This call returns immediately
-    //    m_network_service->run();
+    install_signal_handlers();
+    install_rpc_handlers();
 
     LOGGER_INFO("");
     LOGGER_INFO("[[ Start up successful, awaiting requests... ]]");
 
     // N.B. This call blocks here, which means that everything after it
     // will only run when a shutdown command is received
-    //    m_ipc_service->run();
+    m_network_engine->listen();
 
     print_farewell();
     teardown();
@@ -545,20 +390,10 @@ server::run() {
 void
 server::teardown() {
 
-    // XXX deprecated, signals_are now managed by api_listener
-    //     if(m_signal_listener) {
-    //         LOGGER_INFO("* Stopping signal listener...");
-    //         m_signal_listener->stop();
-    //         //m_signal_listener.reset();
-    //     }
-
-    //    if(m_ipc_service) {
-    //        LOGGER_INFO("* Stopping API listener...");
-    //        m_ipc_service->stop();
-    //        m_ipc_service.reset();
-    //    }
-
-    //    api_listener::cleanup();
+    if(m_signal_listener) {
+        LOGGER_INFO("* Stopping signal listener...");
+        m_signal_listener->stop();
+    }
 
     if(m_settings) {
         std::error_code ec;
@@ -581,6 +416,8 @@ server::teardown_and_exit() {
 }
 
 void
-server::shutdown() {}
+server::shutdown() {
+    m_network_engine->stop();
+}
 
 } // namespace scord

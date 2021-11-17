@@ -72,6 +72,10 @@ const file_schema valid_options = declare_file({
                                 keywords::control_socket, opt_type::mandatory,
                                 converter<fs::path>(parsers::parse_path)),
 
+                        declare_option<std::string>(
+                                keywords::transport_protocol,
+                                opt_type::mandatory),
+
                         declare_option<std::string>(keywords::bind_address,
                                                     opt_type::mandatory),
 

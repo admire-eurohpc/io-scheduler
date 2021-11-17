@@ -37,6 +37,7 @@ constexpr static const auto log_file = "log_file";
 constexpr static const auto log_file_max_size = "log_file_max_size";
 constexpr static const auto global_socket = "global_socket";
 constexpr static const auto control_socket = "control_socket";
+constexpr static const auto transport_protocol = "transport_protocol";
 constexpr static const auto bind_address = "bind_address";
 constexpr static const auto remote_port = "remote_port";
 constexpr static const auto pidfile = "pidfile";

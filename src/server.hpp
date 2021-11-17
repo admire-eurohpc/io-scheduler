@@ -27,12 +27,17 @@
 
 #include <memory>
 #include <atomic>
+#include <network/engine.hpp>
 
 namespace scord {
 
 namespace config {
 struct settings;
 } // namespace config
+
+namespace utils {
+struct signal_listener;
+} // namespace utils
 
 class server {
 
@@ -61,17 +66,9 @@ private:
     void
     init_logger();
     void
-    init_event_handlers();
+    install_signal_handlers();
     void
-    init_namespace_manager();
-    void
-    init_task_manager();
-    void
-    load_backend_plugins();
-    void
-    load_transfer_plugins();
-    void
-    load_default_namespaces();
+    install_rpc_handlers();
     void
     check_configuration();
     void
@@ -82,8 +79,9 @@ private:
     print_farewell();
 
 private:
-    std::atomic<bool> m_is_paused;
     std::unique_ptr<config::settings> m_settings;
+    std::unique_ptr<network::engine> m_network_engine;
+    std::unique_ptr<utils::signal_listener> m_signal_listener;
 };
 
 

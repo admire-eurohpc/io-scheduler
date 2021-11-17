@@ -89,6 +89,18 @@ message(
   STATUS "[${PROJECT_NAME}] Transport library: ${SCORD_TRANSPORT_LIBRARY}"
 )
 
+### server transport protocol
+set(SCORD_TRANSPORT_PROTOCOL
+    "tcp"
+    CACHE
+      STRING
+      "Change the default transport protocol for the ${PROJECT_NAME} server (default: tcp)"
+)
+message(
+  STATUS
+    "[${PROJECT_NAME}] server default transport protocol: ${SCORD_TRANSPORT_PROTOCOL}"
+)
+
 ### server bind address
 set(SCORD_BIND_ADDRESS
     "127.0.0.1"

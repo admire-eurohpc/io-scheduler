@@ -22,9 +22,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(utils STATIC)
+add_library(network_engine STATIC)
+target_sources(
+  network_engine
+  INTERFACE engine.hpp
+  PRIVATE rpcs.hpp rpcs.cpp detail/address.hpp
+)
 
-target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-set_property(TARGET utils PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-target_sources(utils PRIVATE utils.hpp utils.cpp signal_listener.hpp)
+target_include_directories(network_engine INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(
+  network_engine PUBLIC logger transport_library Mercury::Mercury
+                        Argobots::Argobots Margo::Margo
+)

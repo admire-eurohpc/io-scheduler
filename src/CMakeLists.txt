@@ -25,6 +25,7 @@
 add_subdirectory(config)
 add_subdirectory(utils)
 add_subdirectory(logger)
+add_subdirectory(network)
 
 add_executable(scord server.cpp main.cpp)
 
@@ -33,13 +34,5 @@ target_include_directories(
 )
 
 target_link_libraries(
-  scord
-  PRIVATE config
-          logger
-          transport_library
-          Mercury::Mercury
-          Argobots::Argobots
-          Margo::Margo
-          fmt::fmt
-          Boost::program_options
+  scord PRIVATE config logger network_engine fmt::fmt Boost::program_options
 )

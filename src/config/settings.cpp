@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <filesystem>
+#include <utility>
 #include "config_schema.hpp"
 #include "defaults.hpp"
 #include "file_options/options_description.hpp"
@@ -36,22 +37,23 @@ namespace scord::config {
 
 settings::settings() = default;
 
-settings::settings(const std::string& progname, bool daemonize, bool use_syslog,
-                   bool use_console, const fs::path& log_file,
-                   const uint32_t log_file_max_size,
-                   const fs::path& global_socket,
-                   const fs::path& control_socket,
-                   const std::string& bind_address, uint32_t remote_port,
-                   const fs::path& pidfile, uint32_t workers,
-                   uint32_t backlog_size, const fs::path& cfgfile,
-                   const std::list<namespace_def>& defns)
-    : m_progname(progname), m_daemonize(daemonize), m_use_syslog(use_syslog),
-      m_use_console(use_console), m_log_file(log_file),
-      m_log_file_max_size(log_file_max_size), m_global_socket(global_socket),
-      m_control_socket(control_socket), m_bind_address(bind_address),
-      m_remote_port(remote_port), m_daemon_pidfile(pidfile),
-      m_workers_in_pool(workers), m_backlog_size(backlog_size),
-      m_config_file(cfgfile), m_default_namespaces(defns) {}
+settings::settings(std::string progname, bool daemonize, bool use_syslog,
+                   bool use_console, fs::path log_file,
+                   const uint32_t log_file_max_size, fs::path global_socket,
+                   fs::path control_socket, std::string transport_protocol,
+                   std::string bind_address, uint32_t remote_port,
+                   fs::path pidfile, uint32_t workers, uint32_t backlog_size,
+                   fs::path cfgfile, std::list<namespace_def> defns)
+    : m_progname(std::move(progname)), m_daemonize(daemonize),
+      m_use_syslog(use_syslog), m_use_console(use_console),
+      m_log_file(std::move(log_file)), m_log_file_max_size(log_file_max_size),
+      m_global_socket(std::move(global_socket)),
+      m_control_socket(std::move(control_socket)),
+      m_transport_protocol(std::move(transport_protocol)),
+      m_bind_address(std::move(bind_address)), m_remote_port(remote_port),
+      m_daemon_pidfile(std::move(pidfile)), m_workers_in_pool(workers),
+      m_backlog_size(backlog_size), m_config_file(std::move(cfgfile)),
+      m_default_namespaces(std::move(defns)) {}
 
 void
 settings::load_defaults() {
@@ -63,6 +65,7 @@ settings::load_defaults() {
     m_log_file_max_size = defaults::log_file_max_size;
     m_global_socket = defaults::global_socket;
     m_control_socket = defaults::control_socket;
+    m_transport_protocol = defaults::transport_protocol;
     m_bind_address = defaults::bind_address;
     m_remote_port = defaults::remote_port;
     m_daemon_pidfile = defaults::pidfile;
@@ -74,7 +77,6 @@ settings::load_defaults() {
 
 void
 settings::load_from_file(const fs::path& filename) {
-
     file_options::options_map opt_map;
     file_options::parse_yaml_file(filename, config::valid_options, opt_map);
 
@@ -97,6 +99,8 @@ settings::load_from_file(const fs::path& filename) {
 
     m_global_socket = gsettings.get_as<fs::path>(keywords::global_socket);
     m_control_socket = gsettings.get_as<fs::path>(keywords::control_socket);
+    m_transport_protocol =
+            gsettings.get_as<std::string>(keywords::transport_protocol);
     m_bind_address = gsettings.get_as<std::string>(keywords::bind_address);
     m_remote_port = gsettings.get_as<uint32_t>(keywords::remote_port);
     m_daemon_pidfile = gsettings.get_as<fs::path>(keywords::pidfile);
@@ -217,6 +221,15 @@ settings::control_socket() const {
 void
 settings::control_socket(const fs::path& control_socket) {
     m_control_socket = control_socket;
+}
+
+std::string
+settings::transport_protocol() const {
+    return m_transport_protocol;
+}
+void
+settings::transport_protocol(const std::string& transport_protocol) {
+    m_transport_protocol = transport_protocol;
 }
 
 std::string

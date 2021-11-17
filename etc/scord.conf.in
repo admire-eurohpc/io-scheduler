@@ -18,6 +18,9 @@ global_settings: [
   # path to pidfile
   pidfile: "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/@CMAKE_PROJECT_NAME@.pid",
 
+  # transport protocol used for communication
+  transport_protocol: "@SCORD_TRANSPORT_PROTOCOL@",
+
   # address to bind to
   bind_address: "@SCORD_BIND_ADDRESS@",
 

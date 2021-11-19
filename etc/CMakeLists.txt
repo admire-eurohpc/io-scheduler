@@ -23,3 +23,16 @@
 ################################################################################
 
 configure_file(scord.conf.in scord.conf)
+
+# install the configuration file to sysconfdir (normally /etc)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/scord.conf
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
+)
+
+# create empty 'scord' directories for logs and pidfiles in the appropriate
+# locations (e.g. /var/run/scord/, /var/log/scord/, etc.
+install(
+  DIRECTORY
+  DESTINATION ${CMAKE_INSTALL_RUNSTATEDIR}/${CMAKE_PROJECT_NAME}
+  DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/log/${CMAKE_PROJECT_NAME}
+)

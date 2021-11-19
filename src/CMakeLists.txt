@@ -36,3 +36,5 @@ target_include_directories(
 target_link_libraries(
   scord PRIVATE config logger network_engine fmt::fmt Boost::program_options
 )
+
+install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

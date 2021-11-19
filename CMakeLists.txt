@@ -74,6 +74,9 @@ include(GNUInstallDirs)
 # Make sure that CMake can find our internal modules
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+# Import some convenience functions
+include(scord-utils)
+
 # ##############################################################################
 # Project configuration options
 # ##############################################################################
@@ -184,6 +187,11 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(spdlog)
+
+### Mark any CMake variables imported from {fmt} and spdlog as advanced, so
+### that they don't appear in cmake-gui or ccmake. Similarly for FETCHCONTENT
+### variables.
+mark_variables_as_advanced(REGEX "^(FETCHCONTENT|fmt|FMT|spdlog|SPDLOG)_.*$")
 
 # ##############################################################################
 # Process subdirectories

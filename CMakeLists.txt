@@ -118,6 +118,8 @@ set(SCORD_BIND_PORT
 )
 message(STATUS "[${PROJECT_NAME}] server bind port: ${SCORD_BIND_PORT}")
 
+option(SCORD_BUILD_EXAMPLES "Build examples (disabled by default)" OFF)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ##############################################################################
@@ -188,3 +190,7 @@ FetchContent_MakeAvailable(spdlog)
 # ##############################################################################
 add_subdirectory(etc)
 add_subdirectory(src)
+
+if(SCORD_BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif()

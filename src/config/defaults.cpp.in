@@ -38,10 +38,6 @@ const bool use_console = false;
 const std::filesystem::path log_file = {};
 const uint32_t log_file_max_size = static_cast<uint32_t>(16 * 1024 * 1024);
 
-const char* global_socket =
-        "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/global.socket.2";
-const char* control_socket =
-        "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/control.socket.2";
 const char* transport_protocol = "ofi+tcp";
 const char* bind_address = "127.0.0.1";
 const in_port_t remote_port = 42000;

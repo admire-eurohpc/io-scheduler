@@ -101,8 +101,7 @@ struct settings {
 
     settings(std::string progname, bool daemonize, bool use_syslog,
              bool use_console, fs::path log_file,
-             const uint32_t log_file_max_size, fs::path global_socket,
-             fs::path control_socket, std::string transport_protocol,
+             const uint32_t log_file_max_size, std::string transport_protocol,
              std::string bind_address, uint32_t remote_port, fs::path pidfile,
              uint32_t workers, uint32_t backlog_size, fs::path cfgfile,
              std::list<namespace_def> defns);
@@ -164,18 +163,6 @@ struct settings {
     void
     log_file_max_size(uint32_t log_file_max_size);
 
-    fs::path
-    global_socket() const;
-
-    void
-    global_socket(const fs::path& global_socket);
-
-    fs::path
-    control_socket() const;
-
-    void
-    control_socket(const fs::path& control_socket);
-
     std::string
     transport_protocol() const;
 
@@ -230,8 +217,6 @@ struct settings {
     bool m_use_console = defaults::use_console;
     fs::path m_log_file = defaults::log_file;
     uint32_t m_log_file_max_size = defaults::log_file_max_size;
-    fs::path m_global_socket = defaults::global_socket;
-    fs::path m_control_socket = defaults::control_socket;
     std::string m_transport_protocol = defaults::transport_protocol;
     std::string m_bind_address = defaults::bind_address;
     in_port_t m_remote_port = defaults::remote_port;

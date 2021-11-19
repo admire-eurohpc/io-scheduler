@@ -39,8 +39,6 @@ extern const bool use_syslog;
 extern const bool use_console;
 extern const fs::path log_file;
 extern const uint32_t log_file_max_size;
-extern const char* global_socket;
-extern const char* control_socket;
 extern const char* transport_protocol;
 extern const char* bind_address;
 extern const in_port_t remote_port;

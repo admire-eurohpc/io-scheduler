@@ -317,8 +317,6 @@ server::print_configuration() {
     }
 
     LOGGER_INFO("  - pidfile: {}", m_settings->pidfile());
-    LOGGER_INFO("  - control socket: {}", m_settings->control_socket());
-    LOGGER_INFO("  - global socket: {}", m_settings->global_socket());
     //    LOGGER_INFO("  - staging directory: {}",
     //    m_settings->staging_directory());
     LOGGER_INFO("  - port for remote requests: {}", m_settings->remote_port());

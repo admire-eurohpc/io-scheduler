@@ -64,14 +64,6 @@ const file_schema valid_options = declare_file({
                                 keywords::log_file_max_size, opt_type::optional,
                                 converter<uint32_t>(parsers::parse_capacity)),
 
-                        declare_option<fs::path>(
-                                keywords::global_socket, opt_type::mandatory,
-                                converter<fs::path>(parsers::parse_path)),
-
-                        declare_option<fs::path>(
-                                keywords::control_socket, opt_type::mandatory,
-                                converter<fs::path>(parsers::parse_path)),
-
                         declare_option<std::string>(
                                 keywords::transport_protocol,
                                 opt_type::mandatory),

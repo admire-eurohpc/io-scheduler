@@ -39,16 +39,14 @@ settings::settings() = default;
 
 settings::settings(std::string progname, bool daemonize, bool use_syslog,
                    bool use_console, fs::path log_file,
-                   const uint32_t log_file_max_size, fs::path global_socket,
-                   fs::path control_socket, std::string transport_protocol,
-                   std::string bind_address, uint32_t remote_port,
-                   fs::path pidfile, uint32_t workers, uint32_t backlog_size,
-                   fs::path cfgfile, std::list<namespace_def> defns)
+                   const uint32_t log_file_max_size,
+                   std::string transport_protocol, std::string bind_address,
+                   uint32_t remote_port, fs::path pidfile, uint32_t workers,
+                   uint32_t backlog_size, fs::path cfgfile,
+                   std::list<namespace_def> defns)
     : m_progname(std::move(progname)), m_daemonize(daemonize),
       m_use_syslog(use_syslog), m_use_console(use_console),
       m_log_file(std::move(log_file)), m_log_file_max_size(log_file_max_size),
-      m_global_socket(std::move(global_socket)),
-      m_control_socket(std::move(control_socket)),
       m_transport_protocol(std::move(transport_protocol)),
       m_bind_address(std::move(bind_address)), m_remote_port(remote_port),
       m_daemon_pidfile(std::move(pidfile)), m_workers_in_pool(workers),
@@ -63,8 +61,6 @@ settings::load_defaults() {
     m_use_console = defaults::use_console;
     m_log_file = defaults::log_file;
     m_log_file_max_size = defaults::log_file_max_size;
-    m_global_socket = defaults::global_socket;
-    m_control_socket = defaults::control_socket;
     m_transport_protocol = defaults::transport_protocol;
     m_bind_address = defaults::bind_address;
     m_remote_port = defaults::remote_port;
@@ -97,8 +93,6 @@ settings::load_from_file(const fs::path& filename) {
                 gsettings.get_as<uint32_t>(keywords::log_file_max_size);
     }
 
-    m_global_socket = gsettings.get_as<fs::path>(keywords::global_socket);
-    m_control_socket = gsettings.get_as<fs::path>(keywords::control_socket);
     m_transport_protocol =
             gsettings.get_as<std::string>(keywords::transport_protocol);
     m_bind_address = gsettings.get_as<std::string>(keywords::bind_address);
@@ -131,9 +125,7 @@ settings::to_string() const {
             ",\n" + "  m_use_console: " + (m_use_console ? "true" : "false") +
             ",\n" + "  m_log_file: " + m_log_file.string() + ",\n" +
             "  m_log_file_max_size: " + std::to_string(m_log_file_max_size) +
-            ",\n" + "  m_global_socket: " + m_global_socket.string() + ",\n" +
-            "  m_control_socket: " + m_control_socket.string() + ",\n" +
-            "  m_bind_address: " + m_bind_address + ",\n" +
+            ",\n" + "  m_bind_address: " + m_bind_address + ",\n" +
             "  m_remote_port: " + std::to_string(m_remote_port) + ",\n" +
             "  m_pidfile: " + m_daemon_pidfile.string() + ",\n" +
             "  m_workers: " + std::to_string(m_workers_in_pool) + ",\n" +
@@ -201,26 +193,6 @@ settings::log_file_max_size() const {
 void
 settings::log_file_max_size(uint32_t log_file_max_size) {
     m_log_file_max_size = log_file_max_size;
-}
-
-fs::path
-settings::global_socket() const {
-    return m_global_socket;
-}
-
-void
-settings::global_socket(const fs::path& global_socket) {
-    m_global_socket = global_socket;
-}
-
-fs::path
-settings::control_socket() const {
-    return m_control_socket;
-}
-
-void
-settings::control_socket(const fs::path& control_socket) {
-    m_control_socket = control_socket;
 }
 
 std::string

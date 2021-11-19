@@ -7,16 +7,10 @@ global_settings: [
   use_syslog: false,
 
   # log file
-  log_file: "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/@CMAKE_PROJECT_NAME@.log",
-
-  # path to globally-accessible socket
-  global_socket: "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/global.socket.2",
-
-  # path to admin-accessible socket
-  control_socket: "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/control.socket.2",
+  log_file: "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/@CMAKE_PROJECT_NAME@/@CMAKE_PROJECT_NAME@.log",
 
   # path to pidfile
-  pidfile: "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/@CMAKE_PROJECT_NAME@.pid",
+  pidfile: "@CMAKE_INSTALL_FULL_RUNSTATEDIR@/@CMAKE_PROJECT_NAME@/@CMAKE_PROJECT_NAME@.pid",
 
   # transport protocol used for communication
   transport_protocol: "@SCORD_TRANSPORT_PROTOCOL@",

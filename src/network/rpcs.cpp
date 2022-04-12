@@ -38,3 +38,13 @@ ping(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ping);
+
+int 
+ADM_input(std::string origin,  std::string target){
+    if (origin !=null && target !=null):
+        return 1;
+    else:
+        return 0;
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_input)

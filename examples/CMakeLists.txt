@@ -26,3 +26,8 @@ add_executable(ping)
 target_sources(ping PRIVATE ping.cpp)
 
 target_link_libraries(ping PUBLIC network_engine fmt::fmt)
+
+add_executable(ADM_input)
+target_sources(ADM_input PRIVATE ADM_input.cpp)
+
+target_link_libraries(ADM_input PUBLIC network_engine fmt::fmt)

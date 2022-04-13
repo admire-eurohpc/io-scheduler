@@ -26,6 +26,9 @@
 #define SCORD_NETWORK_RPCS_HPP
 
 #include <margo.h>
+#include <mercury.h>
+#include <mercury_macros.h>
+#include <mercury_proc_string.h> 
 #include <logger.hpp>
 
 // FIXME: cannot be in a namespace due to Margo limitations
@@ -34,7 +37,14 @@
 /// ping
 DECLARE_MARGO_RPC_HANDLER(ping);
 
-DEFINE_MARGO_RPC_HANDLER(ADM_input);
+/// ADM_input
+MERCURY_GEN_PROC(ADM_input_in_t,
+        ((hg_const_string_t)(origin))\
+        ((hg_const_string_t)(target)))
+
+MERCURY_GEN_PROC(ADM_input_out_t, ((int32_t)(ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_input);
 
 //} // namespace scord::network::rpc
 

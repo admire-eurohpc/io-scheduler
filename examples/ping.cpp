@@ -41,7 +41,7 @@ main(int argc, char* argv[]) {
 
     fmt::print(stdout, "Calling PING remote procedure on {}...\n", argv[1]);
 
-    endp.call("ping");
+    endp.call("ping", nullptr, nullptr);
 
     fmt::print(stdout, "PING remote procedure completed successfully\n");
 }

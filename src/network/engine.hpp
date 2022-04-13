@@ -91,6 +91,11 @@ struct engine {
 
         // register RPCs manually for now
         m_context->register_rpc("ping", false);
+
+        // We do it manually, as it needs some work to do it automatically
+        auto id = MARGO_REGISTER(m_context->m_mid, "ADM_input", ADM_input_in_t, ADM_input_out_t, ADM_input);
+        m_context->m_rpc_names.emplace("ADM_input", id);
+    
     }
 
     void
@@ -138,9 +143,9 @@ public:
     endpoint&
     operator=(endpoint&& /*rhs*/) = default;
 
-    template <typename... Args>
+   
     void
-    call(const std::string& id, Args&&... args) {
+    call(const std::string& id, void* input, void *output) {
 
         const auto it = m_margo_context->m_rpc_names.find(id);
 
@@ -159,12 +164,16 @@ public:
                                 ::HG_Error_to_string(ret)));
         }
 
-        ret = ::margo_forward(handle, nullptr);
+        ret = ::margo_forward(handle, input);
 
         if(ret != HG_SUCCESS) {
             throw std::runtime_error(
                     fmt::format("Error during endpoint::call(): {}",
                                 ::HG_Error_to_string(ret)));
+        }
+
+        if (output != nullptr ) {
+            margo_get_output(handle, &output);
         }
 
         ret = ::margo_destroy(handle);

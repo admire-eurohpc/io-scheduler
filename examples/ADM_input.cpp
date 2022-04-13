@@ -13,10 +13,9 @@ main(int argc, char* argv[]) {
     scord::network::rpc_client rpc_client{"tcp"};
     rpc_client.register_rpcs();
 
-    auto endp = rpc_client.lookup(argv[1]);
+    auto endp = rpc_client.lookup(argv[1], argv[2]);
 
-    fmt::print(stdout, "Calling ADM_input remote procedure on {}...\n", argv[1]);
-
+    fmt::print(stdout, "Calling ADM_input remote procedure on {} -> {}...\n", argv[1], argv[2]);
     endp.call("ADM_input");
 
     fmt::print(stdout, "ADM_input remote procedure completed successfully\n");

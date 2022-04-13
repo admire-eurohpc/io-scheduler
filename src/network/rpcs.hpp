@@ -34,7 +34,7 @@
 /// ping
 DECLARE_MARGO_RPC_HANDLER(ping);
 
-DEFINE_MARGO_RPC_HANDLER(ADM_input);
+DECLARE_MARGO_RPC_HANDLER(ADM_input);
 
 //} // namespace scord::network::rpc
 

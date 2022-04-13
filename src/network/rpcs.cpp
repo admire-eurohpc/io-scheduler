@@ -39,12 +39,19 @@ ping(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ping);
 
-int 
-ADM_input(std::string origin,  std::string target){
-    if (origin !=null && target !=null):
+static void 
+ADM_input(hg_handle_t h, std::string origin,  std::string target){
+    hg_return_t ret;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    
+    if (!origin.empty() && !target.empty()):
         return 1;
     else:
         return 0;
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_input)

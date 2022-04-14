@@ -66,6 +66,14 @@ MERCURY_GEN_PROC(ADM_inout_out_t, ((int32_t)(ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_inout);
 
+/// ADM_adhoc_nodes
+
+MERCURY_GEN_PROC(ADM_adhoc_nodes_in_t,
+        ((hg_const_string_t)(nodes)))
+
+MERCURY_GEN_PROC(ADM_adhoc_nodes_out_t, ((int32_t)(ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_nodes);
 
 //} // namespace scord::network::rpc
 

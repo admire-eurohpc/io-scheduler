@@ -155,3 +155,48 @@ ADM_inout(hg_handle_t h){
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_inout)
+
+
+static void 
+ADM_adhoc_nodes(hg_handle_t h){
+    hg_return_t ret;
+
+    ADM_adhoc_nodes_in_t in;
+    ADM_adhoc_nodes_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_adhoc_nodes");
+    LOGGER_INFO("remote_procedure::ADM_adhoc_nodes({})",
+                in.nodes);
+
+    if (in.nodes!=nullptr){
+       out.ret = true;
+        LOGGER_INFO("remote_procedure::ADM_adhoc_nodes not null ({})",
+                in.nodes);
+    }
+    else {
+       out.ret = false;
+       LOGGER_INFO("remote_procedure::ADM_adhoc_nodes null ({})",
+                in.nodes);
+    }
+
+    /*Specifies the number of nodes for the Ad hoc Storage System. If the
+    ADM_adhoc_execution_mode is shared, the number cannot exceed the number of allocated
+    nodes within the compute job. If the ADM_adhoc_execution_mode is dedicated, the number
+    of nodes is not restricted. Should this be checked now? */
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_nodes)

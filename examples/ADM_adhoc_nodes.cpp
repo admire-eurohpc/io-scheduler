@@ -18,7 +18,7 @@ main(int argc, char* argv[]) {
 
     fmt::print(stdout, "Calling ADM_adhoc_nodes remote procedure on {} -> node numbers: {} ...\n", argv[1], argv[2]);
     ADM_adhoc_nodes_in_t in;
-    in.n_nodes = argv[2];
+    in.nodes = argv[2];
     ADM_adhoc_nodes_out_t out;
 
     endp.call("ADM_adhoc_nodes",&in, &out);

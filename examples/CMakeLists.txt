@@ -46,3 +46,9 @@ add_executable(ADM_adhoc_nodes)
 target_sources(ADM_adhoc_nodes PRIVATE ADM_adhoc_nodes.cpp)
 
 target_link_libraries(ADM_adhoc_nodes PUBLIC network_engine fmt::fmt)
+
+add_executable(ADM_adhoc_access)
+target_sources(ADM_adhoc_access PRIVATE ADM_adhoc_access.cpp)
+
+target_link_libraries(ADM_adhoc_access PUBLIC network_engine fmt::fmt)
+

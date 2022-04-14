@@ -36,3 +36,8 @@ add_executable(ADM_output)
 target_sources(ADM_output PRIVATE ADM_output.cpp)
 
 target_link_libraries(ADM_output PUBLIC network_engine fmt::fmt)
+
+add_executable(ADM_inout)
+target_sources(ADM_inout PRIVATE ADM_inout.cpp)
+
+target_link_libraries(ADM_inout PUBLIC network_engine fmt::fmt)

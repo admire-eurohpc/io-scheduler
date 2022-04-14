@@ -46,6 +46,17 @@ MERCURY_GEN_PROC(ADM_input_out_t, ((int32_t)(ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_input);
 
+/// ADM_input
+
+MERCURY_GEN_PROC(ADM_output_in_t,
+        ((hg_const_string_t)(origin))\
+        ((hg_const_string_t)(target)))
+
+MERCURY_GEN_PROC(ADM_output_out_t, ((int32_t)(ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_output);
+
+
 //} // namespace scord::network::rpc
 
 #endif // SCORD_NETWORK_RPCS_HPP

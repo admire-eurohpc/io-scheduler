@@ -77,3 +77,42 @@ ADM_input(hg_handle_t h){
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_input)
+
+static void 
+ADM_output(hg_handle_t h){
+    hg_return_t ret;
+
+    ADM_output_in_t in;
+    ADM_output_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_output");
+    LOGGER_INFO("remote_procedure::ADM_output({},{})",
+                in.origin, in.target);
+
+    if (in.origin!=nullptr && in.target!=nullptr){
+       out.ret = true;
+        LOGGER_INFO("remote_procedure::ADM_output not null ({},{})",
+                in.origin, in.target);
+    }
+    else {
+       out.ret = false;
+       LOGGER_INFO("remote_procedure::ADM_output null ({},{})",
+                in.origin, in.target);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_output)

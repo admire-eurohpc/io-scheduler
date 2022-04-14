@@ -16,7 +16,7 @@ main(int argc, char* argv[]) {
 
     auto endp = rpc_client.lookup(argv[1]);
 
-    fmt::print(stdout, "Calling ADM_adhoc_access remote procedure on {} -> node numbers: {} ...\n", argv[1], argv[2]);
+    fmt::print(stdout, "Calling ADM_adhoc_access remote procedure on {} -> access method: {} ...\n", argv[1], argv[2]);
     ADM_adhoc_access_in_t in;
     in.access = argv[2];
     ADM_adhoc_access_out_t out;

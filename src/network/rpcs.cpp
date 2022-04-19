@@ -290,3 +290,72 @@ ADM_adhoc_access(hg_handle_t h){
 }
  
 DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_access)
+
+/**
+ * Specifies the execution_mode an Ad hoc Storage System should use. Valid options: in_job:shared (run while 
+ * sharing the application’s compute nodes), in_job:dedicated (run using a subset of the application’s 
+ * compute nodes), separate:new (ask the system to allocate a separate job with separate runtime and
+ * number of nodes) and separate:existing (ask the system to reuse an already running Ad hoc Storage System instance). 
+ * The number of nodes assigned for the Ad hoc Storage System must be specified with ADM_adhoc_nodes. 
+ * In the separate:new execution_mode, the lifetime of the Ad hoc Storage System will be controlled with 
+ * ADM_adhoc_walltime. In the separate:existing execution_mode, a valid context ID must be provided with 
+ * ADM_adhoc_context_id
+ *
+ * @param in.context A valid execution_mode describing how the Ad hoc Storage System should behave.
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ * @return out.adhoc_context_id A number that identifies the context.
+
+ */
+static void 
+ADM_adhoc_context(hg_handle_t h){
+    hg_return_t ret;
+
+    ADM_adhoc_context_in_t in;
+    ADM_adhoc_context_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_adhoc_context");
+    LOGGER_INFO("remote_procedure::ADM_adhoc_context({})",
+                in.context);
+
+    if (in.context!=nullptr){
+       out.ret = true;
+        LOGGER_INFO("remote_procedure::ADM_adhoc_context not null ({})",
+                in.context);
+    }
+    else {
+       out.ret = false;
+       LOGGER_INFO("remote_procedure::ADM_adhoc_context null or invalid ({}). Please use",
+                in.context);
+       out.adhoc_context_id = -1
+    }
+
+    if (in.context == "in_job:shared" || in.context == "in_job:dedicated" || in.context == "separate:new" 
+        || in.context == "separate:existing"){
+       out.ret = true;
+        LOGGER_INFO("remote_procedure::ADM_adhoc_context value is acceptable ({})",
+                in.context);
+       out.adhoc_context_id = rand()
+    }
+    else {
+       out.ret = false;
+       LOGGER_INFO("remote_procedure::ADM_adhoc_context is not valid. Please use: in_job:shared, 
+                    in_job:dedicated, separate:new or separate:existing", in.context);
+       out.adhoc_context_id = -1
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+ 
+DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_context)

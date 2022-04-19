@@ -206,7 +206,7 @@ ADM_adhoc_nodes(hg_handle_t h){
     LOGGER_INFO("remote_procedure::ADM_adhoc_nodes({})",
                 in.nodes);
 
-    if (in.nodes!=nullptr){
+    if (in.nodes > 0){
        out.ret = true;
         LOGGER_INFO("remote_procedure::ADM_adhoc_nodes not null ({})",
                 in.nodes);
@@ -278,7 +278,6 @@ ADM_adhoc_access(hg_handle_t h){
        LOGGER_INFO("remote_procedure::ADM_adhoc_access is not valid. Please use: write-only, read-only or read-write",
                 in.access);
     }
-
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

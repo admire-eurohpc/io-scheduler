@@ -18,7 +18,14 @@ main(int argc, char* argv[]) {
 
     fmt::print(stdout, "Calling ADM_adhoc_nodes remote procedure on {} -> node numbers: {} ...\n", argv[1], argv[2]);
     ADM_adhoc_nodes_in_t in;
-    in.nodes = argv[2];
+
+    try {
+        in.nodes = stoi(argv[2]);
+    } catch (const std::exception& e) {
+        fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
+        exit(EXIT_FAILURE);
+    }
+    
     ADM_adhoc_nodes_out_t out;
 
     endp.call("ADM_adhoc_nodes",&in, &out);

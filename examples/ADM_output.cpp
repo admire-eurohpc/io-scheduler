@@ -25,5 +25,9 @@ main(int argc, char* argv[]) {
 
     endp.call("ADM_output",&in, &out);
 
-    fmt::print(stdout, "ADM_output remote procedure completed successfully\n");
+    if (out.ret == true){
+        fmt::print(stdout, "ADM_output remote procedure completed successfully\n");
+    }else{
+        fmt::print(stdout, "ADM_output remote procedure not completed successfully\n");
+    }
 }

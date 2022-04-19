@@ -1,9 +1,3 @@
-/* preguntar com es fa perque hereda altres RCPs: --nodes  --ADM_adhoc_nodes --ADM_adhoc_context --ADM_adhoc_context_id
-
-# em va dir: O este otro, similar, solo que execution_mode es una cadena que ha de ser una de las 4 que se definen, y en este caso se devuelve un valor en el RPC (adhoc_context_id). En este caso si que 
-#hay una implementación mínima, pero simplemente que adhoc_context_id  sea un número aleatorio y se compruebe que la entrada es correcta 
-# s'ha de fer return de dos coses ara*/
-
 #include <fmt/format.h>
 #include <engine.hpp>
 

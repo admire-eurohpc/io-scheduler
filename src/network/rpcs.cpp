@@ -39,6 +39,14 @@ ping(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ping);
 
+/**
+ * Specifes the origin location in a storage tier where input is located, as well as the target location 
+ * where it should be placed in a different storage tier.
+ *
+ * @param in.origin An origin location for the source dataset.
+ * @param in.target A target location for the destination dataset.
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ */
 static void 
 ADM_input(hg_handle_t h){
     hg_return_t ret;
@@ -78,6 +86,14 @@ ADM_input(hg_handle_t h){
 
 DEFINE_MARGO_RPC_HANDLER(ADM_input)
 
+/**
+ * Specifies the origin location in a storage tier where output is located, as well as the target location
+ * where it should be placed in a different storage tier.
+ *
+ * @param in.origin An origin location for the source dataset.
+ * @param in.target A target location for the destination dataset.
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ */
 static void 
 ADM_output(hg_handle_t h){
     hg_return_t ret;
@@ -117,6 +133,15 @@ ADM_output(hg_handle_t h){
 
 DEFINE_MARGO_RPC_HANDLER(ADM_output)
 
+/**
+ * Specifies both the input and output locations in a storage tier. This combines both ADM_input and 
+ * ADM_output for user convenience: the input data provided by origin is overwritten by the output 
+ * data generated at target.
+ *
+ * @param in.origin An origin location for the source dataset.
+ * @param in.target A target location for the destination dataset.
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ */
 static void 
 ADM_inout(hg_handle_t h){
     hg_return_t ret;
@@ -156,7 +181,15 @@ ADM_inout(hg_handle_t h){
 
 DEFINE_MARGO_RPC_HANDLER(ADM_inout)
 
-
+/**
+ * Specifies the number of nodes for the Ad hoc Storage System. If the 
+ * ADM_adhoc_execution_mode is shared, the number cannot exceed the number of allocated 
+ * nodes within the compute job. If the ADM_adhoc_execution_mode is dedicated, the number 
+ * of nodes is not restricted.
+ *
+ * @param in.number_of_nodes The desired number_of_nodes.
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ */
 static void 
 ADM_adhoc_nodes(hg_handle_t h){
     hg_return_t ret;
@@ -201,7 +234,13 @@ ADM_adhoc_nodes(hg_handle_t h){
 
 DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_nodes)
 
-
+/**
+ * Specifies access to the ad hoc storage system: write-only, read-only, read-write. Cannot 
+ * be used when using an existing Ad hoc Storage System instance.
+ *
+ * @param in.access The desired access method
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ */
 static void 
 ADM_adhoc_access(hg_handle_t h){
     hg_return_t ret;
@@ -250,5 +289,5 @@ ADM_adhoc_access(hg_handle_t h){
     ret = margo_destroy(h);
     assert(ret == HG_SUCCESS);
 }
-
+ 
 DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_access)

@@ -363,7 +363,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_context)
 /**
  * Specifies an existing Ad hoc Storage System to use via its ID.
  *
- * @param in.context_id A valid context_id for a separate instance of an Ad hoc Storage System
+ * @param in.context_id A valid context_id for a separate instance of an Ad hoc Storage System.
  * @return out.ret Returns if the remote procedure has been completed successfully or not.
  */
 static void 
@@ -404,3 +404,49 @@ ADM_adhoc_context_id(hg_handle_t h){
 }
  
 DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_context_id)
+
+/**
+ * Specifies for how long the ad hoc storage system should run before should down. Only relevant in the 
+ * context of the ADM_adhoc_context function.
+ *
+ * @param in.walltime The desired walltime in minutes.
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ */
+static void 
+ADM_adhoc_walltime(hg_handle_t h){
+    hg_return_t ret;
+
+    ADM_adhoc_walltime_in_t in;
+    ADM_adhoc_walltime_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_adhoc_walltime");
+    LOGGER_INFO("remote_procedure::ADM_adhoc_walltime({})",
+                in.walltime);
+
+    if (in.walltime >= 0){
+       out.ret = true;
+        LOGGER_INFO("remote_procedure::ADM_adhoc_walltime not null ({})",
+                in.walltime);
+    }
+    else {
+       out.ret = false;
+       LOGGER_INFO("remote_procedure::ADM_adhoc_walltime null or invalid ({}). Please use",
+                in.walltime);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+ 
+DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_walltime)

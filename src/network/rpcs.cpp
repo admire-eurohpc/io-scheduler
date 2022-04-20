@@ -496,3 +496,49 @@ ADM_adhoc_distribution(hg_handle_t h){
 }
  
 DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_distribution)
+
+/**
+ * Specifies if data in the output location should be moved to the shared backend storage system in the
+ * background (default false).
+ *
+ * @param in.b_flush A boolean enabling or disabling the option.
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ */
+static void 
+ADM_adhoc_background_flush(hg_handle_t h){
+    hg_return_t ret;
+
+    ADM_adhoc_background_flush_in_t in;
+    ADM_adhoc_background_flush_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_adhoc_background_flush");
+    LOGGER_INFO("remote_procedure::ADM_adhoc_background_flush({})",
+                in.b_flush);
+
+    if (in.b_flush == true || in.b_flush == false){
+       out.ret = true;
+        LOGGER_INFO("remote_procedure::ADM_adhoc_background_flush not null ({})",
+                in.b_flush);
+    }
+    else {
+       out.ret = false;
+       LOGGER_INFO("remote_procedure::ADM_adhoc_background_flush null ({})",
+                in.b_flush);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_background_flush)

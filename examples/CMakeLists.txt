@@ -72,3 +72,8 @@ target_sources(ADM_adhoc_distribution PRIVATE ADM_adhoc_distribution.cpp)
 
 target_link_libraries(ADM_adhoc_distribution PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_adhoc_background_flush)
+target_sources(ADM_adhoc_background_flush PRIVATE ADM_adhoc_background_flush.cpp)
+
+target_link_libraries(ADM_adhoc_background_flush PUBLIC network_engine fmt::fmt)
+

@@ -450,3 +450,49 @@ ADM_adhoc_walltime(hg_handle_t h){
 }
  
 DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_walltime)
+
+/**
+ * Specifies the data distribution within the ad hoc storage system, e.g., wide-striping, local, 
+ * local-data-global-metadata.
+ *
+ * @param in.data_distribution The desired data distribution
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ */
+static void 
+ADM_adhoc_distribution(hg_handle_t h){
+    hg_return_t ret;
+
+    ADM_adhoc_distribution_in_t in;
+    ADM_adhoc_distribution_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_adhoc_distribution");
+    LOGGER_INFO("remote_procedure::ADM_adhoc_distribution({})",
+                in.data_distribution);
+
+    if (in.data_distribution!=nullptr){
+       out.ret = true;
+        LOGGER_INFO("remote_procedure::ADM_adhoc_distribution not null ({})",
+                in.data_distribution);
+    }
+    else {
+       out.ret = false;
+       LOGGER_INFO("remote_procedure::ADM_adhoc_distribution null or invalid ({}). Please use",
+                in.data_distribution);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+ 
+DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_distribution)

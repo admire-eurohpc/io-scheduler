@@ -114,7 +114,14 @@ MERCURY_GEN_PROC(ADM_adhoc_walltime_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_walltime);
 
+/// ADM_adhoc_distribution
 
+MERCURY_GEN_PROC(ADM_adhoc_distribution_in_t,
+        ((hg_const_string_t)(data_distribution)))
+
+MERCURY_GEN_PROC(ADM_adhoc_distribution_out_t, ((int32_t)(ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_distribution);
 
 //} // namespace scord::network::rpc
 

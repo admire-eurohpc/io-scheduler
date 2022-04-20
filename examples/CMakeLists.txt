@@ -67,3 +67,8 @@ target_sources(ADM_adhoc_walltime PRIVATE ADM_adhoc_walltime.cpp)
 
 target_link_libraries(ADM_adhoc_walltime PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_adhoc_distribution)
+target_sources(ADM_adhoc_distribution PRIVATE ADM_adhoc_distribution.cpp)
+
+target_link_libraries(ADM_adhoc_distribution PUBLIC network_engine fmt::fmt)
+

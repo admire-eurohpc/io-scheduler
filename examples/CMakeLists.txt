@@ -57,3 +57,8 @@ target_sources(ADM_adhoc_context PRIVATE ADM_adhoc_context.cpp)
 
 target_link_libraries(ADM_adhoc_context PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_adhoc_context_id)
+target_sources(ADM_adhoc_context_id PRIVATE ADM_adhoc_context_id.cpp)
+
+target_link_libraries(ADM_adhoc_context_id PUBLIC network_engine fmt::fmt)
+

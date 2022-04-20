@@ -382,7 +382,7 @@ ADM_adhoc_context_id(hg_handle_t h){
     LOGGER_INFO("remote_procedure::ADM_adhoc_context_id({})",
                 in.context_id);
 
-    if (in.context_id!=nullptr){
+    if (in.context_id >= 0){
        out.ret = true;
         LOGGER_INFO("remote_procedure::ADM_adhoc_context_id not null ({})",
                 in.context_id);

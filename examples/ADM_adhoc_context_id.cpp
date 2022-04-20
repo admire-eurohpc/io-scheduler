@@ -18,7 +18,14 @@ main(int argc, char* argv[]) {
 
     fmt::print(stdout, "Calling ADM_adhoc_context_id remote procedure on {} -> access method: {} ...\n", argv[1], argv[2]);
     ADM_adhoc_context_id_in_t in;
-    in.context_id = argv[2];
+
+    try {
+        in.context_id = stoi(argv[2]);
+    } catch (const std::exception& e) {
+        fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
+        exit(EXIT_FAILURE);
+    }
+
     ADM_adhoc_context_id_out_t out;
 
     endp.call("ADM_adhoc_context_id",&in, &out);

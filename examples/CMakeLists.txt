@@ -77,3 +77,8 @@ target_sources(ADM_adhoc_background_flush PRIVATE ADM_adhoc_background_flush.cpp
 
 target_link_libraries(ADM_adhoc_background_flush PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_in_situ_ops)
+target_sources(ADM_in_situ_ops PRIVATE ADM_in_situ_ops.cpp)
+
+target_link_libraries(ADM_in_situ_ops PUBLIC network_engine fmt::fmt)
+

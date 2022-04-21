@@ -90,7 +90,8 @@ MERCURY_GEN_PROC(ADM_adhoc_context_in_t,
         ((hg_const_string_t)(context)))
 
 MERCURY_GEN_PROC(ADM_adhoc_context_out_t, 
-        ((int32_t)(ret)), ((int32_t)(adhoc_context)))
+                ((int32_t)(ret))\
+                ((int32_t)(adhoc_context)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_context);
 

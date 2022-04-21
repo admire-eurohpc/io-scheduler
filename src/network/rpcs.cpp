@@ -62,14 +62,14 @@ ADM_input(hg_handle_t h){
     LOGGER_INFO("LOADED ADM_input");
     LOGGER_INFO("remote_procedure::ADM_input({},{})",
                 in.origin, in.target);
-
+out.ret = 0;
     if (in.origin!=nullptr && in.target!=nullptr){
-       out.ret = true;
+       out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_input not null ({},{})",
                 in.origin, in.target);
     }
     else {
-       out.ret = false;
+       out.ret = -1;
        LOGGER_INFO("remote_procedure::ADM_input null ({},{})",
                 in.origin, in.target);
     }
@@ -321,7 +321,7 @@ ADM_adhoc_context(hg_handle_t h){
     LOGGER_INFO("LOADED ADM_adhoc_context");
     LOGGER_INFO("remote_procedure::ADM_adhoc_context({})",
                 in.context);
-
+                
     if (in.context!=nullptr){
        out.ret = true;
         LOGGER_INFO("remote_procedure::ADM_adhoc_context not null ({})",
@@ -331,21 +331,20 @@ ADM_adhoc_context(hg_handle_t h){
        out.ret = false;
        LOGGER_INFO("remote_procedure::ADM_adhoc_context null or invalid ({}). Please use",
                 in.context);
-       out.adhoc_context = -1
+       out.adhoc_context = -1;
     }
 
     if (in.context == "in_job:shared" || in.context == "in_job:dedicated" || in.context == "separate:new" 
         || in.context == "separate:existing"){
-       out.ret = true;
-        LOGGER_INFO("remote_procedure::ADM_adhoc_context value is acceptable ({})",
-                in.context);
-       out.adhoc_context = rand()
+         out.ret = true;
+         LOGGER_INFO("remote_procedure::ADM_adhoc_context value is acceptable ({})",
+                  in.context); 
+         out.adhoc_context = rand();
     }
     else {
-       out.ret = false;
-       LOGGER_INFO("remote_procedure::ADM_adhoc_context is not valid. Please use: in_job:shared, 
-                    in_job:dedicated, separate:new or separate:existing", in.context);
-       out.adhoc_context = -1
+         out.ret = false;
+         LOGGER_INFO("remote_procedure::ADM_adhoc_context is not valid. Please use: in_job:shared, in_job:dedicated, separate:new or separate:existing ({})", in.context);
+         out.adhoc_context = -1;
     }
 
     ret = margo_respond(h, &out);
@@ -587,4 +586,3 @@ ADM_in_situ_ops(hg_handle_t h){
 }
  
 DEFINE_MARGO_RPC_HANDLER(ADM_in_situ_ops)
-

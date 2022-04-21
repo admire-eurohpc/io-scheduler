@@ -173,7 +173,7 @@ public:
         }
 
         if (output != nullptr ) {
-            margo_get_output(handle, &output);
+            margo_get_output(handle, output);
         }
 
         ret = ::margo_destroy(handle);

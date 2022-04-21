@@ -25,7 +25,7 @@ main(int argc, char* argv[]) {
 
     auto endp = rpc_client.lookup(argv[1]);
 
-    fmt::print(stdout, "Calling ADM_adhoc_background_flush remote procedure on {} -> node numbers: {} ...\n", argv[1], argv[2]);
+    fmt::print(stdout, "Calling ADM_adhoc_background_flush remote procedure on {} -> flush true/false: {} ...\n", argv[1], argv[2]);
     ADM_adhoc_background_flush_in_t in;
 
     try {

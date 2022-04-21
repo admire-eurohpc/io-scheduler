@@ -95,6 +95,12 @@ struct engine {
         // We do it manually, as it needs some work to do it automatically
         auto id = MARGO_REGISTER(m_context->m_mid, "ADM_input", ADM_input_in_t, ADM_input_out_t, ADM_input);
         m_context->m_rpc_names.emplace("ADM_input", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_output", ADM_output_in_t, ADM_output_out_t, ADM_output);
+        m_context->m_rpc_names.emplace("ADM_output", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_inout", ADM_inout_in_t, ADM_inout_out_t, ADM_inout);
+        m_context->m_rpc_names.emplace("ADM_inout", id);
     
     }
 

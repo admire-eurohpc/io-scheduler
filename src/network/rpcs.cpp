@@ -62,8 +62,8 @@ ADM_input(hg_handle_t h){
     LOGGER_INFO("LOADED ADM_input");
     LOGGER_INFO("remote_procedure::ADM_input({},{})",
                 in.origin, in.target);
-out.ret = 0;
-    if (in.origin!=nullptr && in.target!=nullptr){
+
+    if (in.origin != nullptr && in.target != nullptr){
        out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_input not null ({},{})",
                 in.origin, in.target);
@@ -110,13 +110,13 @@ ADM_output(hg_handle_t h){
     LOGGER_INFO("remote_procedure::ADM_output({},{})",
                 in.origin, in.target);
 
-    if (in.origin!=nullptr && in.target!=nullptr){
-       out.ret = true;
+    if (in.origin != nullptr && in.target != nullptr){
+       out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_output not null ({},{})",
                 in.origin, in.target);
     }
     else {
-       out.ret = false;
+       out.ret = -1;
        LOGGER_INFO("remote_procedure::ADM_output null ({},{})",
                 in.origin, in.target);
     }
@@ -158,13 +158,13 @@ ADM_inout(hg_handle_t h){
     LOGGER_INFO("remote_procedure::ADM_inout({},{})",
                 in.origin, in.target);
 
-    if (in.origin!=nullptr && in.target!=nullptr){
-       out.ret = true;
+    if (in.origin != nullptr && in.target != nullptr){
+       out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_inout not null ({},{})",
                 in.origin, in.target);
     }
     else {
-       out.ret = false;
+       out.ret = -1;
        LOGGER_INFO("remote_procedure::ADM_inout null ({},{})",
                 in.origin, in.target);
     }

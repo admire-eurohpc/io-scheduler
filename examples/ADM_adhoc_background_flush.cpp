@@ -1,15 +1,16 @@
 #include <fmt/format.h>
 #include <engine.hpp>
 
-bool 
+int
 String2Convert(std::string var){   
-    if(var == "true" || var = "TRUE")      
-        return true;   
-    else if(var == "false" || var = "FALSE")      
-        return false;    
+    if(var == "true" || var == "TRUE"){     
+        return 0;   
+    }else if(var == "false" || var == "FALSE"){
+        return 1;    
     }else{
-        exit(EXIT_FAILURE);
+        return -1;
     }
+}
 
 int
 main(int argc, char* argv[]) {
@@ -31,7 +32,7 @@ main(int argc, char* argv[]) {
     try {
         in.b_flush = String2Convert(argv[2]);
     } catch (const std::exception& e) {
-        fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
+        fmt::print(stdout, "ERROR: Incorrect input value. Please try again.\n");
         exit(EXIT_FAILURE);
     }
     
@@ -39,9 +40,9 @@ main(int argc, char* argv[]) {
 
     endp.call("ADM_adhoc_background_flush",&in, &out);
 
-    if (out.ret == true){
-        fmt::print(stdout, "ADM_adhoc_background_flush remote procedure completed successfully\n");
-    }else{
+    if (out.ret < 0){
         fmt::print(stdout, "ADM_adhoc_background_flush remote procedure not completed successfully\n");
+    }else{
+        fmt::print(stdout, "ADM_adhoc_background_flush remote procedure completed successfully\n");
     }
 }

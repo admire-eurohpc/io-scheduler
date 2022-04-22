@@ -101,7 +101,10 @@ struct engine {
 
         id = MARGO_REGISTER(m_context->m_mid, "ADM_inout", ADM_inout_in_t, ADM_inout_out_t, ADM_inout);
         m_context->m_rpc_names.emplace("ADM_inout", id);
-    
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_context", ADM_adhoc_context_in_t, ADM_adhoc_context_out_t, ADM_adhoc_context);
+        m_context->m_rpc_names.emplace("ADM_adhoc_context", id);   
+        
     }
 
     void

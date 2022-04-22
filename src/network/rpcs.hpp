@@ -66,6 +66,17 @@ MERCURY_GEN_PROC(ADM_inout_out_t, ((int32_t)(ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_inout);
 
+/// ADM_adhoc_context
+
+MERCURY_GEN_PROC(ADM_adhoc_context_in_t,
+        ((hg_const_string_t)(context)))
+
+MERCURY_GEN_PROC(ADM_adhoc_context_out_t, 
+                ((int32_t)(ret))\
+                ((int32_t)(adhoc_context)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_context);
+
 /// ADM_adhoc_nodes
 
 MERCURY_GEN_PROC(ADM_adhoc_nodes_in_t,
@@ -83,17 +94,6 @@ MERCURY_GEN_PROC(ADM_adhoc_access_in_t,
 MERCURY_GEN_PROC(ADM_adhoc_access_out_t, ((int32_t)(ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_access);
-
-/// ADM_adhoc_context
-
-MERCURY_GEN_PROC(ADM_adhoc_context_in_t,
-        ((hg_const_string_t)(context)))
-
-MERCURY_GEN_PROC(ADM_adhoc_context_out_t, 
-                ((int32_t)(ret))\
-                ((int32_t)(adhoc_context)))
-
-DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_context);
 
 /// ADM_adhoc_context_id
 

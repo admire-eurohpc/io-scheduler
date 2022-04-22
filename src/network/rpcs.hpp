@@ -96,15 +96,6 @@ MERCURY_GEN_PROC(ADM_adhoc_nodes_out_t, ((int32_t)(ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_nodes);
 
-/// ADM_adhoc_access
-
-MERCURY_GEN_PROC(ADM_adhoc_access_in_t,
-        ((hg_const_string_t)(access)))
-
-MERCURY_GEN_PROC(ADM_adhoc_access_out_t, ((int32_t)(ret)))
-
-DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_access);
-
 /// ADM_adhoc_walltime
 
 MERCURY_GEN_PROC(ADM_adhoc_walltime_in_t,
@@ -114,6 +105,15 @@ MERCURY_GEN_PROC(ADM_adhoc_walltime_out_t,
         ((int32_t)(ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_walltime);
+
+/// ADM_adhoc_access
+
+MERCURY_GEN_PROC(ADM_adhoc_access_in_t,
+        ((hg_const_string_t)(access)))
+
+MERCURY_GEN_PROC(ADM_adhoc_access_out_t, ((int32_t)(ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_access);
 
 /// ADM_adhoc_distribution
 

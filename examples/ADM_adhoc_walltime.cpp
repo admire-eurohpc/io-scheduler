@@ -20,7 +20,7 @@ main(int argc, char* argv[]) {
     ADM_adhoc_walltime_in_t in;
 
     try {
-        in.walltime = stoi(argv[2]);
+        in.walltime = std::stoi(argv[2]);
     } catch (const std::exception& e) {
         fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
         exit(EXIT_FAILURE);
@@ -30,9 +30,9 @@ main(int argc, char* argv[]) {
 
     endp.call("ADM_adhoc_walltime",&in, &out);
 
-    if (out.ret == true){
-        fmt::print(stdout, "ADM_adhoc_walltime remote procedure completed successfully\n");
-    }else{
+    if (out.ret < 0){
         fmt::print(stdout, "ADM_adhoc_walltime remote procedure not completed successfully\n");
+    }else{
+        fmt::print(stdout, "ADM_adhoc_walltime remote procedure completed successfully\n");
     }
 }

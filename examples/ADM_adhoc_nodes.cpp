@@ -20,7 +20,7 @@ main(int argc, char* argv[]) {
     ADM_adhoc_nodes_in_t in;
 
     try {
-        in.nodes = stoi(argv[2]);
+        in.nodes = std::stoi(argv[2]);
     } catch (const std::exception& e) {
         fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
         exit(EXIT_FAILURE);
@@ -30,9 +30,9 @@ main(int argc, char* argv[]) {
 
     endp.call("ADM_adhoc_nodes",&in, &out);
 
-    if (out.ret == true){
-        fmt::print(stdout, "ADM_adhoc_nodes remote procedure completed successfully\n");
-    }else{
+    if (out.ret < 0){
         fmt::print(stdout, "ADM_adhoc_nodes remote procedure not completed successfully\n");
+    }else{
+        fmt::print(stdout, "ADM_adhoc_nodes remote procedure completed successfully\n");
     }
 }

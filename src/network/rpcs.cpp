@@ -317,12 +317,12 @@ ADM_adhoc_nodes(hg_handle_t h){
                 in.nodes);
 
     if (in.nodes > 0){
-       out.ret = true;
+       out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_adhoc_nodes not null ({})",
                 in.nodes);
     }
     else {
-       out.ret = false;
+       out.ret = -1;
        LOGGER_INFO("remote_procedure::ADM_adhoc_nodes null ({})",
                 in.nodes);
     }
@@ -367,7 +367,7 @@ ADM_adhoc_access(hg_handle_t h){
     LOGGER_INFO("remote_procedure::ADM_adhoc_access({})",
                 in.access);
 
-    if (in.access!=nullptr){
+    if (in.access != nullptr){
        out.ret = true;
         LOGGER_INFO("remote_procedure::ADM_adhoc_access not null ({})",
                 in.access);

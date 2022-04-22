@@ -122,6 +122,9 @@ struct engine {
 
         id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_background_flush", ADM_adhoc_background_flush_in_t, ADM_adhoc_background_flush_out_t, ADM_adhoc_background_flush);
         m_context->m_rpc_names.emplace("ADM_adhoc_background_flush", id); 
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_in_situ_ops", ADM_in_situ_ops_in_t, ADM_in_situ_ops_out_t, ADM_in_situ_ops);
+        m_context->m_rpc_names.emplace("ADM_in_situ_ops", id); 
     }
 
     void

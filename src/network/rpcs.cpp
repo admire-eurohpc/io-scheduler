@@ -562,13 +562,13 @@ ADM_in_situ_ops(hg_handle_t h){
     LOGGER_INFO("remote_procedure::ADM_in_situ_ops({})",
                 in.in_situ);
 
-    if (in.in_situ!=nullptr){
-       out.ret = true;
+    if (in.in_situ != nullptr){
+       out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_in_situ_ops not null ({})",
                 in.in_situ);
     }
     else {
-       out.ret = false;
+       out.ret = -1;
        LOGGER_INFO("remote_procedure::ADM_in_situ_ops null or invalid ({}). Please use",
                 in.in_situ);
     }

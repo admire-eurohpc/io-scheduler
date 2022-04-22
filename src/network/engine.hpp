@@ -113,6 +113,9 @@ struct engine {
 
         id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_walltime", ADM_adhoc_walltime_in_t, ADM_adhoc_walltime_out_t, ADM_adhoc_walltime);
         m_context->m_rpc_names.emplace("ADM_adhoc_walltime", id); 
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_access", ADM_adhoc_access_in_t, ADM_adhoc_access_out_t, ADM_adhoc_access);
+        m_context->m_rpc_names.emplace("ADM_adhoc_access", id); 
         
     }
 

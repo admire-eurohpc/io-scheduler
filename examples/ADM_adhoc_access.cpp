@@ -23,9 +23,9 @@ main(int argc, char* argv[]) {
 
     endp.call("ADM_adhoc_access",&in, &out);
 
-    if (out.ret == true){
-        fmt::print(stdout, "ADM_adhoc_access remote procedure completed successfully\n");
-    }else{
+    if (out.ret < 0){
         fmt::print(stdout, "ADM_adhoc_access remote procedure not completed successfully\n");
+    }else{
+        fmt::print(stdout, "ADM_adhoc_access remote procedure completed successfully\n");
     }
 }

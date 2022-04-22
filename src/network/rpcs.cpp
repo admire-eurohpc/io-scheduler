@@ -414,23 +414,24 @@ ADM_adhoc_access(hg_handle_t h){
                 in.access);
 
     if (in.access != nullptr){
-       out.ret = true;
+       out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_adhoc_access not null ({})",
                 in.access);
     }
     else {
-       out.ret = false;
+       out.ret = -1;
        LOGGER_INFO("remote_procedure::ADM_adhoc_access null or invalid ({}). Please use",
                 in.access);
     }
 
-    if (in.access == "write-only" || in.access == "read-only" || in.access == "read-write"){
-       out.ret = true;
+    if ((strcmp(in.access, "write-only")) == 0 || (strcmp(in.access, "read-only")) == 0 || 
+    (strcmp(in.access, "read-write") == 0)){
+       out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_adhoc_access value is acceptable ({})",
                 in.access);
     }
     else {
-       out.ret = false;
+       out.ret = -1;
        LOGGER_INFO("remote_procedure::ADM_adhoc_access is not valid. Please use: write-only, read-only or read-write",
                 in.access);
     }

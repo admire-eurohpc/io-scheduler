@@ -104,6 +104,9 @@ struct engine {
 
         id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_context", ADM_adhoc_context_in_t, ADM_adhoc_context_out_t, ADM_adhoc_context);
         m_context->m_rpc_names.emplace("ADM_adhoc_context", id);   
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_context_id", ADM_adhoc_context_id_in_t, ADM_adhoc_context_id_out_t, ADM_adhoc_context_id);
+        m_context->m_rpc_names.emplace("ADM_adhoc_context_id", id);   
         
     }
 

@@ -117,6 +117,11 @@ struct engine {
         id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_access", ADM_adhoc_access_in_t, ADM_adhoc_access_out_t, ADM_adhoc_access);
         m_context->m_rpc_names.emplace("ADM_adhoc_access", id); 
         
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_distribution", ADM_adhoc_distribution_in_t, ADM_adhoc_distribution_out_t, ADM_adhoc_distribution);
+        m_context->m_rpc_names.emplace("ADM_adhoc_distribution", id); 
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_background_flush", ADM_adhoc_background_flush_in_t, ADM_adhoc_background_flush_out_t, ADM_adhoc_background_flush);
+        m_context->m_rpc_names.emplace("ADM_adhoc_background_flush", id); 
     }
 
     void

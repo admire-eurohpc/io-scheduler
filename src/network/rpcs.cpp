@@ -471,13 +471,13 @@ ADM_adhoc_distribution(hg_handle_t h){
     LOGGER_INFO("remote_procedure::ADM_adhoc_distribution({})",
                 in.data_distribution);
 
-    if (in.data_distribution!=nullptr){
-       out.ret = true;
+    if (in.data_distribution != nullptr){
+       out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_adhoc_distribution not null ({})",
                 in.data_distribution);
     }
     else {
-       out.ret = false;
+       out.ret = -1;
        LOGGER_INFO("remote_procedure::ADM_adhoc_distribution null or invalid ({}). Please use",
                 in.data_distribution);
     }
@@ -517,13 +517,13 @@ ADM_adhoc_background_flush(hg_handle_t h){
     LOGGER_INFO("remote_procedure::ADM_adhoc_background_flush({})",
                 in.b_flush);
 
-    if (in.b_flush == true || in.b_flush == false){
-       out.ret = true;
+    if (in.b_flush == 0 || in.b_flush == 1){
+       out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_adhoc_background_flush not null ({})",
                 in.b_flush);
     }
     else {
-       out.ret = false;
+       out.ret = -1;
        LOGGER_INFO("remote_procedure::ADM_adhoc_background_flush null ({})",
                 in.b_flush);
     }

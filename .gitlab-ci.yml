@@ -1,0 +1,45 @@
+# This file is a template, and might need editing before it works on your project.
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/C++.gitlab-ci.yml
+
+# use the official gcc image, based on debian
+# can use verions as well, like gcc:5.2
+# see https://hub.docker.com/_/gcc/
+
+image: gekkofs/deps
+
+build:
+  stage: build
+  # instead of calling g++ directly you can also use some build toolkit like make
+  # install the necessary build tools when needed
+  # before_script:
+  #   - apt update && apt -y install make autoconf
+  script:
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_PREFIX_PATH:STRING=/opt \
+      -DCMAKE_INSTALL_PREFIX:STRING=/usr/local \
+      -DSCORD_BUILD_EXAMPLES:BOOL=ON \
+      -DSCORD_TRANSPORT_LIBRARY=libfabric \
+      -DSCORD_TRANSPORT_PROTOCOL=ofi+tcp \
+      -DSCORD_BIND_ADDRESS=127.0.0.1 \
+      -DSCORD_BIND_PORT=52000 \
+    ..
+    - make install
+  artifacts:
+    paths:
+      - scord
+      # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
+      # cache:
+      #   paths:
+      #     - "*.o"
+
+# run tests using the binary built before
+test:
+  stage: test
+  script:
+    - /usr/local/bin/scord -f --force-console &
+    - /usr/local/examples/ping ofi+tcp://127.0.0.1:52000
+    - pkill -9 scord

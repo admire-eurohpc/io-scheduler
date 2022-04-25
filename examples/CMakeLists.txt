@@ -22,63 +22,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_executable(ping)
-target_sources(ping PRIVATE ping.cpp)
+set(examples ping ADM_input ADM_output ADM_inout ADM_adhoc_nodes)
+list(APPEND examples ADM_adhoc_access ADM_adhoc_context ADM_adhoc_context_id ADM_adhoc_walltime)
+list(APPEND examples ADM_adhoc_distribution ADM_adhoc_background_flush ADM_in_situ_ops)
 
-target_link_libraries(ping PUBLIC network_engine fmt::fmt)
+foreach (example IN LISTS examples)
+    add_executable(${example})
+    target_sources(${example} PRIVATE ${example}.cpp)
+endforeach()
 
-add_executable(ADM_input)
-target_sources(ADM_input PRIVATE ADM_input.cpp)
 
-target_link_libraries(ADM_input PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_output)
-target_sources(ADM_output PRIVATE ADM_output.cpp)
-
-target_link_libraries(ADM_output PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_inout)
-target_sources(ADM_inout PRIVATE ADM_inout.cpp)
-
-target_link_libraries(ADM_inout PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_adhoc_nodes)
-target_sources(ADM_adhoc_nodes PRIVATE ADM_adhoc_nodes.cpp)
-
-target_link_libraries(ADM_adhoc_nodes PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_adhoc_access)
-target_sources(ADM_adhoc_access PRIVATE ADM_adhoc_access.cpp)
-
-target_link_libraries(ADM_adhoc_access PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_adhoc_context)
-target_sources(ADM_adhoc_context PRIVATE ADM_adhoc_context.cpp)
-
-target_link_libraries(ADM_adhoc_context PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_adhoc_context_id)
-target_sources(ADM_adhoc_context_id PRIVATE ADM_adhoc_context_id.cpp)
-
-target_link_libraries(ADM_adhoc_context_id PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_adhoc_walltime)
-target_sources(ADM_adhoc_walltime PRIVATE ADM_adhoc_walltime.cpp)
-
-target_link_libraries(ADM_adhoc_walltime PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_adhoc_distribution)
-target_sources(ADM_adhoc_distribution PRIVATE ADM_adhoc_distribution.cpp)
-
-target_link_libraries(ADM_adhoc_distribution PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_adhoc_background_flush)
-target_sources(ADM_adhoc_background_flush PRIVATE ADM_adhoc_background_flush.cpp)
-
-target_link_libraries(ADM_adhoc_background_flush PUBLIC network_engine fmt::fmt)
-
-add_executable(ADM_in_situ_ops)
-target_sources(ADM_in_situ_ops PRIVATE ADM_in_situ_ops.cpp)
-
-target_link_libraries(ADM_in_situ_ops PUBLIC network_engine fmt::fmt)
 

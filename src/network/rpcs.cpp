@@ -584,3 +584,50 @@ ADM_in_situ_ops(hg_handle_t h){
 }
  
 DEFINE_MARGO_RPC_HANDLER(ADM_in_situ_ops)
+
+/**
+ * In transit data operations specified in a given configuration file.
+ *
+ * @param in.in_transit A path to the configuration file.
+ * @return out.ret Returns if the remote procedure has been completed successfully or not.
+ */
+static void 
+ADM_in_transit_ops(hg_handle_t h){
+    hg_return_t ret;
+
+    ADM_in_transit_ops_in_t in;
+    ADM_in_transit_ops_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_in_transit_ops");
+    LOGGER_INFO("remote_procedure::ADM_in_transit_ops({})",
+                in.in_transit);
+
+    if (in.in_transit != nullptr){
+       out.ret = 0;
+        LOGGER_INFO("remote_procedure::ADM_in_transit_ops not null ({})",
+                in.in_transit);
+    }
+    else {
+       out.ret = -1;
+       LOGGER_INFO("remote_procedure::ADM_in_transit_ops null or invalid ({}). Please use",
+                in.in_transit);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+ 
+DEFINE_MARGO_RPC_HANDLER(ADM_in_transit_ops)
+
+

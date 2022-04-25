@@ -131,6 +131,9 @@ struct engine {
 
         id = MARGO_REGISTER(m_context->m_mid, "ADM_transfer_dataset", ADM_transfer_dataset_in_t, ADM_transfer_dataset_out_t, ADM_transfer_dataset);
         m_context->m_rpc_names.emplace("ADM_transfer_dataset", id); 
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_dataset_information", ADM_set_dataset_information_in_t, ADM_set_dataset_information_out_t, ADM_set_dataset_information);
+        m_context->m_rpc_names.emplace("ADM_set_dataset_information", id);
     }
 
     void

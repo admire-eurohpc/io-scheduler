@@ -92,3 +92,8 @@ target_sources(ADM_transfer_dataset PRIVATE ADM_transfer_dataset.cpp)
 
 target_link_libraries(ADM_transfer_dataset PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_set_dataset_information)
+target_sources(ADM_set_dataset_information PRIVATE ADM_set_dataset_information.cpp)
+
+target_link_libraries(ADM_set_dataset_information PUBLIC network_engine fmt::fmt)
+

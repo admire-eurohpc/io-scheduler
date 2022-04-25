@@ -97,3 +97,9 @@ target_sources(ADM_set_dataset_information PRIVATE ADM_set_dataset_information.c
 
 target_link_libraries(ADM_set_dataset_information PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_set_io_resources)
+target_sources(ADM_set_io_resources PRIVATE ADM_set_io_resources.cpp)
+
+target_link_libraries(ADM_set_io_resources PUBLIC network_engine fmt::fmt)
+
+

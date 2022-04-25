@@ -179,6 +179,20 @@ MERCURY_GEN_PROC(ADM_set_dataset_information_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_set_dataset_information);
 
+/// ADM_set_io_resources
+
+MERCURY_GEN_PROC(ADM_set_io_resources_in_t,
+        ((int32_t)(tier_id))\
+        ((hg_const_string_t)(resources))\
+        ((int32_t)(job_id)))
+
+MERCURY_GEN_PROC(ADM_set_io_resources_out_t, 
+        ((int32_t)(ret))\
+        ((int32_t)(status)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_set_io_resources);
+
+
 //} // namespace scord::network::rpc
 
 #endif // SCORD_NETWORK_RPCS_HPP

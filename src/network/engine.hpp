@@ -134,6 +134,9 @@ struct engine {
 
         id = MARGO_REGISTER(m_context->m_mid, "ADM_set_dataset_information", ADM_set_dataset_information_in_t, ADM_set_dataset_information_out_t, ADM_set_dataset_information);
         m_context->m_rpc_names.emplace("ADM_set_dataset_information", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_io_resources", ADM_set_io_resources_in_t, ADM_set_io_resources_out_t, ADM_set_io_resources);
+        m_context->m_rpc_names.emplace("ADM_set_io_resources", id);
     }
 
     void

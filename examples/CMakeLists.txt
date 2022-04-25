@@ -82,3 +82,13 @@ target_sources(ADM_in_situ_ops PRIVATE ADM_in_situ_ops.cpp)
 
 target_link_libraries(ADM_in_situ_ops PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_in_transit_ops)
+target_sources(ADM_in_transit_ops PRIVATE ADM_in_transit_ops.cpp)
+
+target_link_libraries(ADM_in_transit_ops PUBLIC network_engine fmt::fmt)
+
+add_executable(ADM_transfer_dataset)
+target_sources(ADM_transfer_dataset PRIVATE ADM_transfer_dataset.cpp)
+
+target_link_libraries(ADM_transfer_dataset PUBLIC network_engine fmt::fmt)
+

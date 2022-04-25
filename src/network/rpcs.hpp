@@ -151,6 +151,20 @@ MERCURY_GEN_PROC(ADM_in_transit_ops_out_t, ((int32_t)(ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_in_transit_ops);
 
+/// ADM_transfer_dataset
+
+MERCURY_GEN_PROC(ADM_transfer_dataset_in_t,
+        ((hg_const_string_t)(source))\
+        ((hg_const_string_t)(destination))\
+        ((hg_const_string_t)(qos_constraints))\
+        ((hg_const_string_t)(distribution))\
+        ((int32_t)(job_id)))
+
+MERCURY_GEN_PROC(ADM_transfer_dataset_out_t, 
+        ((int32_t)(ret))\
+        ((hg_const_string_t)(transfer_handle)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_transfer_dataset);
 
 //} // namespace scord::network::rpc
 

@@ -167,6 +167,12 @@ struct engine {
                             ADM_set_io_resources_in_t,
                             ADM_set_io_resources_out_t, ADM_set_io_resources);
         m_context->m_rpc_names.emplace("ADM_set_io_resources", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_get_transfer_priority",
+                            ADM_get_transfer_priority_in_t,
+                            ADM_get_transfer_priority_out_t,
+                            ADM_get_transfer_priority);
+        m_context->m_rpc_names.emplace("ADM_get_transfer_priority", id);
     }
 
     void

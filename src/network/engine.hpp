@@ -93,49 +93,79 @@ struct engine {
         m_context->register_rpc("ping", false);
 
         // We do it manually, as it needs some work to do it automatically
-        auto id = MARGO_REGISTER(m_context->m_mid, "ADM_input", ADM_input_in_t, ADM_input_out_t, ADM_input);
+        auto id = MARGO_REGISTER(m_context->m_mid, "ADM_input", ADM_input_in_t,
+                                 ADM_input_out_t, ADM_input);
         m_context->m_rpc_names.emplace("ADM_input", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_output", ADM_output_in_t, ADM_output_out_t, ADM_output);
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_output", ADM_output_in_t,
+                            ADM_output_out_t, ADM_output);
         m_context->m_rpc_names.emplace("ADM_output", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_inout", ADM_inout_in_t, ADM_inout_out_t, ADM_inout);
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_inout", ADM_inout_in_t,
+                            ADM_inout_out_t, ADM_inout);
         m_context->m_rpc_names.emplace("ADM_inout", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_context", ADM_adhoc_context_in_t, ADM_adhoc_context_out_t, ADM_adhoc_context);
-        m_context->m_rpc_names.emplace("ADM_adhoc_context", id);   
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_context",
+                            ADM_adhoc_context_in_t, ADM_adhoc_context_out_t,
+                            ADM_adhoc_context);
+        m_context->m_rpc_names.emplace("ADM_adhoc_context", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_context_id", ADM_adhoc_context_id_in_t, ADM_adhoc_context_id_out_t, ADM_adhoc_context_id);
-        m_context->m_rpc_names.emplace("ADM_adhoc_context_id", id);   
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_context_id",
+                            ADM_adhoc_context_id_in_t,
+                            ADM_adhoc_context_id_out_t, ADM_adhoc_context_id);
+        m_context->m_rpc_names.emplace("ADM_adhoc_context_id", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_nodes", ADM_adhoc_nodes_in_t, ADM_adhoc_nodes_out_t, ADM_adhoc_nodes);
-        m_context->m_rpc_names.emplace("ADM_adhoc_nodes", id); 
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_nodes",
+                            ADM_adhoc_nodes_in_t, ADM_adhoc_nodes_out_t,
+                            ADM_adhoc_nodes);
+        m_context->m_rpc_names.emplace("ADM_adhoc_nodes", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_walltime", ADM_adhoc_walltime_in_t, ADM_adhoc_walltime_out_t, ADM_adhoc_walltime);
-        m_context->m_rpc_names.emplace("ADM_adhoc_walltime", id); 
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_walltime",
+                            ADM_adhoc_walltime_in_t, ADM_adhoc_walltime_out_t,
+                            ADM_adhoc_walltime);
+        m_context->m_rpc_names.emplace("ADM_adhoc_walltime", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_access", ADM_adhoc_access_in_t, ADM_adhoc_access_out_t, ADM_adhoc_access);
-        m_context->m_rpc_names.emplace("ADM_adhoc_access", id); 
-        
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_distribution", ADM_adhoc_distribution_in_t, ADM_adhoc_distribution_out_t, ADM_adhoc_distribution);
-        m_context->m_rpc_names.emplace("ADM_adhoc_distribution", id); 
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_access",
+                            ADM_adhoc_access_in_t, ADM_adhoc_access_out_t,
+                            ADM_adhoc_access);
+        m_context->m_rpc_names.emplace("ADM_adhoc_access", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_background_flush", ADM_adhoc_background_flush_in_t, ADM_adhoc_background_flush_out_t, ADM_adhoc_background_flush);
-        m_context->m_rpc_names.emplace("ADM_adhoc_background_flush", id); 
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_distribution",
+                            ADM_adhoc_distribution_in_t,
+                            ADM_adhoc_distribution_out_t,
+                            ADM_adhoc_distribution);
+        m_context->m_rpc_names.emplace("ADM_adhoc_distribution", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_in_situ_ops", ADM_in_situ_ops_in_t, ADM_in_situ_ops_out_t, ADM_in_situ_ops);
-        m_context->m_rpc_names.emplace("ADM_in_situ_ops", id); 
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_adhoc_background_flush",
+                            ADM_adhoc_background_flush_in_t,
+                            ADM_adhoc_background_flush_out_t,
+                            ADM_adhoc_background_flush);
+        m_context->m_rpc_names.emplace("ADM_adhoc_background_flush", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_in_transit_ops", ADM_in_transit_ops_in_t, ADM_in_transit_ops_out_t, ADM_in_transit_ops);
-        m_context->m_rpc_names.emplace("ADM_in_transit_ops", id); 
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_in_situ_ops",
+                            ADM_in_situ_ops_in_t, ADM_in_situ_ops_out_t,
+                            ADM_in_situ_ops);
+        m_context->m_rpc_names.emplace("ADM_in_situ_ops", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_transfer_dataset", ADM_transfer_dataset_in_t, ADM_transfer_dataset_out_t, ADM_transfer_dataset);
-        m_context->m_rpc_names.emplace("ADM_transfer_dataset", id); 
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_in_transit_ops",
+                            ADM_in_transit_ops_in_t, ADM_in_transit_ops_out_t,
+                            ADM_in_transit_ops);
+        m_context->m_rpc_names.emplace("ADM_in_transit_ops", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_dataset_information", ADM_set_dataset_information_in_t, ADM_set_dataset_information_out_t, ADM_set_dataset_information);
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_transfer_dataset",
+                            ADM_transfer_dataset_in_t,
+                            ADM_transfer_dataset_out_t, ADM_transfer_dataset);
+        m_context->m_rpc_names.emplace("ADM_transfer_dataset", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_dataset_information",
+                            ADM_set_dataset_information_in_t,
+                            ADM_set_dataset_information_out_t,
+                            ADM_set_dataset_information);
         m_context->m_rpc_names.emplace("ADM_set_dataset_information", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_io_resources", ADM_set_io_resources_in_t, ADM_set_io_resources_out_t, ADM_set_io_resources);
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_io_resources",
+                            ADM_set_io_resources_in_t,
+                            ADM_set_io_resources_out_t, ADM_set_io_resources);
         m_context->m_rpc_names.emplace("ADM_set_io_resources", id);
     }
 
@@ -184,9 +214,9 @@ public:
     endpoint&
     operator=(endpoint&& /*rhs*/) = default;
 
-   
+
     void
-    call(const std::string& id, void* input, void *output) {
+    call(const std::string& id, void* input, void* output) {
 
         const auto it = m_margo_context->m_rpc_names.find(id);
 
@@ -213,7 +243,7 @@ public:
                                 ::HG_Error_to_string(ret)));
         }
 
-        if (output != nullptr ) {
+        if(output != nullptr) {
             margo_get_output(handle, output);
         }
 

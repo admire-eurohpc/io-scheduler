@@ -1,0 +1,60 @@
+Performing C++ SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/bscuser/new/io-scheduler/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_40892/fast && /usr/bin/gmake -f CMakeFiles/cmTC_40892.dir/build.make CMakeFiles/cmTC_40892.dir/build
+gmake[1]: se entra en el directorio '/home/bscuser/new/io-scheduler/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_40892.dir/src.cxx.o
+/usr/bin/g++-10    -DCMAKE_HAVE_LIBC_PTHREAD   -std=c++17 -o CMakeFiles/cmTC_40892.dir/src.cxx.o -c /home/bscuser/new/io-scheduler/build/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_40892
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_40892.dir/link.txt --verbose=1
+/usr/bin/g++-10   -DCMAKE_HAVE_LIBC_PTHREAD    CMakeFiles/cmTC_40892.dir/src.cxx.o  -o cmTC_40892 
+/usr/lib64/gcc/x86_64-suse-linux/10/../../../../x86_64-suse-linux/bin/ld: CMakeFiles/cmTC_40892.dir/src.cxx.o: en la función `main':
+src.cxx:(.text+0x2d): referencia a `pthread_create' sin definir
+/usr/lib64/gcc/x86_64-suse-linux/10/../../../../x86_64-suse-linux/bin/ld: src.cxx:(.text+0x39): referencia a `pthread_detach' sin definir
+/usr/lib64/gcc/x86_64-suse-linux/10/../../../../x86_64-suse-linux/bin/ld: src.cxx:(.text+0x45): referencia a `pthread_cancel' sin definir
+/usr/lib64/gcc/x86_64-suse-linux/10/../../../../x86_64-suse-linux/bin/ld: src.cxx:(.text+0x56): referencia a `pthread_join' sin definir
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_40892.dir/build.make:104: cmTC_40892] Error 1
+gmake[1]: se sale del directorio '/home/bscuser/new/io-scheduler/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:138: cmTC_40892/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/bscuser/new/io-scheduler/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake cmTC_8a539/fast && /usr/bin/gmake -f CMakeFiles/cmTC_8a539.dir/build.make CMakeFiles/cmTC_8a539.dir/build
+gmake[1]: se entra en el directorio '/home/bscuser/new/io-scheduler/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_8a539.dir/CheckFunctionExists.cxx.o
+/usr/bin/g++-10    -DCHECK_FUNCTION_EXISTS=pthread_create   -std=c++17 -o CMakeFiles/cmTC_8a539.dir/CheckFunctionExists.cxx.o -c /home/bscuser/new/io-scheduler/build/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx
+Linking CXX executable cmTC_8a539
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8a539.dir/link.txt --verbose=1
+/usr/bin/g++-10   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_8a539.dir/CheckFunctionExists.cxx.o  -o cmTC_8a539  -lpthreads 
+/usr/lib64/gcc/x86_64-suse-linux/10/../../../../x86_64-suse-linux/bin/ld: no se puede encontrar -lpthreads
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_8a539.dir/build.make:104: cmTC_8a539] Error 1
+gmake[1]: se sale del directorio '/home/bscuser/new/io-scheduler/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:138: cmTC_8a539/fast] Error 2
+
+
+

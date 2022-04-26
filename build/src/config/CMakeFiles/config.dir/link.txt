@@ -1,0 +1,2 @@
+/usr/bin/ar qc libconfig.a  CMakeFiles/config.dir/defaults.cpp.o CMakeFiles/config.dir/parsers.cpp.o CMakeFiles/config.dir/settings.cpp.o
+/usr/bin/ranlib libconfig.a

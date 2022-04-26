@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../src/utils/utils.hpp
+string
+-
+filesystem
+-
+sstream
+-
+iomanip
+-
+cstdint
+-
+
+/home/bscuser/new/io-scheduler/src/utils/utils.cpp
+string
+-
+algorithm
+-
+locale
+-
+cmath
+-
+cctype
+-
+stdexcept
+-
+utility
+-
+filesystem
+-
+utils.hpp
+-
+

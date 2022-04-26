@@ -1,0 +1,2 @@
+/home/bscuser/utils/etc/scord.conf
+/home/bscuser/utils/bin/scord

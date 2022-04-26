@@ -179,6 +179,17 @@ struct engine {
                             ADM_set_transfer_priority_out_t,
                             ADM_set_transfer_priority);
         m_context->m_rpc_names.emplace("ADM_set_transfer_priority", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_cancel_transfer",
+                            ADM_cancel_transfer_in_t, ADM_cancel_transfer_out_t,
+                            ADM_cancel_transfer);
+        m_context->m_rpc_names.emplace("ADM_cancel_transfer", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_get_pending_transfers",
+                            ADM_get_pending_transfers_in_t,
+                            ADM_get_pending_transfers_out_t,
+                            ADM_get_pending_transfers);
+        m_context->m_rpc_names.emplace("ADM_get_pending_transfers", id);
     }
 
     void

@@ -922,3 +922,92 @@ ADM_set_transfer_priority(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_set_transfer_priority)
+
+/**
+ * Moves the operation identified by transf er_id up or down by n positions in
+ * its scheduling queue.
+ *
+ * @param in.transfer_id A transf er_id identifying a pending transfer.
+ * @param in.n_positions A positive or negative number n for the number of
+ * positions the transfer should go up or down in its scheduling queue.
+ * @param out.status A status code indicating whether the operation was
+ * successful.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_cancel_transfer(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_cancel_transfer_in_t in;
+    ADM_cancel_transfer_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_cancel_transfer");
+    LOGGER_INFO("remote_procedure::ADM_cancel_transfer({})", in.transfer_id);
+
+    if(in.transfer_id >= 0) {
+        out.ret = 0;
+        LOGGER_INFO("remote_procedure::ADM_cancel_transfer not null ({})",
+                    in.transfer_id);
+        out.status = 0;
+    } else {
+        out.ret = -1;
+        LOGGER_INFO("remote_procedure::ADM_cancel_transfer null ({})",
+                    in.transfer_id);
+        out.status = -1;
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_cancel_transfer)
+
+/**
+ * Returns a list of pending transfers. Each operation will include a transf
+ * er_id as well as information about the involved resources and tiers.
+ *
+ * @param out.pending_transfers  A list of pending_transfers.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_get_pending_transfers(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_get_pending_transfers_in_t in;
+    ADM_get_pending_transfers_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_get_pending_transfers");
+    LOGGER_INFO("remote_procedure::ADM_get_pending_transfers");
+
+    out.ret = 0;
+    out.pending_transfers = "list";
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_get_pending_transfers)

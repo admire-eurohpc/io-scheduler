@@ -112,3 +112,13 @@ target_sources(ADM_set_transfer_priority PRIVATE ADM_set_transfer_priority.cpp)
 
 target_link_libraries(ADM_set_transfer_priority PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_cancel_transfer)
+target_sources(ADM_cancel_transfer PRIVATE ADM_cancel_transfer.cpp)
+
+target_link_libraries(ADM_cancel_transfer PUBLIC network_engine fmt::fmt)
+
+add_executable(ADM_get_pending_transfers)
+target_sources(ADM_get_pending_transfers PRIVATE ADM_get_pending_transfers.cpp)
+
+target_link_libraries(ADM_get_pending_transfers PUBLIC network_engine fmt::fmt)
+

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libnetwork_engine.a  CMakeFiles/network_engine.dir/rpcs.cpp.o
-/usr/bin/ranlib libnetwork_engine.a

@@ -173,6 +173,12 @@ struct engine {
                             ADM_get_transfer_priority_out_t,
                             ADM_get_transfer_priority);
         m_context->m_rpc_names.emplace("ADM_get_transfer_priority", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_transfer_priority",
+                            ADM_set_transfer_priority_in_t,
+                            ADM_set_transfer_priority_out_t,
+                            ADM_set_transfer_priority);
+        m_context->m_rpc_names.emplace("ADM_set_transfer_priority", id);
     }
 
     void

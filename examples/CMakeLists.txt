@@ -107,3 +107,8 @@ target_sources(ADM_get_transfer_priority PRIVATE ADM_get_transfer_priority.cpp)
 
 target_link_libraries(ADM_get_transfer_priority PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_set_transfer_priority)
+target_sources(ADM_set_transfer_priority PRIVATE ADM_set_transfer_priority.cpp)
+
+target_link_libraries(ADM_set_transfer_priority PUBLIC network_engine fmt::fmt)
+

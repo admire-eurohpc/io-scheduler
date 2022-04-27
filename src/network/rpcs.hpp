@@ -209,6 +209,18 @@ MERCURY_GEN_PROC(ADM_get_pending_transfers_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_get_pending_transfers);
 
+/// ADM_set_qos_constraints
+
+MERCURY_GEN_PROC(
+        ADM_set_qos_constraints_in_t,
+        ((hg_const_string_t) (scope))((hg_const_string_t) (qos_class))(
+                (int32_t) (element_id))((hg_const_string_t) (class_value)))
+
+MERCURY_GEN_PROC(ADM_set_qos_constraints_out_t,
+                 ((int32_t) (ret))((int32_t) (status)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_set_qos_constraints);
+
 
 //} // namespace scord::network::rpc
 

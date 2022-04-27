@@ -1170,3 +1170,60 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_pull)
+
+/**
+ * Defines a new operation, with the code found in path. The code will be
+ * identified by the user-provided operation_id and will accept the arguments
+ * defined, using the next format "arg0, arg1, arg2, . . . ".
+ *
+ * @param in.path A valid path for the operation code.
+ * @param in.operation_id A user-defined operation_id for the operation.
+ * @param in.arguments A list of arguments for the operation.
+ * @param out.status A status code indicating whether the operation was
+ * successful.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_define_data_operation(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_define_data_operation_in_t in;
+    ADM_define_data_operation_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_define_data_operation");
+    LOGGER_INFO("remote_procedure::ADM_define_data_operation({}, {}, {})",
+                in.path, in.operation_id, in.arguments);
+
+
+    if(in.path != nullptr && in.operation_id >= 0 && in.arguments != nullptr) {
+        out.ret = 0;
+        LOGGER_INFO(
+                "remote_procedure::ADM_define_data_operation not null ({}, {}, {})",
+                in.path, in.operation_id, in.arguments);
+        out.status = 0;
+
+    } else {
+        out.ret = -1;
+        LOGGER_INFO(
+                "remote_procedure::ADM_define_data_operation null ({}, {}, {})",
+                in.path, in.operation_id, in.arguments);
+        out.status = -1;
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_define_data_operation)

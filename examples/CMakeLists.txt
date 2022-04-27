@@ -132,4 +132,9 @@ target_sources(ADM_set_qos_constraints_pull PRIVATE ADM_set_qos_constraints_pull
 
 target_link_libraries(ADM_set_qos_constraints_pull PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_define_data_operation)
+target_sources(ADM_define_data_operation PRIVATE ADM_define_data_operation.cpp)
+
+target_link_libraries(ADM_define_data_operation PUBLIC network_engine fmt::fmt)
+
 

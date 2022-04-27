@@ -196,6 +196,12 @@ struct engine {
                             ADM_set_qos_constraints_push_out_t,
                             ADM_set_qos_constraints_push);
         m_context->m_rpc_names.emplace("ADM_set_qos_constraints_push", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_qos_constraints_pull",
+                            ADM_set_qos_constraints_pull_in_t,
+                            ADM_set_qos_constraints_pull_out_t,
+                            ADM_set_qos_constraints_pull);
+        m_context->m_rpc_names.emplace("ADM_set_qos_constraints_pull", id);
     }
 
     void

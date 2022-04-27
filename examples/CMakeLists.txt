@@ -29,6 +29,7 @@ list(APPEND examples ADM_adhoc_distribution ADM_adhoc_background_flush ADM_in_si
 foreach (example IN LISTS examples)
     add_executable(${example})
     target_sources(${example} PRIVATE ${example}.cpp)
+    target_link_libraries(${example} PUBLIC network_engine fmt::fmt)
 endforeach()
 
 

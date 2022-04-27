@@ -191,11 +191,11 @@ struct engine {
                             ADM_get_pending_transfers);
         m_context->m_rpc_names.emplace("ADM_get_pending_transfers", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_qos_constraints",
-                            ADM_set_qos_constraints_in_t,
-                            ADM_set_qos_constraints_out_t,
-                            ADM_set_qos_constraints);
-        m_context->m_rpc_names.emplace("ADM_set_qos_constraints", id);
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_set_qos_constraints_push",
+                            ADM_set_qos_constraints_push_in_t,
+                            ADM_set_qos_constraints_push_out_t,
+                            ADM_set_qos_constraints_push);
+        m_context->m_rpc_names.emplace("ADM_set_qos_constraints_push", id);
     }
 
     void

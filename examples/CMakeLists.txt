@@ -122,9 +122,9 @@ target_sources(ADM_get_pending_transfers PRIVATE ADM_get_pending_transfers.cpp)
 
 target_link_libraries(ADM_get_pending_transfers PUBLIC network_engine fmt::fmt)
 
-add_executable(ADM_set_qos_constraints)
-target_sources(ADM_set_qos_constraints PRIVATE ADM_set_qos_constraints.cpp)
+add_executable(ADM_set_qos_constraints_push)
+target_sources(ADM_set_qos_constraints_push PRIVATE ADM_set_qos_constraints_push.cpp)
 
-target_link_libraries(ADM_set_qos_constraints PUBLIC network_engine fmt::fmt)
+target_link_libraries(ADM_set_qos_constraints_push PUBLIC network_engine fmt::fmt)
 
 

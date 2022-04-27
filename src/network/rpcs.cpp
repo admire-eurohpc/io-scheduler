@@ -1026,19 +1026,19 @@ DEFINE_MARGO_RPC_HANDLER(ADM_get_pending_transfers)
  * @return out.ret A status code indicating whether the operation succeeded.
  */
 static void
-ADM_set_qos_constraints(hg_handle_t h) {
+ADM_set_qos_constraints_push(hg_handle_t h) {
     hg_return_t ret;
 
-    ADM_set_qos_constraints_in_t in;
-    ADM_set_qos_constraints_out_t out;
+    ADM_set_qos_constraints_push_in_t in;
+    ADM_set_qos_constraints_push_out_t out;
 
     margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_set_qos_constraints");
-    LOGGER_INFO("remote_procedure::ADM_set_qos_constraints({}, {}, {}, {})",
+    LOGGER_INFO("LOADED ADM_set_qos_constraints_push");
+    LOGGER_INFO("remote_procedure::ADM_set_qos_constraints_push({}, {}, {}, {})",
                 in.scope, in.qos_class, in.element_id, in.class_value);
 
     int aux_not_null = NULL;
@@ -1049,25 +1049,25 @@ ADM_set_qos_constraints(hg_handle_t h) {
        in.class_value != nullptr) {
         aux_not_null = 0;
         LOGGER_INFO(
-                "remote_procedure::ADM_set_qos_constraints not null ({}, {}, {}, {})",
+                "remote_procedure::ADM_set_qos_constraints_push not null ({}, {}, {}, {})",
                 in.scope, in.qos_class, in.element_id, in.class_value);
     } else {
         aux_not_null = -1;
         LOGGER_INFO(
-                "remote_procedure::ADM_set_qos_constraints null ({}, {}, {}, {})",
+                "remote_procedure::ADM_set_qos_constraints_push null ({}, {}, {}, {})",
                 in.scope, in.qos_class, in.element_id, in.class_value);
     }
 
     if((strcmp(in.scope, "dataset")) == 0 || (strcmp(in.scope, "node")) == 0 ||
        (strcmp(in.scope, "job")) == 0) {
         LOGGER_INFO(
-                "remote_procedure::ADM_set_qos_constraints scope value is acceptable ({})",
+                "remote_procedure::ADM_set_qos_constraints_push scope value is acceptable ({})",
                 in.scope);
         aux_score_value_ok = 0;
 
     } else {
         LOGGER_INFO(
-                "remote_procedure::ADM_set_qos_constraints scope value is not valid. Please use: dataset, node or job ({})",
+                "remote_procedure::ADM_set_qos_constraints_push scope value is not valid. Please use: dataset, node or job ({})",
                 in.scope);
         aux_score_value_ok = -1;
     } 
@@ -1090,4 +1090,4 @@ ADM_set_qos_constraints(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 }
 
-DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints)
+DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_push)

@@ -21,7 +21,7 @@ build:
     - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
     - mkdir -p build
     - cd build
-    - cmake -DCMAKE_PREFIX_PATH:STRING=/usr/local: -DCMAKE_INSTALL_PREFIX:STRING=${CI_PROJECT_DIR}/compiled -DSCORD_BUILD_EXAMPLES:BOOL=ON  -DSCORD_TRANSPORT_LIBRARY=libfabric -DSCORD_TRANSPORT_PROTOCOL=ofi+tcp -DSCORD_BIND_ADDRESS=127.0.0.1 -DSCORD_BIND_PORT=52000 ..
+    - cmake -DCMAKE_PREFIX_PATH:STRING=/usr/local -DCMAKE_INSTALL_PREFIX:STRING=${CI_PROJECT_DIR}/compiled -DSCORD_BUILD_EXAMPLES:BOOL=ON  -DSCORD_TRANSPORT_LIBRARY=libfabric -DSCORD_TRANSPORT_PROTOCOL=ofi+tcp -DSCORD_BIND_ADDRESS=127.0.0.1 -DSCORD_BIND_PORT=52000 ..
     - make install
   artifacts:
     paths:

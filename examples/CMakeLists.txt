@@ -137,4 +137,11 @@ target_sources(ADM_define_data_operation PRIVATE ADM_define_data_operation.cpp)
 
 target_link_libraries(ADM_define_data_operation PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_connect_data_operation)
+target_sources(ADM_connect_data_operation PRIVATE ADM_connect_data_operation.cpp)
+
+target_link_libraries(ADM_connect_data_operation PUBLIC network_engine fmt::fmt)
+
+
+
 

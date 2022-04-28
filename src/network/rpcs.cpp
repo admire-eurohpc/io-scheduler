@@ -1227,3 +1227,61 @@ ADM_define_data_operation(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_define_data_operation)
+
+/**
+ * Connects and starts the data operation defined with operation_id and with the arguments, using the 
+ * input and output data storage (i.e., files). If the operation can be executed in a streaming fashion 
+ * (i.e., it can start even if the input data is not entirely available), the stream parameter must be set to 
+ * true.
+ *
+ * @param in.path A valid path for the operation code.
+ * @param in.operation_id A user-defined operation_id for the operation.
+ * @param in.arguments A list of arguments for the operation.
+ * @param out.status A status code indicating whether the operation was
+ * successful.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_connect_data_operation(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_connect_data_operation_in_t in;
+    ADM_connect_data_operation_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_connect_data_operation");
+    LOGGER_INFO("remote_procedure::ADM_connect_data_operation({}, {}, {}, {}, {})",
+                in.operation_id, in.input, in.stream, in.arguments, in.job_id);
+
+
+    if(in.operation_id >= 0 && in.input != nullptr && (in.stream == 0  || in.stream == 1) && in.arguments != nullptr && in.job_id >= 0) {
+        out.ret = 0;
+        LOGGER_INFO(
+                "remote_procedure::ADM_connect_data_operation not null ({}, {}, {}, {}, {})",
+                in.operation_id, in.input, in.stream, in.arguments, in.job_id);
+        out.data = "ouput";
+        out.operation_handle = "operation_handle";
+
+    } else {
+        out.ret = -1;
+        LOGGER_INFO(
+                "remote_procedure::ADM_connect_data_operation null ({}, {}, {}, {}, {})",
+                in.operation_id, in.input, in.stream, in.arguments, in.job_id);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_connect_data_operation)

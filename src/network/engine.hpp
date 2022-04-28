@@ -214,6 +214,12 @@ struct engine {
                             ADM_connect_data_operation_out_t,
                             ADM_connect_data_operation);
         m_context->m_rpc_names.emplace("ADM_connect_data_operation", id);
+
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_finalize_data_operation",
+                            ADM_finalize_data_operation_in_t,
+                            ADM_finalize_data_operation_out_t,
+                            ADM_finalize_data_operation);
+        m_context->m_rpc_names.emplace("ADM_finalize_data_operation", id);
     }
 
     void

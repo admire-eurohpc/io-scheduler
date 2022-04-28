@@ -8,55 +8,20 @@
 # can use verions as well, like gcc:5.2
 # see https://hub.docker.com/_/gcc/
 
-image: gekkofs/deps:0.9.1
+image: gekkofs/scord:0.1.0
 
 stages:
-  - deps
   - build
   - test
 
-
-deps:
-  stage: deps
-  script:
-    # only download or install if deps directory does not exists 
-    - |
-      if [ -f "${CI_PROJECT_DIR}/deps/bin/cmake" ]; then
-        echo "reusing cache."
-      else
-        mkdir -p deps
-        apt-get install -y --no-install-recommends python3 python3-pip python3-dev python3-venv python3-setuptools
-        curl -OL https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-0.6.2.tar.gz
-        tar xzf yaml-cpp-0.6.2.tar.gz
-        curl -OL https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-Linux-x86_64.sh
-        chmod u+x ./cmake-3.23.1-Linux-x86_64.sh
-        ./cmake-3.23.1-Linux-x86_64.sh --skip-license --prefix=deps/
-        deps/bin/cmake --version
-        cd yaml-cpp-yaml-cpp-0.6.2
-        mkdir -p build
-        cd build
-        ${CI_PROJECT_DIR}/deps/bin/cmake -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/deps ..
-        make -j
-        make install
-        cd ${CI_PROJECT_DIR}
-      fi
-  artifacts:
-    paths:
-      - deps/
-  cache:
-    key: $CI_COMMIT_REF_SLUG
-    paths:
-      - deps/
-
 build:
   stage: build
-  needs: [deps]
   script:
-    - export LD_LIBRARY_PATH=/opt/lib:/opt/lib64:${CI_PROJECT_DIR}/deps/lib:${CI_PROJECT_DIR}/deps/lib64/
-    - export PKG_CONFIG_PATH=/opt/lib/pkgconfig:/opt/lib64/pkgconfig:${CI_PROJECT_DIR}/deps/lib/pkgconfig:${CI_PROJECT_DIR}/deps/lib64/pkgconfig 
+    - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+    - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
     - mkdir -p build
     - cd build
-    - ${CI_PROJECT_DIR}/deps/bin/cmake -DCMAKE_PREFIX_PATH:STRING=/opt:${CI_PROJECT_DIR}/deps -DCMAKE_INSTALL_PREFIX:STRING=${CI_PROJECT_DIR}/compiled -DSCORD_BUILD_EXAMPLES:BOOL=ON  -DSCORD_TRANSPORT_LIBRARY=libfabric -DSCORD_TRANSPORT_PROTOCOL=ofi+tcp -DSCORD_BIND_ADDRESS=127.0.0.1 -DSCORD_BIND_PORT=52000 ..
+    - cmake -DCMAKE_PREFIX_PATH:STRING=/usr/local: -DCMAKE_INSTALL_PREFIX:STRING=${CI_PROJECT_DIR}/compiled -DSCORD_BUILD_EXAMPLES:BOOL=ON  -DSCORD_TRANSPORT_LIBRARY=libfabric -DSCORD_TRANSPORT_PROTOCOL=ofi+tcp -DSCORD_BIND_ADDRESS=127.0.0.1 -DSCORD_BIND_PORT=52000 ..
     - make install
   artifacts:
     paths:

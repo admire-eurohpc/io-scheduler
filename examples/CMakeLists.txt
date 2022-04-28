@@ -152,6 +152,10 @@ target_sources(ADM_link_transfer_to_data_operation PRIVATE ADM_link_transfer_to_
 
 target_link_libraries(ADM_link_transfer_to_data_operation PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_get_statistics)
+target_sources(ADM_get_statistics PRIVATE ADM_get_statistics.cpp)
+
+target_link_libraries(ADM_get_statistics PUBLIC network_engine fmt::fmt)
 
 
 

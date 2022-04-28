@@ -221,13 +221,18 @@ struct engine {
                             ADM_finalize_data_operation);
         m_context->m_rpc_names.emplace("ADM_finalize_data_operation", id);
 
-        id = MARGO_REGISTER(m_context->m_mid, "ADM_link_transfer_to_data_operation",
+        id = MARGO_REGISTER(m_context->m_mid,
+                            "ADM_link_transfer_to_data_operation",
                             ADM_link_transfer_to_data_operation_in_t,
                             ADM_link_transfer_to_data_operation_out_t,
                             ADM_link_transfer_to_data_operation);
-        m_context->m_rpc_names.emplace("ADM_link_transfer_to_data_operation", id);
+        m_context->m_rpc_names.emplace("ADM_link_transfer_to_data_operation",
+                                       id);
 
-        
+        id = MARGO_REGISTER(m_context->m_mid, "ADM_get_statistics",
+                            ADM_get_statistics_in_t, ADM_get_statistics_out_t,
+                            ADM_get_statistics);
+        m_context->m_rpc_names.emplace("ADM_get_statistics", id);
     }
 
     void

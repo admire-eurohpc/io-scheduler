@@ -278,6 +278,15 @@ MERCURY_GEN_PROC(ADM_link_transfer_to_data_operation_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_link_transfer_to_data_operation);
 
+/// ADM_get_statistics
+
+MERCURY_GEN_PROC(ADM_get_statistics_in_t,
+                 ((int32_t) (job_id))((int32_t) (job_step)))
+
+MERCURY_GEN_PROC(ADM_get_statistics_out_t,
+                 ((int32_t) (ret))((hg_const_string_t) (job_statistics)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_get_statistics);
 
 //} // namespace scord::network::rpc
 

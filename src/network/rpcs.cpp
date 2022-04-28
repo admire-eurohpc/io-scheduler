@@ -1415,3 +1415,54 @@ ADM_link_transfer_to_data_operation(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_link_transfer_to_data_operation)
+
+/**
+ * Returns the current I/O statistics for a specified job_id and an optional corresponding job_step. The 
+ * information will be returned in an easy-to-process format, e.g., JSON (see Listing 3.1).
+ *
+ * @param in.job_id
+ * @param in.job_step 
+ * @return out.job_statistics
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_get_statistics(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_get_statistics_in_t in;
+    ADM_get_statistics_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_get_statistics");
+    LOGGER_INFO("remote_procedure::ADM_get_statistics({}, {})",
+                in.job_id, in.job_step);
+
+
+    if(in.job_id >= 0 && in.job_step >= 0) {
+        out.ret = 0;
+        LOGGER_INFO("remote_procedure::ADM_get_statistics not null ({}, {})",
+                    in.job_id, in.job_step);
+        out.job_statistics = "job_statistics";
+
+    } else {
+        out.ret = -1;
+        LOGGER_INFO("remote_procedure::ADM_get_statistics null ({}, {})",
+                    in.job_id, in.job_step);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_get_statistics)

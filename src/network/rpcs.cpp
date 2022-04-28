@@ -1043,45 +1043,33 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
             "remote_procedure::ADM_set_qos_constraints_push({}, {}, {}, {})",
             in.scope, in.qos_class, in.element_id, in.class_value);
 
-    int aux_not_null = NULL;
-    int aux_score_value_ok = NULL;
-
-
     if(in.scope != nullptr && in.qos_class != nullptr && in.element_id >= 0 &&
-       in.class_value != nullptr) {
-        aux_not_null = 0;
+       in.class_value != nullptr){
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_push not null ({}, {}, {}, {})",
                 in.scope, in.qos_class, in.element_id, in.class_value);
+            if((strcmp(in.scope, "dataset")) == 0 ||
+            (strcmp(in.scope, "node")) == 0 || (strcmp(in.scope, "job")) == 0) {
+                LOGGER_INFO(
+                        "remote_procedure::ADM_set_qos_constraints_push scope value is acceptable ({})",
+                        in.scope);
+                    out.ret = 0;
+                    out.status = 0;
+            } else {
+                LOGGER_INFO(
+                        "remote_procedure::ADM_set_qos_constraints_push scope value is not valid. Please use: dataset, node or job ({})",
+                        in.scope);
+                    out.ret = -1;
+                    out.status = -1;
+            }
     } else {
-        aux_not_null = -1;
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_push null ({}, {}, {}, {})",
                 in.scope, in.qos_class, in.element_id, in.class_value);
+                out.ret = -1;
+                out.status = -1;
     }
-
-    if((strcmp(in.scope, "dataset")) == 0 || (strcmp(in.scope, "node")) == 0 ||
-       (strcmp(in.scope, "job")) == 0) {
-        LOGGER_INFO(
-                "remote_procedure::ADM_set_qos_constraints_push scope value is acceptable ({})",
-                in.scope);
-        aux_score_value_ok = 0;
-
-    } else {
-        LOGGER_INFO(
-                "remote_procedure::ADM_set_qos_constraints_push scope value is not valid. Please use: dataset, node or job ({})",
-                in.scope);
-        aux_score_value_ok = -1;
-    }
-
-    if(aux_not_null == 0 && aux_score_value_ok == 0) {
-        out.ret = 0;
-        out.status = 0;
-    } else {
-        out.ret = -1;
-        out.status = -1;
-    }
-
+    
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
 
@@ -1121,42 +1109,28 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
     LOGGER_INFO("remote_procedure::ADM_set_qos_constraints_pull({}, {})",
                 in.scope, in.element_id);
 
-    int aux_not_null = NULL;
-    int aux_score_value_ok = NULL;
-
-
     if(in.scope != nullptr && in.element_id >= 0) {
-        aux_not_null = 0;
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_pull not null ({}, {})",
                 in.scope, in.element_id);
+            if((strcmp(in.scope, "dataset")) == 0 ||
+            (strcmp(in.scope, "node")) == 0 || (strcmp(in.scope, "job")) == 0) {
+                LOGGER_INFO(
+                        "remote_procedure::ADM_set_qos_constraints_pull scope value is acceptable ({})",
+                        in.scope);
+                    out.ret = 0;
+                    out.list = "list";
+            } else {
+                LOGGER_INFO(
+                        "remote_procedure::ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ({})",
+                        in.scope);
+                    out.ret = -1;
+            }
     } else {
-        aux_not_null = -1;
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_pull null ({}, {})",
                 in.scope, in.element_id);
-    }
-
-    if((strcmp(in.scope, "dataset")) == 0 || (strcmp(in.scope, "node")) == 0 ||
-       (strcmp(in.scope, "job")) == 0) {
-        LOGGER_INFO(
-                "remote_procedure::ADM_set_qos_constraints_pull scope value is acceptable ({})",
-                in.scope);
-        aux_score_value_ok = 0;
-
-    } else {
-        LOGGER_INFO(
-                "remote_procedure::ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ({})",
-                in.scope);
-        aux_score_value_ok = -1;
-    }
-
-    if(aux_not_null == 0 && aux_score_value_ok == 0) {
-        out.ret = 0;
-        out.list = "list";
-    } else {
-        out.ret = -1;
-        out.list = "list";
+            out.ret = -1;
     }
 
     ret = margo_respond(h, &out);
@@ -1386,8 +1360,7 @@ ADM_link_transfer_to_data_operation(hg_handle_t h) {
             in.job_id);
 
 
-    if(in.operation_id >= 0 && in.transfer_id >= 0 &&
-       (in.stream == 0 || in.stream == 1) && in.arguments != nullptr &&
+    if(in.operation_id >= 0 && in.transfer_id >= 0 && in.arguments != nullptr &&
        in.job_id >= 0) {
         out.ret = 0;
         LOGGER_INFO(
@@ -1417,11 +1390,12 @@ ADM_link_transfer_to_data_operation(hg_handle_t h) {
 DEFINE_MARGO_RPC_HANDLER(ADM_link_transfer_to_data_operation)
 
 /**
- * Returns the current I/O statistics for a specified job_id and an optional corresponding job_step. The 
- * information will be returned in an easy-to-process format, e.g., JSON (see Listing 3.1).
+ * Returns the current I/O statistics for a specified job_id and an optional
+ * corresponding job_step. The information will be returned in an
+ * easy-to-process format, e.g., JSON (see Listing 3.1).
  *
  * @param in.job_id
- * @param in.job_step 
+ * @param in.job_step
  * @return out.job_statistics
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
@@ -1439,8 +1413,8 @@ ADM_get_statistics(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 
     LOGGER_INFO("LOADED ADM_get_statistics");
-    LOGGER_INFO("remote_procedure::ADM_get_statistics({}, {})",
-                in.job_id, in.job_step);
+    LOGGER_INFO("remote_procedure::ADM_get_statistics({}, {})", in.job_id,
+                in.job_step);
 
 
     if(in.job_id >= 0 && in.job_step >= 0) {

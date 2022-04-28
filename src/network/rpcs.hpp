@@ -266,6 +266,19 @@ MERCURY_GEN_PROC(ADM_finalize_data_operation_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_finalize_data_operation);
 
+/// ADM_link_transfer_to_data_operation
+
+MERCURY_GEN_PROC(ADM_link_transfer_to_data_operation_in_t,
+                 ((int32_t) (operation_id))((int32_t) (transfer_id))(
+                         (hg_bool_t) (stream))((hg_const_string_t) (arguments))(
+                         (int32_t) (job_id)))
+
+MERCURY_GEN_PROC(ADM_link_transfer_to_data_operation_out_t,
+                 ((int32_t) (ret))((hg_const_string_t) (operation_handle)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_link_transfer_to_data_operation);
+
+
 //} // namespace scord::network::rpc
 
 #endif // SCORD_NETWORK_RPCS_HPP

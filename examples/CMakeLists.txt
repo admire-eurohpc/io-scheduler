@@ -147,6 +147,10 @@ target_sources(ADM_finalize_data_operation PRIVATE ADM_finalize_data_operation.c
 
 target_link_libraries(ADM_finalize_data_operation PUBLIC network_engine fmt::fmt)
 
+add_executable(ADM_link_transfer_to_data_operation)
+target_sources(ADM_link_transfer_to_data_operation PRIVATE ADM_link_transfer_to_data_operation.cpp)
+
+target_link_libraries(ADM_link_transfer_to_data_operation PUBLIC network_engine fmt::fmt)
 
 
 

@@ -1,0 +1,51 @@
+# This file is a template, and might need editing before it works on your project.
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/C++.gitlab-ci.yml
+
+# use the official gcc image, based on debian
+# can use verions as well, like gcc:5.2
+# see https://hub.docker.com/_/gcc/
+
+image: gekkofs/scord:0.1.0
+
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  script:
+    - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+    - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
+    - mkdir -p build
+    - cd build
+    - cmake -DCMAKE_PREFIX_PATH:STRING=/usr/local -DCMAKE_INSTALL_PREFIX:STRING=${CI_PROJECT_DIR}/compiled -DSCORD_BUILD_EXAMPLES:BOOL=ON  -DSCORD_TRANSPORT_LIBRARY=libfabric -DSCORD_TRANSPORT_PROTOCOL=ofi+tcp -DSCORD_BIND_ADDRESS=127.0.0.1 -DSCORD_BIND_PORT=52000 ..
+    - make install
+  artifacts:
+    paths:
+      - compiled/bin/
+      - compiled/etc/
+      - build/examples/
+      # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - build/
+      - compiled/bin
+      - compiled/etc
+
+# run tests using the binary built before
+test:
+  stage: test
+  needs: [build]
+  script:
+    - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+    - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
+    - compiled/bin/scord -f --force-console &
+    - build/examples/ping ofi+tcp://127.0.0.1:52000 
+    - pkill scord
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+      

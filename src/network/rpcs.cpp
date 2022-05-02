@@ -72,6 +72,7 @@ ADM_input(hg_handle_t h) {
         out.ret = -1;
         LOGGER_INFO("remote_procedure::ADM_input null ({},{})", in.origin,
                     in.target);
+        exit -1;
     }
 
     ret = margo_respond(h, &out);

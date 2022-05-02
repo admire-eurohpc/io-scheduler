@@ -46,7 +46,7 @@ test:
     - compiled/bin/scord -f --force-console &
     - build/examples/ping ofi+tcp://127.0.0.1:52000 
     - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src /build/examples 
-    - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src || if [ out.ret -eq -1 ]; then echo "success"; else /bin/false; fi
+    - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src || if [ out.ret -eq -1 ]; then echo "success"; else fi
 
     - pkill scord
   cache:

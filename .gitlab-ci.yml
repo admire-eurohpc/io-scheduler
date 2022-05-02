@@ -77,10 +77,10 @@ test_failures:
     - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src
 
     - pkill scord
-  allow_failure: true
-  #allow_failure:
-    #exit_codes:
-    #  - 3
+  # allow_failure: true
+  allow_failure:
+    exit_codes:
+      - 3
   cache:
     key: $CI_COMMIT_REF_SLUG
 

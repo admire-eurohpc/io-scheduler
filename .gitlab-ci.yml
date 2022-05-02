@@ -37,7 +37,22 @@ build:
       - compiled/etc
 
 # run tests using the binary built before
-test:
+#test:
+#  stage: test
+#  needs: [build]
+#  script:
+#    - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+#    - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
+#    - compiled/bin/scord -f --force-console &
+#    - build/examples/ping ofi+tcp://127.0.0.1:52000 
+#    - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src /build/examples 
+#    - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src || if [ out.ret -eq -1 ]; then echo "success"; else fi
+
+#    - pkill scord
+#  cache:
+#    key: $CI_COMMIT_REF_SLUG
+
+test_corrects:
   stage: test
   needs: [build]
   script:
@@ -46,9 +61,9 @@ test:
     - compiled/bin/scord -f --force-console &
     - build/examples/ping ofi+tcp://127.0.0.1:52000 
     - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src /build/examples 
-    - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src || if [ out.ret -eq -1 ]; then echo "success"; else fi
+    # - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src || if [ out.ret -eq -1 ]; then echo "success"; else fi
 
     - pkill scord
   cache:
     key: $CI_COMMIT_REF_SLUG
-      
+

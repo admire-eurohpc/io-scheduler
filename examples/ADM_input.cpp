@@ -33,6 +33,7 @@ main(int argc, char* argv[]) {
     if(out.ret < 0) {
         fmt::print(stdout,
                    "ADM_input remote procedure not completed successfully\n");
+        exit(3);
     } else {
         fmt::print(stdout,
                    "ADM_input remote procedure completed successfully\n");

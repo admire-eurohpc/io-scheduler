@@ -10,7 +10,8 @@ main(int argc, char* argv[]) {
         fmt::print(
                 stderr,
                 "Usage: ADM_input <REMOTE_IP> <ORIGIN_LOCATION> <TARGET_LOCATION>\n");
-        exit(EXIT_FAILURE);
+        // exit(EXIT_FAILURE);
+        exit(3);
     }
 
     scord::network::rpc_client rpc_client{"tcp"};

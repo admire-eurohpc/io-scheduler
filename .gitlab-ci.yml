@@ -73,13 +73,10 @@ test_failures:
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
     - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
     - compiled/bin/scord -f --force-console &
-    - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src
+    - build/examples/ADM_input ofi+tcp://127.0.0.1:52000 /build/src || exit_code=$?; if [ $exit_code -ne 0 ]; then echo "The exit code of the previous command is $exit_code"; fi;
 
     - pkill scord
-  # allow_failure: true
-  allow_failure:
-    exit_codes:
-      - 3
+    
   cache:
     key: $CI_COMMIT_REF_SLUG
 

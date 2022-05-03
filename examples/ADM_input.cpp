@@ -10,8 +10,7 @@ main(int argc, char* argv[]) {
         fmt::print(
                 stderr,
                 "Usage: ADM_input <REMOTE_IP> <ORIGIN_LOCATION> <TARGET_LOCATION>\n");
-        // exit(EXIT_FAILURE);
-        exit(3);
+        exit(EXIT_FAILURE);
     }
 
     scord::network::rpc_client rpc_client{"tcp"};
@@ -34,7 +33,6 @@ main(int argc, char* argv[]) {
     if(out.ret < 0) {
         fmt::print(stdout,
                    "ADM_input remote procedure not completed successfully\n");
-        exit(3);
     } else {
         fmt::print(stdout,
                    "ADM_input remote procedure completed successfully\n");

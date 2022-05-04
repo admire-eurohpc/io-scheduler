@@ -176,6 +176,53 @@ public:
         }
     }
 
+    /**
+    * Deprecated call, used to support Margo directly
+    *
+    **/
+    [[deprecated("It should be eventually replaced by a generic call")]]
+    void
+    call(const std::string& id, void* input = nullptr, void* output = nullptr) {
+
+        const auto it = m_margo_context->m_rpc_names.find(id);
+
+        if(it == m_margo_context->m_rpc_names.end()) {
+            throw std::runtime_error(
+                    fmt::format("Unknown remote procedure: {}", id));
+        }
+
+        hg_handle_t handle;
+        auto ret = ::margo_create(m_margo_context->m_mid,
+                                  m_address->mercury_address(), it->second,
+                                  &handle);
+        if(ret != HG_SUCCESS) {
+            throw std::runtime_error(
+                    fmt::format("Error during endpoint::call(): {}",
+                                ::HG_Error_to_string(ret)));
+        }
+
+        ret = ::margo_forward(handle, input);
+
+        if(ret != HG_SUCCESS) {
+            throw std::runtime_error(
+                    fmt::format("Error during endpoint::call(): {}",
+                                ::HG_Error_to_string(ret)));
+        }
+
+        if (output != nullptr) {
+            ret = ::margo_get_output(handle, output);
+        }
+
+
+        ret = ::margo_destroy(handle);
+
+        if(ret != HG_SUCCESS) {
+            throw std::runtime_error(
+                    fmt::format("Error during endpoint::call(): {}",
+                                ::HG_Error_to_string(ret)));
+        }
+    }
+
 private:
     std::shared_ptr<detail::margo_context> m_margo_context;
     std::shared_ptr<detail::address> m_address;

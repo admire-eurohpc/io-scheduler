@@ -157,6 +157,18 @@ target_sources(ADM_get_statistics PRIVATE ADM_get_statistics.cpp)
 
 target_link_libraries(ADM_get_statistics PUBLIC network_engine fmt::fmt)
 
+enable_testing()
 
+add_test(ping_test ping ofi+tcp://127.0.0.1:52000)
 
+add_test(ADM_input_test ADM_input ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build ~/new/io-scheduler/build/examples )
+add_test(ADM_input_test_fail ADM_input ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build)
+set_tests_properties(ADM_input_test_fail PROPERTIES WILL_FAIL TRUE)
 
+add_test(ADM_output_test ADM_output ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build/examples ~/new/io-scheduler/build )
+add_test(ADM_output_test_fail ADM_output ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build/examples)
+set_tests_properties(ADM_output_test_fail PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_inout_test ADM_inout ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build/examples ~/new/io-scheduler/build )
+add_test(ADM_inout_test_fail ADM_inout ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build/examples)
+set_tests_properties(ADM_inout_test_fail PROPERTIES WILL_FAIL TRUE)

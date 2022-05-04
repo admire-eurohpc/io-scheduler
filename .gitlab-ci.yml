@@ -52,14 +52,14 @@ build:
 #  cache:
 #    key: $CI_COMMIT_REF_SLUG
 
-test_corrects:
+test:
   stage: test
   needs: [build]
   script:
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
     - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
     - compiled/bin/scord -f --force-console &
-    - ctest
+    - examples/ ctest
 
     - pkill scord
   cache:

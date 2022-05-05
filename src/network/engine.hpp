@@ -38,6 +38,19 @@ namespace scord::network {
 
 namespace detail {
 
+#define REGISTER_RPC(__mid, __m_rpc_names, __func_name, __in_t, __out_t, __handler, requires_response) \
+{ hg_id_t id = margo_provider_register_name(__mid, __func_name, \
+    BOOST_PP_CAT(hg_proc_, __in_t), \
+    BOOST_PP_CAT(hg_proc_, __out_t), \
+    _handler_for_##__handler, \
+    MARGO_DEFAULT_PROVIDER_ID, ABT_POOL_NULL); \
+    __m_rpc_names.emplace(__func_name, id); \
+    if(!requires_response) { \
+            ::margo_registered_disable_response(__mid, id, HG_TRUE); \
+       } \
+}
+
+
 struct margo_context {
 
     explicit margo_context(::margo_instance_id mid) : m_mid(mid) {}
@@ -90,7 +103,8 @@ struct engine {
     register_rpcs() {
 
         // register RPCs manually for now
-        m_context->register_rpc("ping", false);
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ping", void, void, ping, false);
+
     }
 
     void

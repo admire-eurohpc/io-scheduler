@@ -27,12 +27,52 @@
 
 #include <margo.h>
 #include <logger.hpp>
+#include <mercury.h>
+#include <mercury_macros.h>
+#include <mercury_proc_string.h>
+
 
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {
 
 /// ping
 DECLARE_MARGO_RPC_HANDLER(ping);
+
+/// ADM_input
+MERCURY_GEN_PROC(ADM_input_in_t,
+                 ((hg_const_string_t) (origin))((hg_const_string_t) (target)))
+
+MERCURY_GEN_PROC(ADM_input_out_t, ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_input);
+
+/// ADM_output
+
+MERCURY_GEN_PROC(ADM_output_in_t,
+                 ((hg_const_string_t) (origin))((hg_const_string_t) (target)))
+
+MERCURY_GEN_PROC(ADM_output_out_t, ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_output);
+
+/// ADM_inout
+
+MERCURY_GEN_PROC(ADM_inout_in_t,
+                 ((hg_const_string_t) (origin))((hg_const_string_t) (target)))
+
+MERCURY_GEN_PROC(ADM_inout_out_t, ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_inout);
+
+/// ADM_adhoc_context
+
+MERCURY_GEN_PROC(ADM_adhoc_context_in_t, ((hg_const_string_t) (context)))
+
+MERCURY_GEN_PROC(ADM_adhoc_context_out_t,
+                 ((int32_t) (ret))((int32_t) (adhoc_context)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_adhoc_context);
+
 
 //} // namespace scord::network::rpc
 

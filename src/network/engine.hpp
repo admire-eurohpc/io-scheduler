@@ -38,17 +38,18 @@ namespace scord::network {
 
 namespace detail {
 
-#define REGISTER_RPC(__mid, __m_rpc_names, __func_name, __in_t, __out_t, __handler, requires_response) \
-{ hg_id_t id = margo_provider_register_name(__mid, __func_name, \
-    BOOST_PP_CAT(hg_proc_, __in_t), \
-    BOOST_PP_CAT(hg_proc_, __out_t), \
-    _handler_for_##__handler, \
-    MARGO_DEFAULT_PROVIDER_ID, ABT_POOL_NULL); \
-    __m_rpc_names.emplace(__func_name, id); \
-    if(!requires_response) { \
-            ::margo_registered_disable_response(__mid, id, HG_TRUE); \
-       } \
-}
+#define REGISTER_RPC(__mid, __m_rpc_names, __func_name, __in_t, __out_t,       \
+                     __handler, requires_response)                             \
+    {                                                                          \
+        hg_id_t id = margo_provider_register_name(                             \
+                __mid, __func_name, BOOST_PP_CAT(hg_proc_, __in_t),            \
+                BOOST_PP_CAT(hg_proc_, __out_t), _handler_for_##__handler,     \
+                MARGO_DEFAULT_PROVIDER_ID, ABT_POOL_NULL);                     \
+        __m_rpc_names.emplace(__func_name, id);                                \
+        if(!requires_response) {                                               \
+            ::margo_registered_disable_response(__mid, id, HG_TRUE);           \
+        }                                                                      \
+    }
 
 
 struct margo_context {
@@ -103,7 +104,22 @@ struct engine {
     register_rpcs() {
 
         // register RPCs manually for now
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ping", void, void, ping, false);
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ping", void,
+                     void, ping, false);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_input",
+
+                     ADM_input_in_t, ADM_input_out_t, ADM_input, true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_output",
+                     ADM_output_in_t, ADM_output_out_t, ADM_output, true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_inout",
+                     ADM_inout_in_t, ADM_inout_out_t, ADM_inout, true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_adhoc_context", ADM_adhoc_context_in_t,
+                     ADM_adhoc_context_out_t, ADM_adhoc_context, true);
 
     }
 
@@ -224,7 +240,7 @@ public:
                                 ::HG_Error_to_string(ret)));
         }
 
-        if (output != nullptr) {
+        if(output != nullptr) {
             ret = ::margo_get_output(handle, output);
         }
 

@@ -140,6 +140,10 @@ struct engine {
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_adhoc_distribution", ADM_adhoc_distribution_in_t,
                      ADM_adhoc_distribution_out_t, ADM_adhoc_distribution, true);
+        
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_adhoc_background_flush", ADM_adhoc_background_flush_in_t,
+                     ADM_adhoc_background_flush_out_t, ADM_adhoc_background_flush, true);
 
                      
     }

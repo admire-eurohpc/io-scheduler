@@ -168,6 +168,10 @@ struct engine {
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_get_transfer_priority", ADM_get_transfer_priority_in_t,
                      ADM_get_transfer_priority_out_t, ADM_get_transfer_priority, true);
+        
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_set_transfer_priority", ADM_set_transfer_priority_in_t,
+                     ADM_set_transfer_priority_out_t, ADM_set_transfer_priority, true);
                      
     }
 

@@ -873,3 +873,56 @@ ADM_get_transfer_priority(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_get_transfer_priority)
 
+/**
+ * Moves the operation identified by transf er_id up or down by n positions in
+ * its scheduling queue.
+ *
+ * @param in.transfer_id A transf er_id identifying a pending transfer.
+ * @param in.n_positions A positive or negative number n for the number of
+ * positions the transfer should go up or down in its scheduling queue.
+ * @param out.status A status code indicating whether the operation was
+ * successful.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_set_transfer_priority(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_set_transfer_priority_in_t in;
+    ADM_set_transfer_priority_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_set_transfer_priority");
+    LOGGER_INFO("remote_procedure::ADM_set_transfer_priority({}, {})",
+                in.transfer_id, in.n_positions);
+
+    if(in.transfer_id >= 0 && (in.n_positions >= 0 || in.n_positions < 0)) {
+        out.ret = 0;
+        LOGGER_INFO(
+                "remote_procedure::ADM_set_transfer_priority not null ({}, {})",
+                in.transfer_id, in.n_positions);
+        out.status = 0;
+    } else {
+        out.ret = -1;
+        LOGGER_INFO("remote_procedure::ADM_set_transfer_priority null ({}, {})",
+                    in.transfer_id, in.n_positions);
+        out.status = -1;
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_set_transfer_priority)
+

@@ -157,6 +157,10 @@ struct engine {
                      "ADM_transfer_dataset", ADM_transfer_dataset_in_t,
                      ADM_transfer_dataset_out_t, ADM_transfer_dataset, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_set_dataset_information", ADM_set_dataset_information_in_t,
+                     ADM_set_dataset_information_out_t, ADM_set_dataset_information, true);
+
                      
     }
 

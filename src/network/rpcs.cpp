@@ -716,5 +716,58 @@ ADM_transfer_dataset(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_transfer_dataset)
 
+/**
+ * Sets information for the dataset identified by resource_id.
+ *
+ * @param in.resource_id A resource_id identifying the dataset of interest.
+ * @param in.info An opaque inf o argument containing information about the
+ * dataset (e.g. its lifespan, access methods, intended usage, etc.).
+ * @param in.job_id A job_id identifying the originating job.
+ * @param out.status A status code determining whether the operation was
+ * successful.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_set_dataset_information(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_set_dataset_information_in_t in;
+    ADM_set_dataset_information_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_set_dataset_information");
+    LOGGER_INFO("remote_procedure::ADM_set_dataset_information({},{},{})",
+                in.resource_id, in.info, in.job_id);
+
+    if(in.resource_id >= 0 && in.info != nullptr && in.job_id >= 0) {
+        out.ret = 0;
+        LOGGER_INFO(
+                "remote_procedure::ADM_transfer_dataset not null ({},{},{})",
+                in.resource_id, in.info, in.job_id);
+        out.status = 0;
+    } else {
+        out.ret = -1;
+        LOGGER_INFO("remote_procedure::ADM_transfer_dataset null ({},{},{})",
+                    in.resource_id, in.info, in.job_id);
+        out.status = -1;
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_set_dataset_information)
+
 
 

@@ -977,3 +977,42 @@ ADM_cancel_transfer(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_cancel_transfer)
 
+/**
+ * Returns a list of pending transfers. Each operation will include a transf
+ * er_id as well as information about the involved resources and tiers.
+ *
+ * @param out.pending_transfers  A list of pending_transfers.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_get_pending_transfers(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_get_pending_transfers_in_t in;
+    ADM_get_pending_transfers_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_get_pending_transfers");
+    LOGGER_INFO("remote_procedure::ADM_get_pending_transfers");
+
+    out.ret = 0;
+    out.pending_transfers = "list";
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_get_pending_transfers)
+
+

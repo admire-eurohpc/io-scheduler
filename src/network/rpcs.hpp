@@ -203,6 +203,14 @@ MERCURY_GEN_PROC(ADM_cancel_transfer_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_cancel_transfer);
 
+/// ADM_get_pending_transfers
+
+MERCURY_GEN_PROC(ADM_get_pending_transfers_in_t, ((hg_const_string_t) (value)))
+
+MERCURY_GEN_PROC(ADM_get_pending_transfers_out_t,
+                 ((int32_t) (ret))((hg_const_string_t) (pending_transfers)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_get_pending_transfers);
 
 
 //} // namespace scord::network::rpc

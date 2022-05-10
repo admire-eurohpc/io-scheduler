@@ -177,6 +177,10 @@ struct engine {
                      "ADM_cancel_transfer", ADM_cancel_transfer_in_t,
                      ADM_cancel_transfer_out_t, ADM_cancel_transfer, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_get_pending_transfers", ADM_get_pending_transfers_in_t,
+                     ADM_get_pending_transfers_out_t, ADM_get_pending_transfers, true);
+
     }
 
     void

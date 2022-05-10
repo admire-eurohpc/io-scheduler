@@ -22,7 +22,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-set(examples ping ADM_input ADM_output ADM_inout ADM_adhoc_context)
+set(examples ping ADM_input ADM_output ADM_inout ADM_adhoc_context ADM_adhoc_context_id)
 # list(APPEND examples ADM_adhoc_access ADM_adhoc_context ADM_adhoc_context_id ADM_adhoc_walltime)
 # list(APPEND examples ADM_adhoc_distribution ADM_adhoc_background_flush ADM_in_situ_ops)
 

@@ -120,6 +120,10 @@ struct engine {
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_adhoc_context", ADM_adhoc_context_in_t,
                      ADM_adhoc_context_out_t, ADM_adhoc_context, true);
+        
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_adhoc_context_id", ADM_adhoc_context_id_in_t,
+                     ADM_adhoc_context_id_out_t, ADM_adhoc_context_id, true);
 
     }
 

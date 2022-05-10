@@ -257,3 +257,49 @@ ADM_adhoc_context(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_context)
 
+/**
+ * Specifies an existing Ad hoc Storage System to use via its ID.
+ *
+ * @param in.context_id A valid context_id for a separate instance of an Ad hoc
+ * Storage System.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_adhoc_context_id(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_adhoc_context_id_in_t in;
+    ADM_adhoc_context_id_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_adhoc_context_id");
+    LOGGER_INFO("remote_procedure::ADM_adhoc_context_id({})", in.context_id);
+
+    if(in.context_id >= 0) {
+        out.ret = 0;
+        LOGGER_INFO("remote_procedure::ADM_adhoc_context_id not null ({})",
+                    in.context_id);
+    } else {
+        out.ret = -1;
+        LOGGER_INFO(
+                "remote_procedure::ADM_adhoc_context_id null or invalid ({}). Please use",
+                in.context_id);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_context_id)
+

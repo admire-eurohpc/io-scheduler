@@ -769,5 +769,59 @@ ADM_set_dataset_information(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_set_dataset_information)
 
+/**
+ * Changes the I/O resources used by a storage tier, typically an Ad hoc Storage
+ * System.
+ *
+ * @param in.tier_id A tier_id specifying the target storage tier.
+ * @param in.resources An opaque resources argument containing information about
+ * the I/O resources to modify (e.g. number of I/O nodes.).
+ * @param in.job_id A job_id identifying the originating job.
+ * @param out.status A status code determining whether the operation was
+ * successful.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_set_io_resources(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_set_io_resources_in_t in;
+    ADM_set_io_resources_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_set_io_resources");
+    LOGGER_INFO("remote_procedure::ADM_set_io_resources({},{},{})", in.tier_id,
+                in.resources, in.job_id);
+
+    if(in.tier_id >= 0 && in.resources != nullptr && in.job_id >= 0) {
+        out.ret = 0;
+        LOGGER_INFO(
+                "remote_procedure::ADM_transfer_dataset not null ({},{},{})",
+                in.tier_id, in.resources, in.job_id);
+        out.status = 0;
+    } else {
+        out.ret = -1;
+        LOGGER_INFO("remote_procedure::ADM_transfer_dataset null ({},{},{})",
+                    in.tier_id, in.resources, in.job_id);
+        out.status = -1;
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_set_io_resources)
+
 
 

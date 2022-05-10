@@ -149,7 +149,9 @@ struct engine {
                      "ADM_in_situ_ops", ADM_in_situ_ops_in_t,
                      ADM_in_situ_ops_out_t, ADM_in_situ_ops, true);
 
-                     
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_in_transit_ops", ADM_in_transit_ops_in_t,
+                     ADM_in_transit_ops_out_t, ADM_in_transit_ops, true);
 
                      
     }

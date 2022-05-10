@@ -131,6 +131,15 @@ MERCURY_GEN_PROC(ADM_in_situ_ops_out_t, ((int32_t) (ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_in_situ_ops);
 
+/// ADM_in_transit_ops
+
+MERCURY_GEN_PROC(ADM_in_transit_ops_in_t, ((hg_const_string_t) (in_transit)))
+
+MERCURY_GEN_PROC(ADM_in_transit_ops_out_t, ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_in_transit_ops);
+
+
 
 //} // namespace scord::network::rpc
 

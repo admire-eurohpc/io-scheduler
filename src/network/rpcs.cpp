@@ -401,4 +401,66 @@ ADM_adhoc_walltime(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_walltime)
 
+/**
+ * Specifies access to the ad hoc storage system: write-only, read-only,
+ * read-write. Cannot be used when using an existing Ad hoc Storage System
+ * instance.
+ *
+ * @param in.access The desired access method
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_adhoc_access(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_adhoc_access_in_t in;
+    ADM_adhoc_access_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_adhoc_access");
+    LOGGER_INFO("remote_procedure::ADM_adhoc_access({})", in.access);
+
+    if(in.access != nullptr) {
+        out.ret = 0;
+        LOGGER_INFO("remote_procedure::ADM_adhoc_access not null ({})",
+                    in.access);
+    } else {
+        out.ret = -1;
+        LOGGER_INFO(
+                "remote_procedure::ADM_adhoc_access null or invalid ({}). Please use",
+                in.access);
+    }
+
+    if((strcmp(in.access, "write-only")) == 0 ||
+       (strcmp(in.access, "read-only")) == 0 ||
+       (strcmp(in.access, "read-write") == 0)) {
+        out.ret = 0;
+        LOGGER_INFO(
+                "remote_procedure::ADM_adhoc_access value is acceptable ({})",
+                in.access);
+    } else {
+        out.ret = -1;
+        LOGGER_INFO(
+                "remote_procedure::ADM_adhoc_access is not valid. Please use: write-only, read-only or read-write",
+                in.access);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_access)
+
+
 

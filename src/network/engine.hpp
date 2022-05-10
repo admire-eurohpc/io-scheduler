@@ -144,6 +144,12 @@ struct engine {
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_adhoc_background_flush", ADM_adhoc_background_flush_in_t,
                      ADM_adhoc_background_flush_out_t, ADM_adhoc_background_flush, true);
+        
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_in_situ_ops", ADM_in_situ_ops_in_t,
+                     ADM_in_situ_ops_out_t, ADM_in_situ_ops, true);
+
+                     
 
                      
     }

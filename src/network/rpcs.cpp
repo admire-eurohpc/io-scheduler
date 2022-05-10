@@ -556,6 +556,50 @@ ADM_adhoc_background_flush(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_background_flush)
 
+/**
+ * In situ data operations specified in a given configuration file.
+ *
+ * @param in.in_situ A path to the configuration file.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_in_situ_ops(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_in_situ_ops_in_t in;
+    ADM_in_situ_ops_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_in_situ_ops");
+    LOGGER_INFO("remote_procedure::ADM_in_situ_ops({})", in.in_situ);
+
+    if(in.in_situ != nullptr) {
+        out.ret = 0;
+        LOGGER_INFO("remote_procedure::ADM_in_situ_ops not null ({})",
+                    in.in_situ);
+    } else {
+        out.ret = -1;
+        LOGGER_INFO(
+                "remote_procedure::ADM_in_situ_ops null or invalid ({}). Please use",
+                in.in_situ);
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_in_situ_ops)
 
 
 

@@ -128,6 +128,10 @@ struct engine {
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_adhoc_nodes", ADM_adhoc_nodes_in_t,
                      ADM_adhoc_nodes_out_t, ADM_adhoc_nodes, true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_adhoc_walltime", ADM_adhoc_walltime_in_t,
+                     ADM_adhoc_walltime_out_t, ADM_adhoc_walltime, true);
     }
 
     void

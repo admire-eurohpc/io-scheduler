@@ -27,6 +27,7 @@ list(APPEND examples ADM_adhoc_nodes ADM_adhoc_walltime ADM_adhoc_access ADM_adh
 list(APPEND examples ADM_adhoc_background_flush ADM_in_situ_ops ADM_in_transit_ops ADM_transfer_dataset)
 list(APPEND examples ADM_set_dataset_information ADM_set_io_resources ADM_get_transfer_priority)
 list(APPEND examples ADM_set_transfer_priority ADM_cancel_transfer ADM_get_pending_transfers)
+list(APPEND examples ADM_set_qos_constraints_push)
 
 foreach (example IN LISTS examples)
     add_executable(${example})

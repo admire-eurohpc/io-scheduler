@@ -181,6 +181,11 @@ struct engine {
                      "ADM_get_pending_transfers", ADM_get_pending_transfers_in_t,
                      ADM_get_pending_transfers_out_t, ADM_get_pending_transfers, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_set_qos_constraints_push", ADM_set_qos_constraints_push_in_t,
+                     ADM_set_qos_constraints_push_out_t, ADM_set_qos_constraints_push, true);
+
+
     }
 
     void

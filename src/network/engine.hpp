@@ -137,6 +137,10 @@ struct engine {
                      "ADM_adhoc_access", ADM_adhoc_access_in_t,
                      ADM_adhoc_access_out_t, ADM_adhoc_access, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_adhoc_distribution", ADM_adhoc_distribution_in_t,
+                     ADM_adhoc_distribution_out_t, ADM_adhoc_distribution, true);
+
                      
     }
 

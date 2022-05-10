@@ -120,11 +120,14 @@ struct engine {
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_adhoc_context", ADM_adhoc_context_in_t,
                      ADM_adhoc_context_out_t, ADM_adhoc_context, true);
-        
+
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_adhoc_context_id", ADM_adhoc_context_id_in_t,
                      ADM_adhoc_context_id_out_t, ADM_adhoc_context_id, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_adhoc_nodes", ADM_adhoc_nodes_in_t,
+                     ADM_adhoc_nodes_out_t, ADM_adhoc_nodes, true);
     }
 
     void
@@ -211,12 +214,11 @@ public:
     }
 
     /**
-    * Deprecated call, used to support Margo directly
-    *
-    **/
+     * Deprecated call, used to support Margo directly
+     *
+     **/
     template <typename T1 = void*, typename T2 = void*>
-    [[deprecated("It should be eventually replaced by a generic call")]]
-    void
+    [[deprecated("It should be eventually replaced by a generic call")]] void
     call(const std::string& id, T1 input = nullptr, T2 output = nullptr) {
 
         const auto it = m_margo_context->m_rpc_names.find(id);

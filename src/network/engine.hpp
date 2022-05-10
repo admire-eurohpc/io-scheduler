@@ -165,6 +165,9 @@ struct engine {
                      "ADM_set_io_resources", ADM_set_io_resources_in_t,
                      ADM_set_io_resources_out_t, ADM_set_io_resources, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_get_transfer_priority", ADM_get_transfer_priority_in_t,
+                     ADM_get_transfer_priority_out_t, ADM_get_transfer_priority, true);
                      
     }
 

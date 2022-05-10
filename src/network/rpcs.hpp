@@ -175,6 +175,15 @@ MERCURY_GEN_PROC(ADM_set_io_resources_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_set_io_resources);
 
+/// ADM_get_transfer_priority
+
+MERCURY_GEN_PROC(ADM_get_transfer_priority_in_t, ((int32_t) (transfer_id)))
+
+MERCURY_GEN_PROC(ADM_get_transfer_priority_out_t,
+                 ((int32_t) (ret))((int32_t) (priority)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_get_transfer_priority);
+
 
 
 //} // namespace scord::network::rpc

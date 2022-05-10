@@ -153,6 +153,10 @@ struct engine {
                      "ADM_in_transit_ops", ADM_in_transit_ops_in_t,
                      ADM_in_transit_ops_out_t, ADM_in_transit_ops, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_transfer_dataset", ADM_transfer_dataset_in_t,
+                     ADM_transfer_dataset_out_t, ADM_transfer_dataset, true);
+
                      
     }
 

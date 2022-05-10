@@ -24,7 +24,7 @@
 
 set(examples ping ADM_input ADM_output ADM_inout ADM_adhoc_context ADM_adhoc_context_id)
 list(APPEND examples ADM_adhoc_nodes ADM_adhoc_walltime ADM_adhoc_access ADM_adhoc_distribution)
-list(APPEND examples ADM_adhoc_background_flush ADM_in_situ_ops ADM_in_transit_ops)
+list(APPEND examples ADM_adhoc_background_flush ADM_in_situ_ops ADM_in_transit_ops ADM_transfer_dataset)
 
 foreach (example IN LISTS examples)
     add_executable(${example})

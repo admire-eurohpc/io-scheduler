@@ -647,4 +647,74 @@ ADM_in_transit_ops(hg_handle_t h) {
 DEFINE_MARGO_RPC_HANDLER(ADM_in_transit_ops)
 
 
+/**
+ * Transfers the dataset identified by the source_name to the storage tier
+ * defined by destination_name, and apply the provided constraints during the
+ * transfer. This function returns a handle that can be used to track the
+ * operation (i.e., get statistics, or status).
+ *
+ * @param in.source A source_location identifying the source dataset/s in the
+ * source storage tier.
+ * @param in.destination A destination_location identifying the destination
+ * dataset/s in its desired location in a storage tier.
+ * @param in.qos_constraints A list of qos_constraints that must be applied to
+ * the transfer. These may not exceed the global ones set at node, application,
+ * or resource level (see Section 3.4).
+ * @param in.distribution A distribution strategy for data (e.g. one-to-one,
+ * one-to-many, many-to-many)
+ * @param in.job_id A job_id identifying the originating job.
+ * @param out.transfer_handle A transfer_handle allowing clients to interact
+ * with the transfer (e.g. wait for its completion, query its status, cancel it,
+ * etc.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_transfer_dataset(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_transfer_dataset_in_t in;
+    ADM_transfer_dataset_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_transfer_dataset");
+    LOGGER_INFO("remote_procedure::ADM_transfer_dataset({},{},{},{},{})",
+                in.source, in.destination, in.qos_constraints, in.distribution,
+                in.job_id);
+
+    if(in.source != nullptr && in.destination != nullptr &&
+       in.qos_constraints != nullptr && in.distribution != nullptr &&
+       in.job_id >= 0) {
+        out.ret = 0;
+        LOGGER_INFO(
+                "remote_procedure::ADM_transfer_dataset not null ({},{},{},{},{})",
+                in.source, in.destination, in.qos_constraints, in.distribution,
+                in.job_id);
+        out.transfer_handle = "ok";
+    } else {
+        out.ret = -1;
+        LOGGER_INFO(
+                "remote_procedure::ADM_transfer_dataset null ({},{},{},{},{})",
+                in.source, in.destination, in.qos_constraints, in.distribution,
+                in.job_id);
+        out.transfer_handle = "fail";
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_transfer_dataset)
+
+
 

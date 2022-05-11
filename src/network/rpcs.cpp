@@ -61,7 +61,6 @@ ADM_input(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_input");
     LOGGER_INFO("remote_procedure::ADM_input({},{})", in.origin, in.target);
 
     if(in.origin != nullptr && in.target != nullptr) {
@@ -73,6 +72,7 @@ ADM_input(hg_handle_t h) {
         LOGGER_INFO("remote_procedure::ADM_input null ({},{})", in.origin,
                     in.target);
     }
+
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -108,7 +108,6 @@ ADM_output(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_output");
     LOGGER_INFO("remote_procedure::ADM_output({},{})", in.origin, in.target);
 
     if(in.origin != nullptr && in.target != nullptr) {
@@ -155,7 +154,6 @@ ADM_inout(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_inout");
     LOGGER_INFO("remote_procedure::ADM_inout({},{})", in.origin, in.target);
 
     if(in.origin != nullptr && in.target != nullptr) {
@@ -216,7 +214,6 @@ ADM_adhoc_context(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_adhoc_context");
     LOGGER_INFO("remote_procedure::ADM_adhoc_context({})", in.context);
 
     if(in.context != nullptr) {
@@ -277,7 +274,6 @@ ADM_adhoc_context_id(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_adhoc_context_id");
     LOGGER_INFO("remote_procedure::ADM_adhoc_context_id({})", in.context_id);
 
     if(in.context_id >= 0) {
@@ -325,7 +321,6 @@ ADM_adhoc_nodes(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_adhoc_nodes");
     LOGGER_INFO("remote_procedure::ADM_adhoc_nodes({})", in.nodes);
 
     if(in.nodes > 0) {
@@ -375,7 +370,6 @@ ADM_adhoc_walltime(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_adhoc_walltime");
     LOGGER_INFO("remote_procedure::ADM_adhoc_walltime({})", in.walltime);
 
     if(in.walltime >= 0) {
@@ -422,7 +416,6 @@ ADM_adhoc_access(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_adhoc_access");
     LOGGER_INFO("remote_procedure::ADM_adhoc_access({})", in.access);
 
     if(in.access != nullptr) {
@@ -483,7 +476,6 @@ ADM_adhoc_distribution(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_adhoc_distribution");
     LOGGER_INFO("remote_procedure::ADM_adhoc_distribution({})",
                 in.data_distribution);
 
@@ -530,7 +522,6 @@ ADM_adhoc_background_flush(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_adhoc_background_flush");
     LOGGER_INFO("remote_procedure::ADM_adhoc_background_flush({})", in.b_flush);
 
     if(in.b_flush == 0 || in.b_flush == 1) {
@@ -575,7 +566,6 @@ ADM_in_situ_ops(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_in_situ_ops");
     LOGGER_INFO("remote_procedure::ADM_in_situ_ops({})", in.in_situ);
 
     if(in.in_situ != nullptr) {
@@ -620,7 +610,6 @@ ADM_in_transit_ops(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_in_transit_ops");
     LOGGER_INFO("remote_procedure::ADM_in_transit_ops({})", in.in_transit);
 
     if(in.in_transit != nullptr) {
@@ -681,7 +670,6 @@ ADM_transfer_dataset(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_transfer_dataset");
     LOGGER_INFO("remote_procedure::ADM_transfer_dataset({},{},{},{},{})",
                 in.source, in.destination, in.qos_constraints, in.distribution,
                 in.job_id);
@@ -740,7 +728,6 @@ ADM_set_dataset_information(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_set_dataset_information");
     LOGGER_INFO("remote_procedure::ADM_set_dataset_information({},{},{})",
                 in.resource_id, in.info, in.job_id);
 
@@ -794,7 +781,6 @@ ADM_set_io_resources(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_set_io_resources");
     LOGGER_INFO("remote_procedure::ADM_set_io_resources({},{},{})", in.tier_id,
                 in.resources, in.job_id);
 
@@ -845,7 +831,6 @@ ADM_get_transfer_priority(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_get_transfer_priority");
     LOGGER_INFO("remote_procedure::ADM_get_transfer_priority({})",
                 in.transfer_id);
 
@@ -897,7 +882,6 @@ ADM_set_transfer_priority(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_set_transfer_priority");
     LOGGER_INFO("remote_procedure::ADM_set_transfer_priority({}, {})",
                 in.transfer_id, in.n_positions);
 
@@ -950,7 +934,6 @@ ADM_cancel_transfer(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_cancel_transfer");
     LOGGER_INFO("remote_procedure::ADM_cancel_transfer({})", in.transfer_id);
 
     if(in.transfer_id >= 0) {
@@ -997,7 +980,6 @@ ADM_get_pending_transfers(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_get_pending_transfers");
     LOGGER_INFO("remote_procedure::ADM_get_pending_transfers");
 
     out.ret = 0;
@@ -1041,7 +1023,6 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_set_qos_constraints_push");
     LOGGER_INFO(
             "remote_procedure::ADM_set_qos_constraints_push({}, {}, {}, {})",
             in.scope, in.qos_class, in.element_id, in.class_value);
@@ -1108,7 +1089,6 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("LOADED ADM_set_qos_constraints_pull");
     LOGGER_INFO("remote_procedure::ADM_set_qos_constraints_pull({}, {})",
                 in.scope, in.element_id);
 

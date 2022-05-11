@@ -1085,4 +1085,69 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_push)
 
+/**
+ * Returns a list of QoS constraints defined for an element identified for id.
+ *
+ * @param in.scope The scope being queried: dataset, node, or job.
+ * @param in.element_id  A valid id for the element of interest, i.e. a resource
+ * ID, a node hostname, or a Job ID.
+ * @param out.list A list of QoS constraints that includes all the classes
+ * currently defined for the element as well as the values set for them.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_set_qos_constraints_pull(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_set_qos_constraints_pull_in_t in;
+    ADM_set_qos_constraints_pull_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    LOGGER_INFO("LOADED ADM_set_qos_constraints_pull");
+    LOGGER_INFO("remote_procedure::ADM_set_qos_constraints_pull({}, {})",
+                in.scope, in.element_id);
+
+    if(in.scope != nullptr && in.element_id >= 0) {
+        LOGGER_INFO(
+                "remote_procedure::ADM_set_qos_constraints_pull not null ({}, {})",
+                in.scope, in.element_id);
+            if((strcmp(in.scope, "dataset")) == 0 ||
+            (strcmp(in.scope, "node")) == 0 || (strcmp(in.scope, "job")) == 0) {
+                LOGGER_INFO(
+                        "remote_procedure::ADM_set_qos_constraints_pull scope value is acceptable ({})",
+                        in.scope);
+                    out.ret = 0;
+                    out.list = "list";
+            } else {
+                LOGGER_INFO(
+                        "remote_procedure::ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ({})",
+                        in.scope);
+                    out.ret = -1;
+                    out.list = nullptr;
+            }
+    } else {
+        LOGGER_INFO(
+                "remote_procedure::ADM_set_qos_constraints_pull null ({}, {})",
+                in.scope, in.element_id);
+            out.ret = -1;
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_pull)
+
+
 

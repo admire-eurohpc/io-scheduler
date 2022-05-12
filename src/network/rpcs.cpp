@@ -63,16 +63,16 @@ ADM_input(hg_handle_t h) {
 
     LOGGER_INFO("remote_procedure::ADM_input({},{})", in.origin, in.target);
 
-    if(in.origin != nullptr && in.target != nullptr) {
-        out.ret = 0;
-        LOGGER_INFO("remote_procedure::ADM_input not null ({},{})", in.origin,
-                    in.target);
-    } else {
-        out.ret = -1;
-        LOGGER_INFO("remote_procedure::ADM_input null ({},{})", in.origin,
-                    in.target);
-    }
+    out.ret = -1;
 
+    if(in.origin == nullptr) {
+        LOGGER_ERROR("ADM_input(): invalid origin (nullptr)");
+    } else if(in.target == nullptr) {
+        LOGGER_ERROR("ADM_input(): invalid target (nullptr)");
+    } else {
+        LOGGER_INFO("ADM_input({}, {})", in.origin, in.target);
+        out.ret = 0;
+    }
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -110,14 +110,15 @@ ADM_output(hg_handle_t h) {
 
     LOGGER_INFO("remote_procedure::ADM_output({},{})", in.origin, in.target);
 
-    if(in.origin != nullptr && in.target != nullptr) {
-        out.ret = 0;
-        LOGGER_INFO("remote_procedure::ADM_output not null ({},{})", in.origin,
-                    in.target);
+    out.ret = -1;
+
+    if(in.origin == nullptr) {
+        LOGGER_ERROR("ADM_output(): invalid origin (nullptr)");
+    } else if(in.target == nullptr) {
+        LOGGER_ERROR("ADM_output(): invalid target (nullptr)");
     } else {
-        out.ret = -1;
-        LOGGER_INFO("remote_procedure::ADM_output null ({},{})", in.origin,
-                    in.target);
+        LOGGER_INFO("ADM_output({}, {})", in.origin, in.target);
+        out.ret = 0;
     }
 
     ret = margo_respond(h, &out);
@@ -156,14 +157,15 @@ ADM_inout(hg_handle_t h) {
 
     LOGGER_INFO("remote_procedure::ADM_inout({},{})", in.origin, in.target);
 
-    if(in.origin != nullptr && in.target != nullptr) {
-        out.ret = 0;
-        LOGGER_INFO("remote_procedure::ADM_inout not null ({},{})", in.origin,
-                    in.target);
+    out.ret = -1;
+
+    if(in.origin == nullptr) {
+        LOGGER_ERROR("ADM_inout(): invalid origin (nullptr)");
+    } else if(in.target == nullptr) {
+        LOGGER_ERROR("ADM_inout(): invalid target (nullptr)");
     } else {
-        out.ret = -1;
-        LOGGER_INFO("remote_procedure::ADM_inout null ({},{})", in.origin,
-                    in.target);
+        LOGGER_INFO("ADM_inout({}, {})", in.origin, in.target);
+        out.ret = 0;
     }
 
     ret = margo_respond(h, &out);
@@ -179,28 +181,23 @@ ADM_inout(hg_handle_t h) {
 DEFINE_MARGO_RPC_HANDLER(ADM_inout)
 
 /**
- * Specifies the execution_mode an Ad hoc Storage System should use. Valid
- options: in_job:shared (run while
- * sharing the application’s compute nodes), in_job:dedicated (run using a
- subset of the application’s
- * compute nodes), separate:new (ask the system to allocate a separate job with
- separate runtime and
- * number of nodes) and separate:existing (ask the system to reuse an already
- running Ad hoc Storage System instance).
- * The number of nodes assigned for the Ad hoc Storage System must be specified
- with ADM_adhoc_nodes.
- * In the separate:new execution_mode, the lifetime of the Ad hoc Storage System
- will be controlled with
- * ADM_adhoc_walltime. In the separate:existing execution_mode, a valid context
- ID must be provided with
- * ADM_adhoc_context_id
+ * Specifies the execution_mode an Ad hoc Storage System should use. Valid 
+ * options: in_job:shared (run while sharing the application’s compute nodes), 
+ * in_job:dedicated (run using a subset of the application’s compute nodes), 
+ * separate:new (ask the system to allocate a separate job with separate runtime 
+ * and number of nodes) and separate:existing (ask the system to reuse an already 
+ * running Ad hoc Storage System instance). 
+ * The number of nodes assigned for the Ad hoc Storage System must be specified 
+ * with ADM_adhoc_nodes. 
+ * In the separate:new execution_mode, the lifetime of the Ad hoc Storage System 
+ * will be controlled with ADM_adhoc_walltime. In the separate:existing 
+ * execution_mode, a valid context ID must be provided with ADM_adhoc_context_id.
  *
  * @param in.context A valid execution_mode describing how the Ad hoc Storage
- System should behave.
+ * System should behave.
  * @return out.ret Returns if the remote procedure has been completed
- successfully or not.
+ * successfully or not.
  * @return out.adhoc_context_id A number that identifies the context.
-
  */
 static void
 ADM_adhoc_context(hg_handle_t h) {
@@ -1028,32 +1025,32 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
             in.scope, in.qos_class, in.element_id, in.class_value);
 
     if(in.scope != nullptr && in.qos_class != nullptr && in.element_id >= 0 &&
-       in.class_value != nullptr){
+       in.class_value != nullptr) {
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_push not null ({}, {}, {}, {})",
                 in.scope, in.qos_class, in.element_id, in.class_value);
-            if((strcmp(in.scope, "dataset")) == 0 ||
-            (strcmp(in.scope, "node")) == 0 || (strcmp(in.scope, "job")) == 0) {
-                LOGGER_INFO(
-                        "remote_procedure::ADM_set_qos_constraints_push scope value is acceptable ({})",
-                        in.scope);
-                    out.ret = 0;
-                    out.status = 0;
-            } else {
-                LOGGER_INFO(
-                        "remote_procedure::ADM_set_qos_constraints_push scope value is not valid. Please use: dataset, node or job ({})",
-                        in.scope);
-                    out.ret = -1;
-                    out.status = -1;
-            }
+        if((strcmp(in.scope, "dataset")) == 0 ||
+           (strcmp(in.scope, "node")) == 0 || (strcmp(in.scope, "job")) == 0) {
+            LOGGER_INFO(
+                    "remote_procedure::ADM_set_qos_constraints_push scope value is acceptable ({})",
+                    in.scope);
+            out.ret = 0;
+            out.status = 0;
+        } else {
+            LOGGER_INFO(
+                    "remote_procedure::ADM_set_qos_constraints_push scope value is not valid. Please use: dataset, node or job ({})",
+                    in.scope);
+            out.ret = -1;
+            out.status = -1;
+        }
     } else {
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_push null ({}, {}, {}, {})",
                 in.scope, in.qos_class, in.element_id, in.class_value);
-                out.ret = -1;
-                out.status = -1;
+        out.ret = -1;
+        out.status = -1;
     }
-    
+
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
 
@@ -1096,25 +1093,25 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_pull not null ({}, {})",
                 in.scope, in.element_id);
-            if((strcmp(in.scope, "dataset")) == 0 ||
-            (strcmp(in.scope, "node")) == 0 || (strcmp(in.scope, "job")) == 0) {
-                LOGGER_INFO(
-                        "remote_procedure::ADM_set_qos_constraints_pull scope value is acceptable ({})",
-                        in.scope);
-                    out.ret = 0;
-                    out.list = "list";
-            } else {
-                LOGGER_INFO(
-                        "remote_procedure::ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ({})",
-                        in.scope);
-                    out.ret = -1;
-                    out.list = nullptr;
-            }
+        if((strcmp(in.scope, "dataset")) == 0 ||
+           (strcmp(in.scope, "node")) == 0 || (strcmp(in.scope, "job")) == 0) {
+            LOGGER_INFO(
+                    "remote_procedure::ADM_set_qos_constraints_pull scope value is acceptable ({})",
+                    in.scope);
+            out.ret = 0;
+            out.list = "list";
+        } else {
+            LOGGER_INFO(
+                    "remote_procedure::ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ({})",
+                    in.scope);
+            out.ret = -1;
+            out.list = nullptr;
+        }
     } else {
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_pull null ({}, {})",
                 in.scope, in.element_id);
-            out.ret = -1;
+        out.ret = -1;
     }
 
     ret = margo_respond(h, &out);
@@ -1128,6 +1125,3 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_pull)
-
-
-

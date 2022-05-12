@@ -22,7 +22,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-list(APPEND ping ADM_input ADM_output ADM_inout ADM_adhoc_context ADM_adhoc_context_id
+list(APPEND examples
+            ping ADM_input ADM_output ADM_inout ADM_adhoc_context ADM_adhoc_context_id
             ADM_adhoc_nodes ADM_adhoc_walltime ADM_adhoc_access ADM_adhoc_distribution
             ADM_adhoc_background_flush ADM_in_situ_ops ADM_in_transit_ops ADM_transfer_dataset
             ADM_set_dataset_information ADM_set_io_resources ADM_get_transfer_priority

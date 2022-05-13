@@ -31,7 +31,7 @@ ping(hg_handle_t h) {
 
     margo_instance_id mid = margo_hg_handle_get_instance(h);
 
-    LOGGER_INFO("remote_procedure::PING(noargs)");
+    LOGGER_INFO("PING(noargs)");
 
     ret = margo_destroy(h);
     assert(ret == HG_SUCCESS);
@@ -60,8 +60,6 @@ ADM_input(hg_handle_t h) {
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
-
-    LOGGER_INFO("remote_procedure::ADM_input({},{})", in.origin, in.target);
 
     out.ret = -1;
 
@@ -108,8 +106,6 @@ ADM_output(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_output({},{})", in.origin, in.target);
-
     out.ret = -1;
 
     if(in.origin == nullptr) {
@@ -154,8 +150,6 @@ ADM_inout(hg_handle_t h) {
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
-
-    LOGGER_INFO("remote_procedure::ADM_inout({},{})", in.origin, in.target);
 
     out.ret = -1;
 
@@ -213,8 +207,6 @@ ADM_adhoc_context(hg_handle_t h) {
 
     const std::string ctx(in.context);
 
-    LOGGER_INFO("remote_procedure::ADM_adhoc_context({})", in.context);
-
     out.ret = -1;
     out.adhoc_context = -1;
 
@@ -225,14 +217,13 @@ ADM_adhoc_context(hg_handle_t h) {
 
         if(ctx == "in_job:shared" || ctx == "in_job:dedicated" ||
            ctx == "separate:new" || ctx == "separate:existing") {
-            LOGGER_INFO(
-                    "remote_procedure::ADM_adhoc_context value is acceptable ({})",
-                    in.context);
+            LOGGER_INFO("ADM_adhoc_context value is acceptable ({})",
+                        in.context);
             out.ret = 0;
             out.adhoc_context = rand();
         } else {
             LOGGER_ERROR(
-                    "remote_procedure::ADM_adhoc_context is not valid. Please use: in_job:shared, in_job:dedicated, separate:new or separate:existing");
+                    "ADM_adhoc_context is not valid. Please use: in_job:shared, in_job:dedicated, separate:new or separate:existing");
         }
     }
 
@@ -268,14 +259,13 @@ ADM_adhoc_context_id(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_adhoc_context_id({})", in.context_id);
 
     out.ret = -1;
 
     if(in.context_id < 0) {
         LOGGER_ERROR("ADM_adhoc_context_id(): invalid context_id (< 0)");
     } else {
-        LOGGER_INFO("ADM_input({})", in.context_id);
+        LOGGER_INFO("ADM_adhoc_context_id({})", in.context_id);
         out.ret = 0;
     }
 
@@ -313,8 +303,6 @@ ADM_adhoc_nodes(hg_handle_t h) {
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
-
-    LOGGER_INFO("remote_procedure::ADM_adhoc_nodes({})", in.nodes);
 
     out.ret = -1;
 
@@ -364,8 +352,6 @@ ADM_adhoc_walltime(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_adhoc_walltime({})", in.walltime);
-
     out.ret = -1;
 
     if(in.walltime < 0) {
@@ -411,8 +397,6 @@ ADM_adhoc_access(hg_handle_t h) {
 
     const std::string acc(in.access);
 
-    LOGGER_INFO("remote_procedure::ADM_adhoc_access({})", in.access);
-
     out.ret = -1;
 
     if(in.access == nullptr) {
@@ -423,12 +407,10 @@ ADM_adhoc_access(hg_handle_t h) {
         if((acc == "write-only") || (acc == "read-only") ||
            (acc == "read-write")) {
             out.ret = 0;
-            LOGGER_INFO(
-                    "remote_procedure::ADM_adhoc_access value is acceptable ({})",
-                    in.access);
+            LOGGER_INFO("ADM_adhoc_access value is acceptable ({})", in.access);
         } else {
             LOGGER_ERROR(
-                    "remote_procedure::ADM_adhoc_access is not valid. Please use: write-only, read-only or read-write");
+                    "ADM_adhoc_access is not valid. Please use: write-only, read-only or read-write");
         }
     }
 
@@ -465,9 +447,6 @@ ADM_adhoc_distribution(hg_handle_t h) {
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
-
-    LOGGER_INFO("remote_procedure::ADM_adhoc_distribution({})",
-                in.data_distribution);
 
     out.ret = -1;
 
@@ -512,8 +491,6 @@ ADM_adhoc_background_flush(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_adhoc_background_flush({})", in.b_flush);
-
     out.ret = -1;
 
     if(in.b_flush != 0 && in.b_flush != 1) {
@@ -556,8 +533,6 @@ ADM_in_situ_ops(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_in_situ_ops({})", in.in_situ);
-
     out.ret = -1;
 
     if(in.in_situ == nullptr) {
@@ -598,8 +573,6 @@ ADM_in_transit_ops(hg_handle_t h) {
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
-
-    LOGGER_INFO("remote_procedure::ADM_in_transit_ops({})", in.in_transit);
 
     out.ret = -1;
 
@@ -657,10 +630,6 @@ ADM_transfer_dataset(hg_handle_t h) {
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
-
-    LOGGER_INFO("remote_procedure::ADM_transfer_dataset({},{},{},{},{})",
-                in.source, in.destination, in.qos_constraints, in.distribution,
-                in.job_id);
 
     out.ret = -1;
     out.transfer_handle = "fail";
@@ -721,9 +690,6 @@ ADM_set_dataset_information(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_set_dataset_information({},{},{})",
-                in.resource_id, in.info, in.job_id);
-
     out.ret = -1;
     out.status = -1;
 
@@ -779,9 +745,6 @@ ADM_set_io_resources(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_set_io_resources({},{},{})", in.tier_id,
-                in.resources, in.job_id);
-
     out.ret = -1;
     out.status = -1;
 
@@ -833,9 +796,6 @@ ADM_get_transfer_priority(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_get_transfer_priority({})",
-                in.transfer_id);
-
     out.ret = -1;
     out.priority = -1;
 
@@ -884,16 +844,13 @@ ADM_set_transfer_priority(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_set_transfer_priority({}, {})",
-                in.transfer_id, in.n_positions);
-
     out.ret = -1;
     out.status = -1;
 
     if(in.transfer_id < 0) {
         LOGGER_ERROR(
                 "ADM_set_transfer_priority(): invalid transfer_id (nullptr)");
-    }else {
+    } else {
         LOGGER_INFO("ADM_set_transfer_priority({}, {})", in.transfer_id,
                     in.n_positions);
         out.ret = 0;
@@ -933,8 +890,6 @@ ADM_cancel_transfer(hg_handle_t h) {
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
-
-    LOGGER_INFO("remote_procedure::ADM_cancel_transfer({})", in.transfer_id);
 
     out.ret = -1;
     out.status = -1;
@@ -980,8 +935,6 @@ ADM_get_pending_transfers(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    LOGGER_INFO("remote_procedure::ADM_get_pending_transfers");
-
     out.ret = 0;
     out.pending_transfers = "list";
 
@@ -1025,10 +978,6 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
 
     const std::string scp(in.scope);
 
-    LOGGER_INFO(
-            "remote_procedure::ADM_set_qos_constraints_push({}, {}, {}, {})",
-            in.scope, in.qos_class, in.element_id, in.class_value);
-
     out.ret = -1;
     out.status = -1;
 
@@ -1049,13 +998,13 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
                     in.qos_class, in.element_id, in.class_value);
         if((scp == "dataset") || (scp == "node") || (scp == "job")) {
             LOGGER_INFO(
-                    "remote_procedure::ADM_set_qos_constraints_push scope value is acceptable ({})",
+                    "ADM_set_qos_constraints_push scope value is acceptable ({})",
                     in.scope);
             out.ret = 0;
             out.status = 0;
         } else {
             LOGGER_ERROR(
-                    "remote_procedure::ADM_set_qos_constraints_push scope value is not valid. Please use: dataset, node or job");
+                    "ADM_set_qos_constraints_push scope value is not valid. Please use: dataset, node or job");
         }
     }
 
@@ -1097,9 +1046,6 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
 
     const std::string scp(in.scope);
 
-    LOGGER_INFO("remote_procedure::ADM_set_qos_constraints_pull({}, {})",
-                in.scope, in.element_id);
-
     out.ret = -1;
     out.list = nullptr;
 
@@ -1111,13 +1057,13 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
         LOGGER_INFO("ADM_input({}, {})", in.scope, in.element_id);
         if((scp == "dataset") || (scp == "node") || (scp == "job")) {
             LOGGER_INFO(
-                    "remote_procedure::ADM_set_qos_constraints_pull scope value is acceptable ({})",
+                    "ADM_set_qos_constraints_pull scope value is acceptable ({})",
                     in.scope);
             out.ret = 0;
             out.list = "list";
         } else {
             LOGGER_ERROR(
-                    "remote_procedure::ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ");
+                    "ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ");
         }
     }
 

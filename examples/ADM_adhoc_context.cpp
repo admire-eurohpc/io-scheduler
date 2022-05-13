@@ -27,6 +27,7 @@ main(int argc, char* argv[]) {
 
     endp.call("ADM_adhoc_context", &in, &out);
 
+
     if(out.ret < 0 || out.adhoc_context < 0) {
         fmt::print(
                 stdout,

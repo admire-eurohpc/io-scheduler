@@ -1116,7 +1116,7 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
             out.ret = 0;
             out.list = "list";
         } else {
-            LOGGER_INFO(
+            LOGGER_ERROR(
                     "remote_procedure::ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ");
         }
     }

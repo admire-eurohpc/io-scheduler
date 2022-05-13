@@ -181,17 +181,17 @@ ADM_inout(hg_handle_t h) {
 DEFINE_MARGO_RPC_HANDLER(ADM_inout)
 
 /**
- * Specifies the execution_mode an Ad hoc Storage System should use. Valid 
- * options: in_job:shared (run while sharing the application’s compute nodes), 
- * in_job:dedicated (run using a subset of the application’s compute nodes), 
- * separate:new (ask the system to allocate a separate job with separate runtime 
- * and number of nodes) and separate:existing (ask the system to reuse an already 
- * running Ad hoc Storage System instance). 
- * The number of nodes assigned for the Ad hoc Storage System must be specified 
- * with ADM_adhoc_nodes. 
- * In the separate:new execution_mode, the lifetime of the Ad hoc Storage System 
- * will be controlled with ADM_adhoc_walltime. In the separate:existing 
- * execution_mode, a valid context ID must be provided with ADM_adhoc_context_id.
+ * Specifies the execution_mode an Ad hoc Storage System should use. Valid
+ * options: in_job:shared (run while sharing the application’s compute nodes),
+ * in_job:dedicated (run using a subset of the application’s compute nodes),
+ * separate:new (ask the system to allocate a separate job with separate runtime
+ * and number of nodes) and separate:existing (ask the system to reuse an
+ * already running Ad hoc Storage System instance). The number of nodes assigned
+ * for the Ad hoc Storage System must be specified with ADM_adhoc_nodes. In the
+ * separate:new execution_mode, the lifetime of the Ad hoc Storage System will
+ * be controlled with ADM_adhoc_walltime. In the separate:existing
+ * execution_mode, a valid context ID must be provided with
+ * ADM_adhoc_context_id.
  *
  * @param in.context A valid execution_mode describing how the Ad hoc Storage
  * System should behave.
@@ -211,32 +211,34 @@ ADM_adhoc_context(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
+    const std::string ctx(in.context);
+
     LOGGER_INFO("remote_procedure::ADM_adhoc_context({})", in.context);
 
     if(in.context != nullptr) {
+        
         out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_adhoc_context not null ({})",
                     in.context);
+
+        if(ctx == "in_job:shared" || ctx == "in_job:dedicated" ||
+           ctx == "separate:new" || ctx == "separate:existing") {
+            LOGGER_INFO(
+                    "remote_procedure::ADM_adhoc_context value is acceptable ({})",
+                    in.context);
+            out.adhoc_context = rand();
+        } else {
+            LOGGER_INFO(
+                    "remote_procedure::ADM_adhoc_context is not valid. Please use: in_job:shared, in_job:dedicated, separate:new or separate:existing ({})",
+                    in.context);
+            out.adhoc_context = -1;
+        }
+
     } else {
         out.ret = -1;
         LOGGER_INFO(
                 "remote_procedure::ADM_adhoc_context null or invalid ({}). Please use",
                 in.context);
-    }
-
-    if((strcmp(in.context, "in_job:shared")) == 0 ||
-       (strcmp(in.context, "in_job:dedicated")) == 0 ||
-       (strcmp(in.context, "separate:new")) == 0 ||
-       (strcmp(in.context, "separate:existing")) == 0) {
-        LOGGER_INFO(
-                "remote_procedure::ADM_adhoc_context value is acceptable ({})",
-                in.context);
-        out.adhoc_context = rand();
-    } else {
-        LOGGER_INFO(
-                "remote_procedure::ADM_adhoc_context is not valid. Please use: in_job:shared, in_job:dedicated, separate:new or separate:existing ({})",
-                in.context);
-        out.adhoc_context = -1;
     }
 
     ret = margo_respond(h, &out);
@@ -413,30 +415,30 @@ ADM_adhoc_access(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
+    const std::string acc(in.access);
+
     LOGGER_INFO("remote_procedure::ADM_adhoc_access({})", in.access);
 
     if(in.access != nullptr) {
-        out.ret = 0;
         LOGGER_INFO("remote_procedure::ADM_adhoc_access not null ({})",
                     in.access);
+        
+        if((acc == "write-only") || (acc == "read-only") || (acc == "read-write")) {
+            out.ret = 0;
+            LOGGER_INFO(
+                    "remote_procedure::ADM_adhoc_access value is acceptable ({})",
+                    in.access);
+        } else {
+            out.ret = -1;
+            LOGGER_INFO(
+                    "remote_procedure::ADM_adhoc_access is not valid. Please use: write-only, read-only or read-write",
+                    in.access);
+        }
+        
     } else {
         out.ret = -1;
         LOGGER_INFO(
                 "remote_procedure::ADM_adhoc_access null or invalid ({}). Please use",
-                in.access);
-    }
-
-    if((strcmp(in.access, "write-only")) == 0 ||
-       (strcmp(in.access, "read-only")) == 0 ||
-       (strcmp(in.access, "read-write") == 0)) {
-        out.ret = 0;
-        LOGGER_INFO(
-                "remote_procedure::ADM_adhoc_access value is acceptable ({})",
-                in.access);
-    } else {
-        out.ret = -1;
-        LOGGER_INFO(
-                "remote_procedure::ADM_adhoc_access is not valid. Please use: write-only, read-only or read-write",
                 in.access);
     }
 
@@ -1020,6 +1022,8 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
+    const std::string scp(in.scope);
+
     LOGGER_INFO(
             "remote_procedure::ADM_set_qos_constraints_push({}, {}, {}, {})",
             in.scope, in.qos_class, in.element_id, in.class_value);
@@ -1029,8 +1033,7 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_push not null ({}, {}, {}, {})",
                 in.scope, in.qos_class, in.element_id, in.class_value);
-        if((strcmp(in.scope, "dataset")) == 0 ||
-           (strcmp(in.scope, "node")) == 0 || (strcmp(in.scope, "job")) == 0) {
+        if((scp == "dataset") || (scp == "node") || (scp == "job")) {
             LOGGER_INFO(
                     "remote_procedure::ADM_set_qos_constraints_push scope value is acceptable ({})",
                     in.scope);
@@ -1086,6 +1089,8 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
+    const std::string scp(in.scope);
+
     LOGGER_INFO("remote_procedure::ADM_set_qos_constraints_pull({}, {})",
                 in.scope, in.element_id);
 
@@ -1093,8 +1098,7 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
         LOGGER_INFO(
                 "remote_procedure::ADM_set_qos_constraints_pull not null ({}, {})",
                 in.scope, in.element_id);
-        if((strcmp(in.scope, "dataset")) == 0 ||
-           (strcmp(in.scope, "node")) == 0 || (strcmp(in.scope, "job")) == 0) {
+        if((scp == "dataset") || (scp == "node") || (scp == "job")) {
             LOGGER_INFO(
                     "remote_procedure::ADM_set_qos_constraints_pull scope value is acceptable ({})",
                     in.scope);

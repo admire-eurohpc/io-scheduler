@@ -1285,21 +1285,24 @@ ADM_link_transfer_to_data_operation(hg_handle_t h) {
     out.operation_handle = nullptr;
 
     if(in.operation_id < 0) {
-        LOGGER_ERROR("ADM_link_transfer_to_data_operation(): invalid operation_id (< 0)");
+        LOGGER_ERROR(
+                "ADM_link_transfer_to_data_operation(): invalid operation_id (< 0)");
     } else if(in.transfer_id < 0) {
-        LOGGER_ERROR("ADM_link_transfer_to_data_operation(): invalid transfer_id (< 0)");
+        LOGGER_ERROR(
+                "ADM_link_transfer_to_data_operation(): invalid transfer_id (< 0)");
     } else if(in.arguments == nullptr) {
         LOGGER_ERROR(
                 "ADM_link_transfer_to_data_operation(): invalid arguments (nullptr)");
-    }else if(in.stream != true && in.stream != false) {
+    } else if(in.stream != true && in.stream != false) {
         LOGGER_ERROR(
                 "ADM_link_transfer_to_data_operation(): invalid stream (not true/false)");
-    }else if(in.job_id < 0) {
-        LOGGER_ERROR("ADM_link_transfer_to_data_operation(): invalid job_id (< 0)");
+    } else if(in.job_id < 0) {
+        LOGGER_ERROR(
+                "ADM_link_transfer_to_data_operation(): invalid job_id (< 0)");
     } else {
         LOGGER_INFO("ADM_link_transfer_to_data_operation ({}, {}, {}, {}, {})",
-                in.operation_id, in.transfer_id, in.stream, in.arguments,
-                in.job_id);
+                    in.operation_id, in.transfer_id, in.stream, in.arguments,
+                    in.job_id);
         out.ret = 0;
         out.operation_handle = "operation_handle";
     }
@@ -1315,3 +1318,53 @@ ADM_link_transfer_to_data_operation(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_link_transfer_to_data_operation)
+
+
+/**
+ * Returns the current I/O statistics for a specified job_id and an optional
+ * corresponding job_step. The information will be returned in an
+ * easy-to-process format, e.g., JSON (see Listing 3.1).
+ *
+ * @param in.job_id
+ * @param in.job_step
+ * @return out.job_statistics
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_get_statistics(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_get_statistics_in_t in;
+    ADM_get_statistics_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+    out.job_statistics = nullptr;
+
+    if(in.job_id < 0) {
+        LOGGER_ERROR("ADM_get_statistics(): invalid job_id (< 0)");
+    } else if(in.job_step < 0) {
+        LOGGER_ERROR("ADM_get_statistics(): invalid job_step (< 0)");
+    } else {
+        LOGGER_INFO("ADM_get_statistics ({}, {})",
+                    in.job_id, in.job_step);
+        out.ret = 0;
+        out.job_statistics = "job_statistics";
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_get_statistics)

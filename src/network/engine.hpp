@@ -227,6 +227,10 @@ struct engine {
                      ADM_link_transfer_to_data_operation_in_t,
                      ADM_link_transfer_to_data_operation_out_t,
                      ADM_link_transfer_to_data_operation, true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_get_statistics", ADM_get_statistics_in_t,
+                     ADM_get_statistics_out_t, ADM_get_statistics, true);
     }
 
     void

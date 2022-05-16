@@ -1248,3 +1248,70 @@ ADM_finalize_data_operation(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_finalize_data_operation)
+
+/**
+ * Links the data operation defined with operation_id with the pending transfer
+ * identified by transf er_id using the values provided as arguments. If the
+ * operation can be executed in a streaming fashion (i.e., it can start even if
+ * the input data is not entirely available), the stream parameter must be set
+ * to true.
+ *
+ * @param in.operation_id The operation_id of the operation to be connected.
+ * @param in.transfer_id The transfer_id of the pending transfer the operation
+ * should be linked to.
+ * @param in.stream A stream boolean indicating if the operation should be
+ * executed in a streaming fashion.
+ * @param in.arguments The values for the arguments required by the operation.
+ * @param in.job_id A job_id identifying the originating job.
+ * @return out.operation_handle An operation_handle for the operation that
+ * allows clients to further interact with the operation (e.g query its status,
+ * cancel it, etc.).
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_link_transfer_to_data_operation(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_link_transfer_to_data_operation_in_t in;
+    ADM_link_transfer_to_data_operation_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+    out.operation_handle = nullptr;
+
+    if(in.operation_id < 0) {
+        LOGGER_ERROR("ADM_link_transfer_to_data_operation(): invalid operation_id (< 0)");
+    } else if(in.transfer_id < 0) {
+        LOGGER_ERROR("ADM_link_transfer_to_data_operation(): invalid transfer_id (< 0)");
+    } else if(in.arguments == nullptr) {
+        LOGGER_ERROR(
+                "ADM_link_transfer_to_data_operation(): invalid arguments (nullptr)");
+    }else if(in.stream != true && in.stream != false) {
+        LOGGER_ERROR(
+                "ADM_link_transfer_to_data_operation(): invalid stream (not true/false)");
+    }else if(in.job_id < 0) {
+        LOGGER_ERROR("ADM_link_transfer_to_data_operation(): invalid job_id (< 0)");
+    } else {
+        LOGGER_INFO("ADM_link_transfer_to_data_operation ({}, {}, {}, {}, {})",
+                in.operation_id, in.transfer_id, in.stream, in.arguments,
+                in.job_id);
+        out.ret = 0;
+        out.operation_handle = "operation_handle";
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_link_transfer_to_data_operation)

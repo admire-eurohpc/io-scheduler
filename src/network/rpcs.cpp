@@ -494,7 +494,7 @@ ADM_adhoc_background_flush(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = 0;
+    out.ret = -1;
     
     if(in.b_flush != true && in.b_flush != false) {
         LOGGER_ERROR(

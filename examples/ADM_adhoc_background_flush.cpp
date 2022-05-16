@@ -1,15 +1,14 @@
 #include <fmt/format.h>
 #include <engine.hpp>
 
-int
+bool
 string_to_convert(std::string s) {
     if(s == "true" || s == "TRUE" || s == "True") {
         return true;
     } else if(s == "false" || s == "FALSE" || s == "False") {
         return false;
     } else {
-        fmt::print(stdout, "ERROR: Incorrect input value. Please try again.\n");
-        exit(EXIT_FAILURE);
+        throw std::invalid_argument("ERROR: Incorrect input value. Please try again.\n");
     }
 }
 
@@ -34,8 +33,15 @@ main(int argc, char* argv[]) {
             "Calling ADM_adhoc_background_flush remote procedure on {} -> flush true/false: {} ...\n",
             argv[1], argv[2]);
     ADM_adhoc_background_flush_in_t in;
-    
-    in.b_flush = string_to_convert(argv[2]);
+
+    try {
+        in.b_flush = string_to_convert(argv[2]);
+    } catch(const std::invalid_argument& ia) {
+        fmt::print(
+            stderr,
+            "ERROR: Incorrect input value. Please introduce TRUE/FALSE value. \n");
+        exit(EXIT_FAILURE);
+    }
 
     ADM_adhoc_background_flush_out_t out;
 

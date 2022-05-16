@@ -2,10 +2,10 @@
 #include <engine.hpp>
 
 int
-String2Convert(std::string var) {
-    if(var == "true" || var == "TRUE") {
+string_to_convert(std::string s) {
+    if(s == "true" || s == "TRUE") {
         return 0;
-    } else if(var == "false" || var == "FALSE") {
+    } else if(s == "false" || s == "FALSE") {
         return 1;
     } else {
         return -1;
@@ -35,7 +35,7 @@ main(int argc, char* argv[]) {
     ADM_adhoc_background_flush_in_t in;
 
     try {
-        in.b_flush = String2Convert(argv[2]);
+        in.b_flush = string_to_convert(argv[2]);
     } catch(const std::exception& e) {
         fmt::print(stdout, "ERROR: Incorrect input value. Please try again.\n");
         exit(EXIT_FAILURE);

@@ -189,6 +189,10 @@ struct engine {
                      "ADM_set_qos_constraints_pull", ADM_set_qos_constraints_pull_in_t,
                      ADM_set_qos_constraints_pull_out_t, ADM_set_qos_constraints_pull, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_define_data_operation", ADM_define_data_operation_in_t,
+                     ADM_define_data_operation_out_t, ADM_define_data_operation, true);
+
 
     }
 

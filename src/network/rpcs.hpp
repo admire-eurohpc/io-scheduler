@@ -234,6 +234,16 @@ MERCURY_GEN_PROC(ADM_set_qos_constraints_pull_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_pull);
 
+/// ADM_define_data_operation
+
+MERCURY_GEN_PROC(ADM_define_data_operation_in_t,
+                 ((hg_const_string_t) (path))((int32_t) (operation_id))(
+                         (hg_const_string_t) (arguments)))
+
+MERCURY_GEN_PROC(ADM_define_data_operation_out_t,
+                 ((int32_t) (ret))((int32_t) (status)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_define_data_operation);
 
 
 //} // namespace scord::network::rpc

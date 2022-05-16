@@ -217,9 +217,8 @@ ADM_adhoc_context(hg_handle_t h) {
 
         if(ctx == "in_job:shared" || ctx == "in_job:dedicated" ||
            ctx == "separate:new" || ctx == "separate:existing") {
-            LOGGER_INFO(
-                    "ADM_adhoc_context value is acceptable ({})",
-                    in.context);
+            LOGGER_INFO("ADM_adhoc_context value is acceptable ({})",
+                        in.context);
             out.ret = 0;
             out.adhoc_context = rand();
         } else {
@@ -408,9 +407,7 @@ ADM_adhoc_access(hg_handle_t h) {
         if((acc == "write-only") || (acc == "read-only") ||
            (acc == "read-write")) {
             out.ret = 0;
-            LOGGER_INFO(
-                    "ADM_adhoc_access value is acceptable ({})",
-                    in.access);
+            LOGGER_INFO("ADM_adhoc_access value is acceptable ({})", in.access);
         } else {
             LOGGER_ERROR(
                     "ADM_adhoc_access is not valid. Please use: write-only, read-only or read-write");
@@ -495,7 +492,7 @@ ADM_adhoc_background_flush(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 
     out.ret = -1;
-    
+
     if(in.b_flush != true && in.b_flush != false) {
         LOGGER_ERROR(
                 "ADM_adhoc_background_flush(): invalid background_flush (not true/false)");
@@ -852,7 +849,7 @@ ADM_set_transfer_priority(hg_handle_t h) {
     if(in.transfer_id < 0) {
         LOGGER_ERROR(
                 "ADM_set_transfer_priority(): invalid transfer_id (nullptr)");
-    }else {
+    } else {
         LOGGER_INFO("ADM_set_transfer_priority({}, {})", in.transfer_id,
                     in.n_positions);
         out.ret = 0;
@@ -984,8 +981,7 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
     out.status = -1;
 
     if(in.scope == nullptr) {
-        LOGGER_ERROR(
-                "ADM_set_qos_constraints_push(): invalid scope (nullptr)");
+        LOGGER_ERROR("ADM_set_qos_constraints_push(): invalid scope (nullptr)");
     } else if(in.qos_class == nullptr) {
         LOGGER_ERROR(
                 "ADM_set_qos_constraints_push(): invalid qos_class (nullptr)");
@@ -1111,17 +1107,15 @@ ADM_define_data_operation(hg_handle_t h) {
     out.status = -1;
 
     if(in.path == nullptr) {
-        LOGGER_ERROR(
-                "ADM_define_data_operation(): invalid path (nullptr)");
+        LOGGER_ERROR("ADM_define_data_operation(): invalid path (nullptr)");
     } else if(in.operation_id < 0) {
-        LOGGER_ERROR(
-                "ADM_define_data_operation(): invalid operation_id (< 0)");
+        LOGGER_ERROR("ADM_define_data_operation(): invalid operation_id (< 0)");
     } else if(in.arguments == nullptr) {
         LOGGER_ERROR(
                 "ADM_define_data_operation(): invalid arguments (nullptr)");
     } else {
-        LOGGER_INFO("ADM_define_data_operation ({}, {}, {})",
-                in.path, in.operation_id, in.arguments);
+        LOGGER_INFO("ADM_define_data_operation ({}, {}, {})", in.path,
+                    in.operation_id, in.arguments);
         out.ret = 0;
         out.status = 0;
     }
@@ -1139,3 +1133,73 @@ ADM_define_data_operation(hg_handle_t h) {
 DEFINE_MARGO_RPC_HANDLER(ADM_define_data_operation)
 
 
+/**
+ * Connects and starts the data operation defined with operation_id and with the
+ * arguments, using the input and output data storage (i.e., files). If the
+ * operation can be executed in a streaming fashion (i.e., it can start even if
+ * the input data is not entirely available), the stream parameter must be set
+ * to true.
+ *
+ * @param in.operation_id The operation_id of the operation to be connected.
+ * @param in.input An input data resource for the operation.
+ * @param in.stream A stream boolean indicating if the operation should be
+ * executed in a streaming fashion.
+ * @param in.arguments The values for the arguments required by the operation.
+ * @param in.job_id A job_id identifying the originating job.
+ * @param out.data An output data resource where the result of the operation
+ * should be stored.
+ * @return out.operation_handle An operation_handle for the operation that
+ * allows clients to further interact with the operation (e.g query its status,
+ * cancel it, etc.).
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_connect_data_operation(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_connect_data_operation_in_t in;
+    ADM_connect_data_operation_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+    out.data = nullptr;
+    out.operation_handle = nullptr;
+
+    if(in.operation_id < 0) {
+        LOGGER_ERROR(
+                "ADM_connect_data_operation(): invalid operation_id (< 0)");
+    } else if(in.input == nullptr) {
+        LOGGER_ERROR("ADM_define_data_operation(): invalid input (nullptr)");
+    } else if(in.stream != true && in.stream != false) {
+        LOGGER_ERROR(
+                "ADM_connect_data_operation(): invalid stream (not true/false)");
+    } else if(in.arguments == nullptr) {
+        LOGGER_ERROR(
+                "ADM_connect_data_operation(): invalid arguments (nullptr)");
+    } else if(in.job_id < 0) {
+        LOGGER_ERROR("ADM_connect_data_operation(): invalid job_id (< 0)");
+    } else {
+        LOGGER_INFO("ADM_connect_data_operation({}, {}, {}, {}, {})",
+                    in.operation_id, in.input, in.stream, in.arguments,
+                    in.job_id);
+        out.ret = 0;
+        out.data = "ouput";
+        out.operation_handle = "operation_handle";
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_connect_data_operation)

@@ -217,8 +217,9 @@ ADM_adhoc_context(hg_handle_t h) {
 
         if(ctx == "in_job:shared" || ctx == "in_job:dedicated" ||
            ctx == "separate:new" || ctx == "separate:existing") {
-            LOGGER_INFO("ADM_adhoc_context value is acceptable ({})",
-                        in.context);
+            LOGGER_INFO(
+                    "ADM_adhoc_context value is acceptable ({})",
+                    in.context);
             out.ret = 0;
             out.adhoc_context = rand();
         } else {
@@ -407,7 +408,9 @@ ADM_adhoc_access(hg_handle_t h) {
         if((acc == "write-only") || (acc == "read-only") ||
            (acc == "read-write")) {
             out.ret = 0;
-            LOGGER_INFO("ADM_adhoc_access value is acceptable ({})", in.access);
+            LOGGER_INFO(
+                    "ADM_adhoc_access value is acceptable ({})",
+                    in.access);
         } else {
             LOGGER_ERROR(
                     "ADM_adhoc_access is not valid. Please use: write-only, read-only or read-write");
@@ -491,16 +494,15 @@ ADM_adhoc_background_flush(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
-
-    if(in.b_flush != 0 && in.b_flush != 1) {
+    out.ret = 0;
+    
+    if(in.b_flush != true && in.b_flush != false) {
         LOGGER_ERROR(
                 "ADM_adhoc_background_flush(): invalid background_flush (not true/false)");
     } else {
         LOGGER_INFO("ADM_adhoc_background_flush({})", in.b_flush);
         out.ret = 0;
     }
-
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -850,7 +852,7 @@ ADM_set_transfer_priority(hg_handle_t h) {
     if(in.transfer_id < 0) {
         LOGGER_ERROR(
                 "ADM_set_transfer_priority(): invalid transfer_id (nullptr)");
-    } else {
+    }else {
         LOGGER_INFO("ADM_set_transfer_priority({}, {})", in.transfer_id,
                     in.n_positions);
         out.ret = 0;

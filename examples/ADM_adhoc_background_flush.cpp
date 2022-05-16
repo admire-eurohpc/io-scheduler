@@ -3,12 +3,13 @@
 
 int
 string_to_convert(std::string s) {
-    if(s == "true" || s == "TRUE") {
-        return 0;
-    } else if(s == "false" || s == "FALSE") {
-        return 1;
+    if(s == "true" || s == "TRUE" || s == "True") {
+        return true;
+    } else if(s == "false" || s == "FALSE" || s == "False") {
+        return false;
     } else {
-        return -1;
+        fmt::print(stdout, "ERROR: Incorrect input value. Please try again.\n");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -33,13 +34,8 @@ main(int argc, char* argv[]) {
             "Calling ADM_adhoc_background_flush remote procedure on {} -> flush true/false: {} ...\n",
             argv[1], argv[2]);
     ADM_adhoc_background_flush_in_t in;
-
-    try {
-        in.b_flush = string_to_convert(argv[2]);
-    } catch(const std::exception& e) {
-        fmt::print(stdout, "ERROR: Incorrect input value. Please try again.\n");
-        exit(EXIT_FAILURE);
-    }
+    
+    in.b_flush = string_to_convert(argv[2]);
 
     ADM_adhoc_background_flush_out_t out;
 

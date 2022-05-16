@@ -258,6 +258,16 @@ MERCURY_GEN_PROC(ADM_connect_data_operation_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_connect_data_operation);
 
+/// ADM_finalize_data_operation
+
+MERCURY_GEN_PROC(ADM_finalize_data_operation_in_t, ((int32_t) (operation_id)))
+
+MERCURY_GEN_PROC(ADM_finalize_data_operation_out_t,
+                 ((int32_t) (ret))((int32_t) (status)))
+
+
+DECLARE_MARGO_RPC_HANDLER(ADM_finalize_data_operation);
+
 
 
 //} // namespace scord::network::rpc

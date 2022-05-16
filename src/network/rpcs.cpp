@@ -1203,3 +1203,48 @@ ADM_connect_data_operation(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_connect_data_operation)
+
+/**
+ * Finalises the operation defined with operation_id.
+ *
+ * @param in.operation_id The operation_id of the operation to be connected.
+ * @return out.status A status code indicating whether the operation was
+ * successful.
+ * @return out.ret Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+static void
+ADM_finalize_data_operation(hg_handle_t h) {
+    hg_return_t ret;
+
+    ADM_finalize_data_operation_in_t in;
+    ADM_finalize_data_operation_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+    out.status = -1;
+
+    if(in.operation_id < 0) {
+        LOGGER_ERROR(
+                "ADM_finalize_data_operation(): invalid operation_id (< 0)");
+    } else {
+        LOGGER_INFO("ADM_finalize_data_operation({})", in.operation_id);
+        out.ret = 0;
+        out.status = 0;
+    }
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_finalize_data_operation)

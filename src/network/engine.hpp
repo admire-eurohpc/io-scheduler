@@ -139,12 +139,15 @@ struct engine {
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_adhoc_distribution", ADM_adhoc_distribution_in_t,
-                     ADM_adhoc_distribution_out_t, ADM_adhoc_distribution, true);
-        
+                     ADM_adhoc_distribution_out_t, ADM_adhoc_distribution,
+                     true);
+
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_adhoc_background_flush", ADM_adhoc_background_flush_in_t,
-                     ADM_adhoc_background_flush_out_t, ADM_adhoc_background_flush, true);
-        
+                     "ADM_adhoc_background_flush",
+                     ADM_adhoc_background_flush_in_t,
+                     ADM_adhoc_background_flush_out_t,
+                     ADM_adhoc_background_flush, true);
+
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_in_situ_ops", ADM_in_situ_ops_in_t,
                      ADM_in_situ_ops_out_t, ADM_in_situ_ops, true);
@@ -158,46 +161,66 @@ struct engine {
                      ADM_transfer_dataset_out_t, ADM_transfer_dataset, true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_dataset_information", ADM_set_dataset_information_in_t,
-                     ADM_set_dataset_information_out_t, ADM_set_dataset_information, true);
+                     "ADM_set_dataset_information",
+                     ADM_set_dataset_information_in_t,
+                     ADM_set_dataset_information_out_t,
+                     ADM_set_dataset_information, true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_set_io_resources", ADM_set_io_resources_in_t,
                      ADM_set_io_resources_out_t, ADM_set_io_resources, true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_get_transfer_priority", ADM_get_transfer_priority_in_t,
-                     ADM_get_transfer_priority_out_t, ADM_get_transfer_priority, true);
-        
+                     "ADM_get_transfer_priority",
+                     ADM_get_transfer_priority_in_t,
+                     ADM_get_transfer_priority_out_t, ADM_get_transfer_priority,
+                     true);
+
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_transfer_priority", ADM_set_transfer_priority_in_t,
-                     ADM_set_transfer_priority_out_t, ADM_set_transfer_priority, true);
+                     "ADM_set_transfer_priority",
+                     ADM_set_transfer_priority_in_t,
+                     ADM_set_transfer_priority_out_t, ADM_set_transfer_priority,
+                     true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_cancel_transfer", ADM_cancel_transfer_in_t,
                      ADM_cancel_transfer_out_t, ADM_cancel_transfer, true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_get_pending_transfers", ADM_get_pending_transfers_in_t,
-                     ADM_get_pending_transfers_out_t, ADM_get_pending_transfers, true);
+                     "ADM_get_pending_transfers",
+                     ADM_get_pending_transfers_in_t,
+                     ADM_get_pending_transfers_out_t, ADM_get_pending_transfers,
+                     true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_qos_constraints_push", ADM_set_qos_constraints_push_in_t,
-                     ADM_set_qos_constraints_push_out_t, ADM_set_qos_constraints_push, true);
+                     "ADM_set_qos_constraints_push",
+                     ADM_set_qos_constraints_push_in_t,
+                     ADM_set_qos_constraints_push_out_t,
+                     ADM_set_qos_constraints_push, true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_qos_constraints_pull", ADM_set_qos_constraints_pull_in_t,
-                     ADM_set_qos_constraints_pull_out_t, ADM_set_qos_constraints_pull, true);
+                     "ADM_set_qos_constraints_pull",
+                     ADM_set_qos_constraints_pull_in_t,
+                     ADM_set_qos_constraints_pull_out_t,
+                     ADM_set_qos_constraints_pull, true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_define_data_operation", ADM_define_data_operation_in_t,
-                     ADM_define_data_operation_out_t, ADM_define_data_operation, true);
-        
+                     "ADM_define_data_operation",
+                     ADM_define_data_operation_in_t,
+                     ADM_define_data_operation_out_t, ADM_define_data_operation,
+                     true);
+
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_connect_data_operation", ADM_connect_data_operation_in_t,
-                     ADM_connect_data_operation_out_t, ADM_connect_data_operation, true);
+                     "ADM_connect_data_operation",
+                     ADM_connect_data_operation_in_t,
+                     ADM_connect_data_operation_out_t,
+                     ADM_connect_data_operation, true);
 
-
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_finalize_data_operation",
+                     ADM_finalize_data_operation_in_t,
+                     ADM_finalize_data_operation_out_t,
+                     ADM_finalize_data_operation, true);
     }
 
     void

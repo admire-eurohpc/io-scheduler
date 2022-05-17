@@ -53,3 +53,9 @@ add_test(ADM_inout_test ADM_inout ofi+tcp://127.0.0.1:52000 /build/examples /bui
 add_test(ADM_inout_test_fail ADM_inout ofi+tcp://127.0.0.1:52000 /build/examples)
 set_tests_properties(ADM_inout_test_fail PROPERTIES WILL_FAIL TRUE)
 
+add_test(ADM_adhoc_context_id_test ADM_adhoc_context_id ofi+tcp://127.0.0.1:52000 42)
+add_test(ADM_adhoc_context_id_test_fail_s ADM_adhoc_context_id ofi+tcp://127.0.0.1:52000 hello)
+set_tests_properties(ADM_adhoc_context_id_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_adhoc_context_id_test_fail_a ADM_adhoc_context_id ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_adhoc_context_id_test_fail_a PROPERTIES WILL_FAIL TRUE)
+

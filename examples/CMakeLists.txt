@@ -37,3 +37,11 @@ foreach (example IN LISTS examples)
     target_link_libraries(${example} PUBLIC network_engine fmt::fmt)
 endforeach()
 
+enable_testing()
+
+add_test(ping_test ping ofi+tcp://127.0.0.1:52000)
+
+add_test(ADM_input_test ADM_input ofi+tcp://127.0.0.1:52000 /build /build/examples)
+add_test(ADM_input_test_fail ADM_input ofi+tcp://127.0.0.1:52000 /build)
+set_tests_properties(ADM_input_test_fail PROPERTIES WILL_FAIL TRUE)
+

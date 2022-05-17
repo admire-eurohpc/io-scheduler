@@ -34,8 +34,11 @@ test:
   needs: [build]
   script:
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+    - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
     - compiled/bin/scord -f --force-console &
-    - build/examples/ping ofi+tcp://127.0.0.1:52000
+    # - build/examples/ping ofi+tcp://127.0.0.1:52000
+    - cd examples/
+    - ctest
     - pkill -9 scord
   cache:
     key: $CI_COMMIT_REF_SLUG

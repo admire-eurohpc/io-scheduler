@@ -93,3 +93,7 @@ set_tests_properties(ADM_adhoc_background_flush_test_fail_a PROPERTIES WILL_FAIL
 add_test(ADM_in_situ_ops_test ADM_in_situ_ops ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build/examples)
 add_test(ADM_in_situ_ops_test_fail_a ADM_in_situ_ops ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_in_situ_ops_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_in_transit_ops_test ADM_in_transit_ops ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build/examples)
+add_test(ADM_in_transit_ops_test_fail_a ADM_in_transit_ops ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_in_transit_ops_test_fail_a PROPERTIES WILL_FAIL TRUE)

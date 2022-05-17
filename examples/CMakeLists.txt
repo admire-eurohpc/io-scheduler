@@ -107,3 +107,11 @@ add_test(ADM_transfer_dataset_test_fail_s ADM_transfer_dataset ofi+tcp://127.0.0
 set_tests_properties(ADM_transfer_dataset_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_transfer_dataset_test_fail_a ADM_transfer_dataset ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_transfer_dataset_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_set_dataset_information_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000 12 my_info 42)
+add_test(ADM_set_dataset_information_test_fail_s1 ADM_set_dataset_information ofi+tcp://127.0.0.1:52000 hello my_info 42)
+set_tests_properties(ADM_set_dataset_information_test_fail_s1 PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_dataset_information_test_fail_s2 ADM_set_dataset_information ofi+tcp://127.0.0.1:52000 12 my_info hello)
+set_tests_properties(ADM_set_dataset_information_test_fail_s2 PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_dataset_information_test_fail_a ADM_set_dataset_information ofi+tcp://127.0.0.1:52000 12 my_info)
+set_tests_properties(ADM_set_dataset_information_test_fail_a PROPERTIES WILL_FAIL TRUE)

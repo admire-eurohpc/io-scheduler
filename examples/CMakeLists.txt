@@ -97,3 +97,13 @@ set_tests_properties(ADM_in_situ_ops_test_fail_a PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_in_transit_ops_test ADM_in_transit_ops ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build/examples)
 add_test(ADM_in_transit_ops_test_fail_a ADM_in_transit_ops ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_in_transit_ops_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_transfer_dataset_test ADM_transfer_dataset ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build/examples 
+        ~/new/io-scheduler/build qos_constraints one-to-one 42)
+add_test(ADM_transfer_dataset_test_fail_s ADM_transfer_dataset ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build/examples 
+        ~/new/io-scheduler/build qos_constraints one-to-one hello)
+set_tests_properties(ADM_transfer_dataset_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_transfer_dataset_test_fail_s ADM_transfer_dataset ofi+tcp://127.0.0.1:52000 hello)
+set_tests_properties(ADM_transfer_dataset_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_transfer_dataset_test_fail_a ADM_transfer_dataset ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_transfer_dataset_test_fail_a PROPERTIES WILL_FAIL TRUE)

@@ -121,3 +121,9 @@ add_test(ADM_set_io_resources_test_fail_s ADM_set_io_resources ofi+tcp://127.0.0
 set_tests_properties(ADM_set_io_resources_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_set_io_resources_test_fail_a ADM_set_io_resources ofi+tcp://127.0.0.1:52000 12 my_info)
 set_tests_properties(ADM_set_io_resources_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_get_transfer_priority_test ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000 10)
+add_test(ADM_get_transfer_priority_test_fail_s ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000 hello)
+set_tests_properties(ADM_get_transfer_priority_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_get_transfer_priority_test_fail_a ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_get_transfer_priority_test_fail_a PROPERTIES WILL_FAIL TRUE)

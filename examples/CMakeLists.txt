@@ -64,3 +64,9 @@ add_test(ADM_adhoc_nodes_test_fail_s ADM_adhoc_nodes ofi+tcp://127.0.0.1:52000 h
 set_tests_properties(ADM_adhoc_nodes_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_adhoc_nodes_test_fail_a ADM_adhoc_nodes ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_adhoc_nodes_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_adhoc_walltime_test ADM_adhoc_walltime ofi+tcp://127.0.0.1:52000 60)
+add_test(ADM_adhoc_walltime_test_fail_s ADM_adhoc_walltime ofi+tcp://127.0.0.1:52000 hello)
+set_tests_properties(ADM_adhoc_walltime_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_adhoc_walltime_test_fail_a ADM_adhoc_walltime ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_adhoc_walltime_test_fail_a PROPERTIES WILL_FAIL TRUE)

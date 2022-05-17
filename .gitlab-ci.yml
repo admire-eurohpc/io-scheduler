@@ -37,9 +37,11 @@ test:
     - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
     - compiled/bin/scord -f --force-console &
     # - build/examples/ping ofi+tcp://127.0.0.1:52000
-    - cd examples/
+    - cd build/examples/
     - ctest
-    - pkill -9 scord
+
+    - pkill scord
+    # - pkill -9 scord
   cache:
     key: $CI_COMMIT_REF_SLUG
       

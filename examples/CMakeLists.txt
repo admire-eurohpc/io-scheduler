@@ -45,3 +45,11 @@ add_test(ADM_input_test ADM_input ofi+tcp://127.0.0.1:52000 /build /build/exampl
 add_test(ADM_input_test_fail ADM_input ofi+tcp://127.0.0.1:52000 /build)
 set_tests_properties(ADM_input_test_fail PROPERTIES WILL_FAIL TRUE)
 
+add_test(ADM_output_test ADM_output ofi+tcp://127.0.0.1:52000 /build/examples /build)
+add_test(ADM_output_test_fail ADM_output ofi+tcp://127.0.0.1:52000 /build/examples)
+set_tests_properties(ADM_output_test_fail PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_inout_test ADM_inout ofi+tcp://127.0.0.1:52000 /build/examples /build)
+add_test(ADM_inout_test_fail ADM_inout ofi+tcp://127.0.0.1:52000 /build/examples)
+set_tests_properties(ADM_inout_test_fail PROPERTIES WILL_FAIL TRUE)
+

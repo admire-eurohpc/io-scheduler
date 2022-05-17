@@ -45,6 +45,7 @@ main(int argc, char* argv[]) {
         fmt::print(
                 stdout,
                 "ADM_transfer_dataset remote procedure not completed successfully\n");
+        exit(EXIT_FAILURE);
     } else {
         fmt::print(
                 stdout,

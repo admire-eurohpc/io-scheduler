@@ -42,6 +42,7 @@ main(int argc, char* argv[]) {
         fmt::print(
                 stdout,
                 "ADM_set_qos_constraints_push remote procedure not completed successfully\n");
+        exit(EXIT_FAILURE);
     } else {
         fmt::print(
                 stdout,

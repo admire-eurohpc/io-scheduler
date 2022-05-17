@@ -44,6 +44,7 @@ main(int argc, char* argv[]) {
         fmt::print(
                 stdout,
                 "ADM_get_statistics remote procedure not completed successfully\n");
+        exit(EXIT_FAILURE);
     } else {
         fmt::print(
                 stdout,

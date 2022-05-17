@@ -37,6 +37,7 @@ main(int argc, char* argv[]) {
         fmt::print(
                 stdout,
                 "ADM_finalize_data_operation remote procedure not completed successfully\n");
+        exit(EXIT_FAILURE);
     } else {
         fmt::print(
                 stdout,

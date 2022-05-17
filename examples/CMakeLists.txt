@@ -76,3 +76,16 @@ add_test(ADM_adhoc_access_test_fail_s ADM_adhoc_access ofi+tcp://127.0.0.1:52000
 set_tests_properties(ADM_adhoc_access_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_adhoc_access_test_fail_a ADM_adhoc_access ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_adhoc_access_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_adhoc_distribution_test ADM_adhoc_distribution ofi+tcp://127.0.0.1:52000 wide-striping)
+add_test(ADM_adhoc_distribution_test_fail_a ADM_adhoc_distribution ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_adhoc_distribution_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_adhoc_background_flush_test1 ADM_adhoc_background_flush ofi+tcp://127.0.0.1:52000 true)
+add_test(ADM_adhoc_background_flush_test2 ADM_adhoc_background_flush ofi+tcp://127.0.0.1:52000 FALSE)
+add_test(ADM_adhoc_background_flush_test_fail_i ADM_adhoc_background_flush ofi+tcp://127.0.0.1:52000 10)
+set_tests_properties(ADM_adhoc_background_flush_test_fail_i PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_adhoc_background_flush_test_fail_s ADM_adhoc_background_flush ofi+tcp://127.0.0.1:52000 hello)
+set_tests_properties(ADM_adhoc_background_flush_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_adhoc_background_flush_test_fail_a ADM_adhoc_background_flush ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_adhoc_background_flush_test_fail_a PROPERTIES WILL_FAIL TRUE)

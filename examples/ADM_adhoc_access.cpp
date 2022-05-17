@@ -31,6 +31,7 @@ main(int argc, char* argv[]) {
         fmt::print(
                 stdout,
                 "ADM_adhoc_access remote procedure not completed successfully\n");
+        exit(EXIT_FAILURE);
     } else {
         fmt::print(
                 stdout,

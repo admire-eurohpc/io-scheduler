@@ -168,7 +168,7 @@ set_tests_properties(ADM_define_data_operation_test_fail_s PROPERTIES WILL_FAIL 
 add_test(ADM_define_data_operation_test_fail_a ADM_define_data_operation ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build 42)
 set_tests_properties(ADM_define_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)
 
-add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 input True arguments 12 )
+add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 input True arguments 12)
 add_test(ADM_connect_data_operation_test_fail_i ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 hello input True arguments 12)
 set_tests_properties(ADM_connect_data_operation_test_fail_i PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_connect_data_operation_test_fail_b ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 input hello arguments 12)
@@ -181,3 +181,11 @@ add_test(ADM_finalize_data_operation_test_fail_s ADM_finalize_data_operation ofi
 set_tests_properties(ADM_finalize_data_operation_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_finalize_data_operation_test_fail_a ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_finalize_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_link_transfer_to_data_operation_test ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 42 8 false arguments 30)
+add_test(ADM_link_transfer_to_data_operation_test_fail_b ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 42 8 hello arguments 30)
+set_tests_properties(ADM_link_transfer_to_data_operation_test_fail_b PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_link_transfer_to_data_operation_test_fail_s ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 42 hello false arguments 30)
+set_tests_properties(ADM_link_transfer_to_data_operation_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_link_transfer_to_data_operation_test_fail_a ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 42 8 false arguments)
+set_tests_properties(ADM_link_transfer_to_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)

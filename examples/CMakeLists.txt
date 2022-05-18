@@ -189,3 +189,9 @@ add_test(ADM_link_transfer_to_data_operation_test_fail_s ADM_link_transfer_to_da
 set_tests_properties(ADM_link_transfer_to_data_operation_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_link_transfer_to_data_operation_test_fail_a ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 42 8 false arguments)
 set_tests_properties(ADM_link_transfer_to_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_get_statistics_test ADM_get_statistics ofi+tcp://127.0.0.1:52000 42 8)
+add_test(ADM_get_statistics_test_fail_s ADM_get_statistics ofi+tcp://127.0.0.1:52000 hello 8)
+set_tests_properties(ADM_get_statistics_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_get_statistics_test_fail_a ADM_get_statistics ofi+tcp://127.0.0.1:52000 42)
+set_tests_properties(ADM_get_statistics_test_fail_a PROPERTIES WILL_FAIL TRUE)

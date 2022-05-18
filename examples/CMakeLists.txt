@@ -167,3 +167,11 @@ add_test(ADM_define_data_operation_test_fail_s ADM_define_data_operation ofi+tcp
 set_tests_properties(ADM_define_data_operation_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_define_data_operation_test_fail_a ADM_define_data_operation ofi+tcp://127.0.0.1:52000 ~/new/io-scheduler/build 42)
 set_tests_properties(ADM_define_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 input True arguments 12 )
+add_test(ADM_connect_data_operation_test_fail_i ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 hello input True arguments 12)
+set_tests_properties(ADM_connect_data_operation_test_fail_i PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_connect_data_operation_test_fail_b ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 input hello arguments 12)
+set_tests_properties(ADM_connect_data_operation_test_fail_b PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_connect_data_operation_test_fail_a ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 input true 12)
+set_tests_properties(ADM_connect_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)

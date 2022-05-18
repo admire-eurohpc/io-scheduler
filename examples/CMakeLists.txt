@@ -127,3 +127,11 @@ add_test(ADM_get_transfer_priority_test_fail_s ADM_get_transfer_priority ofi+tcp
 set_tests_properties(ADM_get_transfer_priority_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_get_transfer_priority_test_fail_a ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_get_transfer_priority_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_set_transfer_priority_test ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000 8 -2)
+add_test(ADM_set_transfer_priority_test_fail_i ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000 -8 -2)
+set_tests_properties(ADM_set_transfer_priority_test_fail_i PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_transfer_priority_test_fail_s ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000 hello -2)
+set_tests_properties(ADM_set_transfer_priority_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_transfer_priority_test_fail_a ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_set_transfer_priority_test_fail_a PROPERTIES WILL_FAIL TRUE)

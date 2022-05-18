@@ -153,3 +153,11 @@ add_test(ADM_set_qos_constraints_push_test_fail_s ADM_set_qos_constraints_push o
 set_tests_properties(ADM_set_qos_constraints_push_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_set_qos_constraints_push_test_fail_a ADM_set_qos_constraints_push ofi+tcp://127.0.0.1:52000 node bandwith 42)
 set_tests_properties(ADM_set_qos_constraints_push_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_set_qos_constraints_pull_test ADM_set_qos_constraints_pull ofi+tcp://127.0.0.1:52000 node 42)
+add_test(ADM_set_qos_constraints_pull_test_fail_s1 ADM_set_qos_constraints_pull ofi+tcp://127.0.0.1:52000 node hello)
+set_tests_properties(ADM_set_qos_constraints_pull_test_fail_s1 PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_qos_constraints_pull_test_fail_s2 ADM_set_qos_constraints_pull ofi+tcp://127.0.0.1:52000 hello 42)
+set_tests_properties(ADM_set_qos_constraints_pull_test_fail_s2 PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_qos_constraints_pull_test_fail_a ADM_set_qos_constraints_pull ofi+tcp://127.0.0.1:52000 node)
+set_tests_properties(ADM_set_qos_constraints_pull_test_fail_a PROPERTIES WILL_FAIL TRUE)

@@ -1048,11 +1048,11 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
     out.list = nullptr;
 
     if(in.scope == nullptr) {
-        LOGGER_ERROR("ADM_input(): invalid scope (nullptr)");
+        LOGGER_ERROR("ADM_set_qos_constraints_pull(): invalid scope (nullptr)");
     } else if(in.element_id < 0) {
-        LOGGER_ERROR("ADM_input(): invalid element_id (< 0)");
+        LOGGER_ERROR("ADM_set_qos_constraints_pull(): invalid element_id (< 0)");
     } else {
-        LOGGER_INFO("ADM_input({}, {})", in.scope, in.element_id);
+        LOGGER_INFO("ADM_set_qos_constraints_pull({}, {})", in.scope, in.element_id);
         if((scp == "dataset") || (scp == "node") || (scp == "job")) {
             LOGGER_INFO(
                     "ADM_set_qos_constraints_pull scope value is acceptable ({})",
@@ -1064,7 +1064,6 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
                     "ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ");
         }
     }
-
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

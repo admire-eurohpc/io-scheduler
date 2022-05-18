@@ -175,3 +175,9 @@ add_test(ADM_connect_data_operation_test_fail_b ADM_connect_data_operation ofi+t
 set_tests_properties(ADM_connect_data_operation_test_fail_b PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_connect_data_operation_test_fail_a ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 input true 12)
 set_tests_properties(ADM_connect_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_finalize_data_operation_test ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000 42)
+add_test(ADM_finalize_data_operation_test_fail_s ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000 hello)
+set_tests_properties(ADM_finalize_data_operation_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_finalize_data_operation_test_fail_a ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_finalize_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)

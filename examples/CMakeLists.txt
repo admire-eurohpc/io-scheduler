@@ -135,3 +135,11 @@ add_test(ADM_set_transfer_priority_test_fail_s ADM_set_transfer_priority ofi+tcp
 set_tests_properties(ADM_set_transfer_priority_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_set_transfer_priority_test_fail_a ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_set_transfer_priority_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_cancel_transfer_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 42)
+add_test(ADM_cancel_transfer_test_fail_i ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 -2)
+set_tests_properties(ADM_cancel_transfer_test_fail_i PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_cancel_transfer_test_fail_s ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 hello)
+set_tests_properties(ADM_cancel_transfer_test_fail_s PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_cancel_transfer_test_fail_a ADM_cancel_transfer ofi+tcp://127.0.0.1:52000)
+set_tests_properties(ADM_cancel_transfer_test_fail_a PROPERTIES WILL_FAIL TRUE)

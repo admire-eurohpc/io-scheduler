@@ -143,3 +143,5 @@ add_test(ADM_cancel_transfer_test_fail_s ADM_cancel_transfer ofi+tcp://127.0.0.1
 set_tests_properties(ADM_cancel_transfer_test_fail_s PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_cancel_transfer_test_fail_a ADM_cancel_transfer ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_cancel_transfer_test_fail_a PROPERTIES WILL_FAIL TRUE)
+
+add_test(ADM_get_pending_transfers_test ADM_get_pending_transfers ofi+tcp://127.0.0.1:52000)

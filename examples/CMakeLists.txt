@@ -28,7 +28,7 @@ list(APPEND examples
             ADM_adhoc_background_flush ADM_in_situ_ops ADM_in_transit_ops ADM_transfer_dataset
             ADM_set_dataset_information ADM_set_io_resources ADM_get_transfer_priority
             ADM_set_transfer_priority ADM_cancel_transfer ADM_get_pending_transfers
-            ADM_set_qos_constraints_push ADM_define_data_operation ADM_connect_data_operation
+            ADM_set_qos_constraints_push ADM_set_qos_constraints_pull ADM_define_data_operation ADM_connect_data_operation
             ADM_finalize_data_operation ADM_link_transfer_to_data_operation ADM_get_statistics)
 
 foreach (example IN LISTS examples)
@@ -157,8 +157,8 @@ set_tests_properties(ADM_set_qos_constraints_push_test_fail_a PROPERTIES WILL_FA
 add_test(ADM_set_qos_constraints_pull_test ADM_set_qos_constraints_pull ofi+tcp://127.0.0.1:52000 node 42)
 add_test(ADM_set_qos_constraints_pull_test_fail_s1 ADM_set_qos_constraints_pull ofi+tcp://127.0.0.1:52000 node hello)
 set_tests_properties(ADM_set_qos_constraints_pull_test_fail_s1 PROPERTIES WILL_FAIL TRUE)
-#add_test(ADM_set_qos_constraints_pull_test_fail_s2 ADM_set_qos_constraints_pull ofi+tcp://127.0.0.1:52000 hello 42)
-#set_tests_properties(ADM_set_qos_constraints_pull_test_fail_s2 PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_qos_constraints_pull_test_fail_s2 ADM_set_qos_constraints_pull ofi+tcp://127.0.0.1:52000 hello 42)
+set_tests_properties(ADM_set_qos_constraints_pull_test_fail_s2 PROPERTIES WILL_FAIL TRUE)
 add_test(ADM_set_qos_constraints_pull_test_fail_a ADM_set_qos_constraints_pull ofi+tcp://127.0.0.1:52000 node)
 set_tests_properties(ADM_set_qos_constraints_pull_test_fail_a PROPERTIES WILL_FAIL TRUE)
 

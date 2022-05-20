@@ -1,6 +1,6 @@
 # Compilation of scord and execution of tests
 
-image: gekkofs/scord:0.1.0
+image: bscstorage/scord:0.1.0
 
 stages:
   - build
@@ -39,4 +39,3 @@ test:
     - pkill -9 scord
   cache:
     key: $CI_COMMIT_REF_SLUG
-      

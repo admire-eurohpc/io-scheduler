@@ -7,28 +7,30 @@ ENV INSTALL_PATH /usr/local
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-		git \
-		curl \
-		ca-certificates \
-		libtool \
-		pkg-config \
-		make \
-		automake \
-		gcc \
-		g++ \
-		procps \
-		# AGIOS dependencies
-		libconfig-dev \
-		# Mercury dependencies
-		libltdl-dev \
-		lbzip2 \
+        git \
+        curl \
+        ca-certificates \
+        libtool \
+        pkg-config \
+        make \
+        automake \
+        gcc \
+        g++ \
+        procps \
+        # AGIOS dependencies
+        libconfig-dev \
+        # Mercury dependencies
+        libltdl-dev \
+        lbzip2 \
         # Margo dependencies \
         libjson-c-dev \
-		# GekkoFS dependencies
-		libboost-program-options-dev \
-		uuid-dev  \
+        # GekkoFS dependencies
+        libboost-program-options-dev \
+        uuid-dev  \
         python3 \
-        libyaml-dev libcurl4-openssl-dev procps && \
+        libyaml-dev libcurl4-openssl-dev procps \
+        # genopts dependencies
+        python3-venv && \
     # install cmake 3.14 since it's needed for some dependencies
     curl -OL https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-Linux-x86_64.sh && \
     chmod u+x ./cmake-3.23.1-Linux-x86_64.sh && \

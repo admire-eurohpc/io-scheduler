@@ -188,6 +188,31 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(spdlog)
 
+### file_options: required for reading configuration files
+message(STATUS "[${PROJECT_NAME}] Downloading and building file_options")
+FetchContent_Declare(
+  file_options
+  GIT_REPOSITORY https://storage.bsc.es/gitlab/utils/file_options
+  GIT_TAG b2de92b3755e3391595bb368573b82abed16978d # v0.1.0-pre
+  GIT_SHALLOW ON
+  GIT_PROGRESS ON
+)
+
+FetchContent_MakeAvailable(file_options)
+
+### genopts: required for generating file_options schemas
+message(STATUS "[${PROJECT_NAME}] Downloading and building genopts")
+FetchContent_Declare(
+  genopts
+  GIT_REPOSITORY https://storage.bsc.es/gitlab/utils/genopts
+  GIT_TAG 1dcef400f8fbc6e1969c856ca844707b730c3002 # v0.1.0-pre
+  GIT_SHALLOW ON
+  GIT_PROGRESS ON
+)
+
+FetchContent_MakeAvailable(genopts)
+
+
 ### Mark any CMake variables imported from {fmt} and spdlog as advanced, so
 ### that they don't appear in cmake-gui or ccmake. Similarly for FETCHCONTENT
 ### variables.

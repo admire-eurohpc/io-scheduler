@@ -26,26 +26,40 @@ add_library(config STATIC)
 
 target_include_directories(
   config PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}
+                 ${CMAKE_CURRENT_BINARY_DIR}
 )
 set_property(TARGET config PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 configure_file(defaults.cpp.in defaults.cpp)
 
+configure_file(genopts.yml.in genopts.yml @ONLY)
+
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/config_options.hpp
+         ${CMAKE_CURRENT_BINARY_DIR}/keywords.hpp
+  COMMENT "Generating config_options.hpp, keywords.hpp"
+  DEPENDS file_options.yml ${CMAKE_CURRENT_BINARY_DIR}/genopts.yml
+  COMMAND
+    Genopts::Python3_Interpreter -m genopts --config
+    ${CMAKE_CURRENT_BINARY_DIR}/genopts.yml
+    ${CMAKE_CURRENT_LIST_DIR}/file_options.yml
+)
+
 target_sources(
   config
   PRIVATE config.hpp
-        config_schema.hpp
           defaults.hpp
           ${CMAKE_CURRENT_BINARY_DIR}/defaults.cpp
-        file_options/file_options.hpp
-        file_options/schema.hpp
-        file_options/options_description.hpp
-        file_options/yaml_parser.hpp
-          keywords.hpp
+          ${CMAKE_CURRENT_BINARY_DIR}/config_options.hpp
+          ${CMAKE_CURRENT_BINARY_DIR}/keywords.hpp
+          file_options/file_options.hpp
+          file_options/schema.hpp
+          file_options/options_description.hpp
+          file_options/yaml_parser.hpp
           parsers.cpp
           parsers.hpp
           settings.cpp
           settings.hpp
 )
 
-target_link_libraries(config PRIVATE utils YAMLCpp::YAMLCpp)
+target_link_libraries(config PRIVATE utils file_options::file_options)

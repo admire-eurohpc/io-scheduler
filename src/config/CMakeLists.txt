@@ -22,30 +22,66 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
+# Create a config target for all configuration code
 add_library(config STATIC)
 
+# Since some of the sources will be auto-generated, we need to search for
+# includes in ${CMAKE_CURRENT_BINARY_DIR}
 target_include_directories(
   config PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}
+                 ${CMAKE_CURRENT_BINARY_DIR}
 )
 set_property(TARGET config PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-configure_file(defaults.cpp.in defaults.cpp)
 
 target_sources(
   config
   PRIVATE config.hpp
-        config_schema.hpp
           defaults.hpp
           ${CMAKE_CURRENT_BINARY_DIR}/defaults.cpp
-        file_options/file_options.hpp
-        file_options/schema.hpp
-        file_options/options_description.hpp
-        file_options/yaml_parser.hpp
-          keywords.hpp
+          ${CMAKE_CURRENT_BINARY_DIR}/config_options.hpp
+          ${CMAKE_CURRENT_BINARY_DIR}/keywords.hpp
           parsers.cpp
           parsers.hpp
           settings.cpp
           settings.hpp
 )
 
-target_link_libraries(config PRIVATE utils YAMLCpp::YAMLCpp)
+target_link_libraries(config PRIVATE utils file_options::file_options)
+
+# ##############################################################################
+# Produce several auto-generated files for 'config'
+# ##############################################################################
+
+# Default values for options
+configure_file(defaults.cpp.in defaults.cpp)
+
+# Automatic generation of file_options schemas. To facilitate the management of
+# any file-based configuration options, we generate a C++ schema from a YAML
+# file that allows the 'file_options' library to parse them fromm a
+# configuration file. The process works as follows:
+#  1. We define the desired options in 'file_options.yml'
+#  2. We rely on the 'genopts' tool to generate valid C++ schemas for the
+#     'file_options' library. This tool can be configured using a 'genopts.yml'
+#     configuration file.
+#  3. In the daemon code, we use the facilities provided by the 'file_options'
+#     library to access the options values.
+
+# Since the configuration in genopts.yml can be path-dependant, we rely on
+# CMake to substitute any special @variables@ for their actual values
+configure_file(genopts.yml.in genopts.yml @ONLY)
+
+# Define the command that will generate config_options.hpp and keywords.hpp.
+# It will be executed since there is a direct dependency between 'config'
+# (defined below) and these output files.
+# We also make the command depend on file_options.yml and genopts.yml so that
+# it gets re-executed if they change.
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/config_options.hpp
+         ${CMAKE_CURRENT_BINARY_DIR}/keywords.hpp
+  COMMENT "Generating config_options.hpp, keywords.hpp"
+  DEPENDS file_options.yml ${CMAKE_CURRENT_BINARY_DIR}/genopts.yml
+  COMMAND
+    Genopts::Python3_Interpreter -m genopts --config
+    ${CMAKE_CURRENT_BINARY_DIR}/genopts.yml
+    ${CMAKE_CURRENT_LIST_DIR}/file_options.yml
+)

@@ -24,7 +24,7 @@
 
 #include <filesystem>
 #include <utility>
-#include "config_schema.hpp"
+#include "config_options.hpp"
 #include "defaults.hpp"
 #include "file_options/options_description.hpp"
 #include "file_options/yaml_parser.hpp"

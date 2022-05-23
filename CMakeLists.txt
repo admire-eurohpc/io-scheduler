@@ -38,21 +38,21 @@ project(
 # Set default build type and also populate a list of available options
 get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
-if(NOT is_multi_config)
+if (NOT is_multi_config)
   set(default_build_type "Release")
   set(allowed_build_types Debug Release MinSizeRel RelWithDebInfo)
 
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${allowed_build_types}")
 
-  if(NOT CMAKE_BUILD_TYPE)
+  if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE
-        "${default_build_type}"
-        CACHE STRING "Choose the type of build." FORCE
-    )
-  elseif(NOT CMAKE_BUILD_TYPE IN_LIST allowed_build_types)
+      "${default_build_type}"
+      CACHE STRING "Choose the type of build." FORCE
+      )
+  elseif (NOT CMAKE_BUILD_TYPE IN_LIST allowed_build_types)
     message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
-  endif()
-endif()
+  endif ()
+endif ()
 
 # make sure that debug versions for targets are used (if provided) in Debug mode
 set_property(GLOBAL APPEND PROPERTY DEBUG_CONFIGURATIONS Debug)
@@ -83,10 +83,10 @@ include(scord-utils)
 
 ### transport library
 set(SCORD_TRANSPORT_LIBRARY
-    "libfabric"
-    CACHE STRING
-          "Transport library used by ${PROJECT_NAME} (default: libfabric)"
-)
+  "libfabric"
+  CACHE STRING
+  "Transport library used by ${PROJECT_NAME} (default: libfabric)"
+  )
 set_property(CACHE SCORD_TRANSPORT_LIBRARY PROPERTY STRINGS libfabric ucx)
 message(
   STATUS "[${PROJECT_NAME}] Transport library: ${SCORD_TRANSPORT_LIBRARY}"
@@ -94,31 +94,31 @@ message(
 
 ### server transport protocol
 set(SCORD_TRANSPORT_PROTOCOL
-    "tcp"
-    CACHE
-      STRING
-      "Change the default transport protocol for the ${PROJECT_NAME} server (default: tcp)"
-)
+  "tcp"
+  CACHE
+  STRING
+  "Change the default transport protocol for the ${PROJECT_NAME} server (default: tcp)"
+  )
 message(
   STATUS
-    "[${PROJECT_NAME}] server default transport protocol: ${SCORD_TRANSPORT_PROTOCOL}"
+  "[${PROJECT_NAME}] server default transport protocol: ${SCORD_TRANSPORT_PROTOCOL}"
 )
 
 ### server bind address
 set(SCORD_BIND_ADDRESS
-    "127.0.0.1"
-    CACHE
-      STRING
-      "Define the bind address for the ${PROJECT_NAME} server (default: 127.0.0.1)"
-)
+  "127.0.0.1"
+  CACHE
+  STRING
+  "Define the bind address for the ${PROJECT_NAME} server (default: 127.0.0.1)"
+  )
 message(STATUS "[${PROJECT_NAME}] server bind address: ${SCORD_BIND_ADDRESS}")
 
 ### server bind port
 set(SCORD_BIND_PORT
-    "52000"
-    CACHE STRING
-          "Define the bind port for the ${PROJECT_NAME} server (default: 52000)"
-)
+  "52000"
+  CACHE STRING
+  "Define the bind port for the ${PROJECT_NAME} server (default: 52000)"
+  )
 message(STATUS "[${PROJECT_NAME}] server bind port: ${SCORD_BIND_PORT}")
 
 option(SCORD_BUILD_EXAMPLES "Build examples (disabled by default)" OFF)
@@ -137,20 +137,16 @@ find_package(PkgConfig REQUIRED)
 message(STATUS "[${PROJECT_NAME}] Checking for boost libraries")
 find_package(Boost 1.53 REQUIRED COMPONENTS program_options)
 
-### yaml-cpp: required for reading configuration files
-message(STATUS "[${PROJECT_NAME}] Checking for yaml-cpp")
-find_package(YAMLCpp 0.6.2 REQUIRED)
-
 ### transport library
-if(SCORD_TRANSPORT_LIBRARY STREQUAL libfabric)
+if (SCORD_TRANSPORT_LIBRARY STREQUAL libfabric)
   pkg_check_modules(libfabric REQUIRED IMPORTED_TARGET GLOBAL libfabric)
   add_library(transport_library ALIAS PkgConfig::libfabric)
-elseif(SCORD_TRANSPORT_LIBRARY STREQUAL ucx)
+elseif (SCORD_TRANSPORT_LIBRARY STREQUAL ucx)
   pkg_check_modules(ucx REQUIRED IMPORTED_TARGET GLOBAL ucx)
   add_library(transport_library ALIAS PkgConfig::ucx)
-else()
+else ()
   message(FATAL_ERROR "Unknown transport library: ${SCORD_TRANSPORT_LIBRARY}")
-endif()
+endif ()
 
 ### Mercury
 message(STATUS "[${PROJECT_NAME}] Checking for Mercury")
@@ -188,6 +184,31 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(spdlog)
 
+### file_options: required for reading configuration files
+message(STATUS "[${PROJECT_NAME}] Downloading and building file_options")
+FetchContent_Declare(
+  file_options
+  GIT_REPOSITORY https://storage.bsc.es/gitlab/utils/file_options
+  GIT_TAG b2de92b3755e3391595bb368573b82abed16978d # v0.1.0-pre
+  GIT_SHALLOW ON
+  GIT_PROGRESS ON
+)
+
+FetchContent_MakeAvailable(file_options)
+
+### genopts: required for generating file_options schemas
+message(STATUS "[${PROJECT_NAME}] Downloading and building genopts")
+FetchContent_Declare(
+  genopts
+  GIT_REPOSITORY https://storage.bsc.es/gitlab/utils/genopts
+  GIT_TAG 1dcef400f8fbc6e1969c856ca844707b730c3002 # v0.1.0-pre
+  GIT_SHALLOW ON
+  GIT_PROGRESS ON
+)
+
+FetchContent_MakeAvailable(genopts)
+
+
 ### Mark any CMake variables imported from {fmt} and spdlog as advanced, so
 ### that they don't appear in cmake-gui or ccmake. Similarly for FETCHCONTENT
 ### variables.
@@ -199,6 +220,6 @@ mark_variables_as_advanced(REGEX "^(FETCHCONTENT|fmt|FMT|spdlog|SPDLOG)_.*$")
 add_subdirectory(etc)
 add_subdirectory(src)
 
-if(SCORD_BUILD_EXAMPLES)
+if (SCORD_BUILD_EXAMPLES)
   add_subdirectory(examples)
-endif()
+endif ()

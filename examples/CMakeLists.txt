@@ -22,7 +22,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_executable(ping)
-target_sources(ping PRIVATE ping.cpp)
+list(APPEND examples
+            ping ADM_input ADM_output ADM_inout ADM_adhoc_context ADM_adhoc_context_id
+            ADM_adhoc_nodes ADM_adhoc_walltime ADM_adhoc_access ADM_adhoc_distribution
+            ADM_adhoc_background_flush ADM_in_situ_ops ADM_in_transit_ops ADM_transfer_dataset
+            ADM_set_dataset_information ADM_set_io_resources ADM_get_transfer_priority
+            ADM_set_transfer_priority ADM_cancel_transfer ADM_get_pending_transfers
+            ADM_set_qos_constraints_push ADM_define_data_operation ADM_connect_data_operation
+            ADM_finalize_data_operation ADM_link_transfer_to_data_operation ADM_get_statistics)
 
-target_link_libraries(ping PUBLIC network_engine fmt::fmt)
+foreach (example IN LISTS examples)
+    add_executable(${example})
+    target_sources(${example} PRIVATE ${example}.cpp)
+    target_link_libraries(${example} PUBLIC network_engine fmt::fmt)
+endforeach()
+

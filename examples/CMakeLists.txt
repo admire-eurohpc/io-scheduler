@@ -34,6 +34,6 @@ list(APPEND examples
 foreach (example IN LISTS examples)
     add_executable(${example})
     target_sources(${example} PRIVATE ${example}.cpp)
-    target_link_libraries(${example} PUBLIC network_engine fmt::fmt)
+    target_link_libraries(${example}
+      PUBLIC network_engine fmt::fmt adm_iosched)
 endforeach()
-

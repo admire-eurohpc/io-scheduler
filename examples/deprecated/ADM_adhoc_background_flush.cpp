@@ -8,7 +8,8 @@ string_to_convert(std::string s) {
     } else if(s == "false" || s == "FALSE" || s == "False") {
         return false;
     } else {
-        throw std::invalid_argument("ERROR: Incorrect input value. Please try again.\n");
+        throw std::invalid_argument(
+                "ERROR: Incorrect input value. Please try again.\n");
     }
 }
 
@@ -38,8 +39,8 @@ main(int argc, char* argv[]) {
         in.b_flush = string_to_convert(argv[2]);
     } catch(const std::invalid_argument& ia) {
         fmt::print(
-            stderr,
-            "ERROR: Incorrect input value. Please introduce TRUE/FALSE value. \n");
+                stderr,
+                "ERROR: Incorrect input value. Please introduce TRUE/FALSE value. \n");
         exit(EXIT_FAILURE);
     }
 

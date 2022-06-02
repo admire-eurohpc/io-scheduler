@@ -183,6 +183,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(spdlog)
+set_target_properties(spdlog PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 ### file_options: required for reading configuration files
 message(STATUS "[${PROJECT_NAME}] Downloading and building file_options")
@@ -217,6 +218,15 @@ mark_variables_as_advanced(REGEX "^(FETCHCONTENT|fmt|FMT|spdlog|SPDLOG)_.*$")
 # ##############################################################################
 # Process subdirectories
 # ##############################################################################
+
+# set compile flags
+add_compile_options("-Wall" "-Wextra" "$<$<CONFIG:RELEASE>:-O3>")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  add_compile_options("-stdlib=libc++")
+else()
+  # nothing special for gcc at the moment
+endif()
+
 add_subdirectory(etc)
 add_subdirectory(src)
 

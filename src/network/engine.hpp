@@ -107,6 +107,10 @@ struct engine {
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ping", void,
                      void, ping, false);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_register_job", ADM_register_job_in_t,
+                     ADM_register_job_out_t, ADM_register_job, true);
+
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_input",
 
                      ADM_input_in_t, ADM_input_out_t, ADM_input, true);
@@ -198,10 +202,9 @@ struct engine {
                      true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_get_qos_constraints",
-                     ADM_get_qos_constraints_in_t,
-                     ADM_get_qos_constraints_out_t,
-                     ADM_get_qos_constraints, true);
+                     "ADM_get_qos_constraints", ADM_get_qos_constraints_in_t,
+                     ADM_get_qos_constraints_out_t, ADM_get_qos_constraints,
+                     true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_define_data_operation",

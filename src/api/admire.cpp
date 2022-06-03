@@ -113,7 +113,25 @@ remove_job(const server& srv, ADM_job_handle_t job) {
     (void) srv;
     (void) job;
 
-    return ADM_OTHER_ERROR;
+    scord::network::rpc_client rpc_client{srv.m_protocol};
+    rpc_client.register_rpcs();
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_remove_job(...)");
+
+    ADM_remove_job_in_t in{};
+    ADM_remove_job_out_t out;
+
+    endp.call("ADM_remove_job", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_remove_job() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_remove_job() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

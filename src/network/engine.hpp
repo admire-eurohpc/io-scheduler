@@ -115,6 +115,10 @@ struct engine {
                      "ADM_update_job", ADM_update_job_in_t,
                      ADM_update_job_out_t, ADM_update_job, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_remove_job", ADM_remove_job_in_t,
+                     ADM_remove_job_out_t, ADM_remove_job, true);
+
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_input",
                      ADM_input_in_t, ADM_input_out_t, ADM_input, true);
 

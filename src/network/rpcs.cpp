@@ -102,6 +102,38 @@ ADM_update_job(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_update_job);
 
+
+static void
+ADM_remove_job(hg_handle_t h) {
+
+    hg_return_t ret;
+
+    ADM_remove_job_in_t in;
+    ADM_remove_job_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+
+    LOGGER_INFO("ADM_remove_job()");
+
+    out.ret = 0;
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_remove_job);
+
 /**
  * Specifes the origin location in a storage tier where input is located, as
  * well as the target location where it should be placed in a different storage

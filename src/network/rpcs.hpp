@@ -56,6 +56,15 @@ MERCURY_GEN_PROC(ADM_update_job_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_update_job);
 
+/// ADM_remove_job
+MERCURY_GEN_PROC(ADM_remove_job_in_t,
+                 ((int32_t) (reqs)))
+
+MERCURY_GEN_PROC(ADM_remove_job_out_t,
+                 ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_remove_job);
+
 /// ADM_input
 MERCURY_GEN_PROC(ADM_input_in_t,
                  ((hg_const_string_t) (origin))((hg_const_string_t) (target)))

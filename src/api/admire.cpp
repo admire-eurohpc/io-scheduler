@@ -229,7 +229,25 @@ deploy_adhoc_storage(const server& srv, ADM_job_handle_t job,
     (void) job;
     (void) adhoc_handle;
 
-    return ADM_OTHER_ERROR;
+    scord::network::rpc_client rpc_client{srv.m_protocol};
+    rpc_client.register_rpcs();
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_deploy_adhoc_storage(...)");
+
+    ADM_deploy_adhoc_storage_in_t in{};
+    ADM_deploy_adhoc_storage_out_t out;
+
+    endp.call("ADM_deploy_adhoc_storage", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_deploy_adhoc_storage() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_deploy_adhoc_storage() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

@@ -193,10 +193,9 @@ struct engine {
                      true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_qos_constraints_push",
-                     ADM_set_qos_constraints_push_in_t,
-                     ADM_set_qos_constraints_push_out_t,
-                     ADM_set_qos_constraints_push, true);
+                     "ADM_set_qos_constraints", ADM_set_qos_constraints_in_t,
+                     ADM_set_qos_constraints_out_t, ADM_set_qos_constraints,
+                     true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_set_qos_constraints_pull",

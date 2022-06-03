@@ -1,5 +1,5 @@
 #include <fmt/format.h>
-#include <engine.hpp>
+#include <admire.hpp>
 
 
 int
@@ -13,44 +13,30 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    scord::network::rpc_client rpc_client{"tcp"};
-    rpc_client.register_rpcs();
+    admire::server server{"tcp", argv[1]};
 
+    ADM_job_handle_t job{};
+    ADM_dataset_handle_t target{};
+    ADM_dataset_info_t info{};
+    ADM_return_t ret = ADM_SUCCESS;
 
-    auto endp = rpc_client.lookup(argv[1]);
-
-    fmt::print(
-            stdout,
-            "Calling ADM_set_dataset_information remote procedure on {} with resource id {}, info {} and"
-            " job id {} ...\n",
-            argv[1], argv[2], argv[3], argv[4]);
-    ADM_set_dataset_information_in_t in;
     try {
-        in.resource_id = std::stoi(argv[2]);
+        ret = admire::set_dataset_information(server, job, target, info);
     } catch(const std::exception& e) {
-        fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
+        fmt::print(stderr, "FATAL: ADM_set_dataset_information() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
-    in.info = argv[3];
-    try {
-        in.job_id = std::stoi(argv[4]);
-    } catch(const std::exception& e) {
-        fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
-        exit(EXIT_FAILURE);
-    }
-    ADM_set_dataset_information_out_t out;
 
-    endp.call("ADM_set_dataset_information", &in, &out);
-
-
-    if(out.ret < 0) {
+    if(ret != ADM_SUCCESS) {
         fmt::print(
                 stdout,
-                "ADM_set_dataset_information remote procedure not completed successfully\n");
+                "ADM_set_dataset_information() remote procedure not completed "
+                "successfully\n");
         exit(EXIT_FAILURE);
-    } else {
-        fmt::print(
-                stdout,
-                "ADM_set_dataset_information remote procedure completed successfully\n");
     }
+
+    fmt::print(stdout,
+               "ADM_set_dataset_information() remote procedure completed "
+               "successfully\n");
 }

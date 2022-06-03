@@ -1,5 +1,5 @@
 #include <fmt/format.h>
-#include <engine.hpp>
+#include <admire.hpp>
 
 
 int
@@ -11,29 +11,27 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    scord::network::rpc_client rpc_client{"tcp"};
-    rpc_client.register_rpcs();
+    admire::server server{"tcp", argv[1]};
 
-    auto endp = rpc_client.lookup(argv[1]);
+    ADM_job_handle_t job{};
+    ADM_transfer_handle_t** tx_handles = nullptr;
+    ADM_return_t ret = ADM_SUCCESS;
 
-    fmt::print(stdout,
-               "Calling ADM_get_pending_transfers remote procedure on {} ...\n",
-               argv[1]);
-    ADM_get_pending_transfers_in_t in;
-    in.value = NULL;
-    ADM_get_pending_transfers_out_t out;
-
-    endp.call("ADM_get_pending_transfers", &in, &out);
-
-
-    if(out.ret < 0) {
-        fmt::print(
-                stdout,
-                "ADM_get_pending_transfers remote procedure not completed successfully\n");
+    try {
+        ret = admire::get_pending_transfers(server, job, tx_handles);
+    } catch(const std::exception& e) {
+        fmt::print(stderr, "FATAL: ADM_get_pending_transfers() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
-    } else {
-        fmt::print(
-                stdout,
-                "ADM_get_pending_transfers remote procedure completed successfully\n");
     }
+
+    if(ret != ADM_SUCCESS) {
+        fmt::print(stdout,
+                   "ADM_get_pending_transfers() remote procedure not completed "
+                   "successfully\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fmt::print(stdout, "ADM_get_pending_transfers() remote procedure completed "
+                       "successfully\n");
 }

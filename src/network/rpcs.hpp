@@ -83,6 +83,15 @@ MERCURY_GEN_PROC(ADM_update_adhoc_storage_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_update_adhoc_storage);
 
+/// ADM_remove_adhoc_storage
+MERCURY_GEN_PROC(ADM_remove_adhoc_storage_in_t,
+                 ((int32_t) (reqs)))
+
+MERCURY_GEN_PROC(ADM_remove_adhoc_storage_out_t,
+                 ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_remove_adhoc_storage);
+
 /// ADM_input
 MERCURY_GEN_PROC(ADM_input_in_t,
                  ((hg_const_string_t) (origin))((hg_const_string_t) (target)))

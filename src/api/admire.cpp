@@ -405,8 +405,27 @@ define_data_operation(const server& srv, ADM_job_handle_t job, const char* path,
     (void) op;
     (void) args;
 
+    scord::network::rpc_client rpc_client{srv.m_protocol};
 
-    return ADM_OTHER_ERROR;
+    rpc_client.register_rpcs();
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_define_data_operation(...)");
+
+    // FIXME: change RPC fields to ADM_transfer_handle_t
+    ADM_define_data_operation_in_t in{};
+    ADM_define_data_operation_out_t out;
+
+    endp.call("ADM_define_data_operation", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_define_data_operation() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_define_data_operation() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

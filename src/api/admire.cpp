@@ -534,7 +534,27 @@ get_statistics(const server& srv, ADM_job_handle_t job,
     (void) job;
     (void) stats;
 
-    return ADM_OTHER_ERROR;
+    scord::network::rpc_client rpc_client{srv.m_protocol};
+
+    rpc_client.register_rpcs();
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_get_statistics(...)");
+
+    // FIXME: change RPC fields to ADM_transfer_handle_t
+    ADM_get_statistics_in_t in{};
+    ADM_get_statistics_out_t out;
+
+    endp.call("ADM_get_statistics", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_get_statistics() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_get_statistics() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
 }
 
 } // namespace admire

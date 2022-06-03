@@ -128,16 +128,34 @@ ADM_return_t
 transfer_dataset(const server& srv, ADM_job_handle_t job,
                  ADM_dataset_handle_t** sources, ADM_dataset_handle_t** targets,
                  ADM_limit_t** limits, ADM_tx_mapping_t mapping,
-                 ADM_transfer_handle_t* tx) {
+                 ADM_transfer_handle_t* tx_handle) {
     (void) srv;
     (void) job;
     (void) sources;
     (void) targets;
     (void) limits;
     (void) mapping;
-    (void) tx;
+    (void) tx_handle;
 
-    return ADM_OTHER_ERROR;
+    scord::network::rpc_client rpc_client{srv.m_protocol};
+    rpc_client.register_rpcs();
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_transfer_dataset(...)");
+
+    ADM_transfer_dataset_in_t in{};
+    ADM_transfer_dataset_out_t out;
+
+    endp.call("ADM_transfer_dataset", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_transfer_dataset() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_transfer_dataset() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

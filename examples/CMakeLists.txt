@@ -24,7 +24,7 @@
 
 list(APPEND examples
             ping
-            ADM_register_job
+            ADM_register_job ADM_update_job
             ADM_in_situ_ops ADM_in_transit_ops ADM_transfer_dataset
             ADM_set_dataset_information ADM_set_io_resources ADM_get_transfer_priority
             ADM_set_transfer_priority ADM_cancel_transfer ADM_get_pending_transfers

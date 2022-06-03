@@ -9,7 +9,7 @@ main(int argc, char* argv[]) {
         fmt::print(stderr, "ERROR: no location provided\n");
         fmt::print(
                 stderr,
-                "Usage: ADM_set_qos_constraints_pull <REMOTE_IP> <SCOPE> <ELEMENT_ID>\n");
+                "Usage: ADM_get_qos_constraints <REMOTE_IP> <SCOPE> <ELEMENT_ID>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -20,9 +20,9 @@ main(int argc, char* argv[]) {
 
     fmt::print(
             stdout,
-            "Calling ADM_set_qos_constraints_pull remote procedure on {} with scope {} and element id {} ...\n",
+            "Calling ADM_get_qos_constraints remote procedure on {} with scope {} and element id {} ...\n",
             argv[1], argv[2], argv[3]);
-    ADM_set_qos_constraints_pull_in_t in;
+    ADM_get_qos_constraints_in_t in;
     in.scope = argv[2];
     try {
         in.element_id = std::stoi(argv[3]);
@@ -31,18 +31,18 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    ADM_set_qos_constraints_pull_out_t out;
+    ADM_get_qos_constraints_out_t out;
 
-    endp.call("ADM_set_qos_constraints_pull", &in, &out);
+    endp.call("ADM_get_qos_constraints", &in, &out);
 
     if(out.ret < 0) {
         fmt::print(
                 stderr,
-                "ADM_set_qos_constraints_pull remote procedure not completed successfully\n");
+                "ADM_get_qos_constraints remote procedure not completed successfully\n");
         exit(EXIT_FAILURE);
     } else {
         fmt::print(
                 stdout,
-                "ADM_set_qos_constraints_pull remote procedure completed successfully\n");
+                "ADM_get_qos_constraints remote procedure completed successfully\n");
     }
 }

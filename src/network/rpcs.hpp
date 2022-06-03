@@ -224,15 +224,15 @@ MERCURY_GEN_PROC(ADM_set_qos_constraints_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_set_qos_constraints);
 
-/// ADM_set_qos_constraints_pull
+/// ADM_get_qos_constraints
 
-MERCURY_GEN_PROC(ADM_set_qos_constraints_pull_in_t,
+MERCURY_GEN_PROC(ADM_get_qos_constraints_in_t,
                  ((hg_const_string_t) (scope))((int32_t) (element_id)))
 
-MERCURY_GEN_PROC(ADM_set_qos_constraints_pull_out_t,
+MERCURY_GEN_PROC(ADM_get_qos_constraints_out_t,
                  ((int32_t) (ret))((hg_const_string_t) (list)))
 
-DECLARE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_pull);
+DECLARE_MARGO_RPC_HANDLER(ADM_get_qos_constraints);
 
 /// ADM_define_data_operation
 

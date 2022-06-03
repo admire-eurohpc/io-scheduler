@@ -1,5 +1,5 @@
 #include <fmt/format.h>
-#include <engine.hpp>
+#include <admire.hpp>
 
 
 int
@@ -13,36 +13,26 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    scord::network::rpc_client rpc_client{"tcp"};
-    rpc_client.register_rpcs();
+    admire::server server{"tcp", argv[1]};
 
-    auto endp = rpc_client.lookup(argv[1]);
+    ADM_job_handle_t job{};
+    ADM_qos_scope_t scope{};
+    ADM_qos_entity_t entity{};
+    ADM_limit_t* limits;
+    ADM_return_t ret = ADM_SUCCESS;
 
-    fmt::print(
-            stdout,
-            "Calling ADM_get_qos_constraints remote procedure on {} with scope {} and element id {} ...\n",
-            argv[1], argv[2], argv[3]);
-    ADM_get_qos_constraints_in_t in;
-    in.scope = argv[2];
     try {
-        in.element_id = std::stoi(argv[3]);
+        ret = admire::get_qos_constraints(server, job, scope, entity, &limits);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "ERROR: Incorrect input type. Please try again.\n");
+        fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
 
-    ADM_get_qos_constraints_out_t out;
-
-    endp.call("ADM_get_qos_constraints", &in, &out);
-
-    if(out.ret < 0) {
-        fmt::print(
-                stderr,
-                "ADM_get_qos_constraints remote procedure not completed successfully\n");
+    if(ret != ADM_SUCCESS) {
+        fmt::print(stdout,
+                   "ADM_cancel_transfer() remote procedure not completed "
+                   "successfully\n");
         exit(EXIT_FAILURE);
-    } else {
-        fmt::print(
-                stdout,
-                "ADM_get_qos_constraints remote procedure completed successfully\n");
     }
 }

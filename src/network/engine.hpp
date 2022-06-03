@@ -137,6 +137,12 @@ struct engine {
                      ADM_remove_adhoc_storage_out_t,
                      ADM_remove_adhoc_storage, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_deploy_adhoc_storage",
+                     ADM_deploy_adhoc_storage_in_t,
+                     ADM_deploy_adhoc_storage_out_t,
+                     ADM_deploy_adhoc_storage, true);
+
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_input",
                      ADM_input_in_t, ADM_input_out_t, ADM_input, true);
 

@@ -19,6 +19,7 @@ build:
     paths:
       - compiled/bin/
       - compiled/etc/
+      - compiled/lib/
       - build/examples/
       # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
   cache:
@@ -33,9 +34,9 @@ test:
   stage: test
   needs: [build]
   script:
-    - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+    - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
     - compiled/bin/scord -f --force-console &
     - build/examples/ping ofi+tcp://127.0.0.1:52000
-    - pkill -9 scord
+    - pkill -TERM scord
   cache:
     key: $CI_COMMIT_REF_SLUG

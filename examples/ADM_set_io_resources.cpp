@@ -1,5 +1,5 @@
 #include <fmt/format.h>
-#include <engine.hpp>
+#include <admire.hpp>
 
 
 int
@@ -13,43 +13,28 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    scord::network::rpc_client rpc_client{"tcp"};
-    rpc_client.register_rpcs();
+    admire::server server{"tcp", argv[1]};
 
-    auto endp = rpc_client.lookup(argv[1]);
+    ADM_job_handle_t job{};
+    ADM_storage_handle_t tier{};
+    ADM_storage_resources_t resources{};
+    ADM_return_t ret = ADM_SUCCESS;
 
-    fmt::print(
-            stdout,
-            "Calling ADM_set_io_resources remote procedure on {} with tier id {}, resources {} and"
-            " job id {} ...\n",
-            argv[1], argv[2], argv[3], argv[4]);
-    ADM_set_io_resources_in_t in;
     try {
-        in.tier_id = std::stoi(argv[2]);
+        ret = admire::set_io_resources(server, job, tier, resources);
     } catch(const std::exception& e) {
-        fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
+        fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
-    in.resources = argv[3];
-    try {
-        in.job_id = std::stoi(argv[4]);
-    } catch(const std::exception& e) {
-        fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
+
+    if(ret != ADM_SUCCESS) {
+        fmt::print(stdout,
+                   "ADM_cancel_transfer() remote procedure not completed "
+                   "successfully\n");
         exit(EXIT_FAILURE);
     }
-    ADM_set_io_resources_out_t out;
 
-    endp.call("ADM_set_io_resources", &in, &out);
-
-
-    if(out.ret < 0) {
-        fmt::print(
-                stdout,
-                "ADM_set_io_resources remote procedure not completed successfully\n");
-        exit(EXIT_FAILURE);
-    } else {
-        fmt::print(
-                stdout,
-                "ADM_set_io_resources remote procedure completed successfully\n");
-    }
+    fmt::print(stdout, "ADM_cancel_transfer() remote procedure completed "
+                       "successfully\n");
 }

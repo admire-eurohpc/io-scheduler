@@ -1,5 +1,5 @@
 #include <fmt/format.h>
-#include <engine.hpp>
+#include <admire.hpp>
 
 bool
 string_to_convert(std::string s) {
@@ -24,52 +24,33 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    scord::network::rpc_client rpc_client{"tcp"};
-    rpc_client.register_rpcs();
+    admire::server server{"tcp", argv[1]};
 
-    auto endp = rpc_client.lookup(argv[1]);
+    ADM_job_handle_t job{};
+    ADM_dataset_handle_t input{};
+    ADM_dataset_handle_t output{};
+    bool should_stream = false;
+    va_list args; // FIXME placeholder
+    ADM_return_t ret = ADM_SUCCESS;
 
-    fmt::print(
-            stdout,
-            "Calling ADM_connect_data_operation remote procedure on {} with operation id {}, input {}, stream {}, arguments {} and job id {} ...\n",
-            argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);
-    ADM_connect_data_operation_in_t in;
     try {
-        in.operation_id = std::stoi(argv[2]);
+        ret = admire::connect_data_operation(server, job, input, output,
+                                             should_stream, args);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "ERROR: Incorrect input type. Please try again.\n");
-        exit(EXIT_FAILURE);
-    }
-    in.input = argv[3];
-    try {
-        in.stream = string_to_convert(argv[4]);
-    } catch(const std::invalid_argument& ia) {
-        fmt::print(stderr, "ERROR: Incorrect input value. Please try again.\n");
-        exit(EXIT_FAILURE);
-    }
-    in.arguments = argv[5];
-    try {
-        in.job_id = std::stoi(argv[6]);
-    } catch(const std::exception& e) {
-        fmt::print(
-                stderr,
-                "ERROR: ERROR: Incorrect input value. Please introduce TRUE/FALSE value. \n");
+        fmt::print(stderr, "FATAL: ADM_connect_data_operation() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
 
-    ADM_connect_data_operation_out_t out;
-
-    endp.call("ADM_connect_data_operation", &in, &out);
-
-
-    if(out.ret < 0) {
+    if(ret != ADM_SUCCESS) {
         fmt::print(
                 stdout,
-                "ADM_connect_data_operation remote procedure not completed successfully\n");
+                "ADM_connect_data_operation() remote procedure not completed "
+                "successfully\n");
         exit(EXIT_FAILURE);
-    } else {
-        fmt::print(
-                stdout,
-                "ADM_connect_data_operation remote procedure completed successfully\n");
     }
+
+    fmt::print(stdout,
+               "ADM_connect_data_operation() remote procedure completed "
+               "successfully\n");
 }

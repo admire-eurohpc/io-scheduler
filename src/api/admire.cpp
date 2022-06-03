@@ -166,7 +166,25 @@ set_dataset_information(const server& srv, ADM_job_handle_t job,
     (void) target;
     (void) info;
 
-    return ADM_OTHER_ERROR;
+    scord::network::rpc_client rpc_client{srv.m_protocol};
+    rpc_client.register_rpcs();
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_set_dataset_information(...)");
+
+    ADM_set_dataset_information_in_t in{};
+    ADM_set_dataset_information_out_t out;
+
+    endp.call("ADM_set_dataset_information", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_set_dataset_information() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_set_dataset_information() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

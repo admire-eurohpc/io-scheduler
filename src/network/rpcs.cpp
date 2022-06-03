@@ -1034,8 +1034,6 @@ ADM_get_qos_constraints(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    const std::string scp(in.scope);
-
     out.ret = -1;
     out.list = nullptr;
 
@@ -1045,6 +1043,9 @@ ADM_get_qos_constraints(hg_handle_t h) {
         LOGGER_ERROR("ADM_get_qos_constraints(): invalid element_id (< 0)");
     } else {
         LOGGER_INFO("ADM_get_qos_constraints({}, {})", in.scope, in.element_id);
+
+        const std::string scp(in.scope);
+
         if((scp == "dataset") || (scp == "node") || (scp == "job")) {
             LOGGER_INFO(
                     "ADM_get_qos_constraints scope value is acceptable ({})",

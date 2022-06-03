@@ -930,6 +930,8 @@ ADM_get_pending_transfers(hg_handle_t h) {
     out.ret = 0;
     out.pending_transfers = "list";
 
+    LOGGER_INFO("ADM_get_pending_transfers()");
+
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
 
@@ -1043,9 +1045,11 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
     if(in.scope == nullptr) {
         LOGGER_ERROR("ADM_set_qos_constraints_pull(): invalid scope (nullptr)");
     } else if(in.element_id < 0) {
-        LOGGER_ERROR("ADM_set_qos_constraints_pull(): invalid element_id (< 0)");
+        LOGGER_ERROR(
+                "ADM_set_qos_constraints_pull(): invalid element_id (< 0)");
     } else {
-        LOGGER_INFO("ADM_set_qos_constraints_pull({}, {})", in.scope, in.element_id);
+        LOGGER_INFO("ADM_set_qos_constraints_pull({}, {})", in.scope,
+                    in.element_id);
         if((scp == "dataset") || (scp == "node") || (scp == "job")) {
             LOGGER_INFO(
                     "ADM_set_qos_constraints_pull scope value is acceptable ({})",
@@ -1344,8 +1348,7 @@ ADM_get_statistics(hg_handle_t h) {
     } else if(in.job_step < 0) {
         LOGGER_ERROR("ADM_get_statistics(): invalid job_step (< 0)");
     } else {
-        LOGGER_INFO("ADM_get_statistics ({}, {})",
-                    in.job_id, in.job_step);
+        LOGGER_INFO("ADM_get_statistics ({}, {})", in.job_id, in.job_step);
         out.ret = 0;
         out.job_statistics = "job_statistics";
     }

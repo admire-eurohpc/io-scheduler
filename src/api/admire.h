@@ -48,7 +48,7 @@ enum ADM_return_t {
 };
 
 /* A server */
-typedef const char* ADM_server_t;
+typedef struct adm_server ADM_server_t;
 
 /* A node */
 typedef const char* ADM_node_t;

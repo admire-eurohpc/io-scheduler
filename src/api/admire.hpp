@@ -24,103 +24,107 @@
 
 #include <admire.h>
 #include <cstdarg>
+#include <string>
 
 #ifndef SCORD_ADMIRE_HPP
 #define SCORD_ADMIRE_HPP
 
 namespace admire {
 
+struct server {
+    std::string m_protocol;
+    std::string m_address;
+};
+
 ADM_return_t
-register_job(ADM_server_t server, ADM_job_requirements_t reqs,
+register_job(const server& srv, ADM_job_requirements_t reqs,
              ADM_job_handle_t* job);
 
 ADM_return_t
-update_job(ADM_server_t server, ADM_job_handle_t job,
+update_job(const server& srv, ADM_job_handle_t job,
            ADM_job_requirements_t reqs);
 
 ADM_return_t
-remove_job(ADM_server_t server, ADM_job_handle_t job);
+remove_job(const server& srv, ADM_job_handle_t job);
 
 ADM_return_t
-register_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+register_adhoc_storage(const server& srv, ADM_job_handle_t job,
                        ADM_adhoc_context_t ctx,
                        ADM_adhoc_storage_handle_t* adhoc_handle);
 
 ADM_return_t
-update_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+update_adhoc_storage(const server& srv, ADM_job_handle_t job,
                      ADM_adhoc_context_t ctx,
                      ADM_adhoc_storage_handle_t adhoc_handle);
 
 ADM_return_t
-remove_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+remove_adhoc_storage(const server& srv, ADM_job_handle_t job,
                      ADM_adhoc_storage_handle_t adhoc_handle);
 
 ADM_return_t
-deploy_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+deploy_adhoc_storage(const server& srv, ADM_job_handle_t job,
                      ADM_adhoc_storage_handle_t adhoc_handle);
 
 ADM_return_t
-transfer_dataset(ADM_server_t server, ADM_job_handle_t job,
+transfer_dataset(const server& srv, ADM_job_handle_t job,
                  ADM_dataset_handle_t** sources, ADM_dataset_handle_t** targets,
                  ADM_limit_t** limits, ADM_tx_mapping_t mapping,
                  ADM_transfer_handle_t* tx_handle);
 
 ADM_return_t
-set_dataset_information(ADM_server_t server, ADM_job_handle_t job,
+set_dataset_information(const server& srv, ADM_job_handle_t job,
                         ADM_dataset_handle_t target, ADM_dataset_info_t info);
 
 ADM_return_t
-set_io_resources(ADM_server_t server, ADM_job_handle_t job,
+set_io_resources(const server& srv, ADM_job_handle_t job,
                  ADM_storage_handle_t tier, ADM_storage_resources_t resources);
 
 ADM_return_t
-get_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
+get_transfer_priority(const server& srv, ADM_job_handle_t job,
                       ADM_transfer_handle_t tx_handle,
                       ADM_transfer_priority_t* priority);
 
 ADM_return_t
-set_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
+set_transfer_priority(const server& srv, ADM_job_handle_t job,
                       ADM_transfer_handle_t tx_handle, int incr);
 
 ADM_return_t
-cancel_transfer(ADM_server_t server, ADM_job_handle_t job,
+cancel_transfer(const server& srv, ADM_job_handle_t job,
                 ADM_transfer_handle_t tx_handle);
 
 ADM_return_t
-get_pending_transfers(ADM_server_t server, ADM_job_handle_t job,
+get_pending_transfers(const server& srv, ADM_job_handle_t job,
                       ADM_transfer_handle_t** pending_transfers);
 
 ADM_return_t
-set_qos_constraints(ADM_server_t server, ADM_job_handle_t job,
-                    ADM_limit_t limit);
+set_qos_constraints(const server& srv, ADM_job_handle_t job, ADM_limit_t limit);
 
 ADM_return_t
-get_qos_constraints(ADM_server_t server, ADM_job_handle_t job,
+get_qos_constraints(const server& srv, ADM_job_handle_t job,
                     ADM_qos_scope_t scope, ADM_qos_entity_t entity,
                     ADM_limit_t** limits);
 
 ADM_return_t
-define_data_operation(ADM_server_t server, ADM_job_handle_t job,
-                      const char* path, ADM_data_operation_handle_t* op,
-                      va_list args);
+define_data_operation(const server& srv, ADM_job_handle_t job, const char* path,
+                      ADM_data_operation_handle_t* op, va_list args);
 
 ADM_return_t
-connect_data_operation(ADM_server_t server, ADM_job_handle_t job,
+connect_data_operation(const server& srv, ADM_job_handle_t job,
                        ADM_dataset_handle_t input, ADM_dataset_handle_t output,
                        bool should_stream, va_list args);
 
 ADM_return_t
-finalize_data_operation(ADM_server_t server, ADM_job_handle_t job,
+finalize_data_operation(const server& srv, ADM_job_handle_t job,
                         ADM_data_operation_handle_t op,
                         ADM_data_operation_status_t* status);
 
 ADM_return_t
-link_transfer_to_data_operation(ADM_server_t server, ADM_job_handle_t job,
+link_transfer_to_data_operation(const server& srv, ADM_job_handle_t job,
                                 ADM_data_operation_handle_t op,
-                                bool should_stream, ...);
+                                bool should_stream, va_list args);
 
 ADM_return_t
-get_statistics(ADM_server_t server, ADM_job_handle_t job,
+get_statistics(const server& srv, ADM_job_handle_t job,
                ADM_job_stats_t** stats);
 
 } // namespace admire

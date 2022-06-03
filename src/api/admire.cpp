@@ -195,7 +195,25 @@ set_io_resources(const server& srv, ADM_job_handle_t job,
     (void) tier;
     (void) resources;
 
-    return ADM_OTHER_ERROR;
+    scord::network::rpc_client rpc_client{srv.m_protocol};
+    rpc_client.register_rpcs();
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_set_io_resources(...)");
+
+    ADM_set_io_resources_in_t in{};
+    ADM_set_io_resources_out_t out;
+
+    endp.call("ADM_set_io_resources", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_set_io_resources() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_set_io_resources() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

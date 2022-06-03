@@ -31,3 +31,10 @@ target_sources(adm_iosched
 target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(adm_iosched PRIVATE network_engine)
+
+install(
+  TARGETS adm_iosched
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/adm_iosched
+)

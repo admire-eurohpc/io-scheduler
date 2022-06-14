@@ -1,5 +1,5 @@
 #include <fmt/format.h>
-#include <engine.hpp>
+#include <admire.hpp>
 
 
 int
@@ -13,39 +13,30 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    scord::network::rpc_client rpc_client{"tcp"};
-    rpc_client.register_rpcs();
+    admire::server server{"tcp", argv[1]};
 
-    auto endp = rpc_client.lookup(argv[1]);
+    ADM_job_handle_t job{};
+    const char* path = "";
+    ADM_data_operation_handle_t op_handle;
+    va_list args; // FIXME: placeholder
+    ADM_return_t ret = ADM_SUCCESS;
 
-    fmt::print(
-            stdout,
-            "Calling ADM_define_data_operation remote procedure on {} -> {} with operation id {} and arguments {} ...\n",
-            argv[1], argv[2], argv[3], argv[4]);
-
-    ADM_define_data_operation_in_t in;
-    in.path = argv[2];
     try {
-        in.operation_id = std::stoi(argv[3]);
+        ret = admire::define_data_operation(server, job, path, &op_handle,
+                                            args);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "ERROR: Incorrect input type. Please try again.\n");
+        fmt::print(stderr, "FATAL: ADM_define_data_operation() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
-    in.arguments = argv[4];
 
-    ADM_define_data_operation_out_t out;
-
-    endp.call("ADM_define_data_operation", &in, &out);
-
-
-    if(out.ret < 0) {
-        fmt::print(
-                stdout,
-                "ADM_define_data_operation remote procedure not completed successfully\n");
+    if(ret != ADM_SUCCESS) {
+        fmt::print(stdout,
+                   "ADM_define_data_operation() remote procedure not completed "
+                   "successfully\n");
         exit(EXIT_FAILURE);
-    } else {
-        fmt::print(
-                stdout,
-                "ADM_define_data_operation remote procedure completed successfully\n");
     }
+
+    fmt::print(stdout, "ADM_define_data_operation() remote procedure completed "
+                       "successfully\n");
 }

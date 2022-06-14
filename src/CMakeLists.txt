@@ -38,3 +38,5 @@ target_link_libraries(
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+add_subdirectory(api)

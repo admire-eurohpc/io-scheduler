@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -107,8 +107,43 @@ struct engine {
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ping", void,
                      void, ping, false);
 
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_input",
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_register_job", ADM_register_job_in_t,
+                     ADM_register_job_out_t, ADM_register_job, true);
 
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_update_job",
+                     ADM_update_job_in_t, ADM_update_job_out_t, ADM_update_job,
+                     true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_remove_job",
+                     ADM_remove_job_in_t, ADM_remove_job_out_t, ADM_remove_job,
+                     true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_register_adhoc_storage",
+                     ADM_register_adhoc_storage_in_t,
+                     ADM_register_adhoc_storage_out_t,
+                     ADM_register_adhoc_storage, true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_update_adhoc_storage",
+                     ADM_update_adhoc_storage_in_t,
+                     ADM_update_adhoc_storage_out_t,
+                     ADM_update_adhoc_storage, true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_remove_adhoc_storage",
+                     ADM_remove_adhoc_storage_in_t,
+                     ADM_remove_adhoc_storage_out_t,
+                     ADM_remove_adhoc_storage, true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
+                     "ADM_deploy_adhoc_storage",
+                     ADM_deploy_adhoc_storage_in_t,
+                     ADM_deploy_adhoc_storage_out_t,
+                     ADM_deploy_adhoc_storage, true);
+
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_input",
                      ADM_input_in_t, ADM_input_out_t, ADM_input, true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_output",
@@ -193,16 +228,14 @@ struct engine {
                      true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_qos_constraints_push",
-                     ADM_set_qos_constraints_push_in_t,
-                     ADM_set_qos_constraints_push_out_t,
-                     ADM_set_qos_constraints_push, true);
+                     "ADM_set_qos_constraints", ADM_set_qos_constraints_in_t,
+                     ADM_set_qos_constraints_out_t, ADM_set_qos_constraints,
+                     true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_qos_constraints_pull",
-                     ADM_set_qos_constraints_pull_in_t,
-                     ADM_set_qos_constraints_pull_out_t,
-                     ADM_set_qos_constraints_pull, true);
+                     "ADM_get_qos_constraints", ADM_get_qos_constraints_in_t,
+                     ADM_get_qos_constraints_out_t, ADM_get_qos_constraints,
+                     true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_define_data_operation",

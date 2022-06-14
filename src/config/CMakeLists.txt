@@ -79,7 +79,7 @@ add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/config_options.hpp
          ${CMAKE_CURRENT_BINARY_DIR}/keywords.hpp
   COMMENT "Generating config_options.hpp, keywords.hpp"
-  DEPENDS file_options.yml ${CMAKE_CURRENT_BINARY_DIR}/genopts.yml
+  DEPENDS genopts_virtualenv file_options.yml ${CMAKE_CURRENT_BINARY_DIR}/genopts.yml
   COMMAND
     Genopts::Python3_Interpreter -m genopts --config
     ${CMAKE_CURRENT_BINARY_DIR}/genopts.yml

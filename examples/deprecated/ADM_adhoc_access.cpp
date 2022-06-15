@@ -1,7 +1,6 @@
 #include <fmt/format.h>
 #include <engine.hpp>
 
-
 int
 main(int argc, char* argv[]) {
 
@@ -38,4 +37,3 @@ main(int argc, char* argv[]) {
                 "ADM_adhoc_access remote procedure completed successfully\n");
     }
 }
-

@@ -1,5 +1,5 @@
 #include <fmt/format.h>
-#include <engine.hpp>
+#include <admire.hpp>
 
 
 int
@@ -12,35 +12,27 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    scord::network::rpc_client rpc_client{"tcp"};
-    rpc_client.register_rpcs();
+    admire::server server{"tcp", argv[1]};
 
-    auto endp = rpc_client.lookup(argv[1]);
+    ADM_job_handle_t job{};
+    ADM_transfer_handle_t tx_handle{};
+    ADM_return_t ret = ADM_SUCCESS;
 
-    fmt::print(
-            stdout,
-            "Calling ADM_cancel_transfer remote procedure on {} with transfer id {} ...\n",
-            argv[1], argv[2]);
-    ADM_cancel_transfer_in_t in;
     try {
-        in.transfer_id = std::stoi(argv[2]);
+        ret = admire::cancel_transfer(server, job, tx_handle);
     } catch(const std::exception& e) {
-        fmt::print(stdout, "ERROR: Incorrect input type. Please try again.\n");
+        fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
-    ADM_cancel_transfer_out_t out;
 
-    endp.call("ADM_cancel_transfer", &in, &out);
-
-
-    if(out.ret < 0) {
-        fmt::print(
-                stdout,
-                "ADM_cancel_transfer remote procedure not completed successfully\n");
+    if(ret != ADM_SUCCESS) {
+        fmt::print(stdout,
+                   "ADM_cancel_transfer() remote procedure not completed "
+                   "successfully\n");
         exit(EXIT_FAILURE);
-    } else {
-        fmt::print(
-                stdout,
-                "ADM_cancel_transfer remote procedure completed successfully\n");
     }
+
+    fmt::print(stdout, "ADM_cancel_transfer() remote procedure completed "
+                       "successfully\n");
 }

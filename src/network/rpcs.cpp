@@ -39,6 +39,225 @@ ping(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ping);
 
+static void
+ADM_register_job(hg_handle_t h) {
+
+    hg_return_t ret;
+
+    ADM_register_job_in_t in;
+    ADM_register_job_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+
+    LOGGER_INFO("ADM_register_job()");
+
+    out.ret = 0;
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_register_job);
+
+
+static void
+ADM_update_job(hg_handle_t h) {
+
+    hg_return_t ret;
+
+    ADM_update_job_in_t in;
+    ADM_update_job_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+
+    LOGGER_INFO("ADM_update_job()");
+
+    out.ret = 0;
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_update_job);
+
+
+static void
+ADM_remove_job(hg_handle_t h) {
+
+    hg_return_t ret;
+
+    ADM_remove_job_in_t in;
+    ADM_remove_job_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+
+    LOGGER_INFO("ADM_remove_job()");
+
+    out.ret = 0;
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_remove_job);
+
+static void
+ADM_register_adhoc_storage(hg_handle_t h) {
+
+    hg_return_t ret;
+
+    ADM_register_adhoc_storage_in_t in;
+    ADM_register_adhoc_storage_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+
+    LOGGER_INFO("ADM_register_adhoc_storage()");
+
+    out.ret = 0;
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_register_adhoc_storage);
+
+static void
+ADM_update_adhoc_storage(hg_handle_t h) {
+
+    hg_return_t ret;
+
+    ADM_update_adhoc_storage_in_t in;
+    ADM_update_adhoc_storage_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+
+    LOGGER_INFO("ADM_update_adhoc_storage()");
+
+    out.ret = 0;
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_update_adhoc_storage);
+
+static void
+ADM_remove_adhoc_storage(hg_handle_t h) {
+
+    hg_return_t ret;
+
+    ADM_remove_adhoc_storage_in_t in;
+    ADM_remove_adhoc_storage_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+
+    LOGGER_INFO("ADM_remove_adhoc_storage()");
+
+    out.ret = 0;
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_remove_adhoc_storage);
+
+static void
+ADM_deploy_adhoc_storage(hg_handle_t h) {
+
+    hg_return_t ret;
+
+    ADM_deploy_adhoc_storage_in_t in;
+    ADM_deploy_adhoc_storage_out_t out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    out.ret = -1;
+
+    LOGGER_INFO("ADM_deploy_adhoc_storage()");
+
+    out.ret = 0;
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_free_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_deploy_adhoc_storage);
+
 /**
  * Specifes the origin location in a storage tier where input is located, as
  * well as the target location where it should be placed in a different storage
@@ -930,6 +1149,8 @@ ADM_get_pending_transfers(hg_handle_t h) {
     out.ret = 0;
     out.pending_transfers = "list";
 
+    LOGGER_INFO("ADM_get_pending_transfers()");
+
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
 
@@ -957,45 +1178,42 @@ DEFINE_MARGO_RPC_HANDLER(ADM_get_pending_transfers)
  * successfully or not.
  */
 static void
-ADM_set_qos_constraints_push(hg_handle_t h) {
+ADM_set_qos_constraints(hg_handle_t h) {
     hg_return_t ret;
 
-    ADM_set_qos_constraints_push_in_t in;
-    ADM_set_qos_constraints_push_out_t out;
+    ADM_set_qos_constraints_in_t in;
+    ADM_set_qos_constraints_out_t out;
 
     margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    const std::string scp(in.scope);
-
     out.ret = -1;
     out.status = -1;
 
     if(in.scope == nullptr) {
-        LOGGER_ERROR("ADM_set_qos_constraints_push(): invalid scope (nullptr)");
+        LOGGER_ERROR("ADM_set_qos_constraints(): invalid scope (nullptr)");
     } else if(in.qos_class == nullptr) {
-        LOGGER_ERROR(
-                "ADM_set_qos_constraints_push(): invalid qos_class (nullptr)");
+        LOGGER_ERROR("ADM_set_qos_constraints(): invalid qos_class (nullptr)");
     } else if(in.element_id < 0) {
-        LOGGER_ERROR(
-                "ADM_set_qos_constraints_push(): invalid element_id (< 0)");
+        LOGGER_ERROR("ADM_set_qos_constraints(): invalid element_id (< 0)");
     } else if(in.class_value == nullptr) {
         LOGGER_ERROR(
-                "ADM_set_qos_constraints_push(): invalid class_value (nullptr)");
+                "ADM_set_qos_constraints(): invalid class_value (nullptr)");
     } else {
-        LOGGER_INFO("ADM_set_qos_constraints_push({}, {}, {}, {})", in.scope,
+        LOGGER_INFO("ADM_set_qos_constraints({}, {}, {}, {})", in.scope,
                     in.qos_class, in.element_id, in.class_value);
+        const std::string scp(in.scope);
         if((scp == "dataset") || (scp == "node") || (scp == "job")) {
             LOGGER_INFO(
-                    "ADM_set_qos_constraints_push scope value is acceptable ({})",
+                    "ADM_set_qos_constraints scope value is acceptable ({})",
                     in.scope);
             out.ret = 0;
             out.status = 0;
         } else {
             LOGGER_ERROR(
-                    "ADM_set_qos_constraints_push scope value is not valid. Please use: dataset, node or job");
+                    "ADM_set_qos_constraints scope value is not valid. Please use: dataset, node or job");
         }
     }
 
@@ -1010,7 +1228,7 @@ ADM_set_qos_constraints_push(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 }
 
-DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_push)
+DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints)
 
 /**
  * Returns a list of QoS constraints defined for an element identified for id.
@@ -1024,37 +1242,38 @@ DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_push)
  * successfully or not.
  */
 static void
-ADM_set_qos_constraints_pull(hg_handle_t h) {
+ADM_get_qos_constraints(hg_handle_t h) {
     hg_return_t ret;
 
-    ADM_set_qos_constraints_pull_in_t in;
-    ADM_set_qos_constraints_pull_out_t out;
+    ADM_get_qos_constraints_in_t in;
+    ADM_get_qos_constraints_out_t out;
 
     margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    const std::string scp(in.scope);
-
     out.ret = -1;
     out.list = nullptr;
 
     if(in.scope == nullptr) {
-        LOGGER_ERROR("ADM_set_qos_constraints_pull(): invalid scope (nullptr)");
+        LOGGER_ERROR("ADM_get_qos_constraints(): invalid scope (nullptr)");
     } else if(in.element_id < 0) {
-        LOGGER_ERROR("ADM_set_qos_constraints_pull(): invalid element_id (< 0)");
+        LOGGER_ERROR("ADM_get_qos_constraints(): invalid element_id (< 0)");
     } else {
-        LOGGER_INFO("ADM_set_qos_constraints_pull({}, {})", in.scope, in.element_id);
+        LOGGER_INFO("ADM_get_qos_constraints({}, {})", in.scope, in.element_id);
+
+        const std::string scp(in.scope);
+
         if((scp == "dataset") || (scp == "node") || (scp == "job")) {
             LOGGER_INFO(
-                    "ADM_set_qos_constraints_pull scope value is acceptable ({})",
+                    "ADM_get_qos_constraints scope value is acceptable ({})",
                     in.scope);
             out.ret = 0;
             out.list = "list";
         } else {
             LOGGER_ERROR(
-                    "ADM_set_qos_constraints_pull scope value is not valid. Please use: dataset, node or job ");
+                    "ADM_get_qos_constraints scope value is not valid. Please use: dataset, node or job ");
         }
     }
 
@@ -1069,7 +1288,7 @@ ADM_set_qos_constraints_pull(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 }
 
-DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_pull)
+DEFINE_MARGO_RPC_HANDLER(ADM_get_qos_constraints)
 
 /**
  * Defines a new operation, with the code found in path. The code will be
@@ -1344,8 +1563,7 @@ ADM_get_statistics(hg_handle_t h) {
     } else if(in.job_step < 0) {
         LOGGER_ERROR("ADM_get_statistics(): invalid job_step (< 0)");
     } else {
-        LOGGER_INFO("ADM_get_statistics ({}, {})",
-                    in.job_id, in.job_step);
+        LOGGER_INFO("ADM_get_statistics ({}, {})", in.job_id, in.job_step);
         out.ret = 0;
         out.job_statistics = "job_statistics";
     }

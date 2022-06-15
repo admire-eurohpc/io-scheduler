@@ -38,6 +38,69 @@
 /// ping
 DECLARE_MARGO_RPC_HANDLER(ping);
 
+/// ADM_register_job
+MERCURY_GEN_PROC(ADM_register_job_in_t,
+                 ((int32_t) (reqs)))
+
+MERCURY_GEN_PROC(ADM_register_job_out_t,
+                 ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_register_job);
+
+/// ADM_update_job
+MERCURY_GEN_PROC(ADM_update_job_in_t,
+                 ((int32_t) (reqs)))
+
+MERCURY_GEN_PROC(ADM_update_job_out_t,
+                 ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_update_job);
+
+/// ADM_remove_job
+MERCURY_GEN_PROC(ADM_remove_job_in_t,
+                 ((int32_t) (reqs)))
+
+MERCURY_GEN_PROC(ADM_remove_job_out_t,
+                 ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_remove_job);
+
+/// ADM_register_adhoc_storage
+MERCURY_GEN_PROC(ADM_register_adhoc_storage_in_t,
+                 ((int32_t) (reqs)))
+
+MERCURY_GEN_PROC(ADM_register_adhoc_storage_out_t,
+                 ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_register_adhoc_storage);
+
+/// ADM_update_adhoc_storage
+MERCURY_GEN_PROC(ADM_update_adhoc_storage_in_t,
+                 ((int32_t) (reqs)))
+
+MERCURY_GEN_PROC(ADM_update_adhoc_storage_out_t,
+                 ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_update_adhoc_storage);
+
+/// ADM_remove_adhoc_storage
+MERCURY_GEN_PROC(ADM_remove_adhoc_storage_in_t,
+                 ((int32_t) (reqs)))
+
+MERCURY_GEN_PROC(ADM_remove_adhoc_storage_out_t,
+                 ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_remove_adhoc_storage);
+
+/// ADM_deploy_adhoc_storage
+MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_in_t,
+                 ((int32_t) (reqs)))
+
+MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_out_t,
+                 ((int32_t) (ret)))
+
+DECLARE_MARGO_RPC_HANDLER(ADM_deploy_adhoc_storage);
+
 /// ADM_input
 MERCURY_GEN_PROC(ADM_input_in_t,
                  ((hg_const_string_t) (origin))((hg_const_string_t) (target)))
@@ -212,27 +275,27 @@ MERCURY_GEN_PROC(ADM_get_pending_transfers_out_t,
 
 DECLARE_MARGO_RPC_HANDLER(ADM_get_pending_transfers);
 
-/// ADM_set_qos_constraints_push
+/// ADM_set_qos_constraints
 
 MERCURY_GEN_PROC(
-        ADM_set_qos_constraints_push_in_t,
+        ADM_set_qos_constraints_in_t,
         ((hg_const_string_t) (scope))((hg_const_string_t) (qos_class))(
                 (int32_t) (element_id))((hg_const_string_t) (class_value)))
 
-MERCURY_GEN_PROC(ADM_set_qos_constraints_push_out_t,
+MERCURY_GEN_PROC(ADM_set_qos_constraints_out_t,
                  ((int32_t) (ret))((int32_t) (status)))
 
-DECLARE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_push);
+DECLARE_MARGO_RPC_HANDLER(ADM_set_qos_constraints);
 
-/// ADM_set_qos_constraints_pull
+/// ADM_get_qos_constraints
 
-MERCURY_GEN_PROC(ADM_set_qos_constraints_pull_in_t,
+MERCURY_GEN_PROC(ADM_get_qos_constraints_in_t,
                  ((hg_const_string_t) (scope))((int32_t) (element_id)))
 
-MERCURY_GEN_PROC(ADM_set_qos_constraints_pull_out_t,
+MERCURY_GEN_PROC(ADM_get_qos_constraints_out_t,
                  ((int32_t) (ret))((hg_const_string_t) (list)))
 
-DECLARE_MARGO_RPC_HANDLER(ADM_set_qos_constraints_pull);
+DECLARE_MARGO_RPC_HANDLER(ADM_get_qos_constraints);
 
 /// ADM_define_data_operation
 
@@ -289,7 +352,6 @@ MERCURY_GEN_PROC(ADM_get_statistics_out_t,
                  ((int32_t) (ret))((hg_const_string_t) (job_statistics)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_get_statistics);
-
 
 
 //} // namespace scord::network::rpc

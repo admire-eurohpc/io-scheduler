@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
+# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,16 +22,19 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(network_engine STATIC)
-target_sources(
-  network_engine
-  INTERFACE engine.hpp
-  PRIVATE rpcs.hpp rpcs.cpp detail/address.hpp
-)
+add_library(adm_iosched SHARED c_wrapper.cpp admire.hpp)
 
-target_include_directories(network_engine INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(
-  network_engine PUBLIC logger transport_library Mercury::Mercury
-                        Argobots::Argobots Margo::Margo
+target_sources(adm_iosched
+  PUBLIC admire.h
+  PRIVATE admire.cpp)
+
+target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(adm_iosched PRIVATE network_engine)
+
+install(
+  TARGETS adm_iosched
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/adm_iosched
 )
-set_property(TARGET network_engine PROPERTY POSITION_INDEPENDENT_CODE ON)

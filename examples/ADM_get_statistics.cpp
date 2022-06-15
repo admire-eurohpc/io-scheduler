@@ -1,5 +1,5 @@
 #include <fmt/format.h>
-#include <engine.hpp>
+#include <admire.hpp>
 
 int
 main(int argc, char* argv[]) {
@@ -12,42 +12,27 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    scord::network::rpc_client rpc_client{"tcp"};
-    rpc_client.register_rpcs();
+    admire::server server{"tcp", argv[1]};
 
-    auto endp = rpc_client.lookup(argv[1]);
+    ADM_job_handle_t job{};
+    ADM_job_stats_t* stats = nullptr;
+    ADM_return_t ret = ADM_SUCCESS;
 
-    fmt::print(
-            stdout,
-            "Calling ADM_get_statistics remote procedure on {} with job id {} and job step {} ...\n",
-            argv[1], argv[2], argv[3]);
-    ADM_get_statistics_in_t in;
     try {
-        in.job_id = std::stoi(argv[2]);
+        ret = admire::get_statistics(server, job, &stats);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "ERROR: Incorrect input type. Please try again.\n");
-        exit(EXIT_FAILURE);
-    }
-    try {
-        in.job_step = std::stoi(argv[3]);
-    } catch(const std::exception& e) {
-        fmt::print(stderr, "ERROR: Incorrect input type. Please try again.\n");
+        fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
 
-    ADM_get_statistics_out_t out;
-
-    endp.call("ADM_get_statistics", &in, &out);
-
-
-    if(out.ret < 0) {
-        fmt::print(
-                stdout,
-                "ADM_get_statistics remote procedure not completed successfully\n");
+    if(ret != ADM_SUCCESS) {
+        fmt::print(stdout,
+                   "ADM_cancel_transfer() remote procedure not completed "
+                   "successfully\n");
         exit(EXIT_FAILURE);
-    } else {
-        fmt::print(
-                stdout,
-                "ADM_get_statistics remote procedure completed successfully\n");
     }
+
+    fmt::print(stdout, "ADM_cancel_transfer() remote procedure completed "
+                       "successfully\n");
 }

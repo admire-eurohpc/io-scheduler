@@ -25,7 +25,7 @@
 add_library(adm_iosched SHARED c_wrapper.cpp admire.hpp)
 
 target_sources(adm_iosched
-  PUBLIC admire.h
+  PUBLIC admire.h new_lib.h
   PRIVATE admire.cpp)
 
 target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

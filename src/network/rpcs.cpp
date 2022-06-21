@@ -23,7 +23,9 @@
  *****************************************************************************/
 
 #include "rpcs.hpp"
+#include <iostream>
 
+/*
 static void
 ping(hg_handle_t h) {
 
@@ -38,6 +40,18 @@ ping(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ping);
+*/
+
+
+static inline hg_return_t hg_proc_ADM_job_requirements_t()
+{
+    hg_return_t ret;
+}
+
+static inline hg_return_t hg_proc_ADM_job_handle_t()
+{
+    hg_return_t ret;
+}
 
 static void
 ADM_register_job(hg_handle_t h) {
@@ -70,7 +84,7 @@ ADM_register_job(hg_handle_t h) {
 
 DEFINE_MARGO_RPC_HANDLER(ADM_register_job);
 
-
+/*
 static void
 ADM_update_job(hg_handle_t h) {
 
@@ -268,6 +282,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_deploy_adhoc_storage);
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_input(hg_handle_t h) {
     hg_return_t ret;
@@ -313,6 +328,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_input)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_output(hg_handle_t h) {
     hg_return_t ret;
@@ -358,6 +374,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_output)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_inout(hg_handle_t h) {
     hg_return_t ret;
@@ -412,6 +429,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_inout)
  * successfully or not.
  * @return out.adhoc_context_id A number that identifies the context.
  */
+/*
 static void
 ADM_adhoc_context(hg_handle_t h) {
     hg_return_t ret;
@@ -466,6 +484,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_context)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_adhoc_context_id(hg_handle_t h) {
     hg_return_t ret;
@@ -511,6 +530,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_context_id)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_adhoc_nodes(hg_handle_t h) {
     hg_return_t ret;
@@ -537,7 +557,7 @@ ADM_adhoc_nodes(hg_handle_t h) {
     ADM_adhoc_execution_mode is shared, the number cannot exceed the number of
     allocated nodes within the compute job. If the ADM_adhoc_execution_mode is
     dedicated, the number of nodes is not restricted. Should this be checked
-    now? */
+    now? *//*
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -559,6 +579,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_nodes)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_adhoc_walltime(hg_handle_t h) {
     hg_return_t ret;
@@ -602,6 +623,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_walltime)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_adhoc_access(hg_handle_t h) {
     hg_return_t ret;
@@ -655,6 +677,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_access)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_adhoc_distribution(hg_handle_t h) {
     hg_return_t ret;
@@ -698,6 +721,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_distribution)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_adhoc_background_flush(hg_handle_t h) {
     hg_return_t ret;
@@ -732,6 +756,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_background_flush)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_in_situ_ops(hg_handle_t h) {
     hg_return_t ret;
@@ -773,6 +798,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_in_situ_ops)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_in_transit_ops(hg_handle_t h) {
     hg_return_t ret;
@@ -830,6 +856,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_in_transit_ops)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_transfer_dataset(hg_handle_t h) {
     hg_return_t ret;
@@ -889,6 +916,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_transfer_dataset)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_set_dataset_information(hg_handle_t h) {
     hg_return_t ret;
@@ -944,6 +972,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_set_dataset_information)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_set_io_resources(hg_handle_t h) {
     hg_return_t ret;
@@ -995,6 +1024,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_set_io_resources)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_get_transfer_priority(hg_handle_t h) {
     hg_return_t ret;
@@ -1043,6 +1073,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_get_transfer_priority)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_set_transfer_priority(hg_handle_t h) {
     hg_return_t ret;
@@ -1090,6 +1121,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_set_transfer_priority)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_cancel_transfer(hg_handle_t h) {
     hg_return_t ret;
@@ -1134,6 +1166,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_cancel_transfer)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_get_pending_transfers(hg_handle_t h) {
     hg_return_t ret;
@@ -1177,6 +1210,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_get_pending_transfers)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_set_qos_constraints(hg_handle_t h) {
     hg_return_t ret;
@@ -1241,6 +1275,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_get_qos_constraints(hg_handle_t h) {
     hg_return_t ret;
@@ -1303,6 +1338,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_get_qos_constraints)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_define_data_operation(hg_handle_t h) {
     hg_return_t ret;
@@ -1366,6 +1402,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_define_data_operation)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_connect_data_operation(hg_handle_t h) {
     hg_return_t ret;
@@ -1425,6 +1462,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_connect_data_operation)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_finalize_data_operation(hg_handle_t h) {
     hg_return_t ret;
@@ -1481,6 +1519,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_finalize_data_operation)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_link_transfer_to_data_operation(hg_handle_t h) {
     hg_return_t ret;
@@ -1543,6 +1582,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_link_transfer_to_data_operation)
  * @return out.ret Returns if the remote procedure has been completed
  * successfully or not.
  */
+/*
 static void
 ADM_get_statistics(hg_handle_t h) {
     hg_return_t ret;
@@ -1579,3 +1619,4 @@ ADM_get_statistics(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_get_statistics)
+*/

@@ -30,21 +30,18 @@
 #include <mercury.h>
 #include <mercury_macros.h>
 #include <mercury_proc_string.h>
-///#include <admire.h>
+
+#include <../api/admire.h>
+#include <../network/rpcs.cpp>
+//#include <../api/admire.hpp>
+
 /// #include <new_lib.h>
 
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {
 
 /// ping
-DECLARE_MARGO_RPC_HANDLER(ping);
-
-static hg_return_t
-hg_proc_ADM_job_handle_t(hg_proc_t proc){
-    hg_return_t ret;
-    return ret; 
-}
-
+//DECLARE_MARGO_RPC_HANDLER(ping);
 
 /// ADM_register_job
 /// MERCURY_GEN_PROC(ADM_register_job_in_t, ((int32_t) (reqs)))
@@ -52,17 +49,23 @@ hg_proc_ADM_job_handle_t(hg_proc_t proc){
 /// MERCURY_GEN_PROC(ADM_register_job_out_t, ((int32_t) (ret)))
 
 /// ----- added
-MERCURY_GEN_STRUCT_PROC(
+/* MERCURY_GEN_STRUCT_PROC(
         ADM_register_job_in_t,
         ((ADM_job_requirements_t) (reqs))((ADM_job_handle_t*) (job)))
 
-MERCURY_GEN_STRUCT_PROC(ADM_register_job_out_t, ((ADM_return_t) (ret)))
+MERCURY_GEN_STRUCT_PROC(ADM_register_job_out_t, ((ADM_return_t) (ret)))*/
+
+MERCURY_GEN_PROC(
+        ADM_register_job_in_t,
+        ((ADM_job_requirements_t) (reqs))((ADM_job_handle_t*) (job)))
+
+MERCURY_GEN_PROC(ADM_register_job_out_t, ((ADM_return_t) (ret)))
 
 /// ------finish addition
 
 
 DECLARE_MARGO_RPC_HANDLER(ADM_register_job);
-
+/*
 /// ADM_update_job
 /// MERCURY_GEN_PROC(ADM_update_job_in_t, ((int32_t) (reqs)))
 
@@ -101,7 +104,7 @@ DECLARE_MARGO_RPC_HANDLER(ADM_remove_job);
 /// ----- added
 MERCURY_GEN_STRUCT_PROC(ADM_register_adhoc_storage_in_t,
                         ((ADM_job_handle_t) (job))((ADM_adhoc_context_t) (ctx))(
-                                (ADM_adhoc_storage_handle_t * adhoc_handle)))
+                                (ADM_adhoc_storage_handle_t* adhoc_handle)))
 
 MERCURY_GEN_STRUCT_PROC(ADM_register_adhoc_storage_out_t,
                         ((ADM_return_t) (ret)))
@@ -461,7 +464,8 @@ DECLARE_MARGO_RPC_HANDLER(ADM_get_qos_constraints);
 /// ----- added
 MERCURY_GEN_STRUCT_PROC(ADM_define_data_operation_in_t,
                         (((ADM_job_handle_t) (job))((const char*) (path))(
-                                (ADM_data_operation_handle_t*) (op))(...)))
+                                (ADM_data_operation_handle_t*) (op))))
+                                // (...)
 
 MERCURY_GEN_STRUCT_PROC(ADM_define_data_operation_out_t, ((ADM_return_t) (ret)))
 
@@ -484,7 +488,8 @@ DECLARE_MARGO_RPC_HANDLER(ADM_define_data_operation);
 MERCURY_GEN_STRUCT_PROC(
         ADM_connect_data_operation_in_t,
         (((ADM_job_handle_t) (job))((ADM_dataset_handle_t) (input))(
-                (ADM_dataset_handle_t) (output))((bool) (should_stream))(...)))
+                (ADM_dataset_handle_t) (output))((hg_bool_t) (should_stream))))
+                // ((bool) (should_stream)) (...)
 
 MERCURY_GEN_STRUCT_PROC(ADM_connect_data_operation_out_t,
                         ((ADM_return_t) (ret)))
@@ -526,8 +531,8 @@ DECLARE_MARGO_RPC_HANDLER(ADM_finalize_data_operation);
 /// ----- added
 MERCURY_GEN_STRUCT_PROC(
         ADM_link_transfer_to_data_operation_in_t,
-        ((ADM_job_handle_t) (job))((ADM_data_operation_handle_t) (op))(
-                (bool) (should_stream))(...))
+        ((ADM_job_handle_t) (job))((ADM_data_operation_handle_t) (op))((hg_bool_t) (should_stream)))
+                // (bool) (should_stream))(...))
 
 MERCURY_GEN_STRUCT_PROC(ADM_link_transfer_to_data_operation_out_t,
                         ((ADM_return_t) (ret)))
@@ -553,6 +558,7 @@ MERCURY_GEN_STRUCT_PROC(ADM_get_statistics_out_t, ((ADM_return_t) (ret)))
 /// ------finish addition
 
 DECLARE_MARGO_RPC_HANDLER(ADM_get_statistics);
+*/
 
 
 //} // namespace scord::network::rpc

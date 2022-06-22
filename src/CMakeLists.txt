@@ -29,27 +29,27 @@ add_subdirectory(network)
 add_subdirectory(rpcs)
 
 # scord daemon
-add_executable(scord server.cpp scord.cpp)
+add_executable(scord scord.cpp)
 
 target_include_directories(
   scord PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(
-  scord PRIVATE config logger network_engine fmt::fmt Boost::program_options
+  scord PRIVATE config logger rpc_server fmt::fmt Boost::program_options
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # scord-ctl daemon
-add_executable(scord-ctl server.cpp scord-ctl.cpp)
+add_executable(scord-ctl scord-ctl.cpp)
 
 target_include_directories(
   scord-ctl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(
-  scord-ctl PRIVATE config logger network_engine fmt::fmt Boost::program_options
+  scord-ctl PRIVATE config logger rpc_server fmt::fmt Boost::program_options
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

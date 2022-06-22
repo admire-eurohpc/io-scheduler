@@ -27,7 +27,7 @@
 
 #include <memory>
 #include <atomic>
-#include <network/engine.hpp>
+#include <engine.hpp>
 
 namespace scord {
 

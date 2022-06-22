@@ -35,3 +35,18 @@ target_link_libraries(
                         Argobots::Argobots Margo::Margo
 )
 set_property(TARGET network_engine PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+add_library(rpc_server STATIC)
+target_sources(
+  rpc_server
+  INTERFACE server.hpp
+  PRIVATE server.cpp
+)
+
+target_include_directories(
+  rpc_server
+  INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE ${CMAKE_SOURCE_DIR}/src
+)
+
+target_link_libraries(rpc_server PUBLIC config network_engine)

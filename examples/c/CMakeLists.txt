@@ -22,5 +22,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_subdirectory(c)
-add_subdirectory(cxx)
+list(APPEND examples_c ADM_register_job)
+
+foreach(example IN LISTS examples_c)
+  add_executable(${example}_c)
+  target_sources(${example}_c PRIVATE ${example}.c)
+  target_link_libraries(${example}_c PUBLIC adm_iosched)
+  set_target_properties(${example}_c PROPERTIES OUTPUT_NAME ${example})
+endforeach()

@@ -32,7 +32,7 @@ cmake_minimum_required(VERSION 3.14)
 project(
   scord
   VERSION 0.1.0
-  LANGUAGES CXX
+  LANGUAGES C CXX
 )
 
 # Set default build type and also populate a list of available options

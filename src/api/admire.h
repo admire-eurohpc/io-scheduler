@@ -44,12 +44,34 @@ extern "C" {
 /* Error return codes */
 typedef enum {
     ADM_SUCCESS = 0,
-    // FIXME: generic error only for now
+    ADM_EINVAL,
+    // generic error code
     ADM_OTHER_ERROR
 } ADM_return_t;
 
 /* A server */
-typedef struct adm_server ADM_server_t;
+typedef struct adm_server* ADM_server_t;
+
+/**
+ * Initialize a server from a user-provided name/address.
+ *
+ * @remark Servers need to be freed by calling ADM_server_destroy().
+ *
+ * @param[in] protocol The protocol that will be used to access the server.
+ * @param[in] address The address of server.
+ * @return A valid ADM_server_t if successful or NULL in case of failure.
+ */
+ADM_server_t
+ADM_server_create(const char* protocol, const char* address);
+
+/**
+ * Destroy a server created by ADM_server_create().
+ *
+ * @param[in] server A pointer to a ADM_server_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_server_destroy(ADM_server_t server);
 
 /* A node */
 typedef char* ADM_node_t;

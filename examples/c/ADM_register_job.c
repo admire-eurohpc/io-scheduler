@@ -11,10 +11,11 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-#if 0
-    ADM_server_t* server = ADM_server_create("tcp", argv[1]);
+    int exit_status = EXIT_SUCCESS;
+    ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
-    ADM_job_handle_t job = ADM_job_handle_init();
+    ADM_job_handle_t job;
+#if 0
     ADM_job_requirements_t reqs = ADM_job_requirements_init();
     ADM_dataset_info_t info = ADM_dataset_info_init();
     ADM_return_t ret = ADM_register_job(server, reqs, &job);
@@ -22,10 +23,15 @@ main(int argc, char* argv[]) {
     if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
-        exit(EXIT_FAILURE);
+        exit_status = EXIT_FAILURE;
+        goto cleanup;
     }
 #endif
 
     fprintf(stdout, "ADM_register_job() remote procedure completed "
                     "successfully\n");
+
+cleanup:
+    ADM_server_destroy(server);
+    exit(exit_status);
 }

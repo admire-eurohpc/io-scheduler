@@ -26,6 +26,7 @@
 #define SCORD_ADMIRE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,17 +42,17 @@ extern "C" {
  */
 
 /* Error return codes */
-enum ADM_return_t {
+typedef enum {
     ADM_SUCCESS = 0,
     // FIXME: generic error only for now
     ADM_OTHER_ERROR
-};
+} ADM_return_t;
 
 /* A server */
 typedef struct adm_server ADM_server_t;
 
 /* A node */
-typedef const char* ADM_node_t;
+typedef char* ADM_node_t;
 
 
 /* A dataset handle */
@@ -61,21 +62,21 @@ typedef struct adm_dataset* ADM_dataset_handle_t;
 typedef struct adm_job* ADM_job_handle_t;
 
 /* The scope affected by a QoS limit */
-enum ADM_qos_scope_t {
+typedef enum {
     ADM_QOS_SCOPE_DATASET,
     ADM_QOS_SCOPE_NODE,
     ADM_QOS_SCOPE_JOB
-};
+} ADM_qos_scope_t;
 
 /** The class of QoS limit applied to a scope */
-enum ADM_qos_class_t { ADM_QOS_CLASS_BANDWIDTH, ADM_QOS_CLASS_IOPS };
+typedef enum { ADM_QOS_CLASS_BANDWIDTH, ADM_QOS_CLASS_IOPS } ADM_qos_class_t;
 
 /** An ADMIRE entity upon which QoS can be defined */
-union ADM_qos_entity_t {
+typedef union {
     ADM_node_t l_node;
     ADM_job_handle_t l_job;
     ADM_dataset_handle_t l_dataset;
-};
+} ADM_qos_entity_t;
 
 /** A QoS limit */
 typedef struct {

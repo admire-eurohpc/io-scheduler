@@ -25,6 +25,7 @@
 #include <admire.hpp>
 #include <engine.hpp>
 #include <logger.hpp>
+#include "detail/impl.hpp"
 
 
 namespace {
@@ -47,37 +48,23 @@ init_logger() {
     scord::logger::create_global_logger("libadm_iosched", "console color");
 }
 
+
 } // namespace
 
 
 namespace admire {
 
-ADM_return_t
-register_job(const server& srv, ADM_job_requirements_t reqs,
-             ADM_job_handle_t* job) {
-    (void) srv;
-    (void) reqs;
-    (void) job;
+admire::job
+register_job(const server& srv, ADM_job_requirements_t reqs) {
 
-    scord::network::rpc_client rpc_client{srv.m_protocol};
-    rpc_client.register_rpcs();
+    const auto rv = detail::register_job(srv, reqs);
 
-    auto endp = rpc_client.lookup(srv.m_address);
-
-    LOGGER_INFO("ADM_register_job(...)");
-
-    ADM_register_job_in_t in{};
-    ADM_register_job_out_t out;
-
-    endp.call("ADM_register_job", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_register_job() = {}", out.ret);
-        return static_cast<ADM_return_t>(out.ret);
+    if(!rv) {
+        /* TODO ADM_strerror(rv.error()) */
+        throw std::runtime_error("ADM_register_job() error");
     }
 
-    LOGGER_INFO("ADM_register_job() = {}", ADM_SUCCESS);
-    return ADM_SUCCESS;
+    return rv.value();
 }
 
 ADM_return_t

@@ -25,10 +25,15 @@
 #include <admire.h>
 #include <admire.hpp>
 #include <logger.hpp>
+#include "detail/impl.hpp"
 
 struct adm_server {
     const char* s_protocol;
     const char* s_address;
+};
+
+struct adm_job {
+    uint64_t j_id;
 };
 
 ADM_server_t
@@ -61,13 +66,51 @@ ADM_server_destroy(ADM_server_t server) {
     return ret;
 }
 
+/**
+ * Initialize a job handle that can be used by clients to refer to a job.
+ *
+ * @remark This function is not actually part of the public API, but it is
+ * useful to have for internal purposes
+ *
+ * @param [in] id The identifier for this job
+ * @return A valid job_handle or NULL in case of failure.
+ */
+static ADM_job_handle_t
+ADM_job_handle_create(uint64_t id) {
+
+    struct adm_job* adm_job = (struct adm_job*) malloc(sizeof(struct adm_job));
+
+    if(!adm_job) {
+        LOGGER_ERROR("Could not allocate ADM_job_handle_t")
+        return NULL;
+    }
+
+    adm_job->j_id = id;
+
+    return adm_job;
+}
+
 ADM_return_t
 ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
-                 ADM_job_handle_t* job) {
+                 ADM_job_handle_t* job_handle) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::register_job(srv, reqs, job);
+    const auto rv = admire::detail::register_job(srv, reqs);
+
+    if(!rv) {
+        return rv.error();
+    }
+
+    const auto jh = ADM_job_handle_create(rv->m_id);
+
+    if(!jh) {
+        return ADM_OTHER_ERROR;
+    }
+
+    *job_handle = jh;
+
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

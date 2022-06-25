@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <admire.h>
+#include <tl/expected.hpp>
 #include <cstdarg>
 #include <string>
 
@@ -31,14 +32,20 @@
 
 namespace admire {
 
+using job_id = int64_t;
+
 struct server {
     std::string m_protocol;
     std::string m_address;
 };
 
-ADM_return_t
-register_job(const server& srv, ADM_job_requirements_t reqs,
-             ADM_job_handle_t* job);
+struct job {
+    job_id m_id;
+};
+
+
+admire::job
+register_job(const server& srv, ADM_job_requirements_t reqs);
 
 ADM_return_t
 update_job(const server& srv, ADM_job_handle_t job,

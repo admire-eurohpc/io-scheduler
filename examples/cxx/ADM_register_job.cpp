@@ -13,24 +13,19 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_handle_t job{};
     ADM_job_requirements_t reqs{};
-    ADM_dataset_info_t info{};
-    ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::register_job(server, reqs, &job);
+
+        [[maybe_unused]] const auto job = admire::register_job(server, reqs);
+
+        // do something with job
+
+        fmt::print(stdout, "ADM_register_job() remote procedure completed "
+                           "successfully\n");
+        exit(EXIT_SUCCESS);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_register_job() failed: {}\n", e.what());
         exit(EXIT_FAILURE);
     }
-
-    if(ret != ADM_SUCCESS) {
-        fmt::print(stdout, "ADM_register_job() remote procedure not completed "
-                           "successfully\n");
-        exit(EXIT_FAILURE);
-    }
-
-    fmt::print(stdout, "ADM_register_job() remote procedure completed "
-                       "successfully\n");
 }

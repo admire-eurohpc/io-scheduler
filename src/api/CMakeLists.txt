@@ -22,15 +22,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(adm_iosched SHARED c_wrapper.cpp admire.hpp)
+add_library(adm_iosched SHARED)
 
 target_sources(adm_iosched
-  PUBLIC admire.h
-  PRIVATE admire.cpp)
+  PUBLIC admire.h admire.hpp
+  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp)
 
 target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(adm_iosched PRIVATE network_engine)
+target_link_libraries(adm_iosched PRIVATE network_engine PUBLIC tl::expected)
 
 install(
   TARGETS adm_iosched

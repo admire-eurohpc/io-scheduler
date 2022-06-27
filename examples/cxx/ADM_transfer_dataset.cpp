@@ -16,7 +16,7 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_handle_t job{};
+    ADM_job_t job{};
     ADM_dataset_handle_t** sources = nullptr;
     ADM_dataset_handle_t** targets = nullptr;
     ADM_limit_t** limits = nullptr;

@@ -81,7 +81,7 @@ typedef char* ADM_node_t;
 typedef struct adm_dataset* ADM_dataset_handle_t;
 
 /* A job handle */
-typedef struct adm_job* ADM_job_handle_t;
+typedef struct adm_job* ADM_job_t;
 
 /* The scope affected by a QoS limit */
 typedef enum {
@@ -96,7 +96,7 @@ typedef enum { ADM_QOS_CLASS_BANDWIDTH, ADM_QOS_CLASS_IOPS } ADM_qos_class_t;
 /** An ADMIRE entity upon which QoS can be defined */
 typedef union {
     ADM_node_t l_node;
-    ADM_job_handle_t l_job;
+    ADM_job_t l_job;
     ADM_dataset_handle_t l_dataset;
 } ADM_qos_entity_t;
 
@@ -201,28 +201,30 @@ typedef struct {
 /**
  * Register a job and its requirements.
  *
+ * @remark The returned ADM_JOB will be freed when passed to
+ * ADM_remove_job().
+ *
  * @param[in] server The server to which the request is directed
  * @param[in] reqs The requirements for the job.
- * @param[out] job_handle A JOB_HANDLE referring to the newly-registered job.
+ * @param[out] job An ADM_JOB referring to the newly-registered job.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  * successfully.
  */
 ADM_return_t
 ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
-                 ADM_job_handle_t* job_handle);
+                 ADM_job_t* job);
 
 ADM_return_t
-ADM_update_job(ADM_server_t server, ADM_job_handle_t job,
-               ADM_job_requirements_t reqs);
+ADM_update_job(ADM_server_t server, ADM_job_t job, ADM_job_requirements_t reqs);
 
 ADM_return_t
-ADM_remove_job(ADM_server_t server, ADM_job_handle_t job);
+ADM_remove_job(ADM_server_t server, ADM_job_t job);
 
 /**
  * Register an adhoc storage system.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] ctx The EXECUTION_CONTEXT for the adhoc storage system.
  * @param[out] adhoc_handle An ADHOC_HANDLE referring to the newly-created
  * adhoc storage instance.
@@ -230,7 +232,7 @@ ADM_remove_job(ADM_server_t server, ADM_job_handle_t job);
  * successfully.
  */
 ADM_return_t
-ADM_register_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job,
                            ADM_adhoc_context_t ctx,
                            ADM_adhoc_storage_handle_t* adhoc_handle);
 
@@ -238,7 +240,7 @@ ADM_register_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
  * Update an already-registered adhoc storage system.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] ctx The updated EXECUTION_CONTEXT for the adhoc storage system.
  * @param[in] adhoc_handle An ADHOC_HANDLE referring to the adhoc storage
  * instance of interest.
@@ -246,7 +248,7 @@ ADM_register_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
  * successfully.
  */
 ADM_return_t
-ADM_update_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+ADM_update_adhoc_storage(ADM_server_t server, ADM_job_t job,
                          ADM_adhoc_context_t ctx,
                          ADM_adhoc_storage_handle_t adhoc_handle);
 
@@ -254,27 +256,27 @@ ADM_update_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
  * Remove an already-registered adhoc storage system.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] adhoc_handle An ADHOC_HANDLE referring to the adhoc storage
  * instance of interest.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  * successfully.
  */
 ADM_return_t
-ADM_remove_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+ADM_remove_adhoc_storage(ADM_server_t server, ADM_job_t job,
                          ADM_adhoc_storage_handle_t adhoc_handle);
 
 /**
  * Initiate the deployment of an adhoc storage system instance.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] adhoc_handle An ADHOC_HANDLE referring to the adhoc storage
  * instance of interest.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
                          ADM_adhoc_storage_handle_t adhoc_handle);
 
 /**
@@ -284,7 +286,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
  * operation (i.e., get statistics, or status).
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] sources A list of DATASETs identifying the source dataset/s
  * to be transferred.
  * @param[in] targets A list of DATASETs identifying the destination
@@ -301,7 +303,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
  * successfully or not.
  */
 ADM_return_t
-ADM_transfer_dataset(ADM_server_t server, ADM_job_handle_t job,
+ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
                      ADM_dataset_handle_t** sources,
                      ADM_dataset_handle_t** targets, ADM_limit_t** limits,
                      ADM_tx_mapping_t mapping,
@@ -312,7 +314,7 @@ ADM_transfer_dataset(ADM_server_t server, ADM_job_handle_t job,
  * Sets information for the dataset identified by resource_id.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] target A DATASET_HANDLE referring to the dataset of interest.
  * @param[in] info A DATASET_INFO with information about the
  * dataset (e.g. its lifespan, access methods, intended usage, etc.).
@@ -320,7 +322,7 @@ ADM_transfer_dataset(ADM_server_t server, ADM_job_handle_t job,
  * successfully.
  */
 ADM_return_t
-ADM_set_dataset_information(ADM_server_t server, ADM_job_handle_t job,
+ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
                             ADM_dataset_handle_t target,
                             ADM_dataset_info_t info);
 
@@ -329,7 +331,7 @@ ADM_set_dataset_information(ADM_server_t server, ADM_job_handle_t job,
  * System.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] tier A STORAGE_HANDLE referring to the target storage tier.
  * @param[in] resources A RESOURCES argument containing information
  * about the I/O resources to set (e.g. number of I/O nodes.).
@@ -337,7 +339,7 @@ ADM_set_dataset_information(ADM_server_t server, ADM_job_handle_t job,
  * successfully.
  */
 ADM_return_t
-ADM_set_io_resources(ADM_server_t server, ADM_job_handle_t job,
+ADM_set_io_resources(ADM_server_t server, ADM_job_t job,
                      ADM_storage_handle_t tier,
                      ADM_storage_resources_t resources);
 
@@ -346,7 +348,7 @@ ADM_set_io_resources(ADM_server_t server, ADM_job_handle_t job,
  * Returns the priority of the pending transfer identified by transfer_id.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] tx_handle A TRANSFER_HANDLE referring to a pending transfer
  * @param[out] priority The priority of the pending transfer or an error code if
  * it didn’t exist or is no longer pending.
@@ -354,7 +356,7 @@ ADM_set_io_resources(ADM_server_t server, ADM_job_handle_t job,
  * successfully.
  */
 ADM_return_t
-ADM_get_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
+ADM_get_transfer_priority(ADM_server_t server, ADM_job_t job,
                           ADM_transfer_handle_t tx_handle,
                           ADM_transfer_priority_t* priority);
 
@@ -364,14 +366,14 @@ ADM_get_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
  * its scheduling queue.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] tx_handle A TRANSFER_HANDLE referring to a pending transfer
  * @param[in] incr A positive or negative number for the number of
  * positions the transfer should go up or down in its scheduling queue.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_set_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
+ADM_set_transfer_priority(ADM_server_t server, ADM_job_t job,
                           ADM_transfer_handle_t tx_handle, int incr);
 
 
@@ -379,12 +381,12 @@ ADM_set_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
  * Cancels the pending transfer identified by transfer_id.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] tx_handle A TRANSFER_HANDLE referring to a pending transfer.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_cancel_transfer(ADM_server_t server, ADM_job_handle_t job,
+ADM_cancel_transfer(ADM_server_t server, ADM_job_t job,
                     ADM_transfer_handle_t tx_handle);
 
 
@@ -392,12 +394,12 @@ ADM_cancel_transfer(ADM_server_t server, ADM_job_handle_t job,
  * Returns a list of pending transfers.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[out] pending_transfers  A list of pending_transfers.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_get_pending_transfers(ADM_server_t server, ADM_job_handle_t job,
+ADM_get_pending_transfers(ADM_server_t server, ADM_job_t job,
                           ADM_transfer_handle_t** pending_transfers);
 
 
@@ -406,7 +408,7 @@ ADM_get_pending_transfers(ADM_server_t server, ADM_job_handle_t job,
  * identified by id.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] limit A QOS_LIMIT specifying at least:
  *                  - The QOS_SCOPE the limit  should be applied to: e.g.
  *                    dataset, node, or job.
@@ -417,24 +419,23 @@ ADM_get_pending_transfers(ADM_server_t server, ADM_job_handle_t job,
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_set_qos_constraints(ADM_server_t server, ADM_job_handle_t job,
-                        ADM_limit_t limit);
+ADM_set_qos_constraints(ADM_server_t server, ADM_job_t job, ADM_limit_t limit);
 
 
 /**
  * Returns a list of QoS constraints defined for an element identified for id.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] scope The scope being queried: dataset, node, or job.
  * @param[in] entity An QOS_ENTITY referring to the target of the query, i.e. a
- * RESOURCE_HANDLE, a NODE hostname, or a JOB_HANDLE.
+ * RESOURCE_HANDLE, a NODE hostname, or a ADM_JOB.
  * @param[in] limits A list of QOS_LIMITS that includes all the classes
  * currently defined for the element as well as the values set for them.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_get_qos_constraints(ADM_server_t server, ADM_job_handle_t job,
+ADM_get_qos_constraints(ADM_server_t server, ADM_job_t job,
                         ADM_qos_scope_t scope, ADM_qos_entity_t entity,
                         ADM_limit_t** limits);
 
@@ -445,16 +446,15 @@ ADM_get_qos_constraints(ADM_server_t server, ADM_job_handle_t job,
  * defined, using the next format "arg0, arg1, arg2, ... ".
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] path A valid path for the operation executable.
  * @param[in] ... A list of ARGUMENTS for the operation.
  * @param[out] op  An OPERATION_HANDLE for the newly-defined operation.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_define_data_operation(ADM_server_t server, ADM_job_handle_t job,
-                          const char* path, ADM_data_operation_handle_t* op,
-                          ...);
+ADM_define_data_operation(ADM_server_t server, ADM_job_t job, const char* path,
+                          ADM_data_operation_handle_t* op, ...);
 
 
 /**
@@ -465,7 +465,7 @@ ADM_define_data_operation(ADM_server_t server, ADM_job_handle_t job,
  * set to true.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] op The OPERATION_HANDLE of the operation to be connected.
  * @param[in] input An input DATASET_HANDLE for the operation.
  * @param[in] output An output DATASET_HANDLE where the result of
@@ -476,7 +476,7 @@ ADM_define_data_operation(ADM_server_t server, ADM_job_handle_t job,
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_connect_data_operation(ADM_server_t server, ADM_job_handle_t job,
+ADM_connect_data_operation(ADM_server_t server, ADM_job_t job,
                            ADM_dataset_handle_t input,
                            ADM_dataset_handle_t output, bool should_stream,
                            ...);
@@ -486,14 +486,14 @@ ADM_connect_data_operation(ADM_server_t server, ADM_job_handle_t job,
  * Finalises the operation defined with operation_id.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] op The OPERATION_HANDLE of the operation to be connected.
  * @return[out] status An OPERATION_STATUS type indicating whether the
  * operation was successful.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_finalize_data_operation(ADM_server_t server, ADM_job_handle_t job,
+ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
                             ADM_data_operation_handle_t op,
                             ADM_data_operation_status_t* status);
 
@@ -506,18 +506,18 @@ ADM_finalize_data_operation(ADM_server_t server, ADM_job_handle_t job,
  * to true.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] op The OPERATION_HANDLE of the operation to be connected.
  * @param[in] tx_handle The TRANSFER_HANDLE referring to the pending transfer
  * the operation should be linked to.
- * @param[in] job A JOB_HANDLE identifying the originating job.
+ * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] should_stream A boolean indicating whether the operation
  * should be executed in a streaming fashion.
  * @param[in] ... The VALUES for the arguments required by the operation.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_handle_t job,
+ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_t job,
                                     ADM_data_operation_handle_t op,
                                     bool should_stream, ...);
 
@@ -528,14 +528,13 @@ ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_handle_t job,
  * easy-to-process format, e.g., JSON (see Listing 3.1).
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job A JOB_HANDLE identifying the originating job and,
+ * @param[in] job An ADM_JOB identifying the originating job and,
  * optionally, its JOB_STEP.
  * @return[out] stats A list of JOB_STATS.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_get_statistics(ADM_server_t server, ADM_job_handle_t job,
-                   ADM_job_stats_t** stats);
+ADM_get_statistics(ADM_server_t server, ADM_job_t job, ADM_job_stats_t** stats);
 
 #ifdef __cplusplus
 } // extern "C"

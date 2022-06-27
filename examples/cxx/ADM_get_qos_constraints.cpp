@@ -15,7 +15,7 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_handle_t job{};
+    ADM_job_t job{};
     ADM_qos_scope_t scope{};
     ADM_qos_entity_t entity{};
     ADM_limit_t* limits;

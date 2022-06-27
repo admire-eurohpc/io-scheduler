@@ -73,15 +73,15 @@ ADM_server_destroy(ADM_server_t server) {
  * useful to have for internal purposes
  *
  * @param [in] id The identifier for this job
- * @return A valid job_handle or NULL in case of failure.
+ * @return A valid JOB HANDLE or NULL in case of failure.
  */
-static ADM_job_handle_t
-ADM_job_handle_create(uint64_t id) {
+static ADM_job_t
+ADM_job_create(uint64_t id) {
 
     struct adm_job* adm_job = (struct adm_job*) malloc(sizeof(struct adm_job));
 
     if(!adm_job) {
-        LOGGER_ERROR("Could not allocate ADM_job_handle_t")
+        LOGGER_ERROR("Could not allocate ADM_job_t")
         return NULL;
     }
 
@@ -92,7 +92,7 @@ ADM_job_handle_create(uint64_t id) {
 
 ADM_return_t
 ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
-                 ADM_job_handle_t* job_handle) {
+                 ADM_job_t* job) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
@@ -102,19 +102,19 @@ ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
         return rv.error();
     }
 
-    const auto jh = ADM_job_handle_create(rv->m_id);
+    const auto jh = ADM_job_create(rv->m_id);
 
     if(!jh) {
         return ADM_OTHER_ERROR;
     }
 
-    *job_handle = jh;
+    *job = jh;
 
     return ADM_SUCCESS;
 }
 
 ADM_return_t
-ADM_update_job(ADM_server_t server, ADM_job_handle_t job,
+ADM_update_job(ADM_server_t server, ADM_job_t job,
                ADM_job_requirements_t reqs) {
 
     const admire::server srv{server->s_protocol, server->s_address};
@@ -123,7 +123,7 @@ ADM_update_job(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_remove_job(ADM_server_t server, ADM_job_handle_t job) {
+ADM_remove_job(ADM_server_t server, ADM_job_t job) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
@@ -131,7 +131,7 @@ ADM_remove_job(ADM_server_t server, ADM_job_handle_t job) {
 }
 
 ADM_return_t
-ADM_register_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job,
                            ADM_adhoc_context_t ctx,
                            ADM_adhoc_storage_handle_t* adhoc_handle) {
 
@@ -141,7 +141,7 @@ ADM_register_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_update_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+ADM_update_adhoc_storage(ADM_server_t server, ADM_job_t job,
                          ADM_adhoc_context_t ctx,
                          ADM_adhoc_storage_handle_t adhoc_handle) {
 
@@ -151,7 +151,7 @@ ADM_update_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_remove_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+ADM_remove_adhoc_storage(ADM_server_t server, ADM_job_t job,
                          ADM_adhoc_storage_handle_t adhoc_handle) {
 
     const admire::server srv{server->s_protocol, server->s_address};
@@ -160,7 +160,7 @@ ADM_remove_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
+ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
                          ADM_adhoc_storage_handle_t adhoc_handle) {
 
     const admire::server srv{server->s_protocol, server->s_address};
@@ -169,7 +169,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_transfer_dataset(ADM_server_t server, ADM_job_handle_t job,
+ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
                      ADM_dataset_handle_t** sources,
                      ADM_dataset_handle_t** targets, ADM_limit_t** limits,
                      ADM_tx_mapping_t mapping,
@@ -182,7 +182,7 @@ ADM_transfer_dataset(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_set_dataset_information(ADM_server_t server, ADM_job_handle_t job,
+ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
                             ADM_dataset_handle_t target,
                             ADM_dataset_info_t info) {
 
@@ -192,7 +192,7 @@ ADM_set_dataset_information(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_set_io_resources(ADM_server_t server, ADM_job_handle_t job,
+ADM_set_io_resources(ADM_server_t server, ADM_job_t job,
                      ADM_storage_handle_t tier,
                      ADM_storage_resources_t resources) {
 
@@ -202,7 +202,7 @@ ADM_set_io_resources(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_get_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
+ADM_get_transfer_priority(ADM_server_t server, ADM_job_t job,
                           ADM_transfer_handle_t tx_handle,
                           ADM_transfer_priority_t* priority) {
 
@@ -212,7 +212,7 @@ ADM_get_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_set_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
+ADM_set_transfer_priority(ADM_server_t server, ADM_job_t job,
                           ADM_transfer_handle_t tx_handle, int incr) {
 
     const admire::server srv{server->s_protocol, server->s_address};
@@ -221,7 +221,7 @@ ADM_set_transfer_priority(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_cancel_transfer(ADM_server_t server, ADM_job_handle_t job,
+ADM_cancel_transfer(ADM_server_t server, ADM_job_t job,
                     ADM_transfer_handle_t tx_handle) {
 
     const admire::server srv{server->s_protocol, server->s_address};
@@ -230,7 +230,7 @@ ADM_cancel_transfer(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_get_pending_transfers(ADM_server_t server, ADM_job_handle_t job,
+ADM_get_pending_transfers(ADM_server_t server, ADM_job_t job,
                           ADM_transfer_handle_t** pending_transfers) {
 
     const admire::server srv{server->s_protocol, server->s_address};
@@ -239,8 +239,7 @@ ADM_get_pending_transfers(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_set_qos_constraints(ADM_server_t server, ADM_job_handle_t job,
-                        ADM_limit_t limit) {
+ADM_set_qos_constraints(ADM_server_t server, ADM_job_t job, ADM_limit_t limit) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
@@ -248,7 +247,7 @@ ADM_set_qos_constraints(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_get_qos_constraints(ADM_server_t server, ADM_job_handle_t job,
+ADM_get_qos_constraints(ADM_server_t server, ADM_job_t job,
                         ADM_qos_scope_t scope, ADM_qos_entity_t entity,
                         ADM_limit_t** limits) {
 
@@ -258,9 +257,8 @@ ADM_get_qos_constraints(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_define_data_operation(ADM_server_t server, ADM_job_handle_t job,
-                          const char* path, ADM_data_operation_handle_t* op,
-                          ...) {
+ADM_define_data_operation(ADM_server_t server, ADM_job_t job, const char* path,
+                          ADM_data_operation_handle_t* op, ...) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
@@ -273,7 +271,7 @@ ADM_define_data_operation(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_connect_data_operation(ADM_server_t server, ADM_job_handle_t job,
+ADM_connect_data_operation(ADM_server_t server, ADM_job_t job,
                            ADM_dataset_handle_t input,
                            ADM_dataset_handle_t output, bool should_stream,
                            ...) {
@@ -290,7 +288,7 @@ ADM_connect_data_operation(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_finalize_data_operation(ADM_server_t server, ADM_job_handle_t job,
+ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
                             ADM_data_operation_handle_t op,
                             ADM_data_operation_status_t* status) {
 
@@ -300,7 +298,7 @@ ADM_finalize_data_operation(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_handle_t job,
+ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_t job,
                                     ADM_data_operation_handle_t op,
                                     bool should_stream, ...) {
 
@@ -316,7 +314,7 @@ ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_handle_t job,
 }
 
 ADM_return_t
-ADM_get_statistics(ADM_server_t server, ADM_job_handle_t job,
+ADM_get_statistics(ADM_server_t server, ADM_job_t job,
                    ADM_job_stats_t** stats) {
     const admire::server srv{server->s_protocol, server->s_address};
     return admire::get_statistics(srv, job, stats);

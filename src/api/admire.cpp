@@ -68,7 +68,7 @@ register_job(const server& srv, ADM_job_requirements_t reqs) {
 }
 
 ADM_return_t
-update_job(const server& srv, ADM_job_handle_t job,
+update_job(const server& srv, ADM_job_t job,
            ADM_job_requirements_t reqs) {
     (void) srv;
     (void) job;
@@ -96,7 +96,7 @@ update_job(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-remove_job(const server& srv, ADM_job_handle_t job) {
+remove_job(const server& srv, ADM_job_t job) {
     (void) srv;
     (void) job;
 
@@ -122,7 +122,7 @@ remove_job(const server& srv, ADM_job_handle_t job) {
 }
 
 ADM_return_t
-register_adhoc_storage(const server& srv, ADM_job_handle_t job,
+register_adhoc_storage(const server& srv, ADM_job_t job,
                        ADM_adhoc_context_t ctx,
                        ADM_adhoc_storage_handle_t* adhoc_handle) {
     (void) srv;
@@ -152,7 +152,7 @@ register_adhoc_storage(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-update_adhoc_storage(const server& srv, ADM_job_handle_t job,
+update_adhoc_storage(const server& srv, ADM_job_t job,
                      ADM_adhoc_context_t ctx,
                      ADM_adhoc_storage_handle_t adhoc_handle) {
     (void) srv;
@@ -182,7 +182,7 @@ update_adhoc_storage(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-remove_adhoc_storage(const server& srv, ADM_job_handle_t job,
+remove_adhoc_storage(const server& srv, ADM_job_t job,
                      ADM_adhoc_storage_handle_t adhoc_handle) {
     (void) srv;
     (void) job;
@@ -210,7 +210,7 @@ remove_adhoc_storage(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-deploy_adhoc_storage(const server& srv, ADM_job_handle_t job,
+deploy_adhoc_storage(const server& srv, ADM_job_t job,
                      ADM_adhoc_storage_handle_t adhoc_handle) {
     (void) srv;
     (void) job;
@@ -238,7 +238,7 @@ deploy_adhoc_storage(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-transfer_dataset(const server& srv, ADM_job_handle_t job,
+transfer_dataset(const server& srv, ADM_job_t job,
                  ADM_dataset_handle_t** sources, ADM_dataset_handle_t** targets,
                  ADM_limit_t** limits, ADM_tx_mapping_t mapping,
                  ADM_transfer_handle_t* tx_handle) {
@@ -272,7 +272,7 @@ transfer_dataset(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-set_dataset_information(const server& srv, ADM_job_handle_t job,
+set_dataset_information(const server& srv, ADM_job_t job,
                         ADM_dataset_handle_t target, ADM_dataset_info_t info) {
     (void) srv;
     (void) job;
@@ -301,7 +301,7 @@ set_dataset_information(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-set_io_resources(const server& srv, ADM_job_handle_t job,
+set_io_resources(const server& srv, ADM_job_t job,
                  ADM_storage_handle_t tier, ADM_storage_resources_t resources) {
     (void) srv;
     (void) job;
@@ -330,7 +330,7 @@ set_io_resources(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-get_transfer_priority(const server& srv, ADM_job_handle_t job,
+get_transfer_priority(const server& srv, ADM_job_t job,
                       ADM_transfer_handle_t tx_handle,
                       ADM_transfer_priority_t* priority) {
     (void) srv;
@@ -360,7 +360,7 @@ get_transfer_priority(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-set_transfer_priority(const server& srv, ADM_job_handle_t job,
+set_transfer_priority(const server& srv, ADM_job_t job,
                       ADM_transfer_handle_t tx_handle, int incr) {
     (void) srv;
     (void) job;
@@ -389,7 +389,7 @@ set_transfer_priority(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-cancel_transfer(const server& srv, ADM_job_handle_t job,
+cancel_transfer(const server& srv, ADM_job_t job,
                 ADM_transfer_handle_t tx_handle) {
 
     (void) job;
@@ -418,7 +418,7 @@ cancel_transfer(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-get_pending_transfers(const server& srv, ADM_job_handle_t job,
+get_pending_transfers(const server& srv, ADM_job_t job,
                       ADM_transfer_handle_t** pending_transfers) {
     (void) srv;
     (void) job;
@@ -447,7 +447,7 @@ get_pending_transfers(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-set_qos_constraints(const server& srv, ADM_job_handle_t job,
+set_qos_constraints(const server& srv, ADM_job_t job,
                     ADM_limit_t limit) {
     (void) srv;
     (void) job;
@@ -477,7 +477,7 @@ set_qos_constraints(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-get_qos_constraints(const server& srv, ADM_job_handle_t job,
+get_qos_constraints(const server& srv, ADM_job_t job,
                     ADM_qos_scope_t scope, ADM_qos_entity_t entity,
                     ADM_limit_t** limits) {
     (void) srv;
@@ -510,7 +510,7 @@ get_qos_constraints(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-define_data_operation(const server& srv, ADM_job_handle_t job, const char* path,
+define_data_operation(const server& srv, ADM_job_t job, const char* path,
                       ADM_data_operation_handle_t* op, va_list args) {
     (void) srv;
     (void) job;
@@ -542,7 +542,7 @@ define_data_operation(const server& srv, ADM_job_handle_t job, const char* path,
 }
 
 ADM_return_t
-connect_data_operation(const server& srv, ADM_job_handle_t job,
+connect_data_operation(const server& srv, ADM_job_t job,
                        ADM_dataset_handle_t input, ADM_dataset_handle_t output,
                        bool should_stream, va_list args) {
     (void) srv;
@@ -576,7 +576,7 @@ connect_data_operation(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-finalize_data_operation(const server& srv, ADM_job_handle_t job,
+finalize_data_operation(const server& srv, ADM_job_t job,
                         ADM_data_operation_handle_t op,
                         ADM_data_operation_status_t* status) {
     (void) srv;
@@ -608,7 +608,7 @@ finalize_data_operation(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-link_transfer_to_data_operation(const server& srv, ADM_job_handle_t job,
+link_transfer_to_data_operation(const server& srv, ADM_job_t job,
                                 ADM_data_operation_handle_t op,
                                 bool should_stream, va_list args) {
     (void) srv;
@@ -641,7 +641,7 @@ link_transfer_to_data_operation(const server& srv, ADM_job_handle_t job,
 }
 
 ADM_return_t
-get_statistics(const server& srv, ADM_job_handle_t job,
+get_statistics(const server& srv, ADM_job_t job,
                ADM_job_stats_t** stats) {
     (void) srv;
     (void) job;

@@ -14,7 +14,7 @@ main(int argc, char* argv[]) {
     int exit_status = EXIT_SUCCESS;
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
-    ADM_job_handle_t job;
+    ADM_job_t job;
 #if 0
     ADM_job_requirements_t reqs = ADM_job_requirements_init();
     ADM_dataset_info_t info = ADM_dataset_info_init();

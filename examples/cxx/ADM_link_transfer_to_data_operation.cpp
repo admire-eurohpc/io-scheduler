@@ -14,7 +14,7 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_handle_t job{};
+    ADM_job_t job{};
     ADM_data_operation_handle_t op_handle;
     bool should_stream = false;
     va_list args;

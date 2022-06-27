@@ -40,6 +40,20 @@ struct adm_dataset {
     const char* d_id;
 };
 
+/** The I/O requirements for a job */
+struct adm_job_requirements {
+    /** An array of input datasets */
+    ADM_dataset_handle_t* r_inputs;
+    /** The number of datasets in r_inputs */
+    size_t r_num_inputs;
+    /** A list of output datasets */
+    ADM_dataset_handle_t* r_outputs;
+    /** The number of datasets in r_outputs */
+    size_t r_num_outputs;
+    /** An optional definition for a specific adhoc storage instance */
+    ADM_adhoc_storage_handle_t r_adhoc_storage;
+};
+
 ADM_server_t
 ADM_server_create(const char* protocol, const char* address) {
 
@@ -96,6 +110,42 @@ ADM_dataset_destroy(ADM_dataset_handle_t dataset) {
     }
 
     free(dataset);
+    return ret;
+}
+
+ADM_job_requirements_t
+ADM_job_requirements_create(ADM_dataset_handle_t inputs[], size_t inputs_len,
+                            ADM_dataset_handle_t outputs[], size_t outputs_len,
+                            ADM_adhoc_storage_handle_t adhoc_storage) {
+
+    struct adm_job_requirements* adm_job_reqs =
+            (struct adm_job_requirements*) malloc(
+                    sizeof(struct adm_job_requirements));
+
+    if(!adm_job_reqs) {
+        LOGGER_ERROR("Could not allocate ADM_job_requirements_t")
+        return NULL;
+    }
+
+    adm_job_reqs->r_inputs = inputs;
+    adm_job_reqs->r_num_inputs = inputs_len;
+    adm_job_reqs->r_outputs = outputs;
+    adm_job_reqs->r_num_outputs = outputs_len;
+    adm_job_reqs->r_adhoc_storage = adhoc_storage;
+
+    return adm_job_reqs;
+}
+
+ADM_return_t
+ADM_job_requirements_destroy(ADM_job_requirements_t reqs) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!reqs) {
+        LOGGER_ERROR("Invalid ADM_job_requirements_t")
+        return ADM_EINVAL;
+    }
+
+    free(reqs);
     return ret;
 }
 

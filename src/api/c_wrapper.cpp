@@ -36,6 +36,10 @@ struct adm_job {
     uint64_t j_id;
 };
 
+struct adm_dataset {
+    const char* d_id;
+};
+
 ADM_server_t
 ADM_server_create(const char* protocol, const char* address) {
 
@@ -63,6 +67,35 @@ ADM_server_destroy(ADM_server_t server) {
     }
 
     free(server);
+    return ret;
+}
+
+ADM_dataset_handle_t
+ADM_dataset_create(const char* id) {
+
+    struct adm_dataset* adm_dataset =
+            (struct adm_dataset*) malloc(sizeof(struct adm_dataset));
+
+    if(!adm_dataset) {
+        LOGGER_ERROR("Could not allocate ADM_dataset_t")
+        return NULL;
+    }
+
+    adm_dataset->d_id = id;
+
+    return adm_dataset;
+}
+
+ADM_return_t
+ADM_dataset_destroy(ADM_dataset_handle_t dataset) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!dataset) {
+        LOGGER_ERROR("Invalid ADM_dataset_t")
+        return ADM_EINVAL;
+    }
+
+    free(dataset);
     return ret;
 }
 

@@ -80,6 +80,22 @@ typedef char* ADM_node_t;
 /* A dataset handle */
 typedef struct adm_dataset* ADM_dataset_handle_t;
 
+/**
+ * Create a dataset from a user-provided id (e.g. a path for POSIX-like file
+ * systems or key for key-value stores).
+ *
+ * @remark Datasets need to be freed by calling ADM_dataset_destroy().
+ *
+ * @param[in] id The id for the dataset.
+ * @return A valid ADM_dataset_handle_t if successful or NULL in case of
+ * failure.
+ */
+ADM_dataset_handle_t
+ADM_dataset_create(const char* id);
+
+ADM_return_t
+ADM_dataset_destroy(ADM_dataset_handle_t dataset);
+
 /* A job handle */
 typedef struct adm_job* ADM_job_t;
 

@@ -32,7 +32,7 @@ cmake_minimum_required(VERSION 3.14)
 project(
   scord
   VERSION 0.1.0
-  LANGUAGES CXX
+  LANGUAGES C CXX
 )
 
 # Set default build type and also populate a list of available options
@@ -209,6 +209,21 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(genopts)
 
+### expected: required for using tl::expected in the C++ library implementation
+### until std::expected makes it to C++
+
+message(STATUS "[${PROJECT_NAME}] Downloading and building tl::expected")
+set(EXPECTED_BUILD_PACKAGE OFF)
+set(EXPECTED_BUILD_TESTS OFF)
+FetchContent_Declare(
+  expected
+  GIT_REPOSITORY https://github.com/TartanLlama/expected
+  GIT_TAG 96d547c03d2feab8db64c53c3744a9b4a7c8f2c5 # latest
+  GIT_SHALLOW ON
+  GIT_PROGRESS ON
+)
+
+FetchContent_MakeAvailable(expected)
 
 ### Mark any CMake variables imported from {fmt} and spdlog as advanced, so
 ### that they don't appear in cmake-gui or ccmake. Similarly for FETCHCONTENT

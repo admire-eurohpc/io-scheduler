@@ -9,32 +9,30 @@ main(int argc, char* argv[]) {
         fmt::print(stderr, "ERROR: no location provided\n");
         fmt::print(
                 stderr,
-                "Usage: ADM_set_transfer_priority <REMOTE_IP> <TRANSFER_ID> <N_POSITIONS>\n");
+                "Usage: ADM_get_qos_constraints <REMOTE_IP> <SCOPE> <ELEMENT_ID>\n");
         exit(EXIT_FAILURE);
     }
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_handle_t job{};
-    ADM_transfer_handle_t tx_handle{};
-    int incr = 42;
+    ADM_job_t job{};
+    ADM_qos_scope_t scope{};
+    ADM_qos_entity_t entity{};
+    ADM_limit_t* limits;
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::set_transfer_priority(server, job, tx_handle, incr);
+        ret = admire::get_qos_constraints(server, job, scope, entity, &limits);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_set_transfer_priority() failed: {}\n",
+        fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
                    e.what());
         exit(EXIT_FAILURE);
     }
 
     if(ret != ADM_SUCCESS) {
         fmt::print(stdout,
-                   "ADM_set_transfer_priority() remote procedure not completed "
+                   "ADM_cancel_transfer() remote procedure not completed "
                    "successfully\n");
         exit(EXIT_FAILURE);
     }
-
-    fmt::print(stdout, "ADM_set_transfer_priority() remote procedure completed "
-                       "successfully\n");
 }

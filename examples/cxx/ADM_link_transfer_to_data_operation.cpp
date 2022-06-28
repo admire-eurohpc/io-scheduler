@@ -1,27 +1,28 @@
 #include <fmt/format.h>
 #include <admire.hpp>
 
-
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 5) {
+    if(argc != 7) {
         fmt::print(stderr, "ERROR: no location provided\n");
         fmt::print(
                 stderr,
-                "Usage: ADM_set_io_resources <REMOTE_IP> <TIER_ID> <RESOURCES> <JOB_ID>\n");
+                "Usage: ADM_link_transfer_to_data_operation <REMOTE_IP> <OPERATION_ID> <TRANSFER_ID> <STREAM> <ARGUMENTS> <JOB_ID>\n");
         exit(EXIT_FAILURE);
     }
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_handle_t job{};
-    ADM_storage_handle_t tier{};
-    ADM_storage_resources_t resources{};
+    ADM_job_t job{};
+    ADM_data_operation_handle_t op_handle;
+    bool should_stream = false;
+    va_list args;
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::set_io_resources(server, job, tier, resources);
+        ret = admire::link_transfer_to_data_operation(server, job, op_handle,
+                                                      should_stream, args);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
                    e.what());

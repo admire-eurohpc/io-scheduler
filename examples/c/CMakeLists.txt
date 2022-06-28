@@ -22,19 +22,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(adm_iosched SHARED)
+list(APPEND examples_c ADM_register_job)
 
-target_sources(adm_iosched
-  PUBLIC admire.h admire.hpp
-  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp)
-
-target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_link_libraries(adm_iosched PRIVATE network_engine PUBLIC tl::expected)
-
-install(
-  TARGETS adm_iosched
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/adm_iosched
-)
+foreach(example IN LISTS examples_c)
+  add_executable(${example}_c)
+  target_sources(${example}_c PRIVATE ${example}.c)
+  target_link_libraries(${example}_c PUBLIC adm_iosched)
+  set_target_properties(${example}_c PROPERTIES OUTPUT_NAME ${example})
+endforeach()

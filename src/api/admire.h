@@ -46,9 +46,11 @@ extern "C" {
 /* Error return codes */
 typedef enum {
     ADM_SUCCESS = 0,
-    ADM_EINVAL,
-    // generic error code
-    ADM_OTHER_ERROR
+    ADM_ESNAFU,
+    ADM_EBADARGS,
+    ADM_ENOMEM,
+    ADM_EOTHER,
+    ADM_ERR_MAX = 512
 } ADM_return_t;
 
 /* A server */
@@ -578,6 +580,16 @@ ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_t job,
  */
 ADM_return_t
 ADM_get_statistics(ADM_server_t server, ADM_job_t job, ADM_job_stats_t** stats);
+
+/**
+ * Return a string describing the error number
+ *
+ * @param[in] errnum The error number for which a description should be
+ * returned.
+ * @return A pointer to a string describing `errnum`.
+ */
+const char*
+ADM_strerror(ADM_return_t errnum);
 
 #ifdef __cplusplus
 } // extern "C"

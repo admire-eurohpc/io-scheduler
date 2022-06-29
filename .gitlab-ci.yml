@@ -13,7 +13,16 @@ build:
     - export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
     - mkdir -p build
     - cd build
-    - cmake -DCMAKE_PREFIX_PATH:STRING=/usr/local -DCMAKE_INSTALL_PREFIX:STRING=${CI_PROJECT_DIR}/compiled -DSCORD_BUILD_EXAMPLES:BOOL=ON -DSCORD_TRANSPORT_LIBRARY=libfabric -DSCORD_TRANSPORT_PROTOCOL=ofi+tcp -DSCORD_BIND_ADDRESS=127.0.0.1 -DSCORD_BIND_PORT=52000 ..
+    - cmake
+      -DCMAKE_PREFIX_PATH:STRING=/usr/local
+      -DCMAKE_INSTALL_PREFIX:STRING=${CI_PROJECT_DIR}/compiled
+      -DSCORD_BUILD_EXAMPLES:BOOL=ON
+      -DSCORD_BUILD_TESTS:BOOL=ON
+      -DSCORD_TRANSPORT_LIBRARY=libfabric
+      -DSCORD_TRANSPORT_PROTOCOL=ofi+tcp
+      -DSCORD_BIND_ADDRESS=127.0.0.1
+      -DSCORD_BIND_PORT=52000
+      ..
     - make -j$(nproc) install
   artifacts:
     paths:
@@ -21,6 +30,7 @@ build:
       - compiled/etc/
       - compiled/lib/
       - build/examples/
+      - build/tests/
       # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
   cache:
     key: $CI_COMMIT_REF_SLUG
@@ -29,14 +39,31 @@ build:
       - compiled/bin
       - compiled/etc
 
-# run tests using the binary built before
-test:
+# run RPC tests using the binary built before
+rpc:
   stage: test
   needs: [build]
   script:
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
     - compiled/bin/scord -f --force-console &
-    - build/examples/ping ofi+tcp://127.0.0.1:52000
+    - build/examples/cxx/ping ofi+tcp://127.0.0.1:52000
     - pkill -TERM scord
   cache:
     key: $CI_COMMIT_REF_SLUG
+
+# run unit tests
+unit:
+  stage: test
+  needs: [build]
+  script:
+    - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
+    - cd build/tests
+    - ctest -j$(nproc) --output-junit report.xml
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build/tests/report.xml
+    reports:
+      junit: build/tests/report.xml

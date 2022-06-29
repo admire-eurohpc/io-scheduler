@@ -27,8 +27,9 @@ available in the system:
 The following libraries are also required by `scord`, but will be downloaded
 and compiled by the project as part of the standard build process.
 
-- [{fmt}]() version 8.0.1 or later.
-- [spdlog]() version 1.9.2 or later.
+- [{fmt}](https://fmt.dev/latest/index.html) version 8.0.1 or later.
+- [spdlog](https://github.com/gabime/spdlog) version 1.9.2 or later.
+- [Catch2](https://github.com/catchorg/Catch2) version 3.0.1 or later.
 
 > **ℹ️** **Important**  
 Margo and Argobots use `pkg-config` to ensure they compile and link correctly
@@ -75,8 +76,10 @@ The following CMake options can be used to configure how `scord` is built:
   communicate with the service. The value provided here will be used to set
   the `bind_port` configuration option in the `${PREFIX}/etc/scord.conf`
   installed alongside the service.
-- `SCORD_BUILD_EXAMPLES`: This option instructs CMakes to build the programs
+- `SCORD_BUILD_EXAMPLES`: This option instructs CMake to build the programs
   contained in the `examples` subdirectory.
+- `SCORD_BUILD_TESTS`: This option instructs CMake to build the tests
+  contained in the `tests` subdirectory.
 
 Thus, let's assume that we want to build `scord` with the following
 configuration:
@@ -98,12 +101,29 @@ mkdir build && cd build
 cmake -DCMAKE_PREFIX_PATH:STRING=/opt \
       -DCMAKE_INSTALL_PREFIX:STRING=/usr/local \
       -DSCORD_BUILD_EXAMPLES:BOOL=ON \
+      -DSCORD_BUILD_TESTS:BOOL=ON \
       -DSCORD_TRANSPORT_LIBRARY=libfabric \
       -DSCORD_TRANSPORT_PROTOCOL=ofi+tcp \
       -DSCORD_BIND_ADDRESS=192.168.0.111 \
       -DSCORD_BIND_PORT=52000 \
     ..
 make
+```
+
+## Running tests
+
+Tests are integrated in [CTest](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html), CMake's testing facility. Once built, the
+tests can be run in parallel using the `ctest` command line tool:
+
+```console
+~/projects/scord/build $ ctest --parallel 4
+Test project /home/amiranda/var/projects/scord/repo/build
+    Start 1: Scenario: Error messages can be printed
+1/1 Test #1: Scenario: Error messages can be printed ...   Passed    0.14 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.14 sec
 ```
 
 ## Installing

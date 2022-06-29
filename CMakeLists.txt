@@ -123,6 +123,8 @@ message(STATUS "[${PROJECT_NAME}] server bind port: ${SCORD_BIND_PORT}")
 
 option(SCORD_BUILD_EXAMPLES "Build examples (disabled by default)" OFF)
 
+option(SCORD_BUILD_TESTS "Build tests (disabled by default)" OFF)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ##############################################################################
@@ -225,6 +227,27 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(expected)
 
+if (SCORD_BUILD_TESTS)
+
+  enable_testing()
+
+  ### catch2: required for unit testing
+  message(STATUS "[${PROJECT_NAME}] Downloading and building Catch2")
+  FetchContent_Declare(
+    Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG 605a34765aa5d5ecbf476b4598a862ada971b0cc # v3.0.1
+    GIT_SHALLOW ON
+    GIT_PROGRESS ON
+  )
+
+  FetchContent_MakeAvailable(Catch2)
+
+  # Ensure that CMake can find Catch2 extra CMake modules in case
+  # they are needed
+  list(APPEND CMAKE_MODULE_PATH "${catch2_SOURCE_DIR}/extras")
+endif ()
+
 ### Mark any CMake variables imported from {fmt} and spdlog as advanced, so
 ### that they don't appear in cmake-gui or ccmake. Similarly for FETCHCONTENT
 ### variables.
@@ -236,11 +259,11 @@ mark_variables_as_advanced(REGEX "^(FETCHCONTENT|fmt|FMT|spdlog|SPDLOG)_.*$")
 
 # set compile flags
 add_compile_options("-Wall" "-Wextra" "$<$<CONFIG:RELEASE>:-O3>")
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   add_compile_options("-stdlib=libc++")
-else()
+else ()
   # nothing special for gcc at the moment
-endif()
+endif ()
 
 add_subdirectory(etc)
 add_subdirectory(src)
@@ -248,3 +271,7 @@ add_subdirectory(src)
 if (SCORD_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif ()
+
+if(SCORD_BUILD_TESTS)
+  add_subdirectory(tests)
+endif()

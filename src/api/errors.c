@@ -22,36 +22,28 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include <tl/expected.hpp>
-#include <engine.hpp>
-#include "impl.hpp"
+#include <admire.h>
 
-namespace admire::detail {
+const char* const adm_errlist[ADM_ERR_MAX + 1] = {
+        [ADM_SUCCESS] = "Success",
+        [ADM_ESNAFU] = "Internal error",
+        [ADM_EBADARGS] = "Bad arguments",
+        [ADM_ENOMEM] = "Cannot allocate memory",
 
-tl::expected<admire::job, admire::error_code>
-register_job(const admire::server& srv, ADM_job_requirements_t reqs) {
-    (void) srv;
-    (void) reqs;
+        [ADM_EOTHER] = "Undetermined error",
 
-    scord::network::rpc_client rpc_client{srv.m_protocol};
-    rpc_client.register_rpcs();
+        /* fallback */
+        [ADM_ERR_MAX] = "Unknown error",
 
-    auto endp = rpc_client.lookup(srv.m_address);
+};
 
-    LOGGER_INFO("ADM_register_job(...)");
+const char*
+ADM_strerror(ADM_return_t errnum) {
 
-    ADM_register_job_in_t in{};
-    ADM_register_job_out_t out;
-
-    endp.call("ADM_register_job", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_register_job() = {}", out.ret);
-        return tl::make_unexpected(static_cast<admire::error_code>(out.ret));
+    if(errnum > ADM_ERR_MAX) {
+        errnum = ADM_ERR_MAX;
     }
 
-    LOGGER_INFO("ADM_register_job() = {}", ADM_SUCCESS);
-    return admire::job{42};
+    const char* s = adm_errlist[errnum];
+    return s ? s : adm_errlist[ADM_EOTHER];
 }
-
-} // namespace admire::detail

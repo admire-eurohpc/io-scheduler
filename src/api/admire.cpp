@@ -60,16 +60,15 @@ register_job(const server& srv, ADM_job_requirements_t reqs) {
     const auto rv = detail::register_job(srv, reqs);
 
     if(!rv) {
-        /* TODO ADM_strerror(rv.error()) */
-        throw std::runtime_error("ADM_register_job() error");
+        throw std::runtime_error(fmt::format("ADM_register_job() error: {}",
+                                             ADM_strerror(rv.error())));
     }
 
     return rv.value();
 }
 
 ADM_return_t
-update_job(const server& srv, ADM_job_t job,
-           ADM_job_requirements_t reqs) {
+update_job(const server& srv, ADM_job_t job, ADM_job_requirements_t reqs) {
     (void) srv;
     (void) job;
     (void) reqs;
@@ -152,8 +151,7 @@ register_adhoc_storage(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-update_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_adhoc_context_t ctx,
+update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
                      ADM_adhoc_storage_handle_t adhoc_handle) {
     (void) srv;
     (void) job;
@@ -301,8 +299,8 @@ set_dataset_information(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_io_resources(const server& srv, ADM_job_t job,
-                 ADM_storage_handle_t tier, ADM_storage_resources_t resources) {
+set_io_resources(const server& srv, ADM_job_t job, ADM_storage_handle_t tier,
+                 ADM_storage_resources_t resources) {
     (void) srv;
     (void) job;
     (void) tier;
@@ -447,8 +445,7 @@ get_pending_transfers(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_qos_constraints(const server& srv, ADM_job_t job,
-                    ADM_limit_t limit) {
+set_qos_constraints(const server& srv, ADM_job_t job, ADM_limit_t limit) {
     (void) srv;
     (void) job;
     (void) limit;
@@ -477,9 +474,8 @@ set_qos_constraints(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-get_qos_constraints(const server& srv, ADM_job_t job,
-                    ADM_qos_scope_t scope, ADM_qos_entity_t entity,
-                    ADM_limit_t** limits) {
+get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_scope_t scope,
+                    ADM_qos_entity_t entity, ADM_limit_t** limits) {
     (void) srv;
     (void) job;
     (void) scope;
@@ -641,8 +637,7 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-get_statistics(const server& srv, ADM_job_t job,
-               ADM_job_stats_t** stats) {
+get_statistics(const server& srv, ADM_job_t job, ADM_job_stats_t** stats) {
     (void) srv;
     (void) job;
     (void) stats;

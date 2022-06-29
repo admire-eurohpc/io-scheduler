@@ -77,7 +77,7 @@ ADM_server_destroy(ADM_server_t server) {
 
     if(!server) {
         LOGGER_ERROR("Invalid ADM_server_t")
-        return ADM_EINVAL;
+        return ADM_EBADARGS;
     }
 
     free(server);
@@ -106,7 +106,7 @@ ADM_dataset_destroy(ADM_dataset_handle_t dataset) {
 
     if(!dataset) {
         LOGGER_ERROR("Invalid ADM_dataset_t")
-        return ADM_EINVAL;
+        return ADM_EBADARGS;
     }
 
     free(dataset);
@@ -142,7 +142,7 @@ ADM_job_requirements_destroy(ADM_job_requirements_t reqs) {
 
     if(!reqs) {
         LOGGER_ERROR("Invalid ADM_job_requirements_t")
-        return ADM_EINVAL;
+        return ADM_EBADARGS;
     }
 
     free(reqs);
@@ -188,7 +188,7 @@ ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
     const auto jh = ADM_job_create(rv->m_id);
 
     if(!jh) {
-        return ADM_OTHER_ERROR;
+        return ADM_EOTHER;
     }
 
     *job = jh;

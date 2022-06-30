@@ -23,25 +23,25 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <engine.hpp>
+#include <admire.hpp>
 
 int
 main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fmt::print(stderr, "ERROR: no server address provided\n");
-        fmt::print(stderr, "Usage: ping <SERVER_ADDRESS>\n");
+        fmt::print(stderr, "Usage: ADM_ping <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
-    scord::network::rpc_client rpc_client{"tcp"};
-    rpc_client.register_rpcs();
+    admire::server server{"tcp", argv[1]};
 
-    auto endp = rpc_client.lookup(argv[1]);
+    try {
+        admire::ping(server);
+    } catch(const std::exception& e) {
+        fmt::print(stderr, "FATAL: ADM_ping() failed: {}\n", e.what());
+        exit(EXIT_FAILURE);
+    }
 
-    fmt::print(stdout, "Calling PING remote procedure on {}...\n", argv[1]);
-
-    endp.call("ping");
-
-    fmt::print(stdout, "PING remote procedure completed successfully\n");
+    fmt::print(stdout, "ADM_ping() remote procedure completed successfully\n");
 }

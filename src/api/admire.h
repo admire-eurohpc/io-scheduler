@@ -244,6 +244,16 @@ ADM_job_requirements_destroy(ADM_job_requirements_t reqs);
 /******************************************************************************/
 
 /**
+ * Send an RPC to a server to check if it's online.
+ *
+ * @param[in] server The server to which the request is directed
+ * @return Returns ADM_SUCCESS if the remote procedure has completed
+ * successfully.
+ */
+ADM_return_t
+ADM_ping(ADM_server_t server);
+
+/**
  * Register a job and its requirements.
  *
  * @remark The returned ADM_JOB will be freed when passed to

@@ -28,6 +28,21 @@
 
 namespace admire::detail {
 
+admire::error_code
+ping(const server& srv) {
+
+    scord::network::rpc_client rpc_client{srv.m_protocol};
+    rpc_client.register_rpcs();
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_ping()");
+    endp.call("ADM_ping");
+
+    LOGGER_INFO("ADM_register_job() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
+}
+
 tl::expected<admire::job, admire::error_code>
 register_job(const admire::server& srv, ADM_job_requirements_t reqs) {
     (void) srv;

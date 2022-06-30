@@ -35,69 +35,55 @@
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {
 
-/// ping
-DECLARE_MARGO_RPC_HANDLER(ping);
+/// ADM_ping
+DECLARE_MARGO_RPC_HANDLER(ADM_ping);
 
 /// ADM_register_job
-MERCURY_GEN_PROC(ADM_register_job_in_t,
-                 ((int32_t) (reqs)))
+MERCURY_GEN_PROC(ADM_register_job_in_t, ((int32_t) (reqs)))
 
-MERCURY_GEN_PROC(ADM_register_job_out_t,
-                 ((int32_t) (ret)))
+MERCURY_GEN_PROC(ADM_register_job_out_t, ((int32_t) (ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_register_job);
 
 /// ADM_update_job
-MERCURY_GEN_PROC(ADM_update_job_in_t,
-                 ((int32_t) (reqs)))
+MERCURY_GEN_PROC(ADM_update_job_in_t, ((int32_t) (reqs)))
 
-MERCURY_GEN_PROC(ADM_update_job_out_t,
-                 ((int32_t) (ret)))
+MERCURY_GEN_PROC(ADM_update_job_out_t, ((int32_t) (ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_update_job);
 
 /// ADM_remove_job
-MERCURY_GEN_PROC(ADM_remove_job_in_t,
-                 ((int32_t) (reqs)))
+MERCURY_GEN_PROC(ADM_remove_job_in_t, ((int32_t) (reqs)))
 
-MERCURY_GEN_PROC(ADM_remove_job_out_t,
-                 ((int32_t) (ret)))
+MERCURY_GEN_PROC(ADM_remove_job_out_t, ((int32_t) (ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_remove_job);
 
 /// ADM_register_adhoc_storage
-MERCURY_GEN_PROC(ADM_register_adhoc_storage_in_t,
-                 ((int32_t) (reqs)))
+MERCURY_GEN_PROC(ADM_register_adhoc_storage_in_t, ((int32_t) (reqs)))
 
-MERCURY_GEN_PROC(ADM_register_adhoc_storage_out_t,
-                 ((int32_t) (ret)))
+MERCURY_GEN_PROC(ADM_register_adhoc_storage_out_t, ((int32_t) (ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_register_adhoc_storage);
 
 /// ADM_update_adhoc_storage
-MERCURY_GEN_PROC(ADM_update_adhoc_storage_in_t,
-                 ((int32_t) (reqs)))
+MERCURY_GEN_PROC(ADM_update_adhoc_storage_in_t, ((int32_t) (reqs)))
 
-MERCURY_GEN_PROC(ADM_update_adhoc_storage_out_t,
-                 ((int32_t) (ret)))
+MERCURY_GEN_PROC(ADM_update_adhoc_storage_out_t, ((int32_t) (ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_update_adhoc_storage);
 
 /// ADM_remove_adhoc_storage
-MERCURY_GEN_PROC(ADM_remove_adhoc_storage_in_t,
-                 ((int32_t) (reqs)))
+MERCURY_GEN_PROC(ADM_remove_adhoc_storage_in_t, ((int32_t) (reqs)))
 
-MERCURY_GEN_PROC(ADM_remove_adhoc_storage_out_t,
-                 ((int32_t) (ret)))
+MERCURY_GEN_PROC(ADM_remove_adhoc_storage_out_t, ((int32_t) (ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_remove_adhoc_storage);
 
 /// ADM_deploy_adhoc_storage
-MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_in_t,
-                 ((int32_t) (reqs)))
+MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_in_t, ((int32_t) (reqs)))
 
-MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_out_t,
-                 ((int32_t) (ret)))
+MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_out_t, ((int32_t) (ret)))
 
 DECLARE_MARGO_RPC_HANDLER(ADM_deploy_adhoc_storage);
 

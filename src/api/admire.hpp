@@ -43,13 +43,14 @@ struct job {
     job_id m_id;
 };
 
+void
+ping(const server& srv);
 
 admire::job
 register_job(const server& srv, ADM_job_requirements_t reqs);
 
 ADM_return_t
-update_job(const server& srv, ADM_job_t job,
-           ADM_job_requirements_t reqs);
+update_job(const server& srv, ADM_job_t job, ADM_job_requirements_t reqs);
 
 ADM_return_t
 remove_job(const server& srv, ADM_job_t job);
@@ -60,8 +61,7 @@ register_adhoc_storage(const server& srv, ADM_job_t job,
                        ADM_adhoc_storage_handle_t* adhoc_handle);
 
 ADM_return_t
-update_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_adhoc_context_t ctx,
+update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
                      ADM_adhoc_storage_handle_t adhoc_handle);
 
 ADM_return_t
@@ -83,8 +83,8 @@ set_dataset_information(const server& srv, ADM_job_t job,
                         ADM_dataset_handle_t target, ADM_dataset_info_t info);
 
 ADM_return_t
-set_io_resources(const server& srv, ADM_job_t job,
-                 ADM_storage_handle_t tier, ADM_storage_resources_t resources);
+set_io_resources(const server& srv, ADM_job_t job, ADM_storage_handle_t tier,
+                 ADM_storage_resources_t resources);
 
 ADM_return_t
 get_transfer_priority(const server& srv, ADM_job_t job,
@@ -107,9 +107,8 @@ ADM_return_t
 set_qos_constraints(const server& srv, ADM_job_t job, ADM_limit_t limit);
 
 ADM_return_t
-get_qos_constraints(const server& srv, ADM_job_t job,
-                    ADM_qos_scope_t scope, ADM_qos_entity_t entity,
-                    ADM_limit_t** limits);
+get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_scope_t scope,
+                    ADM_qos_entity_t entity, ADM_limit_t** limits);
 
 ADM_return_t
 define_data_operation(const server& srv, ADM_job_t job, const char* path,
@@ -131,8 +130,7 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
                                 bool should_stream, va_list args);
 
 ADM_return_t
-get_statistics(const server& srv, ADM_job_t job,
-               ADM_job_stats_t** stats);
+get_statistics(const server& srv, ADM_job_t job, ADM_job_stats_t** stats);
 
 } // namespace admire
 

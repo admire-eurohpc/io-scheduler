@@ -180,7 +180,7 @@ Now we can use one of the example programs to send a `ping` RPC to `scord`:
 ```bash
 
 cd $HOME/scord/build/examples
-./ping ofi+tcp://192.168.0.111:52000
+./ADM_ping ofi+tcp://192.168.0.111:52000
 ```
 
 And the server logs should update with an entry similar the following one:

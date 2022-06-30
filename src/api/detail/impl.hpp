@@ -34,6 +34,9 @@ using error_code = ADM_return_t;
 
 namespace admire::detail {
 
+admire::error_code
+ping(const server& srv);
+
 tl::expected<admire::job, admire::error_code>
 register_job(const server& srv, ADM_job_requirements_t reqs);
 

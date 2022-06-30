@@ -23,7 +23,7 @@
 ################################################################################
 
 list(APPEND examples_cxx
-            ping
+            ADM_ping
             ADM_register_job ADM_update_job ADM_remove_job
             ADM_register_adhoc_storage ADM_update_adhoc_storage
             ADM_remove_adhoc_storage ADM_deploy_adhoc_storage

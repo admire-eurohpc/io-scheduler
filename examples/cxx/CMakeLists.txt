@@ -27,7 +27,8 @@ list(APPEND examples_cxx
             ADM_register_job ADM_update_job ADM_remove_job
             ADM_register_adhoc_storage ADM_update_adhoc_storage
             ADM_remove_adhoc_storage ADM_deploy_adhoc_storage
-            ADM_in_situ_ops ADM_in_transit_ops ADM_transfer_dataset
+            # ADM_in_situ_ops ADM_in_transit_ops
+            ADM_transfer_dataset
             ADM_set_dataset_information ADM_set_io_resources ADM_get_transfer_priority
             ADM_set_transfer_priority ADM_cancel_transfer ADM_get_pending_transfers
             ADM_set_qos_constraints ADM_get_qos_constraints ADM_define_data_operation ADM_connect_data_operation

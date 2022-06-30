@@ -150,7 +150,15 @@ main(int argc, char* argv[]) {
 
     try {
         scord::server daemon;
-        daemon.configure(cfg);
+        const auto rpc_registration_cb = [](auto&& ctx) {
+            LOGGER_INFO(" * Registering RPCs handlers...");
+
+            REGISTER_RPC(ctx, "ADM_ping", void, void, ADM_ping, false);
+
+            // TODO: add internal RPCs for communication with scord
+        };
+
+        daemon.configure(cfg, rpc_registration_cb);
         return daemon.run();
     } catch(const std::exception& ex) {
         fmt::print(stderr,

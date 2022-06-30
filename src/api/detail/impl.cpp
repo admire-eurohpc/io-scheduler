@@ -26,13 +26,112 @@
 #include <engine.hpp>
 #include "impl.hpp"
 
+void
+rpc_registration_cb(scord::network::rpc_client* client) {
+
+    REGISTER_RPC(client, "ADM_ping", void, void, ADM_ping, false);
+    REGISTER_RPC(client, "ADM_input", ADM_input_in_t, ADM_input_out_t,
+                 ADM_input, true);
+
+
+    REGISTER_RPC(client, "ADM_output", ADM_output_in_t, ADM_output_out_t,
+                 ADM_output, true);
+
+    REGISTER_RPC(client, "ADM_inout", ADM_inout_in_t, ADM_inout_out_t,
+                 ADM_inout, true);
+
+    REGISTER_RPC(client, "ADM_adhoc_context", ADM_adhoc_context_in_t,
+                 ADM_adhoc_context_out_t, ADM_adhoc_context, true);
+
+    REGISTER_RPC(client, "ADM_adhoc_context_id", ADM_adhoc_context_id_in_t,
+                 ADM_adhoc_context_id_out_t, ADM_adhoc_context_id, true);
+
+    REGISTER_RPC(client, "ADM_adhoc_nodes", ADM_adhoc_nodes_in_t,
+                 ADM_adhoc_nodes_out_t, ADM_adhoc_nodes, true);
+
+    REGISTER_RPC(client, "ADM_adhoc_walltime", ADM_adhoc_walltime_in_t,
+                 ADM_adhoc_walltime_out_t, ADM_adhoc_walltime, true);
+
+    REGISTER_RPC(client, "ADM_adhoc_access", ADM_adhoc_access_in_t,
+                 ADM_adhoc_access_out_t, ADM_adhoc_access, true);
+
+    REGISTER_RPC(client, "ADM_adhoc_distribution", ADM_adhoc_distribution_in_t,
+                 ADM_adhoc_distribution_out_t, ADM_adhoc_distribution, true);
+
+    REGISTER_RPC(client, "ADM_adhoc_background_flush",
+                 ADM_adhoc_background_flush_in_t,
+                 ADM_adhoc_background_flush_out_t, ADM_adhoc_background_flush,
+                 true);
+
+    REGISTER_RPC(client, "ADM_in_situ_ops", ADM_in_situ_ops_in_t,
+                 ADM_in_situ_ops_out_t, ADM_in_situ_ops, true);
+
+    REGISTER_RPC(client, "ADM_in_transit_ops", ADM_in_transit_ops_in_t,
+                 ADM_in_transit_ops_out_t, ADM_in_transit_ops, true);
+
+    REGISTER_RPC(client, "ADM_transfer_dataset", ADM_transfer_dataset_in_t,
+                 ADM_transfer_dataset_out_t, ADM_transfer_dataset, true);
+
+    REGISTER_RPC(client, "ADM_set_dataset_information",
+                 ADM_set_dataset_information_in_t,
+                 ADM_set_dataset_information_out_t, ADM_set_dataset_information,
+                 true);
+
+    REGISTER_RPC(client, "ADM_set_io_resources", ADM_set_io_resources_in_t,
+                 ADM_set_io_resources_out_t, ADM_set_io_resources, true);
+
+    REGISTER_RPC(
+            client, "ADM_get_transfer_priority", ADM_get_transfer_priority_in_t,
+            ADM_get_transfer_priority_out_t, ADM_get_transfer_priority, true);
+
+    REGISTER_RPC(
+            client, "ADM_set_transfer_priority", ADM_set_transfer_priority_in_t,
+            ADM_set_transfer_priority_out_t, ADM_set_transfer_priority, true);
+
+    REGISTER_RPC(client, "ADM_cancel_transfer", ADM_cancel_transfer_in_t,
+                 ADM_cancel_transfer_out_t, ADM_cancel_transfer, true);
+
+    REGISTER_RPC(
+            client, "ADM_get_pending_transfers", ADM_get_pending_transfers_in_t,
+            ADM_get_pending_transfers_out_t, ADM_get_pending_transfers, true);
+
+    REGISTER_RPC(client, "ADM_set_qos_constraints",
+                 ADM_set_qos_constraints_in_t, ADM_set_qos_constraints_out_t,
+                 ADM_set_qos_constraints, true);
+
+    REGISTER_RPC(client, "ADM_get_qos_constraints",
+                 ADM_get_qos_constraints_in_t, ADM_get_qos_constraints_out_t,
+                 ADM_get_qos_constraints, true);
+
+    REGISTER_RPC(
+            client, "ADM_define_data_operation", ADM_define_data_operation_in_t,
+            ADM_define_data_operation_out_t, ADM_define_data_operation, true);
+
+    REGISTER_RPC(client, "ADM_connect_data_operation",
+                 ADM_connect_data_operation_in_t,
+                 ADM_connect_data_operation_out_t, ADM_connect_data_operation,
+                 true);
+
+    REGISTER_RPC(client, "ADM_finalize_data_operation",
+                 ADM_finalize_data_operation_in_t,
+                 ADM_finalize_data_operation_out_t, ADM_finalize_data_operation,
+                 true);
+
+    REGISTER_RPC(client, "ADM_link_transfer_to_data_operation",
+                 ADM_link_transfer_to_data_operation_in_t,
+                 ADM_link_transfer_to_data_operation_out_t,
+                 ADM_link_transfer_to_data_operation, true);
+
+    REGISTER_RPC(client, "ADM_get_statistics", ADM_get_statistics_in_t,
+                 ADM_get_statistics_out_t, ADM_get_statistics, true);
+}
+
 namespace admire::detail {
 
 admire::error_code
 ping(const server& srv) {
 
-    scord::network::rpc_client rpc_client{srv.m_protocol};
-    rpc_client.register_rpcs();
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.m_address);
 
@@ -48,8 +147,7 @@ register_job(const admire::server& srv, ADM_job_requirements_t reqs) {
     (void) srv;
     (void) reqs;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol};
-    rpc_client.register_rpcs();
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.m_address);
 

@@ -38,15 +38,23 @@ namespace scord::network {
 
 namespace detail {
 
-#define REGISTER_RPC(__mid, __m_rpc_names, __func_name, __in_t, __out_t,       \
-                     __handler, requires_response)                             \
+#define REGISTER_RPC(__engine, __func_name, __in_t, __out_t, __handler,        \
+                     requires_response)                                        \
+    {                                                                          \
+        REGISTER_RPC_IMPL((__engine)->m_context->m_mid,                        \
+                          (__engine)->m_context->m_rpc_names, __func_name,     \
+                          __in_t, __out_t, __handler, requires_response);      \
+    }
+
+#define REGISTER_RPC_IMPL(__mid, __rpc_names, __func_name, __in_t, __out_t,    \
+                          __handler, requires_response)                        \
     {                                                                          \
         hg_id_t id = margo_provider_register_name(                             \
                 __mid, __func_name, BOOST_PP_CAT(hg_proc_, __in_t),            \
                 BOOST_PP_CAT(hg_proc_, __out_t), _handler_for_##__handler,     \
                 MARGO_DEFAULT_PROVIDER_ID, ABT_POOL_NULL);                     \
-        __m_rpc_names.emplace(__func_name, id);                                \
-        if(!requires_response) {                                               \
+        (__rpc_names).emplace(__func_name, id);                                \
+        if(!(requires_response)) {                                             \
             ::margo_registered_disable_response(__mid, id, HG_TRUE);           \
         }                                                                      \
     }
@@ -55,16 +63,6 @@ namespace detail {
 struct margo_context {
 
     explicit margo_context(::margo_instance_id mid) : m_mid(mid) {}
-
-    void
-    register_rpc(const std::string& name, bool requires_response) {
-        auto id = MARGO_REGISTER(m_mid, name.c_str(), void, void, ADM_ping);
-        m_rpc_names.emplace(name, id);
-
-        if(!requires_response) {
-            ::margo_registered_disable_response(m_mid, id, HG_TRUE);
-        }
-    }
 
     margo_instance_id m_mid;
     std::unordered_map<std::string, hg_id_t> m_rpc_names;
@@ -98,169 +96,6 @@ struct engine {
         if(m_context) {
             ::margo_finalize(m_context->m_mid);
         }
-    }
-
-    void
-    register_rpcs() {
-
-        // register RPCs manually for now
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_ping", void,
-                     void, ADM_ping, false);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_register_job", ADM_register_job_in_t,
-                     ADM_register_job_out_t, ADM_register_job, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_update_job",
-                     ADM_update_job_in_t, ADM_update_job_out_t, ADM_update_job,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_remove_job",
-                     ADM_remove_job_in_t, ADM_remove_job_out_t, ADM_remove_job,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_register_adhoc_storage",
-                     ADM_register_adhoc_storage_in_t,
-                     ADM_register_adhoc_storage_out_t,
-                     ADM_register_adhoc_storage, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_update_adhoc_storage", ADM_update_adhoc_storage_in_t,
-                     ADM_update_adhoc_storage_out_t, ADM_update_adhoc_storage,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_remove_adhoc_storage", ADM_remove_adhoc_storage_in_t,
-                     ADM_remove_adhoc_storage_out_t, ADM_remove_adhoc_storage,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_deploy_adhoc_storage", ADM_deploy_adhoc_storage_in_t,
-                     ADM_deploy_adhoc_storage_out_t, ADM_deploy_adhoc_storage,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_input",
-                     ADM_input_in_t, ADM_input_out_t, ADM_input, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_output",
-                     ADM_output_in_t, ADM_output_out_t, ADM_output, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_inout",
-                     ADM_inout_in_t, ADM_inout_out_t, ADM_inout, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_adhoc_context", ADM_adhoc_context_in_t,
-                     ADM_adhoc_context_out_t, ADM_adhoc_context, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_adhoc_context_id", ADM_adhoc_context_id_in_t,
-                     ADM_adhoc_context_id_out_t, ADM_adhoc_context_id, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_adhoc_nodes", ADM_adhoc_nodes_in_t,
-                     ADM_adhoc_nodes_out_t, ADM_adhoc_nodes, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_adhoc_walltime", ADM_adhoc_walltime_in_t,
-                     ADM_adhoc_walltime_out_t, ADM_adhoc_walltime, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_adhoc_access", ADM_adhoc_access_in_t,
-                     ADM_adhoc_access_out_t, ADM_adhoc_access, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_adhoc_distribution", ADM_adhoc_distribution_in_t,
-                     ADM_adhoc_distribution_out_t, ADM_adhoc_distribution,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_adhoc_background_flush",
-                     ADM_adhoc_background_flush_in_t,
-                     ADM_adhoc_background_flush_out_t,
-                     ADM_adhoc_background_flush, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_in_situ_ops", ADM_in_situ_ops_in_t,
-                     ADM_in_situ_ops_out_t, ADM_in_situ_ops, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_in_transit_ops", ADM_in_transit_ops_in_t,
-                     ADM_in_transit_ops_out_t, ADM_in_transit_ops, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_transfer_dataset", ADM_transfer_dataset_in_t,
-                     ADM_transfer_dataset_out_t, ADM_transfer_dataset, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_dataset_information",
-                     ADM_set_dataset_information_in_t,
-                     ADM_set_dataset_information_out_t,
-                     ADM_set_dataset_information, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_io_resources", ADM_set_io_resources_in_t,
-                     ADM_set_io_resources_out_t, ADM_set_io_resources, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_get_transfer_priority",
-                     ADM_get_transfer_priority_in_t,
-                     ADM_get_transfer_priority_out_t, ADM_get_transfer_priority,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_transfer_priority",
-                     ADM_set_transfer_priority_in_t,
-                     ADM_set_transfer_priority_out_t, ADM_set_transfer_priority,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_cancel_transfer", ADM_cancel_transfer_in_t,
-                     ADM_cancel_transfer_out_t, ADM_cancel_transfer, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_get_pending_transfers",
-                     ADM_get_pending_transfers_in_t,
-                     ADM_get_pending_transfers_out_t, ADM_get_pending_transfers,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_set_qos_constraints", ADM_set_qos_constraints_in_t,
-                     ADM_set_qos_constraints_out_t, ADM_set_qos_constraints,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_get_qos_constraints", ADM_get_qos_constraints_in_t,
-                     ADM_get_qos_constraints_out_t, ADM_get_qos_constraints,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_define_data_operation",
-                     ADM_define_data_operation_in_t,
-                     ADM_define_data_operation_out_t, ADM_define_data_operation,
-                     true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_connect_data_operation",
-                     ADM_connect_data_operation_in_t,
-                     ADM_connect_data_operation_out_t,
-                     ADM_connect_data_operation, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_finalize_data_operation",
-                     ADM_finalize_data_operation_in_t,
-                     ADM_finalize_data_operation_out_t,
-                     ADM_finalize_data_operation, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_link_transfer_to_data_operation",
-                     ADM_link_transfer_to_data_operation_in_t,
-                     ADM_link_transfer_to_data_operation_out_t,
-                     ADM_link_transfer_to_data_operation, true);
-
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_get_statistics", ADM_get_statistics_in_t,
-                     ADM_get_statistics_out_t, ADM_get_statistics, true);
     }
 
     void
@@ -420,6 +255,13 @@ engine::lookup(const std::string& address) const {
 struct rpc_client : engine {
     explicit rpc_client(const std::string& protocol)
         : engine(protocol, execution_mode::client) {}
+
+    template <typename Callback>
+    rpc_client(const std::string& protocol,
+               Callback&& rpc_registration_callback)
+        : engine(protocol, execution_mode::client) {
+        rpc_registration_callback(this);
+    }
 };
 
 struct rpc_acceptor : engine {

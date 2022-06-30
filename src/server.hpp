@@ -46,6 +46,15 @@ public:
     ~server();
     void
     configure(const config::settings& settings);
+
+    template <typename Callback>
+    void
+    configure(const config::settings& settings,
+              Callback rpc_registration_callback) {
+        configure(settings);
+        m_rpc_registration_callback = rpc_registration_callback;
+    }
+
     config::settings
     get_configuration() const;
     int
@@ -56,6 +65,18 @@ public:
     teardown();
     void
     teardown_and_exit();
+
+
+    template <typename Callable>
+    void
+    install_rpc_handlers(Callable fun) {
+
+        install_rpc_handlers();
+
+        // FIXME: improve network_engine so that we don't need to rely on
+        //  calling a lambda here to register RPCs
+        fun(m_network_engine);
+    }
 
 private:
     int
@@ -82,6 +103,8 @@ private:
     std::unique_ptr<config::settings> m_settings;
     std::unique_ptr<network::engine> m_network_engine;
     std::unique_ptr<utils::signal_listener> m_signal_listener;
+    std::function<void(std::unique_ptr<network::engine>&)>
+            m_rpc_registration_callback;
 };
 
 

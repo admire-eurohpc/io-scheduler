@@ -54,6 +54,16 @@ init_logger() {
 
 namespace admire {
 
+void
+ping(const server& srv) {
+
+    if(const auto ec = detail::ping(srv)) {
+        throw std::runtime_error(
+                fmt::format("ADM_register_job() error: {}", ADM_strerror(ec)));
+    }
+}
+
+
 admire::job
 register_job(const server& srv, ADM_job_requirements_t reqs) {
 

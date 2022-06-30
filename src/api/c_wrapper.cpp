@@ -174,6 +174,12 @@ ADM_job_create(uint64_t id) {
 }
 
 ADM_return_t
+ADM_ping(ADM_server_t server) {
+    const admire::server srv{server->s_protocol, server->s_address};
+    return admire::detail::ping(srv);
+}
+
+ADM_return_t
 ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
                  ADM_job_t* job) {
 

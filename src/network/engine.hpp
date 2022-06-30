@@ -58,7 +58,7 @@ struct margo_context {
 
     void
     register_rpc(const std::string& name, bool requires_response) {
-        auto id = MARGO_REGISTER(m_mid, name.c_str(), void, void, ping);
+        auto id = MARGO_REGISTER(m_mid, name.c_str(), void, void, ADM_ping);
         m_rpc_names.emplace(name, id);
 
         if(!requires_response) {
@@ -104,8 +104,8 @@ struct engine {
     register_rpcs() {
 
         // register RPCs manually for now
-        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ping", void,
-                     void, ping, false);
+        REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_ping", void,
+                     void, ADM_ping, false);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
                      "ADM_register_job", ADM_register_job_in_t,
@@ -126,22 +126,19 @@ struct engine {
                      ADM_register_adhoc_storage, true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_update_adhoc_storage",
-                     ADM_update_adhoc_storage_in_t,
-                     ADM_update_adhoc_storage_out_t,
-                     ADM_update_adhoc_storage, true);
+                     "ADM_update_adhoc_storage", ADM_update_adhoc_storage_in_t,
+                     ADM_update_adhoc_storage_out_t, ADM_update_adhoc_storage,
+                     true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_remove_adhoc_storage",
-                     ADM_remove_adhoc_storage_in_t,
-                     ADM_remove_adhoc_storage_out_t,
-                     ADM_remove_adhoc_storage, true);
+                     "ADM_remove_adhoc_storage", ADM_remove_adhoc_storage_in_t,
+                     ADM_remove_adhoc_storage_out_t, ADM_remove_adhoc_storage,
+                     true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names,
-                     "ADM_deploy_adhoc_storage",
-                     ADM_deploy_adhoc_storage_in_t,
-                     ADM_deploy_adhoc_storage_out_t,
-                     ADM_deploy_adhoc_storage, true);
+                     "ADM_deploy_adhoc_storage", ADM_deploy_adhoc_storage_in_t,
+                     ADM_deploy_adhoc_storage_out_t, ADM_deploy_adhoc_storage,
+                     true);
 
         REGISTER_RPC(m_context->m_mid, m_context->m_rpc_names, "ADM_input",
                      ADM_input_in_t, ADM_input_out_t, ADM_input, true);

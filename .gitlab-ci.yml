@@ -46,7 +46,7 @@ rpc:
   script:
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
     - compiled/bin/scord -f --force-console &
-    - build/examples/cxx/ping ofi+tcp://127.0.0.1:52000
+    - build/examples/cxx/ADM_ping ofi+tcp://127.0.0.1:52000
     - pkill -TERM scord
   cache:
     key: $CI_COMMIT_REF_SLUG

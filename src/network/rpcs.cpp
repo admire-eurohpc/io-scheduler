@@ -25,7 +25,7 @@
 #include "rpcs.hpp"
 
 static void
-ping(hg_handle_t h) {
+ADM_ping(hg_handle_t h) {
 
     hg_return_t ret;
 
@@ -37,7 +37,7 @@ ping(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 }
 
-DEFINE_MARGO_RPC_HANDLER(ping);
+DEFINE_MARGO_RPC_HANDLER(ADM_ping);
 
 static void
 ADM_register_job(hg_handle_t h) {

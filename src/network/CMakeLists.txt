@@ -26,12 +26,12 @@ add_library(network_engine STATIC)
 target_sources(
   network_engine
   INTERFACE engine.hpp
-  PRIVATE rpcs.hpp rpcs.cpp detail/address.hpp
+  PRIVATE detail/address.hpp
 )
 
 target_include_directories(network_engine INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(
-  network_engine PUBLIC logger transport_library Mercury::Mercury
+  network_engine PUBLIC rpcs logger transport_library Mercury::Mercury
                         Argobots::Argobots Margo::Margo
 )
 set_property(TARGET network_engine PROPERTY POSITION_INDEPENDENT_CODE ON)

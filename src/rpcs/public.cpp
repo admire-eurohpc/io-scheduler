@@ -22,7 +22,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include "rpcs.hpp"
+#include "public.hpp"
 
 static void
 ADM_ping(hg_handle_t h) {

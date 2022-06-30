@@ -31,7 +31,7 @@
 #include <logger.hpp>
 #include <utility>
 #include <detail/address.hpp>
-#include "rpcs.hpp"
+#include "public.hpp"
 
 
 namespace scord::network {

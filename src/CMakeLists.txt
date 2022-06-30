@@ -27,7 +27,8 @@ add_subdirectory(utils)
 add_subdirectory(logger)
 add_subdirectory(network)
 
-add_executable(scord server.cpp main.cpp)
+# scord daemon
+add_executable(scord server.cpp scord.cpp)
 
 target_include_directories(
   scord PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
@@ -39,4 +40,18 @@ target_link_libraries(
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+# scord-ctl daemon
+add_executable(scord-ctl server.cpp scord-ctl.cpp)
+
+target_include_directories(
+  scord-ctl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+target_link_libraries(
+  scord-ctl PRIVATE config logger network_engine fmt::fmt Boost::program_options
+)
+
+install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# public api libraries
 add_subdirectory(api)

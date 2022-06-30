@@ -23,18 +23,18 @@
 ################################################################################
 
 # Create a config target for all configuration code
-add_library(config STATIC)
+add_library(_config STATIC)
 
 # Since some of the sources will be auto-generated, we need to search for
 # includes in ${CMAKE_CURRENT_BINARY_DIR}
 target_include_directories(
-  config PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}
+  _config PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                  ${CMAKE_CURRENT_BINARY_DIR}
 )
-set_property(TARGET config PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET _config PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_sources(
-  config
+  _config
   PRIVATE config.hpp
           defaults.hpp
           ${CMAKE_CURRENT_BINARY_DIR}/defaults.cpp
@@ -46,7 +46,7 @@ target_sources(
           settings.hpp
 )
 
-target_link_libraries(config PRIVATE utils file_options::file_options)
+target_link_libraries(_config PRIVATE common::utils file_options::file_options)
 
 # ##############################################################################
 # Produce several auto-generated files for 'config'

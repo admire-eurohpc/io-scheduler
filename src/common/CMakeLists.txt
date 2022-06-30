@@ -22,22 +22,25 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-list(APPEND examples_cxx
-            ADM_ping
-            ADM_register_job ADM_update_job ADM_remove_job
-            ADM_register_adhoc_storage ADM_update_adhoc_storage
-            ADM_remove_adhoc_storage ADM_deploy_adhoc_storage
-            # ADM_in_situ_ops ADM_in_transit_ops
-            ADM_transfer_dataset
-            ADM_set_dataset_information ADM_set_io_resources ADM_get_transfer_priority
-            ADM_set_transfer_priority ADM_cancel_transfer ADM_get_pending_transfers
-            ADM_set_qos_constraints ADM_get_qos_constraints ADM_define_data_operation ADM_connect_data_operation
-            ADM_finalize_data_operation ADM_link_transfer_to_data_operation ADM_get_statistics)
+add_library(common INTERFACE)
+target_include_directories(common INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-foreach (example IN LISTS examples_cxx)
-    add_executable(${example}_cxx)
-    target_sources(${example}_cxx PRIVATE ${example}.cpp)
-    target_link_libraries(${example}_cxx
-      PUBLIC common::network::engine fmt::fmt adm_iosched)
-    set_target_properties(${example}_cxx PROPERTIES OUTPUT_NAME ${example})
-endforeach()
+add_subdirectory(utils)
+target_include_directories(_utils INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(common::utils ALIAS _utils)
+
+add_subdirectory(config)
+target_include_directories(_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(common::config ALIAS _config)
+
+add_subdirectory(logger)
+target_include_directories(_logger INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(common::logger ALIAS _logger)
+
+add_subdirectory(network)
+target_include_directories(_network_engine INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(common::network::engine ALIAS _network_engine)
+target_include_directories(_rpc_server INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(common::network::rpc_server ALIAS _rpc_server)

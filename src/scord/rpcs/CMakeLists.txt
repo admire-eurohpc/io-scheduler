@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
+# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,9 +22,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(utils STATIC)
+add_library(scord_ctl_private_rpcs STATIC)
+target_sources(scord_ctl_private_rpcs
+  PRIVATE private.cpp private.hpp)
 
-target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-set_property(TARGET utils PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-target_sources(utils PRIVATE utils.hpp utils.cpp signal_listener.hpp)
+target_include_directories(scord_ctl_private_rpcs INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(scord_ctl_private_rpcs PUBLIC common::logger Margo::Margo)
+set_property(TARGET scord_ctl_private_rpcs PROPERTY POSITION_INDEPENDENT_CODE ON)

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
+# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,10 +22,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(rpcs STATIC)
-target_sources(rpcs
-  PRIVATE public.cpp public.hpp)
+add_library(_logger INTERFACE)
 
-target_include_directories(rpcs INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(rpcs PUBLIC logger Margo::Margo)
-set_property(TARGET rpcs PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_sources(_logger INTERFACE logger.hpp)
+
+target_link_libraries(_logger INTERFACE spdlog::spdlog fmt::fmt)

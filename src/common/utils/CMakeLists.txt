@@ -22,10 +22,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(logger INTERFACE)
+add_library(_utils STATIC)
 
-target_include_directories(logger INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(TARGET _utils PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_sources(logger INTERFACE logger.hpp)
-
-target_link_libraries(logger INTERFACE spdlog::spdlog fmt::fmt)
+target_sources(_utils PRIVATE utils.hpp utils.cpp signal_listener.hpp)

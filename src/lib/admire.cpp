@@ -23,8 +23,9 @@
  *****************************************************************************/
 
 #include <admire.hpp>
-#include <engine.hpp>
-#include <logger.hpp>
+#include <network/engine.hpp>
+#include <logger/logger.hpp>
+#include "rpcs/public.hpp"
 #include "detail/impl.hpp"
 
 

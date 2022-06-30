@@ -27,11 +27,10 @@
 #define SCORD_RPCS_PUBLIC_HPP
 
 #include <margo.h>
-#include <logger.hpp>
 #include <mercury.h>
 #include <mercury_macros.h>
 #include <mercury_proc_string.h>
-
+#include <logger/logger.hpp>
 
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {

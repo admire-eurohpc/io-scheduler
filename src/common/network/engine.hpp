@@ -28,10 +28,9 @@
 #include <memory>
 #include <exception>
 #include <margo.h>
-#include <logger.hpp>
+#include <logger/logger.hpp>
 #include <utility>
-#include <detail/address.hpp>
-#include "public.hpp"
+#include "detail/address.hpp"
 
 
 namespace scord::network {

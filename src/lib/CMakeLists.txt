@@ -22,22 +22,30 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-list(APPEND examples_cxx
-            ADM_ping
-            ADM_register_job ADM_update_job ADM_remove_job
-            ADM_register_adhoc_storage ADM_update_adhoc_storage
-            ADM_remove_adhoc_storage ADM_deploy_adhoc_storage
-            # ADM_in_situ_ops ADM_in_transit_ops
-            ADM_transfer_dataset
-            ADM_set_dataset_information ADM_set_io_resources ADM_get_transfer_priority
-            ADM_set_transfer_priority ADM_cancel_transfer ADM_get_pending_transfers
-            ADM_set_qos_constraints ADM_get_qos_constraints ADM_define_data_operation ADM_connect_data_operation
-            ADM_finalize_data_operation ADM_link_transfer_to_data_operation ADM_get_statistics)
+# target for the public rpcs defined by the API that need to be shared by scord
+add_library(api_rpcs STATIC)
+target_sources(api_rpcs
+  PRIVATE rpcs/public.cpp rpcs/public.hpp)
 
-foreach (example IN LISTS examples_cxx)
-    add_executable(${example}_cxx)
-    target_sources(${example}_cxx PRIVATE ${example}.cpp)
-    target_link_libraries(${example}_cxx
-      PUBLIC common::network::engine fmt::fmt adm_iosched)
-    set_target_properties(${example}_cxx PROPERTIES OUTPUT_NAME ${example})
-endforeach()
+target_include_directories(api_rpcs INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/rpcs)
+target_link_libraries(api_rpcs PUBLIC common::logger Margo::Margo)
+set_property(TARGET api_rpcs PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+# the client library implementing the actual API
+add_library(adm_iosched SHARED)
+
+target_sources(adm_iosched
+  PUBLIC admire.h admire.hpp
+  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp errors.c)
+
+target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(adm_iosched PRIVATE common::network::engine api_rpcs PUBLIC
+  tl::expected)
+
+install(
+  TARGETS adm_iosched
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/adm_iosched
+)

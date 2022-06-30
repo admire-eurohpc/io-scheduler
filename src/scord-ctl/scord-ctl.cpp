@@ -32,8 +32,10 @@
 #include <string>
 
 #include <version.hpp>
-#include <server.hpp>
+#include <network/server.hpp>
 #include <config/settings.hpp>
+#include <lib/rpcs/public.hpp>
+#include "rpcs/private.hpp"
 
 namespace fs = std::filesystem;
 namespace bpo = boost::program_options;

@@ -22,37 +22,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_subdirectory(config)
-add_subdirectory(utils)
-add_subdirectory(logger)
-add_subdirectory(network)
-add_subdirectory(rpcs)
+add_subdirectory(common)
+add_subdirectory(scord)
+add_subdirectory(scord-ctl)
 
-# scord daemon
-add_executable(scord scord.cpp)
-
-target_include_directories(
-  scord PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-)
-
-target_link_libraries(
-  scord PRIVATE config logger rpc_server fmt::fmt Boost::program_options
-)
-
-install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-# scord-ctl daemon
-add_executable(scord-ctl scord-ctl.cpp)
-
-target_include_directories(
-  scord-ctl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-)
-
-target_link_libraries(
-  scord-ctl PRIVATE config logger rpc_server fmt::fmt Boost::program_options
-)
-
-install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-# public api libraries
-add_subdirectory(api)
+# public libraries
+add_subdirectory(lib)

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
+# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,31 +22,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(network_engine STATIC)
-target_sources(
-  network_engine
-  INTERFACE engine.hpp
-  PRIVATE detail/address.hpp
-)
+# import rpc definitions for scord-ctl
+add_subdirectory(rpcs)
 
-target_include_directories(network_engine INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(
-  network_engine PUBLIC rpcs logger transport_library Mercury::Mercury
-                        Argobots::Argobots Margo::Margo
-)
-set_property(TARGET network_engine PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-add_library(rpc_server STATIC)
-target_sources(
-  rpc_server
-  INTERFACE server.hpp
-  PRIVATE server.cpp
-)
+# scord-ctl daemon
+add_executable(scord-ctl scord-ctl.cpp)
 
 target_include_directories(
-  rpc_server
-  INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE ${CMAKE_SOURCE_DIR}/src
+  scord-ctl
+  PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE ${CMAKE_BINARY_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(rpc_server PUBLIC config network_engine)
+target_link_libraries(
+  scord-ctl PRIVATE common::config common::logger common::network::rpc_server
+                    scord_ctl_private_rpcs fmt::fmt Boost::program_options
+)
+
+install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

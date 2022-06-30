@@ -23,7 +23,8 @@
  *****************************************************************************/
 
 #include <tl/expected.hpp>
-#include <engine.hpp>
+#include <network/engine.hpp>
+#include "rpcs/public.hpp"
 #include "impl.hpp"
 
 void

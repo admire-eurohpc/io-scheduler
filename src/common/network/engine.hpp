@@ -185,7 +185,7 @@ public:
      *
      **/
     template <typename T1 = void*, typename T2 = void*>
-    [[deprecated("It should be eventually replaced by a generic call")]] void
+    void
     call(const std::string& id, T1 input = nullptr, T2 output = nullptr) {
 
         const auto it = m_margo_context->m_rpc_names.find(id);

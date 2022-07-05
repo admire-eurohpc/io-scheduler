@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
+# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,9 +22,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(utils STATIC)
+# import rpc definitions for scord-ctl
+add_subdirectory(rpcs)
 
-target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-set_property(TARGET utils PROPERTY POSITION_INDEPENDENT_CODE ON)
+# scord-ctl daemon
+add_executable(scord-ctl scord-ctl.cpp)
 
-target_sources(utils PRIVATE utils.hpp utils.cpp signal_listener.hpp)
+target_include_directories(
+  scord-ctl
+  PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE ${CMAKE_BINARY_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+target_link_libraries(
+  scord-ctl PRIVATE common::config common::logger common::network::rpc_server
+                    scord_ctl_private_rpcs fmt::fmt Boost::program_options
+)
+
+install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

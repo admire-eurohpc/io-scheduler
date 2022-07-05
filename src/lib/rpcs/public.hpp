@@ -22,15 +22,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_NETWORK_RPCS_HPP
-#define SCORD_NETWORK_RPCS_HPP
+// clang-format off
+#ifndef SCORD_RPCS_PUBLIC_HPP
+#define SCORD_RPCS_PUBLIC_HPP
 
 #include <margo.h>
-#include <logger.hpp>
 #include <mercury.h>
 #include <mercury_macros.h>
 #include <mercury_proc_string.h>
-
+#include <logger/logger.hpp>
 
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {
@@ -342,4 +342,5 @@ DECLARE_MARGO_RPC_HANDLER(ADM_get_statistics);
 
 //} // namespace scord::network::rpc
 
-#endif // SCORD_NETWORK_RPCS_HPP
+#endif // SCORD_RPCS_PUBLIC_HPP
+// clang-format on

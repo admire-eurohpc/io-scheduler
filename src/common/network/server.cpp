@@ -33,11 +33,11 @@
 #include <system_error>
 #include <fmt/format.h>
 
-#include <server.hpp>
 #include <config/settings.hpp>
 #include <logger/logger.hpp>
-#include <network/engine.hpp>
 #include <utils/signal_listener.hpp>
+#include "engine.hpp"
+#include "server.hpp"
 
 namespace scord {
 
@@ -264,8 +264,10 @@ server::install_rpc_handlers() {
             m_settings->transport_protocol(), m_settings->bind_address(),
             m_settings->remote_port());
 
-    m_network_engine->register_rpcs();
-} // namespace scord
+    if(m_rpc_registration_callback) {
+        m_rpc_registration_callback(m_network_engine);
+    }
+}
 
 void
 server::check_configuration() {

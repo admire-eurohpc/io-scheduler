@@ -24,7 +24,7 @@
 
 #include <admire.h>
 #include <admire.hpp>
-#include <logger.hpp>
+#include <logger/logger.hpp>
 #include "detail/impl.hpp"
 
 struct adm_server {

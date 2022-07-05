@@ -22,21 +22,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_subdirectory(config)
-add_subdirectory(utils)
-add_subdirectory(logger)
-add_subdirectory(network)
+add_subdirectory(common)
+add_subdirectory(scord)
+add_subdirectory(scord-ctl)
 
-add_executable(scord server.cpp main.cpp)
-
-target_include_directories(
-  scord PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-)
-
-target_link_libraries(
-  scord PRIVATE config logger network_engine fmt::fmt Boost::program_options
-)
-
-install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-add_subdirectory(api)
+# public libraries
+add_subdirectory(lib)

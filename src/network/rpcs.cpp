@@ -25,7 +25,6 @@
 #include "rpcs.hpp"
 #include <iostream>
 
-/*
 static void
 ping(hg_handle_t h) {
 
@@ -40,7 +39,6 @@ ping(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ping);
-*/
 
 
 static inline hg_return_t hg_proc_ADM_job_requirements_t()
@@ -557,7 +555,7 @@ ADM_adhoc_nodes(hg_handle_t h) {
     ADM_adhoc_execution_mode is shared, the number cannot exceed the number of
     allocated nodes within the compute job. If the ADM_adhoc_execution_mode is
     dedicated, the number of nodes is not restricted. Should this be checked
-    now? *//*
+    now? */
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

@@ -53,6 +53,29 @@ void
 rpc_registration_cb(scord::network::rpc_client* client) {
 
     REGISTER_RPC(client, "ADM_ping", void, void, ADM_ping, false);
+
+    REGISTER_RPC(client, "ADM_register_job", ADM_register_job_in_t,
+                 ADM_register_job_out_t, ADM_register_job, true);
+    REGISTER_RPC(client, "ADM_update_job", ADM_update_job_in_t,
+                 ADM_update_job_out_t, ADM_update_job, true);
+    REGISTER_RPC(client, "ADM_remove_job", ADM_remove_job_in_t,
+                 ADM_remove_job_out_t, ADM_remove_job, true);
+
+    REGISTER_RPC(client, "ADM_register_adhoc_storage",
+                 ADM_register_adhoc_storage_in_t,
+                 ADM_register_adhoc_storage_out_t, ADM_register_adhoc_storage,
+                 true);
+    REGISTER_RPC(client, "ADM_update_adhoc_storage",
+                 ADM_update_adhoc_storage_in_t, ADM_update_adhoc_storage_out_t,
+                 ADM_update_adhoc_storage, true);
+    REGISTER_RPC(client, "ADM_remove_adhoc_storage",
+                 ADM_remove_adhoc_storage_in_t, ADM_remove_adhoc_storage_out_t,
+                 ADM_remove_adhoc_storage, true);
+
+    REGISTER_RPC(client, "ADM_deploy_adhoc_storage",
+                 ADM_deploy_adhoc_storage_in_t, ADM_deploy_adhoc_storage_out_t,
+                 ADM_deploy_adhoc_storage, true);
+
     REGISTER_RPC(client, "ADM_input", ADM_input_in_t, ADM_input_out_t,
                  ADM_input, true);
 

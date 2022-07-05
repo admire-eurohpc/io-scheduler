@@ -15,7 +15,6 @@ main(int argc, char* argv[]) {
 
     ADM_job_t job{};
     ADM_job_requirements_t reqs{};
-    ADM_dataset_info_t info{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {

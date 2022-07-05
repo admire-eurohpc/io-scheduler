@@ -29,7 +29,7 @@ ADM_ping(hg_handle_t h) {
 
     hg_return_t ret;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     LOGGER_INFO("PING(noargs)");
 
@@ -47,7 +47,7 @@ ADM_register_job(hg_handle_t h) {
     ADM_register_job_in_t in;
     ADM_register_job_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -79,7 +79,7 @@ ADM_update_job(hg_handle_t h) {
     ADM_update_job_in_t in;
     ADM_update_job_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -111,7 +111,7 @@ ADM_remove_job(hg_handle_t h) {
     ADM_remove_job_in_t in;
     ADM_remove_job_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -142,7 +142,7 @@ ADM_register_adhoc_storage(hg_handle_t h) {
     ADM_register_adhoc_storage_in_t in;
     ADM_register_adhoc_storage_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -173,7 +173,7 @@ ADM_update_adhoc_storage(hg_handle_t h) {
     ADM_update_adhoc_storage_in_t in;
     ADM_update_adhoc_storage_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -204,7 +204,7 @@ ADM_remove_adhoc_storage(hg_handle_t h) {
     ADM_remove_adhoc_storage_in_t in;
     ADM_remove_adhoc_storage_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -235,7 +235,7 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
     ADM_deploy_adhoc_storage_in_t in;
     ADM_deploy_adhoc_storage_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -275,7 +275,7 @@ ADM_input(hg_handle_t h) {
     ADM_input_in_t in;
     ADM_input_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -320,7 +320,7 @@ ADM_output(hg_handle_t h) {
     ADM_output_in_t in;
     ADM_output_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -365,7 +365,7 @@ ADM_inout(hg_handle_t h) {
     ADM_inout_in_t in;
     ADM_inout_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -419,7 +419,7 @@ ADM_adhoc_context(hg_handle_t h) {
     ADM_adhoc_context_in_t in;
     ADM_adhoc_context_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -473,7 +473,7 @@ ADM_adhoc_context_id(hg_handle_t h) {
     ADM_adhoc_context_id_in_t in;
     ADM_adhoc_context_id_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -518,7 +518,7 @@ ADM_adhoc_nodes(hg_handle_t h) {
     ADM_adhoc_nodes_in_t in;
     ADM_adhoc_nodes_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -566,7 +566,7 @@ ADM_adhoc_walltime(hg_handle_t h) {
     ADM_adhoc_walltime_in_t in;
     ADM_adhoc_walltime_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -609,7 +609,7 @@ ADM_adhoc_access(hg_handle_t h) {
     ADM_adhoc_access_in_t in;
     ADM_adhoc_access_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -662,7 +662,7 @@ ADM_adhoc_distribution(hg_handle_t h) {
     ADM_adhoc_distribution_in_t in;
     ADM_adhoc_distribution_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -705,7 +705,7 @@ ADM_adhoc_background_flush(hg_handle_t h) {
     ADM_adhoc_background_flush_in_t in;
     ADM_adhoc_background_flush_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -739,7 +739,7 @@ ADM_in_situ_ops(hg_handle_t h) {
     ADM_in_situ_ops_in_t in;
     ADM_in_situ_ops_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -780,7 +780,7 @@ ADM_in_transit_ops(hg_handle_t h) {
     ADM_in_transit_ops_in_t in;
     ADM_in_transit_ops_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -837,7 +837,7 @@ ADM_transfer_dataset(hg_handle_t h) {
     ADM_transfer_dataset_in_t in;
     ADM_transfer_dataset_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -896,7 +896,7 @@ ADM_set_dataset_information(hg_handle_t h) {
     ADM_set_dataset_information_in_t in;
     ADM_set_dataset_information_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -951,7 +951,7 @@ ADM_set_io_resources(hg_handle_t h) {
     ADM_set_io_resources_in_t in;
     ADM_set_io_resources_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1002,7 +1002,7 @@ ADM_get_transfer_priority(hg_handle_t h) {
     ADM_get_transfer_priority_in_t in;
     ADM_get_transfer_priority_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1050,7 +1050,7 @@ ADM_set_transfer_priority(hg_handle_t h) {
     ADM_set_transfer_priority_in_t in;
     ADM_set_transfer_priority_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1097,7 +1097,7 @@ ADM_cancel_transfer(hg_handle_t h) {
     ADM_cancel_transfer_in_t in;
     ADM_cancel_transfer_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1141,7 +1141,7 @@ ADM_get_pending_transfers(hg_handle_t h) {
     ADM_get_pending_transfers_in_t in;
     ADM_get_pending_transfers_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1184,7 +1184,7 @@ ADM_set_qos_constraints(hg_handle_t h) {
     ADM_set_qos_constraints_in_t in;
     ADM_set_qos_constraints_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1248,7 +1248,7 @@ ADM_get_qos_constraints(hg_handle_t h) {
     ADM_get_qos_constraints_in_t in;
     ADM_get_qos_constraints_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1310,7 +1310,7 @@ ADM_define_data_operation(hg_handle_t h) {
     ADM_define_data_operation_in_t in;
     ADM_define_data_operation_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1373,7 +1373,7 @@ ADM_connect_data_operation(hg_handle_t h) {
     ADM_connect_data_operation_in_t in;
     ADM_connect_data_operation_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1432,7 +1432,7 @@ ADM_finalize_data_operation(hg_handle_t h) {
     ADM_finalize_data_operation_in_t in;
     ADM_finalize_data_operation_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1488,7 +1488,7 @@ ADM_link_transfer_to_data_operation(hg_handle_t h) {
     ADM_link_transfer_to_data_operation_in_t in;
     ADM_link_transfer_to_data_operation_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
@@ -1550,7 +1550,7 @@ ADM_get_statistics(hg_handle_t h) {
     ADM_get_statistics_in_t in;
     ADM_get_statistics_out_t out;
 
-    margo_instance_id mid = margo_hg_handle_get_instance(h);
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);

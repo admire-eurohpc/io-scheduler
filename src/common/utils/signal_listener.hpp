@@ -32,7 +32,7 @@ namespace {
 template <class F, class... Args>
 void
 do_for(F f, Args... args) {
-    int x[] = {(f(args), 0)...};
+    [[maybe_unused]] int x[] = {(f(args), 0)...};
 }
 } // namespace
 

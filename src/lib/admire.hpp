@@ -57,20 +57,19 @@ remove_job(const server& srv, ADM_job_t job);
 
 ADM_return_t
 register_adhoc_storage(const server& srv, ADM_job_t job,
-                       ADM_adhoc_context_t ctx,
-                       ADM_adhoc_storage_handle_t* adhoc_handle);
+                       ADM_adhoc_context_t ctx, ADM_storage_t* adhoc_storage);
 
 ADM_return_t
 update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
-                     ADM_adhoc_storage_handle_t adhoc_handle);
+                     ADM_storage_t adhoc_storage);
 
 ADM_return_t
 remove_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_adhoc_storage_handle_t adhoc_handle);
+                     ADM_storage_t adhoc_storage);
 
 ADM_return_t
 deploy_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_adhoc_storage_handle_t adhoc_handle);
+                     ADM_storage_t adhoc_storage);
 
 ADM_return_t
 transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,

@@ -554,39 +554,38 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job) {
 ADM_return_t
 ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job,
                            ADM_adhoc_context_t ctx,
-                           ADM_adhoc_storage_handle_t* adhoc_handle) {
+                           ADM_storage_t* adhoc_storage) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::register_adhoc_storage(srv, job, ctx, adhoc_handle);
+    return admire::register_adhoc_storage(srv, job, ctx, adhoc_storage);
 }
 
 ADM_return_t
 ADM_update_adhoc_storage(ADM_server_t server, ADM_job_t job,
-                         ADM_adhoc_context_t ctx,
-                         ADM_adhoc_storage_handle_t adhoc_handle) {
+                         ADM_adhoc_context_t ctx, ADM_storage_t adhoc_storage) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::update_adhoc_storage(srv, job, ctx, adhoc_handle);
+    return admire::update_adhoc_storage(srv, job, ctx, adhoc_storage);
 }
 
 ADM_return_t
 ADM_remove_adhoc_storage(ADM_server_t server, ADM_job_t job,
-                         ADM_adhoc_storage_handle_t adhoc_handle) {
+                         ADM_storage_t adhoc_storage) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::remove_adhoc_storage(srv, job, adhoc_handle);
+    return admire::remove_adhoc_storage(srv, job, adhoc_storage);
 }
 
 ADM_return_t
 ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
-                         ADM_adhoc_storage_handle_t adhoc_handle) {
+                         ADM_storage_t adhoc_storage) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::deploy_adhoc_storage(srv, job, adhoc_handle);
+    return admire::deploy_adhoc_storage(srv, job, adhoc_storage);
 }
 
 ADM_return_t

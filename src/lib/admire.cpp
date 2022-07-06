@@ -253,12 +253,11 @@ remove_job(const server& srv, ADM_job_t job) {
 
 ADM_return_t
 register_adhoc_storage(const server& srv, ADM_job_t job,
-                       ADM_adhoc_context_t ctx,
-                       ADM_adhoc_storage_handle_t* adhoc_handle) {
+                       ADM_adhoc_context_t ctx, ADM_storage_t* adhoc_storage) {
     (void) srv;
     (void) job;
     (void) ctx;
-    (void) adhoc_handle;
+    (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -282,11 +281,11 @@ register_adhoc_storage(const server& srv, ADM_job_t job,
 
 ADM_return_t
 update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
-                     ADM_adhoc_storage_handle_t adhoc_handle) {
+                     ADM_storage_t adhoc_storage) {
     (void) srv;
     (void) job;
     (void) ctx;
-    (void) adhoc_handle;
+    (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -310,10 +309,10 @@ update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
 
 ADM_return_t
 remove_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_adhoc_storage_handle_t adhoc_handle) {
+                     ADM_storage_t adhoc_storage) {
     (void) srv;
     (void) job;
-    (void) adhoc_handle;
+    (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -337,10 +336,10 @@ remove_adhoc_storage(const server& srv, ADM_job_t job,
 
 ADM_return_t
 deploy_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_adhoc_storage_handle_t adhoc_handle) {
+                     ADM_storage_t adhoc_storage) {
     (void) srv;
     (void) job;
-    (void) adhoc_handle;
+    (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 

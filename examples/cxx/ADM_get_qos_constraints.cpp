@@ -18,7 +18,7 @@ main(int argc, char* argv[]) {
     ADM_job_t job{};
     ADM_qos_scope_t scope{};
     ADM_qos_entity_t entity{};
-    ADM_limit_t* limits;
+    ADM_qos_limit_t* limits;
     ADM_return_t ret = ADM_SUCCESS;
 
     try {

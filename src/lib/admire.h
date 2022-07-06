@@ -173,7 +173,7 @@ typedef struct {
     ADM_qos_scope_t l_scope;
     ADM_qos_class_t l_class;
     ADM_qos_entity_t l_element;
-} ADM_limit_t;
+} ADM_qos_limit_t;
 
 /** A transfer mapping */
 typedef enum {
@@ -407,7 +407,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
 ADM_return_t
 ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
                      ADM_dataset_t** sources, ADM_dataset_t** targets,
-                     ADM_limit_t** limits, ADM_tx_mapping_t mapping,
+                     ADM_qos_limit_t** limits, ADM_tx_mapping_t mapping,
                      ADM_transfer_handle_t* tx_handle);
 
 
@@ -519,7 +519,8 @@ ADM_get_pending_transfers(ADM_server_t server, ADM_job_t job,
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_set_qos_constraints(ADM_server_t server, ADM_job_t job, ADM_limit_t limit);
+ADM_set_qos_constraints(ADM_server_t server, ADM_job_t job,
+                        ADM_qos_limit_t limit);
 
 
 /**
@@ -537,7 +538,7 @@ ADM_set_qos_constraints(ADM_server_t server, ADM_job_t job, ADM_limit_t limit);
 ADM_return_t
 ADM_get_qos_constraints(ADM_server_t server, ADM_job_t job,
                         ADM_qos_scope_t scope, ADM_qos_entity_t entity,
-                        ADM_limit_t** limits);
+                        ADM_qos_limit_t** limits);
 
 
 /**

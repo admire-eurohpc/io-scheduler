@@ -16,7 +16,7 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_limit_t limit{};
+    ADM_qos_limit_t limit{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {

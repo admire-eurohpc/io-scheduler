@@ -364,7 +364,7 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
 
 ADM_return_t
 transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
-                 ADM_dataset_t** targets, ADM_limit_t** limits,
+                 ADM_dataset_t** targets, ADM_qos_limit_t** limits,
                  ADM_tx_mapping_t mapping, ADM_transfer_handle_t* tx_handle) {
     (void) srv;
     (void) job;
@@ -564,7 +564,7 @@ get_pending_transfers(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_qos_constraints(const server& srv, ADM_job_t job, ADM_limit_t limit) {
+set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_limit_t limit) {
     (void) srv;
     (void) job;
     (void) limit;
@@ -592,7 +592,7 @@ set_qos_constraints(const server& srv, ADM_job_t job, ADM_limit_t limit) {
 
 ADM_return_t
 get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_scope_t scope,
-                    ADM_qos_entity_t entity, ADM_limit_t** limits) {
+                    ADM_qos_entity_t entity, ADM_qos_limit_t** limits) {
     (void) srv;
     (void) job;
     (void) scope;

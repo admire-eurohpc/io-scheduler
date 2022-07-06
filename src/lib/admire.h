@@ -289,9 +289,27 @@ ADM_storage_resources_destroy(ADM_storage_resources_t res);
 
 typedef int ADM_transfer_priority_t;
 
-typedef struct {
-    // TODO: empty for now
-} ADM_data_operation_t;
+typedef struct adm_data_operation* ADM_data_operation_t;
+
+/**
+ * Create an ADM_DATA_OPERATION from information about storage resources.
+ *
+ * @remark ADM_DATA_OPERATION need to be freed by calling
+ * ADM_storage_resources_destroy().
+ *
+ * @return A valid ADM_DATA_OPERATION, or NULL in case of failure
+ */
+ADM_data_operation_t
+ADM_data_operation_create();
+
+/**
+ * Destroy a ADM_DATA_OPERATION created by ADM_storage_resources_create().
+ *
+ * @param[in] op A valid ADM_DATA_OPERATION
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_data_operation_destroy(ADM_data_operation_t op);
 
 typedef struct {
     // TODO: empty for now

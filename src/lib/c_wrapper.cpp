@@ -86,6 +86,10 @@ struct adm_storage_resources {
     // TODO: empty for now
 };
 
+struct adm_data_operation {
+    // TODO: empty for now
+};
+
 
 struct adm_adhoc_context {
     /** The adhoc storage system execution mode */
@@ -397,6 +401,35 @@ ADM_storage_resources_destroy(ADM_storage_resources_t res) {
     free(res);
     return ret;
 }
+
+ADM_data_operation_t
+ADM_data_operation_create() {
+
+    struct adm_data_operation* adm_data_operation =
+            (struct adm_data_operation*) malloc(sizeof(*adm_data_operation));
+
+    if(!adm_data_operation) {
+        LOGGER_ERROR("Could not allocate ADM_data_operation_t");
+        return NULL;
+    }
+
+    return adm_data_operation;
+}
+
+ADM_return_t
+ADM_data_operation_destroy(ADM_data_operation_t op) {
+
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!op) {
+        LOGGER_ERROR("Invalid ADM_data_operation_t")
+        return ADM_EBADARGS;
+    }
+
+    free(op);
+    return ret;
+}
+
 
 ADM_adhoc_context_t
 ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,

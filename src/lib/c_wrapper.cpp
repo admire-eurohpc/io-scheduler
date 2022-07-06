@@ -90,7 +90,6 @@ struct adm_data_operation {
     // TODO: empty for now
 };
 
-
 struct adm_adhoc_context {
     /** The adhoc storage system execution mode */
     ADM_adhoc_mode_t c_mode;

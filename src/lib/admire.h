@@ -286,9 +286,10 @@ ADM_storage_resources_create();
 ADM_return_t
 ADM_storage_resources_destroy(ADM_storage_resources_t res);
 
-
+/** A transfer priority */
 typedef int ADM_transfer_priority_t;
 
+/** A data operation */
 typedef struct adm_data_operation* ADM_data_operation_t;
 
 /**
@@ -311,10 +312,12 @@ ADM_data_operation_create();
 ADM_return_t
 ADM_data_operation_destroy(ADM_data_operation_t op);
 
+/** A data operation status */
 typedef struct {
     // TODO: empty for now
 } ADM_data_operation_status_t;
 
+/** I/O stats from a job */
 typedef struct {
     // TODO: empty for now
 } ADM_job_stats_t;

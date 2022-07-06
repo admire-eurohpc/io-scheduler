@@ -75,7 +75,7 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
 ADM_return_t
 transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
                  ADM_dataset_t** targets, ADM_qos_limit_t** limits,
-                 ADM_tx_mapping_t mapping, ADM_transfer_handle_t* tx_handle);
+                 ADM_tx_mapping_t mapping, ADM_transfer_t* transfer);
 
 ADM_return_t
 set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
@@ -86,21 +86,19 @@ set_io_resources(const server& srv, ADM_job_t job, ADM_storage_handle_t tier,
                  ADM_storage_resources_t resources);
 
 ADM_return_t
-get_transfer_priority(const server& srv, ADM_job_t job,
-                      ADM_transfer_handle_t tx_handle,
+get_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
                       ADM_transfer_priority_t* priority);
 
 ADM_return_t
-set_transfer_priority(const server& srv, ADM_job_t job,
-                      ADM_transfer_handle_t tx_handle, int incr);
+set_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
+                      int incr);
 
 ADM_return_t
-cancel_transfer(const server& srv, ADM_job_t job,
-                ADM_transfer_handle_t tx_handle);
+cancel_transfer(const server& srv, ADM_job_t job, ADM_transfer_t transfer);
 
 ADM_return_t
 get_pending_transfers(const server& srv, ADM_job_t job,
-                      ADM_transfer_handle_t** pending_transfers);
+                      ADM_transfer_t** pending_transfers);
 
 ADM_return_t
 set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,

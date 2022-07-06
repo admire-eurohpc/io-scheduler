@@ -203,7 +203,7 @@ typedef enum {
 /** A handle to a created transfer */
 typedef struct {
     // TODO: empty for now
-} ADM_transfer_handle_t;
+} ADM_transfer_t;
 
 /** Information about a dataset */
 typedef struct {
@@ -416,7 +416,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
  * or resource level.
  * @param[in] mapping A distribution strategy for the transfers (e.g.
  * ONE_TO_ONE, ONE_TO_MANY, MANY_TO_MANY)
- * @param[out] transfer_handle A TRANSFER_HANDLE allowing clients to interact
+ * @param[out] transfer A ADM_TRANSFER allowing clients to interact
  * with the transfer (e.g. wait for its completion, query its status, cancel it,
  * etc.
  * @return Returns if the remote procedure has been completed
@@ -426,7 +426,7 @@ ADM_return_t
 ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
                      ADM_dataset_t** sources, ADM_dataset_t** targets,
                      ADM_qos_limit_t** limits, ADM_tx_mapping_t mapping,
-                     ADM_transfer_handle_t* tx_handle);
+                     ADM_transfer_t* transfer);
 
 
 /**
@@ -467,7 +467,7 @@ ADM_set_io_resources(ADM_server_t server, ADM_job_t job,
  *
  * @param[in] server The server to which the request is directed
  * @param[in] job An ADM_JOB identifying the originating job.
- * @param[in] tx_handle A TRANSFER_HANDLE referring to a pending transfer
+ * @param[in] transfer A ADM_TRANSFER referring to a pending transfer
  * @param[out] priority The priority of the pending transfer or an error code if
  * it didn’t exist or is no longer pending.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
@@ -475,7 +475,7 @@ ADM_set_io_resources(ADM_server_t server, ADM_job_t job,
  */
 ADM_return_t
 ADM_get_transfer_priority(ADM_server_t server, ADM_job_t job,
-                          ADM_transfer_handle_t tx_handle,
+                          ADM_transfer_t transfer,
                           ADM_transfer_priority_t* priority);
 
 
@@ -485,14 +485,14 @@ ADM_get_transfer_priority(ADM_server_t server, ADM_job_t job,
  *
  * @param[in] server The server to which the request is directed
  * @param[in] job An ADM_JOB identifying the originating job.
- * @param[in] tx_handle A TRANSFER_HANDLE referring to a pending transfer
+ * @param[in] transfer A ADM_TRANSFER referring to a pending transfer
  * @param[in] incr A positive or negative number for the number of
  * positions the transfer should go up or down in its scheduling queue.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
 ADM_set_transfer_priority(ADM_server_t server, ADM_job_t job,
-                          ADM_transfer_handle_t tx_handle, int incr);
+                          ADM_transfer_t transfer, int incr);
 
 
 /**
@@ -500,12 +500,12 @@ ADM_set_transfer_priority(ADM_server_t server, ADM_job_t job,
  *
  * @param[in] server The server to which the request is directed
  * @param[in] job An ADM_JOB identifying the originating job.
- * @param[in] tx_handle A TRANSFER_HANDLE referring to a pending transfer.
+ * @param[in] transfer A ADM_TRANSFER referring to a pending transfer.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
 ADM_cancel_transfer(ADM_server_t server, ADM_job_t job,
-                    ADM_transfer_handle_t tx_handle);
+                    ADM_transfer_t transfer);
 
 
 /**
@@ -518,7 +518,7 @@ ADM_cancel_transfer(ADM_server_t server, ADM_job_t job,
  */
 ADM_return_t
 ADM_get_pending_transfers(ADM_server_t server, ADM_job_t job,
-                          ADM_transfer_handle_t** pending_transfers);
+                          ADM_transfer_t** pending_transfers);
 
 
 /**
@@ -624,7 +624,7 @@ ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
  * @param[in] server The server to which the request is directed
  * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] op The OPERATION_HANDLE of the operation to be connected.
- * @param[in] tx_handle The TRANSFER_HANDLE referring to the pending transfer
+ * @param[in] transfer The ADM_TRANSFER referring to the pending transfer
  * the operation should be linked to.
  * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] should_stream A boolean indicating whether the operation
@@ -635,7 +635,8 @@ ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
 ADM_return_t
 ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_t job,
                                     ADM_data_operation_handle_t op,
-                                    bool should_stream, ...);
+                                    ADM_transfer_t transfer, bool should_stream,
+                                    ...);
 
 
 /**

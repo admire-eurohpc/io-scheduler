@@ -55,6 +55,7 @@ struct adm_qos_entity {
         ADM_node_t e_node;
         ADM_job_t e_job;
         ADM_dataset_t e_dataset;
+        ADM_transfer_t e_transfer;
     };
 };
 
@@ -398,12 +399,12 @@ ADM_return_t
 ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
                      ADM_dataset_t** sources, ADM_dataset_t** targets,
                      ADM_qos_limit_t** limits, ADM_tx_mapping_t mapping,
-                     ADM_transfer_handle_t* tx_handle) {
+                     ADM_transfer_t* transfer) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
     return admire::transfer_dataset(srv, job, sources, targets, limits, mapping,
-                                    tx_handle);
+                                    transfer);
 }
 
 ADM_return_t
@@ -427,35 +428,35 @@ ADM_set_io_resources(ADM_server_t server, ADM_job_t job,
 
 ADM_return_t
 ADM_get_transfer_priority(ADM_server_t server, ADM_job_t job,
-                          ADM_transfer_handle_t tx_handle,
+                          ADM_transfer_t transfer,
                           ADM_transfer_priority_t* priority) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::get_transfer_priority(srv, job, tx_handle, priority);
+    return admire::get_transfer_priority(srv, job, transfer, priority);
 }
 
 ADM_return_t
 ADM_set_transfer_priority(ADM_server_t server, ADM_job_t job,
-                          ADM_transfer_handle_t tx_handle, int incr) {
+                          ADM_transfer_t transfer, int incr) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::set_transfer_priority(srv, job, tx_handle, incr);
+    return admire::set_transfer_priority(srv, job, transfer, incr);
 }
 
 ADM_return_t
 ADM_cancel_transfer(ADM_server_t server, ADM_job_t job,
-                    ADM_transfer_handle_t tx_handle) {
+                    ADM_transfer_t transfer) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::cancel_transfer(srv, job, tx_handle);
+    return admire::cancel_transfer(srv, job, transfer);
 }
 
 ADM_return_t
 ADM_get_pending_transfers(ADM_server_t server, ADM_job_t job,
-                          ADM_transfer_handle_t** pending_transfers) {
+                          ADM_transfer_t** pending_transfers) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 

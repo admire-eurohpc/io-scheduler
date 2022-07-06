@@ -21,7 +21,7 @@ main(int argc, char* argv[]) {
     ADM_dataset_t** targets = nullptr;
     ADM_qos_limit_t** limits = nullptr;
     ADM_tx_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
-    ADM_transfer_handle_t tx_handle{};
+    ADM_transfer_t tx_handle{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {

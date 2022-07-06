@@ -365,14 +365,14 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
 ADM_return_t
 transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
                  ADM_dataset_t** targets, ADM_qos_limit_t** limits,
-                 ADM_tx_mapping_t mapping, ADM_transfer_handle_t* tx_handle) {
+                 ADM_tx_mapping_t mapping, ADM_transfer_t* transfer) {
     (void) srv;
     (void) job;
     (void) sources;
     (void) targets;
     (void) limits;
     (void) mapping;
-    (void) tx_handle;
+    (void) transfer;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -451,12 +451,11 @@ set_io_resources(const server& srv, ADM_job_t job, ADM_storage_handle_t tier,
 }
 
 ADM_return_t
-get_transfer_priority(const server& srv, ADM_job_t job,
-                      ADM_transfer_handle_t tx_handle,
+get_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
                       ADM_transfer_priority_t* priority) {
     (void) srv;
     (void) job;
-    (void) tx_handle;
+    (void) transfer;
     (void) priority;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
@@ -480,11 +479,11 @@ get_transfer_priority(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_transfer_priority(const server& srv, ADM_job_t job,
-                      ADM_transfer_handle_t tx_handle, int incr) {
+set_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
+                      int incr) {
     (void) srv;
     (void) job;
-    (void) tx_handle;
+    (void) transfer;
     (void) incr;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
@@ -508,11 +507,10 @@ set_transfer_priority(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-cancel_transfer(const server& srv, ADM_job_t job,
-                ADM_transfer_handle_t tx_handle) {
+cancel_transfer(const server& srv, ADM_job_t job, ADM_transfer_t transfer) {
 
     (void) job;
-    (void) tx_handle;
+    (void) transfer;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -537,7 +535,7 @@ cancel_transfer(const server& srv, ADM_job_t job,
 
 ADM_return_t
 get_pending_transfers(const server& srv, ADM_job_t job,
-                      ADM_transfer_handle_t** pending_transfers) {
+                      ADM_transfer_t** pending_transfers) {
     (void) srv;
     (void) job;
     (void) pending_transfers;

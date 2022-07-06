@@ -17,8 +17,8 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_dataset_handle_t** sources = nullptr;
-    ADM_dataset_handle_t** targets = nullptr;
+    ADM_dataset_t** sources = nullptr;
+    ADM_dataset_t** targets = nullptr;
     ADM_limit_t** limits = nullptr;
     ADM_tx_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
     ADM_transfer_handle_t tx_handle{};

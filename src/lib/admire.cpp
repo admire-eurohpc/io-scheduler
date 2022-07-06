@@ -363,10 +363,9 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-transfer_dataset(const server& srv, ADM_job_t job,
-                 ADM_dataset_handle_t** sources, ADM_dataset_handle_t** targets,
-                 ADM_limit_t** limits, ADM_tx_mapping_t mapping,
-                 ADM_transfer_handle_t* tx_handle) {
+transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
+                 ADM_dataset_t** targets, ADM_limit_t** limits,
+                 ADM_tx_mapping_t mapping, ADM_transfer_handle_t* tx_handle) {
     (void) srv;
     (void) job;
     (void) sources;
@@ -396,8 +395,8 @@ transfer_dataset(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_dataset_information(const server& srv, ADM_job_t job,
-                        ADM_dataset_handle_t target, ADM_dataset_info_t info) {
+set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
+                        ADM_dataset_info_t info) {
     (void) srv;
     (void) job;
     (void) target;
@@ -652,9 +651,8 @@ define_data_operation(const server& srv, ADM_job_t job, const char* path,
 }
 
 ADM_return_t
-connect_data_operation(const server& srv, ADM_job_t job,
-                       ADM_dataset_handle_t input, ADM_dataset_handle_t output,
-                       bool should_stream, va_list args) {
+connect_data_operation(const server& srv, ADM_job_t job, ADM_dataset_t input,
+                       ADM_dataset_t output, bool should_stream, va_list args) {
     (void) srv;
     (void) job;
     (void) input;

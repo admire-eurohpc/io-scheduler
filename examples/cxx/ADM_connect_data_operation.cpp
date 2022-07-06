@@ -27,8 +27,8 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_dataset_handle_t input{};
-    ADM_dataset_handle_t output{};
+    ADM_dataset_t input{};
+    ADM_dataset_t output{};
     bool should_stream = false;
     va_list args; // FIXME placeholder
     ADM_return_t ret = ADM_SUCCESS;

@@ -54,18 +54,18 @@ struct adm_qos_entity {
     union {
         ADM_node_t e_node;
         ADM_job_t e_job;
-        ADM_dataset_handle_t e_dataset;
+        ADM_dataset_t e_dataset;
     };
 };
 
 /** The I/O requirements for a job */
 struct adm_job_requirements {
     /** An array of input datasets */
-    ADM_dataset_handle_t* r_inputs;
+    ADM_dataset_t* r_inputs;
     /** The number of datasets in r_inputs */
     size_t r_num_inputs;
     /** A list of output datasets */
-    ADM_dataset_handle_t* r_outputs;
+    ADM_dataset_t* r_outputs;
     /** The number of datasets in r_outputs */
     size_t r_num_outputs;
     /** An optional definition for a specific adhoc storage instance */
@@ -133,7 +133,7 @@ ADM_node_destroy(ADM_node_t node) {
 }
 
 
-ADM_dataset_handle_t
+ADM_dataset_t
 ADM_dataset_create(const char* id) {
 
     struct adm_dataset* adm_dataset =
@@ -150,7 +150,7 @@ ADM_dataset_create(const char* id) {
 }
 
 ADM_return_t
-ADM_dataset_destroy(ADM_dataset_handle_t dataset) {
+ADM_dataset_destroy(ADM_dataset_t dataset) {
     ADM_return_t ret = ADM_SUCCESS;
 
     if(!dataset) {
@@ -186,7 +186,7 @@ ADM_qos_entity_create(ADM_qos_scope_t scope, ...) {
             adm_qos_entity->e_job = va_arg(ap, ADM_job_t);
             break;
         case ADM_QOS_SCOPE_DATASET:
-            adm_qos_entity->e_dataset = va_arg(ap, ADM_dataset_handle_t);
+            adm_qos_entity->e_dataset = va_arg(ap, ADM_dataset_t);
             break;
     }
     va_end(ap);
@@ -209,8 +209,8 @@ ADM_qos_entity_destroy(ADM_qos_entity_t entity) {
 }
 
 ADM_job_requirements_t
-ADM_job_requirements_create(ADM_dataset_handle_t inputs[], size_t inputs_len,
-                            ADM_dataset_handle_t outputs[], size_t outputs_len,
+ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
+                            ADM_dataset_t outputs[], size_t outputs_len,
                             ADM_adhoc_storage_handle_t adhoc_storage) {
 
     struct adm_job_requirements* adm_job_reqs =
@@ -358,9 +358,8 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
 
 ADM_return_t
 ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
-                     ADM_dataset_handle_t** sources,
-                     ADM_dataset_handle_t** targets, ADM_limit_t** limits,
-                     ADM_tx_mapping_t mapping,
+                     ADM_dataset_t** sources, ADM_dataset_t** targets,
+                     ADM_limit_t** limits, ADM_tx_mapping_t mapping,
                      ADM_transfer_handle_t* tx_handle) {
 
     const admire::server srv{server->s_protocol, server->s_address};
@@ -371,8 +370,7 @@ ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
 
 ADM_return_t
 ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
-                            ADM_dataset_handle_t target,
-                            ADM_dataset_info_t info) {
+                            ADM_dataset_t target, ADM_dataset_info_t info) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
@@ -460,9 +458,8 @@ ADM_define_data_operation(ADM_server_t server, ADM_job_t job, const char* path,
 
 ADM_return_t
 ADM_connect_data_operation(ADM_server_t server, ADM_job_t job,
-                           ADM_dataset_handle_t input,
-                           ADM_dataset_handle_t output, bool should_stream,
-                           ...) {
+                           ADM_dataset_t input, ADM_dataset_t output,
+                           bool should_stream, ...) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 

@@ -101,8 +101,8 @@ ADM_return_t
 ADM_node_destroy(ADM_node_t node);
 
 
-/* A dataset handle */
-typedef struct adm_dataset* ADM_dataset_handle_t;
+/** A dataset */
+typedef struct adm_dataset* ADM_dataset_t;
 
 /**
  * Create a dataset from a user-provided id (e.g. a path for POSIX-like file
@@ -114,11 +114,11 @@ typedef struct adm_dataset* ADM_dataset_handle_t;
  * @return A valid ADM_dataset_handle_t if successful or NULL in case of
  * failure.
  */
-ADM_dataset_handle_t
+ADM_dataset_t
 ADM_dataset_create(const char* id);
 
 ADM_return_t
-ADM_dataset_destroy(ADM_dataset_handle_t dataset);
+ADM_dataset_destroy(ADM_dataset_t dataset);
 
 /* A job handle */
 typedef struct adm_job* ADM_job_t;
@@ -266,8 +266,8 @@ typedef struct adm_job_requirements* ADM_job_requirements_t;
  * failure.
  */
 ADM_job_requirements_t
-ADM_job_requirements_create(ADM_dataset_handle_t inputs[], size_t inputs_len,
-                            ADM_dataset_handle_t outputs[], size_t outputs_len,
+ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
+                            ADM_dataset_t outputs[], size_t outputs_len,
                             ADM_adhoc_storage_handle_t adhoc_storage);
 
 /**
@@ -400,9 +400,8 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
  */
 ADM_return_t
 ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
-                     ADM_dataset_handle_t** sources,
-                     ADM_dataset_handle_t** targets, ADM_limit_t** limits,
-                     ADM_tx_mapping_t mapping,
+                     ADM_dataset_t** sources, ADM_dataset_t** targets,
+                     ADM_limit_t** limits, ADM_tx_mapping_t mapping,
                      ADM_transfer_handle_t* tx_handle);
 
 
@@ -419,8 +418,7 @@ ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
  */
 ADM_return_t
 ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
-                            ADM_dataset_handle_t target,
-                            ADM_dataset_info_t info);
+                            ADM_dataset_t target, ADM_dataset_info_t info);
 
 /**
  * Changes the I/O resources used by a storage tier, typically an Ad hoc Storage
@@ -573,9 +571,8 @@ ADM_define_data_operation(ADM_server_t server, ADM_job_t job, const char* path,
  */
 ADM_return_t
 ADM_connect_data_operation(ADM_server_t server, ADM_job_t job,
-                           ADM_dataset_handle_t input,
-                           ADM_dataset_handle_t output, bool should_stream,
-                           ...);
+                           ADM_dataset_t input, ADM_dataset_t output,
+                           bool should_stream, ...);
 
 
 /**

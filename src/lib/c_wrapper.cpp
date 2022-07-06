@@ -589,6 +589,33 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
 }
 
 ADM_return_t
+ADM_register_pfs_storage(ADM_server_t server, ADM_job_t job,
+                         ADM_pfs_context_t ctx, ADM_storage_t* pfs_storage) {
+
+    const admire::server srv{server->s_protocol, server->s_address};
+
+    return admire::register_pfs_storage(srv, job, ctx, pfs_storage);
+}
+
+ADM_return_t
+ADM_update_pfs_storage(ADM_server_t server, ADM_job_t job,
+                       ADM_pfs_context_t ctx, ADM_storage_t pfs_storage) {
+
+    const admire::server srv{server->s_protocol, server->s_address};
+
+    return admire::update_pfs_storage(srv, job, ctx, pfs_storage);
+}
+
+ADM_return_t
+ADM_remove_pfs_storage(ADM_server_t server, ADM_job_t job,
+                       ADM_storage_t pfs_storage) {
+
+    const admire::server srv{server->s_protocol, server->s_address};
+
+    return admire::remove_pfs_storage(srv, job, pfs_storage);
+}
+
+ADM_return_t
 ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
                      ADM_dataset_t** sources, ADM_dataset_t** targets,
                      ADM_qos_limit_t** limits, ADM_transfer_mapping_t mapping,

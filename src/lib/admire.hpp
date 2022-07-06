@@ -72,6 +72,17 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
                      ADM_storage_t adhoc_storage);
 
 ADM_return_t
+register_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+                     ADM_storage_t* pfs_storage);
+
+ADM_return_t
+update_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+                   ADM_storage_t pfs_storage);
+
+ADM_return_t
+remove_pfs_storage(const server& srv, ADM_job_t job, ADM_storage_t pfs_storage);
+
+ADM_return_t
 transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
                  ADM_dataset_t** targets, ADM_qos_limit_t** limits,
                  ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer);

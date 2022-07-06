@@ -362,6 +362,89 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
+register_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+                     ADM_storage_t* pfs_storage) {
+    (void) srv;
+    (void) job;
+    (void) ctx;
+    (void) pfs_storage;
+
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_register_pfs_storage(...)");
+
+    ADM_register_pfs_storage_in_t in{};
+    ADM_register_pfs_storage_out_t out;
+
+    endp.call("ADM_register_pfs_storage", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_register_pfs_storage() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_register_pfs_storage() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
+}
+
+ADM_return_t
+update_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+                   ADM_storage_t pfs_storage) {
+    (void) srv;
+    (void) job;
+    (void) ctx;
+    (void) pfs_storage;
+
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_update_pfs_storage(...)");
+
+    ADM_update_pfs_storage_in_t in{};
+    ADM_update_pfs_storage_out_t out;
+
+    endp.call("ADM_update_pfs_storage", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_update_pfs_storage() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_update_pfs_storage() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
+}
+
+ADM_return_t
+remove_pfs_storage(const server& srv, ADM_job_t job,
+                   ADM_storage_t pfs_storage) {
+    (void) srv;
+    (void) job;
+    (void) pfs_storage;
+
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_remove_pfs_storage(...)");
+
+    ADM_remove_pfs_storage_in_t in{};
+    ADM_remove_pfs_storage_out_t out;
+
+    endp.call("ADM_remove_pfs_storage", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_remove_pfs_storage() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_remove_pfs_storage() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
+}
+
+ADM_return_t
 transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
                  ADM_dataset_t** targets, ADM_qos_limit_t** limits,
                  ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer) {

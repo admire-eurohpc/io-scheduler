@@ -487,6 +487,50 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
                          ADM_storage_t adhoc_storage);
 
 /**
+ * Register a PFS storage tier.
+ *
+ * @param[in] server The server to which the request is directed
+ * @param[in] job An ADM_JOB identifying the originating job.
+ * @param[in] ctx The EXECUTION_CONTEXT for the PFS.
+ * @param[out] adhoc_storage An ADM_STORAGE referring to the newly-created
+ * PFS instance.
+ * @return Returns ADM_SUCCESS if the remote procedure has completed
+ * successfully.
+ */
+ADM_return_t
+ADM_register_pfs_storage(ADM_server_t server, ADM_job_t job,
+                         ADM_pfs_context_t ctx, ADM_storage_t* pfs_storage);
+
+/**
+ * Update an already-registered PFS storage tier.
+ *
+ * @param[in] server The server to which the request is directed
+ * @param[in] job An ADM_JOB identifying the originating job.
+ * @param[in] ctx The updated EXECUTION_CONTEXT for the PFS.
+ * @param[in] adhoc_storage An ADM_STORAGE referring to the PFS
+ * instance of interest.
+ * @return Returns ADM_SUCCESS if the remote procedure has completed
+ * successfully.
+ */
+ADM_return_t
+ADM_update_pfs_storage(ADM_server_t server, ADM_job_t job,
+                       ADM_pfs_context_t ctx, ADM_storage_t adhoc_storage);
+
+/**
+ * Remove an already-registered PFS storage tier.
+ *
+ * @param[in] server The server to which the request is directed
+ * @param[in] job An ADM_JOB identifying the originating job.
+ * @param[in] adhoc_storage An ADM_STORAGE referring to the PFS
+ * instance of interest.
+ * @return Returns ADM_SUCCESS if the remote procedure has completed
+ * successfully.
+ */
+ADM_return_t
+ADM_remove_pfs_storage(ADM_server_t server, ADM_job_t job,
+                       ADM_storage_t adhoc_storage);
+
+/**
  * Transfers the dataset identified by the source_name to the storage tier
  * defined by destination_name, and apply the provided constraints during the
  * transfer. This function returns a handle that can be used to track the

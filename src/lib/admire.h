@@ -198,7 +198,7 @@ typedef enum {
     ADM_MAPPING_ONE_TO_ONE,
     ADM_MAPPING_ONE_TO_N,
     ADM_MAPPING_N_TO_N
-} ADM_tx_mapping_t;
+} ADM_transfer_mapping_t;
 
 /** A handle to a created transfer */
 typedef struct {
@@ -425,7 +425,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
 ADM_return_t
 ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
                      ADM_dataset_t** sources, ADM_dataset_t** targets,
-                     ADM_qos_limit_t** limits, ADM_tx_mapping_t mapping,
+                     ADM_qos_limit_t** limits, ADM_transfer_mapping_t mapping,
                      ADM_transfer_t* transfer);
 
 

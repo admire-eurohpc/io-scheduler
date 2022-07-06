@@ -17,7 +17,7 @@ main(int argc, char* argv[]) {
 
     ADM_job_t job{};
     const char* path = "";
-    ADM_data_operation_handle_t op_handle;
+    ADM_data_operation_t op_handle;
     va_list args; // FIXME: placeholder
     ADM_return_t ret = ADM_SUCCESS;
 

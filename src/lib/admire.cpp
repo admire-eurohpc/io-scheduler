@@ -703,7 +703,7 @@ get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
 
 ADM_return_t
 define_data_operation(const server& srv, ADM_job_t job, const char* path,
-                      ADM_data_operation_handle_t* op, va_list args) {
+                      ADM_data_operation_t* op, va_list args) {
     (void) srv;
     (void) job;
     (void) path;
@@ -764,7 +764,7 @@ connect_data_operation(const server& srv, ADM_job_t job, ADM_dataset_t input,
 
 ADM_return_t
 finalize_data_operation(const server& srv, ADM_job_t job,
-                        ADM_data_operation_handle_t op,
+                        ADM_data_operation_t op,
                         ADM_data_operation_status_t* status) {
     (void) srv;
     (void) job;
@@ -794,8 +794,8 @@ finalize_data_operation(const server& srv, ADM_job_t job,
 
 ADM_return_t
 link_transfer_to_data_operation(const server& srv, ADM_job_t job,
-                                ADM_data_operation_handle_t op,
-                                bool should_stream, va_list args) {
+                                ADM_data_operation_t op, bool should_stream,
+                                va_list args) {
     (void) srv;
     (void) job;
     (void) op;

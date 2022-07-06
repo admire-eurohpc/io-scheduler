@@ -86,6 +86,7 @@ struct adm_storage_resources {
     // TODO: empty for now
 };
 
+
 struct adm_adhoc_context {
     /** The adhoc storage system execution mode */
     ADM_adhoc_mode_t c_mode;
@@ -735,7 +736,7 @@ ADM_get_qos_constraints(ADM_server_t server, ADM_job_t job,
 
 ADM_return_t
 ADM_define_data_operation(ADM_server_t server, ADM_job_t job, const char* path,
-                          ADM_data_operation_handle_t* op, ...) {
+                          ADM_data_operation_t* op, ...) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
@@ -765,7 +766,7 @@ ADM_connect_data_operation(ADM_server_t server, ADM_job_t job,
 
 ADM_return_t
 ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
-                            ADM_data_operation_handle_t op,
+                            ADM_data_operation_t op,
                             ADM_data_operation_status_t* status) {
 
     const admire::server srv{server->s_protocol, server->s_address};
@@ -775,8 +776,8 @@ ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
 
 ADM_return_t
 ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_t job,
-                                    ADM_data_operation_handle_t op,
-                                    bool should_stream, ...) {
+                                    ADM_data_operation_t op, bool should_stream,
+                                    ...) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 

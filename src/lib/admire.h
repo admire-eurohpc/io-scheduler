@@ -291,7 +291,7 @@ typedef int ADM_transfer_priority_t;
 
 typedef struct {
     // TODO: empty for now
-} ADM_data_operation_handle_t;
+} ADM_data_operation_t;
 
 typedef struct {
     // TODO: empty for now
@@ -720,7 +720,7 @@ ADM_get_qos_constraints(ADM_server_t server, ADM_job_t job,
  */
 ADM_return_t
 ADM_define_data_operation(ADM_server_t server, ADM_job_t job, const char* path,
-                          ADM_data_operation_handle_t* op, ...);
+                          ADM_data_operation_t* op, ...);
 
 
 /**
@@ -759,7 +759,7 @@ ADM_connect_data_operation(ADM_server_t server, ADM_job_t job,
  */
 ADM_return_t
 ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
-                            ADM_data_operation_handle_t op,
+                            ADM_data_operation_t op,
                             ADM_data_operation_status_t* status);
 
 
@@ -783,7 +783,7 @@ ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
  */
 ADM_return_t
 ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_t job,
-                                    ADM_data_operation_handle_t op,
+                                    ADM_data_operation_t op,
                                     ADM_transfer_t transfer, bool should_stream,
                                     ...);
 

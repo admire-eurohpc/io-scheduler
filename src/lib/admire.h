@@ -264,9 +264,28 @@ ADM_return_t
 ADM_storage_destroy(ADM_storage_t storage);
 
 /** Information about resources assigned to a storage tier */
-typedef struct {
-    // TODO: empty for now
-} ADM_storage_resources_t;
+typedef struct adm_storage_resources* ADM_storage_resources_t;
+
+/**
+ * Create an ADM_STORAGE_RESOURCES from information about storage resources.
+ *
+ * @remark ADM_STORAGE_RESOURCES need to be freed by calling
+ * ADM_storage_resources_destroy().
+ *
+ * @return A valid ADM_STORAGE_RESOURCES, or NULL in case of failure
+ */
+ADM_storage_resources_t
+ADM_storage_resources_create();
+
+/**
+ * Destroy a ADM_STORAGE_RESOURCES created by ADM_storage_resources_create().
+ *
+ * @param[in] res A valid ADM_STORAGE
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_storage_resources_destroy(ADM_storage_resources_t res);
+
 
 typedef int ADM_transfer_priority_t;
 

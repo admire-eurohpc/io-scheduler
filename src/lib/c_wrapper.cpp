@@ -82,6 +82,10 @@ struct adm_storage {
     };
 };
 
+struct adm_storage_resources {
+    // TODO: empty for now
+};
+
 struct adm_adhoc_context {
     /** The adhoc storage system execution mode */
     ADM_adhoc_mode_t c_mode;
@@ -361,6 +365,35 @@ ADM_storage_destroy(ADM_storage_t storage) {
     }
 
     free(storage);
+    return ret;
+}
+
+ADM_storage_resources_t
+ADM_storage_resources_create() {
+
+    struct adm_storage_resources* adm_storage_resources =
+            (struct adm_storage_resources*) malloc(
+                    sizeof(*adm_storage_resources));
+
+    if(!adm_storage_resources) {
+        LOGGER_ERROR("Could not allocate ADM_storage_resources_t");
+        return NULL;
+    }
+
+    return adm_storage_resources;
+}
+
+ADM_return_t
+ADM_storage_resources_destroy(ADM_storage_resources_t res) {
+
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!res) {
+        LOGGER_ERROR("Invalid ADM_storage_resources_t")
+        return ADM_EBADARGS;
+    }
+
+    free(res);
     return ret;
 }
 

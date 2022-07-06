@@ -16,7 +16,7 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_storage_handle_t tier{};
+    ADM_storage_t tier{};
     ADM_storage_resources_t resources{};
     ADM_return_t ret = ADM_SUCCESS;
 

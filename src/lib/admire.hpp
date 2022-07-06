@@ -82,7 +82,7 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
                         ADM_dataset_info_t info);
 
 ADM_return_t
-set_io_resources(const server& srv, ADM_job_t job, ADM_storage_handle_t tier,
+set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
                  ADM_storage_resources_t resources);
 
 ADM_return_t

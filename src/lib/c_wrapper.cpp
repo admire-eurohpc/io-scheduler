@@ -452,8 +452,7 @@ ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
 }
 
 ADM_return_t
-ADM_set_io_resources(ADM_server_t server, ADM_job_t job,
-                     ADM_storage_handle_t tier,
+ADM_set_io_resources(ADM_server_t server, ADM_job_t job, ADM_storage_t tier,
                      ADM_storage_resources_t resources) {
 
     const admire::server srv{server->s_protocol, server->s_address};

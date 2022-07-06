@@ -230,7 +230,7 @@ ADM_dataset_info_destroy(ADM_dataset_info_t dataset_info);
 /** A storage tier handle */
 typedef struct {
     // TODO: empty for now
-} ADM_storage_handle_t;
+} ADM_storage_t;
 
 /** Information about resources assigned to a storage tier */
 typedef struct {
@@ -467,15 +467,14 @@ ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
  *
  * @param[in] server The server to which the request is directed
  * @param[in] job An ADM_JOB identifying the originating job.
- * @param[in] tier A STORAGE_HANDLE referring to the target storage tier.
+ * @param[in] tier A ADM_STORAGE_TIER referring to the target storage tier.
  * @param[in] resources A RESOURCES argument containing information
  * about the I/O resources to set (e.g. number of I/O nodes.).
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  * successfully.
  */
 ADM_return_t
-ADM_set_io_resources(ADM_server_t server, ADM_job_t job,
-                     ADM_storage_handle_t tier,
+ADM_set_io_resources(ADM_server_t server, ADM_job_t job, ADM_storage_t tier,
                      ADM_storage_resources_t resources);
 
 

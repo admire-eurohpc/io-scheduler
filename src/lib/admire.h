@@ -117,6 +117,12 @@ typedef struct adm_dataset* ADM_dataset_t;
 ADM_dataset_t
 ADM_dataset_create(const char* id);
 
+/**
+ * Destroy a dataset created by ADM_dataset_create().
+ *
+ * @param[in] dataset A valid ADM_dataset_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
 ADM_return_t
 ADM_dataset_destroy(ADM_dataset_t dataset);
 

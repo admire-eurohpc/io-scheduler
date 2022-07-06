@@ -27,17 +27,26 @@
 #include <logger/logger.hpp>
 #include "detail/impl.hpp"
 
+
+/******************************************************************************/
+/* Type definitions and related functions                                     */
+/******************************************************************************/
+
 struct adm_server {
     const char* s_protocol;
     const char* s_address;
 };
 
-struct adm_job {
-    uint64_t j_id;
+struct adm_node {
+    const char* n_hostname;
 };
 
 struct adm_dataset {
     const char* d_id;
+};
+
+struct adm_job {
+    uint64_t j_id;
 };
 
 /** The I/O requirements for a job */
@@ -83,6 +92,37 @@ ADM_server_destroy(ADM_server_t server) {
     free(server);
     return ret;
 }
+
+
+ADM_node_t
+ADM_node_create(const char* hostname) {
+
+    struct adm_node* adm_node =
+            (struct adm_node*) malloc(sizeof(struct adm_node));
+
+    if(!adm_node) {
+        LOGGER_ERROR("Could not allocate ADM_node_t")
+        return NULL;
+    }
+
+    adm_node->n_hostname = hostname;
+
+    return adm_node;
+}
+
+ADM_return_t
+ADM_node_destroy(ADM_node_t node) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!node) {
+        LOGGER_ERROR("Invalid ADM_node_t")
+        return ADM_EBADARGS;
+    }
+
+    free(node);
+    return ret;
+}
+
 
 ADM_dataset_handle_t
 ADM_dataset_create(const char* id) {
@@ -173,6 +213,10 @@ ADM_job_create(uint64_t id) {
     return adm_job;
 }
 
+
+/******************************************************************************/
+/* C API implementation                                                       */
+/******************************************************************************/
 ADM_return_t
 ADM_ping(ADM_server_t server) {
     const admire::server srv{server->s_protocol, server->s_address};

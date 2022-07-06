@@ -78,7 +78,27 @@ ADM_return_t
 ADM_server_destroy(ADM_server_t server);
 
 /* A node */
-typedef char* ADM_node_t;
+typedef struct adm_node* ADM_node_t;
+
+/**
+ * Initialize a node from a user-provided hostname/address.
+ *
+ * @remark Nodes need to be freed by calling ADM_server_destroy().
+ *
+ * @param[in] hostname The hostname of the node.
+ * @return A valid ADM_server_t if successful or NULL in case of failure.
+ */
+ADM_node_t
+ADM_node_create(const char* hostname);
+
+/**
+ * Destroy a node created by ADM_node_create().
+ *
+ * @param[in] node A valid ADM_node_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_node_destroy(ADM_node_t node);
 
 
 /* A dataset handle */

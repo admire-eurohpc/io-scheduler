@@ -65,6 +65,10 @@ struct adm_qos_limit {
     uint64_t l_value;
 };
 
+struct adm_transfer {
+    // TODO: empty for now
+};
+
 /** The I/O requirements for a job */
 struct adm_job_requirements {
     /** An array of input datasets */

@@ -201,9 +201,7 @@ typedef enum {
 } ADM_transfer_mapping_t;
 
 /** A handle to a created transfer */
-typedef struct {
-    // TODO: empty for now
-} ADM_transfer_t;
+typedef struct adm_transfer* ADM_transfer_t;
 
 /** Information about a dataset */
 typedef struct {

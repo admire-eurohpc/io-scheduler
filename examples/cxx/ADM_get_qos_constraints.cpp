@@ -16,13 +16,12 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_qos_scope_t scope{};
     ADM_qos_entity_t entity{};
     ADM_qos_limit_t* limits;
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::get_qos_constraints(server, job, scope, entity, &limits);
+        ret = admire::get_qos_constraints(server, job, entity, &limits);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
                    e.what());

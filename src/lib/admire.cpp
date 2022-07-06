@@ -564,9 +564,11 @@ get_pending_transfers(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_limit_t limit) {
+set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
+                    ADM_qos_limit_t limit) {
     (void) srv;
     (void) job;
+    (void) entity;
     (void) limit;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
@@ -591,11 +593,10 @@ set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_limit_t limit) {
 }
 
 ADM_return_t
-get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_scope_t scope,
-                    ADM_qos_entity_t entity, ADM_qos_limit_t** limits) {
+get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
+                    ADM_qos_limit_t** limits) {
     (void) srv;
     (void) job;
-    (void) scope;
     (void) entity;
     (void) limits;
 

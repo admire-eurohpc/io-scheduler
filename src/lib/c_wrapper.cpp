@@ -58,6 +58,12 @@ struct adm_qos_entity {
     };
 };
 
+struct adm_qos_limit {
+    ADM_qos_entity_t l_entity;
+    ADM_qos_class_t l_class;
+    uint64_t l_value;
+};
+
 /** The I/O requirements for a job */
 struct adm_job_requirements {
     /** An array of input datasets */
@@ -205,6 +211,38 @@ ADM_qos_entity_destroy(ADM_qos_entity_t entity) {
     }
 
     free(entity);
+    return ret;
+}
+
+ADM_qos_limit_t
+ADM_qos_limit_create(ADM_qos_entity_t entity, ADM_qos_class_t cls,
+                     uint64_t value) {
+
+    struct adm_qos_limit* adm_qos_limit =
+            (struct adm_qos_limit*) malloc(sizeof(struct adm_qos_limit));
+
+    if(!adm_qos_limit) {
+        LOGGER_ERROR("Could not allocate ADM_qos_limit_t")
+        return NULL;
+    }
+
+    adm_qos_limit->l_entity = entity;
+    adm_qos_limit->l_class = cls;
+    adm_qos_limit->l_value = value;
+
+    return adm_qos_limit;
+}
+
+ADM_return_t
+ADM_qos_limit_destroy(ADM_qos_limit_t limit) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!limit) {
+        LOGGER_ERROR("Invalid ADM_qos_limit_t")
+        return ADM_EBADARGS;
+    }
+
+    free(limit);
     return ret;
 }
 
@@ -426,21 +464,20 @@ ADM_get_pending_transfers(ADM_server_t server, ADM_job_t job,
 
 ADM_return_t
 ADM_set_qos_constraints(ADM_server_t server, ADM_job_t job,
-                        ADM_qos_limit_t limit) {
+                        ADM_qos_entity_t entity, ADM_qos_limit_t limit) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::set_qos_constraints(srv, job, limit);
+    return admire::set_qos_constraints(srv, job, entity, limit);
 }
 
 ADM_return_t
 ADM_get_qos_constraints(ADM_server_t server, ADM_job_t job,
-                        ADM_qos_scope_t scope, ADM_qos_entity_t entity,
-                        ADM_qos_limit_t** limits) {
+                        ADM_qos_entity_t entity, ADM_qos_limit_t** limits) {
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::get_qos_constraints(srv, job, scope, entity, limits);
+    return admire::get_qos_constraints(srv, job, entity, limits);
 }
 
 ADM_return_t

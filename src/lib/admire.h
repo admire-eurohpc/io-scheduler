@@ -166,14 +166,32 @@ ADM_qos_entity_create(ADM_qos_scope_t scope, ...);
 ADM_return_t
 ADM_qos_entity_destroy(ADM_qos_entity_t entity);
 
-
 /** A QoS limit */
-typedef struct {
-    // TODO: empty for now
-    ADM_qos_scope_t l_scope;
-    ADM_qos_class_t l_class;
-    ADM_qos_entity_t l_element;
-} ADM_qos_limit_t;
+typedef struct adm_qos_limit* ADM_qos_limit_t;
+
+/**
+ * Create a QoS limit given an entity and a QoS class.
+ *
+ * @remark QoS limits need to be freed by calling ADM_qos_limit_destroy().
+ *
+ * @param[in] entity The entity upon which the QoS limit should be enforced.
+ * @param[in] cls The QoS restriction class to apply.
+ * @param[in] value The limit's value.
+ * @return A valid ADM_qos_limit_t if successful or NULL in case of failure.
+ */
+ADM_qos_limit_t
+ADM_qos_limit_create(ADM_qos_entity_t entity, ADM_qos_class_t cls,
+                     uint64_t value);
+
+/**
+ * Destroy a QoS limit created by ADM_qos_limit_create().
+ *
+ * @param[in] limit A valid ADM_qos_limit_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_qos_limit_destroy(ADM_qos_limit_t limit);
+
 
 /** A transfer mapping */
 typedef enum {
@@ -509,18 +527,18 @@ ADM_get_pending_transfers(ADM_server_t server, ADM_job_t job,
  *
  * @param[in] server The server to which the request is directed
  * @param[in] job An ADM_JOB identifying the originating job.
- * @param[in] limit A QOS_LIMIT specifying at least:
- *                  - The QOS_SCOPE the limit  should be applied to: e.g.
- *                    dataset, node, or job.
+ * @param[in] entity An QOS_ENTITY referring to the target of the query, i.e. a
+ * ADM_DATASET, a ADM_NODE, or a ADM_JOB.
+ * @param[in] limit A QOS_LIMIT specifying:
  *                  - The QOS_CLASS of the limit (e.g. "bandwidth", "iops",
  *                  etc.).
- *                  - The QOS_ENTITY it should be applied to (e.g. job, node,
+ *                  - The VALUE it should be applied to (e.g. job, node,
  *                  dataset, etc.)
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
 ADM_set_qos_constraints(ADM_server_t server, ADM_job_t job,
-                        ADM_qos_limit_t limit);
+                        ADM_qos_entity_t entity, ADM_qos_limit_t limit);
 
 
 /**
@@ -528,17 +546,15 @@ ADM_set_qos_constraints(ADM_server_t server, ADM_job_t job,
  *
  * @param[in] server The server to which the request is directed
  * @param[in] job An ADM_JOB identifying the originating job.
- * @param[in] scope The scope being queried: dataset, node, or job.
  * @param[in] entity An QOS_ENTITY referring to the target of the query, i.e. a
- * RESOURCE_HANDLE, a NODE hostname, or a ADM_JOB.
- * @param[in] limits A list of QOS_LIMITS that includes all the classes
- * currently defined for the element as well as the values set for them.
+ * ADM_DATASET, a ADM_NODE, or a ADM_JOB.
+ * @param[in] limits A NULL-terminated array of QOS_LIMITS that includes all the
+ * classes currently defined for the element as well as the values set for them.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
 ADM_get_qos_constraints(ADM_server_t server, ADM_job_t job,
-                        ADM_qos_scope_t scope, ADM_qos_entity_t entity,
-                        ADM_qos_limit_t** limits);
+                        ADM_qos_entity_t entity, ADM_qos_limit_t** limits);
 
 
 /**

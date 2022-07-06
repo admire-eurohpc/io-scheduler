@@ -134,11 +134,32 @@ typedef enum {
 typedef enum { ADM_QOS_CLASS_BANDWIDTH, ADM_QOS_CLASS_IOPS } ADM_qos_class_t;
 
 /** An ADMIRE entity upon which QoS can be defined */
-typedef union {
-    ADM_node_t l_node;
-    ADM_job_t l_job;
-    ADM_dataset_handle_t l_dataset;
-} ADM_qos_entity_t;
+typedef struct adm_qos_entity* ADM_qos_entity_t;
+
+/**
+ * Create a QoS entity given a scope, a node, a dataset, or a job.
+ *
+ * @remark QoS entities need to be freed by calling ADM_qos_entity_destroy().
+ *
+ * @param scope The scope of the entity, i.e. ADM_QOS_SCOPE_DATASET,
+ * ADM_QOS_SCOPE_NODE, or ADM_QOS_SCOPE_JOB.
+ * @param ... A single argument with data from either a ADM_dataset_t,
+ * ADM_node_t, or ADM_job_t variable. The argument must correspond properly
+ * to the scope provided.
+ * @return A valid ADM_qos_entity_t if successful or NULL in case of failure.
+ */
+ADM_qos_entity_t
+ADM_qos_entity_create(ADM_qos_scope_t scope, ...);
+
+/**
+ * Destroy a QoS entity created by ADM_qos_entity_create().
+ *
+ * @param[in] entity A valid ADM_qos_entity_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_qos_entity_destroy(ADM_qos_entity_t entity);
+
 
 /** A QoS limit */
 typedef struct {

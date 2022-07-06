@@ -49,6 +49,15 @@ struct adm_job {
     uint64_t j_id;
 };
 
+struct adm_qos_entity {
+    ADM_qos_scope_t e_scope;
+    union {
+        ADM_node_t e_node;
+        ADM_job_t e_job;
+        ADM_dataset_handle_t e_dataset;
+    };
+};
+
 /** The I/O requirements for a job */
 struct adm_job_requirements {
     /** An array of input datasets */
@@ -150,6 +159,52 @@ ADM_dataset_destroy(ADM_dataset_handle_t dataset) {
     }
 
     free(dataset);
+    return ret;
+}
+
+ADM_qos_entity_t
+ADM_qos_entity_create(ADM_qos_scope_t scope, ...) {
+
+    struct adm_qos_entity* adm_qos_entity =
+            (struct adm_qos_entity*) malloc(sizeof(struct adm_qos_entity));
+
+    if(!adm_qos_entity) {
+        LOGGER_ERROR("Could not allocate ADM_qos_entity_t")
+        return NULL;
+    }
+
+    adm_qos_entity->e_scope = scope;
+
+    va_list ap;
+    va_start(ap, scope);
+
+    switch(scope) {
+        case ADM_QOS_SCOPE_NODE:
+            adm_qos_entity->e_node = va_arg(ap, ADM_node_t);
+            break;
+        case ADM_QOS_SCOPE_JOB:
+            adm_qos_entity->e_job = va_arg(ap, ADM_job_t);
+            break;
+        case ADM_QOS_SCOPE_DATASET:
+            adm_qos_entity->e_dataset = va_arg(ap, ADM_dataset_handle_t);
+            break;
+    }
+    va_end(ap);
+
+    return adm_qos_entity;
+}
+
+ADM_return_t
+ADM_qos_entity_destroy(ADM_qos_entity_t entity) {
+
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!entity) {
+        LOGGER_ERROR("Invalid ADM_qos_entity_t")
+        return ADM_EBADARGS;
+    }
+
+    free(entity);
     return ret;
 }
 

@@ -69,6 +69,10 @@ struct adm_transfer {
     // TODO: empty for now
 };
 
+struct adm_dataset_info {
+    // TODO: empty for now
+};
+
 /** The I/O requirements for a job */
 struct adm_job_requirements {
     /** An array of input datasets */
@@ -248,6 +252,33 @@ ADM_qos_limit_destroy(ADM_qos_limit_t limit) {
     }
 
     free(limit);
+    return ret;
+}
+
+ADM_dataset_info_t
+ADM_dataset_info_create() {
+
+    struct adm_dataset_info* adm_dataset_info =
+            (struct adm_dataset_info*) malloc(sizeof(*adm_dataset_info));
+
+    if(!adm_dataset_info) {
+        LOGGER_ERROR("Could not allocate ADM_dataset_info_t");
+        return NULL;
+    }
+
+    return adm_dataset_info;
+}
+
+ADM_return_t
+ADM_dataset_info_destroy(ADM_dataset_info_t dataset_info) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!dataset_info) {
+        LOGGER_ERROR("Invalid ADM_dataset_info_t")
+        return ADM_EBADARGS;
+    }
+
+    free(dataset_info);
     return ret;
 }
 

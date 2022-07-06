@@ -204,9 +204,28 @@ typedef enum {
 typedef struct adm_transfer* ADM_transfer_t;
 
 /** Information about a dataset */
-typedef struct {
-    // TODO: empty for now
-} ADM_dataset_info_t;
+typedef struct adm_dataset_info* ADM_dataset_info_t;
+
+/**
+ * Create a dataset from a user-provided id (e.g. a path for POSIX-like file
+ * systems or key for key-value stores).
+ *
+ * @remark Datasets need to be freed by calling ADM_dataset_info_destroy().
+ *
+ * @return A valid ADM_DATASET_INFO if successful or NULL in case of
+ * failure.
+ */
+ADM_dataset_info_t
+ADM_dataset_info_create();
+
+/**
+ * Destroy a dataset created by ADM_dataset_info_create().
+ *
+ * @param[in] dataset A valid ADM_dataset_info_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_dataset_info_destroy(ADM_dataset_info_t dataset_info);
 
 /** A storage tier handle */
 typedef struct {

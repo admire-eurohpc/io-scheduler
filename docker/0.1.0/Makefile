@@ -1,4 +1,4 @@
 .PHONY: all
 
 all:
-	docker build -t gekkofs/scord:0.1.0 .
+	docker build -t bscstorage/scord:0.1.0 .

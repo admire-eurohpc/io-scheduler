@@ -16,11 +16,12 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_limit_t limit{};
+    ADM_qos_entity_t entity{};
+    ADM_qos_limit_t limit{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::set_qos_constraints(server, job, limit);
+        ret = admire::set_qos_constraints(server, job, entity, limit);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_set_qos_constraints() failed: {}\n",
                    e.what());

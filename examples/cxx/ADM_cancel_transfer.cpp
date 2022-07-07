@@ -15,7 +15,7 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_transfer_handle_t tx_handle{};
+    ADM_transfer_t tx_handle{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {

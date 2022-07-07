@@ -19,7 +19,7 @@ main(int argc, char* argv[]) {
 
 
     ADM_job_t job;
-    ADM_dataset_handle_t inputs[NINPUTS];
+    ADM_dataset_t inputs[NINPUTS];
 
     for(int i = 0; i < NINPUTS; ++i) {
         const char* pattern = "input-dataset-%d";
@@ -29,7 +29,7 @@ main(int argc, char* argv[]) {
         inputs[i] = ADM_dataset_create(id);
     }
 
-    ADM_dataset_handle_t outputs[NOUTPUTS];
+    ADM_dataset_t outputs[NOUTPUTS];
 
     for(int i = 0; i < NOUTPUTS; ++i) {
         const char* pattern = "output-dataset-%d";

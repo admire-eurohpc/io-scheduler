@@ -253,12 +253,11 @@ remove_job(const server& srv, ADM_job_t job) {
 
 ADM_return_t
 register_adhoc_storage(const server& srv, ADM_job_t job,
-                       ADM_adhoc_context_t ctx,
-                       ADM_adhoc_storage_handle_t* adhoc_handle) {
+                       ADM_adhoc_context_t ctx, ADM_storage_t* adhoc_storage) {
     (void) srv;
     (void) job;
     (void) ctx;
-    (void) adhoc_handle;
+    (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -282,11 +281,11 @@ register_adhoc_storage(const server& srv, ADM_job_t job,
 
 ADM_return_t
 update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
-                     ADM_adhoc_storage_handle_t adhoc_handle) {
+                     ADM_storage_t adhoc_storage) {
     (void) srv;
     (void) job;
     (void) ctx;
-    (void) adhoc_handle;
+    (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -310,10 +309,10 @@ update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
 
 ADM_return_t
 remove_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_adhoc_storage_handle_t adhoc_handle) {
+                     ADM_storage_t adhoc_storage) {
     (void) srv;
     (void) job;
-    (void) adhoc_handle;
+    (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -337,10 +336,10 @@ remove_adhoc_storage(const server& srv, ADM_job_t job,
 
 ADM_return_t
 deploy_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_adhoc_storage_handle_t adhoc_handle) {
+                     ADM_storage_t adhoc_storage) {
     (void) srv;
     (void) job;
-    (void) adhoc_handle;
+    (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -363,17 +362,99 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-transfer_dataset(const server& srv, ADM_job_t job,
-                 ADM_dataset_handle_t** sources, ADM_dataset_handle_t** targets,
-                 ADM_limit_t** limits, ADM_tx_mapping_t mapping,
-                 ADM_transfer_handle_t* tx_handle) {
+register_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+                     ADM_storage_t* pfs_storage) {
+    (void) srv;
+    (void) job;
+    (void) ctx;
+    (void) pfs_storage;
+
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_register_pfs_storage(...)");
+
+    ADM_register_pfs_storage_in_t in{};
+    ADM_register_pfs_storage_out_t out;
+
+    endp.call("ADM_register_pfs_storage", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_register_pfs_storage() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_register_pfs_storage() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
+}
+
+ADM_return_t
+update_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+                   ADM_storage_t pfs_storage) {
+    (void) srv;
+    (void) job;
+    (void) ctx;
+    (void) pfs_storage;
+
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_update_pfs_storage(...)");
+
+    ADM_update_pfs_storage_in_t in{};
+    ADM_update_pfs_storage_out_t out;
+
+    endp.call("ADM_update_pfs_storage", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_update_pfs_storage() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_update_pfs_storage() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
+}
+
+ADM_return_t
+remove_pfs_storage(const server& srv, ADM_job_t job,
+                   ADM_storage_t pfs_storage) {
+    (void) srv;
+    (void) job;
+    (void) pfs_storage;
+
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("ADM_remove_pfs_storage(...)");
+
+    ADM_remove_pfs_storage_in_t in{};
+    ADM_remove_pfs_storage_out_t out;
+
+    endp.call("ADM_remove_pfs_storage", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_remove_pfs_storage() = {}", out.ret);
+        return static_cast<ADM_return_t>(out.ret);
+    }
+
+    LOGGER_INFO("ADM_remove_pfs_storage() = {}", ADM_SUCCESS);
+    return ADM_SUCCESS;
+}
+
+ADM_return_t
+transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
+                 ADM_dataset_t** targets, ADM_qos_limit_t** limits,
+                 ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer) {
     (void) srv;
     (void) job;
     (void) sources;
     (void) targets;
     (void) limits;
     (void) mapping;
-    (void) tx_handle;
+    (void) transfer;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -396,8 +477,8 @@ transfer_dataset(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_dataset_information(const server& srv, ADM_job_t job,
-                        ADM_dataset_handle_t target, ADM_dataset_info_t info) {
+set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
+                        ADM_dataset_info_t info) {
     (void) srv;
     (void) job;
     (void) target;
@@ -424,7 +505,7 @@ set_dataset_information(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_io_resources(const server& srv, ADM_job_t job, ADM_storage_handle_t tier,
+set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
                  ADM_storage_resources_t resources) {
     (void) srv;
     (void) job;
@@ -452,12 +533,11 @@ set_io_resources(const server& srv, ADM_job_t job, ADM_storage_handle_t tier,
 }
 
 ADM_return_t
-get_transfer_priority(const server& srv, ADM_job_t job,
-                      ADM_transfer_handle_t tx_handle,
+get_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
                       ADM_transfer_priority_t* priority) {
     (void) srv;
     (void) job;
-    (void) tx_handle;
+    (void) transfer;
     (void) priority;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
@@ -481,11 +561,11 @@ get_transfer_priority(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_transfer_priority(const server& srv, ADM_job_t job,
-                      ADM_transfer_handle_t tx_handle, int incr) {
+set_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
+                      int incr) {
     (void) srv;
     (void) job;
-    (void) tx_handle;
+    (void) transfer;
     (void) incr;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
@@ -509,11 +589,10 @@ set_transfer_priority(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-cancel_transfer(const server& srv, ADM_job_t job,
-                ADM_transfer_handle_t tx_handle) {
+cancel_transfer(const server& srv, ADM_job_t job, ADM_transfer_t transfer) {
 
     (void) job;
-    (void) tx_handle;
+    (void) transfer;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -538,7 +617,7 @@ cancel_transfer(const server& srv, ADM_job_t job,
 
 ADM_return_t
 get_pending_transfers(const server& srv, ADM_job_t job,
-                      ADM_transfer_handle_t** pending_transfers) {
+                      ADM_transfer_t** pending_transfers) {
     (void) srv;
     (void) job;
     (void) pending_transfers;
@@ -565,9 +644,11 @@ get_pending_transfers(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-set_qos_constraints(const server& srv, ADM_job_t job, ADM_limit_t limit) {
+set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
+                    ADM_qos_limit_t limit) {
     (void) srv;
     (void) job;
+    (void) entity;
     (void) limit;
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
@@ -592,11 +673,10 @@ set_qos_constraints(const server& srv, ADM_job_t job, ADM_limit_t limit) {
 }
 
 ADM_return_t
-get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_scope_t scope,
-                    ADM_qos_entity_t entity, ADM_limit_t** limits) {
+get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
+                    ADM_qos_limit_t** limits) {
     (void) srv;
     (void) job;
-    (void) scope;
     (void) entity;
     (void) limits;
 
@@ -623,7 +703,7 @@ get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_scope_t scope,
 
 ADM_return_t
 define_data_operation(const server& srv, ADM_job_t job, const char* path,
-                      ADM_data_operation_handle_t* op, va_list args) {
+                      ADM_data_operation_t* op, va_list args) {
     (void) srv;
     (void) job;
     (void) path;
@@ -652,9 +732,8 @@ define_data_operation(const server& srv, ADM_job_t job, const char* path,
 }
 
 ADM_return_t
-connect_data_operation(const server& srv, ADM_job_t job,
-                       ADM_dataset_handle_t input, ADM_dataset_handle_t output,
-                       bool should_stream, va_list args) {
+connect_data_operation(const server& srv, ADM_job_t job, ADM_dataset_t input,
+                       ADM_dataset_t output, bool should_stream, va_list args) {
     (void) srv;
     (void) job;
     (void) input;
@@ -685,7 +764,7 @@ connect_data_operation(const server& srv, ADM_job_t job,
 
 ADM_return_t
 finalize_data_operation(const server& srv, ADM_job_t job,
-                        ADM_data_operation_handle_t op,
+                        ADM_data_operation_t op,
                         ADM_data_operation_status_t* status) {
     (void) srv;
     (void) job;
@@ -715,8 +794,8 @@ finalize_data_operation(const server& srv, ADM_job_t job,
 
 ADM_return_t
 link_transfer_to_data_operation(const server& srv, ADM_job_t job,
-                                ADM_data_operation_handle_t op,
-                                bool should_stream, va_list args) {
+                                ADM_data_operation_t op, bool should_stream,
+                                va_list args) {
     (void) srv;
     (void) job;
     (void) op;

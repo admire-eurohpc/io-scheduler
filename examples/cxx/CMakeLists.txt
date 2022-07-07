@@ -43,3 +43,49 @@ foreach (example IN LISTS examples_cxx)
       PUBLIC common::network::engine fmt::fmt adm_iosched)
     set_target_properties(${example}_cxx PROPERTIES OUTPUT_NAME ${example})
 endforeach()
+
+enable_testing()
+
+add_test(ADM_ping_test ADM_ping ofi+tcp://127.0.0.1:52000)
+
+add_test(ADM_cancel_transfer_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 ofi+tcp://127.0.0.1:52000 ofi+tcp://127.0.0.1:52000 true arguments 10)
+
+add_test(ADM_define_data_operation_test ADM_define_data_operation ofi+tcp://127.0.0.1:52000 " " 42 arguments)
+
+add_test(ADM_deploy_adhoc_storage_test ADM_deploy_adhoc_storage ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_finalize_data_operation_test ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000 42) #si se le pasa num incorrecto de argumentos falla tambien (tanto mas como menos)
+
+add_test(ADM_get_pending_transfers_test ADM_get_pending_transfers ofi+tcp://127.0.0.1:52000)
+
+add_test(ADM_get_qos_constraints_test ADM_get_qos_constraints ofi+tcp://127.0.0.1:52000 dataset 42)
+
+add_test(ADM_get_statistics_test ADM_get_statistics ofi+tcp://127.0.0.1:52000 42 1)
+
+add_test(ADM_get_transfer_priority_test ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000 8)
+
+add_test(ADM_link_transfer_to_data_operation_test ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 8 2 dataset arguments 42)
+
+add_test(ADM_register_adhoc_storage_test ADM_register_adhoc_storage ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_register_job_test ADM_register_job ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_remove_adhoc_storage_test ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_remove_job_test ADM_remove_job ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_set_dataset_information_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000 5 "info" 42)
+
+add_test(ADM_set_io_resources_test ADM_set_io_resources ofi+tcp://127.0.0.1:52000 4 resources 42)
+
+add_test(ADM_set_qos_constraints_test ADM_set_qos_constraints ofi+tcp://127.0.0.1:52000 "dataset" "bandwith" 7 "iops")
+
+add_test(ADM_set_transfer_priority_test ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000 9 2)
+
+add_test(ADM_transfer_dataset_test ADM_transfer_dataset ofi+tcp://127.0.0.1:52000 /build/examples /build bandwith distribution 42)
+
+add_test(ADM_update_adhoc_storage_test ADM_update_adhoc_storage ofi+tcp://127.0.0.1:52000 9 2)
+
+add_test(ADM_update_job_test ADM_update_job ofi+tcp://127.0.0.1:52000 42)

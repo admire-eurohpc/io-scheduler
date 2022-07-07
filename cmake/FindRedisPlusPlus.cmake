@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
+# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain                 #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -26,7 +26,7 @@
 FindRedisPlusPlus
 ---------
 
-Find hiredis include dirs and libraries.
+Find RedisPlusPlus include dirs and libraries.
 
 Use this module by invoking find_package with the form::
 

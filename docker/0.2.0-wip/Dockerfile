@@ -30,7 +30,7 @@ RUN apt-get update && \
         python3 \
         libyaml-dev libcurl4-openssl-dev procps \
         # genopts dependencies
-        python3-venv && \
+        python3-venv libhiredis-dev && \
     # install cmake 3.14 since it's needed for some dependencies
     curl -OL https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-Linux-x86_64.sh && \
     chmod u+x ./cmake-3.23.1-Linux-x86_64.sh && \
@@ -58,6 +58,7 @@ RUN apt-get update && \
     git clone https://github.com/pmodels/argobots --recurse-submodules && \
     git clone https://github.com/mercury-hpc/mercury --recurse-submodules && \
     git clone https://github.com/mochi-hpc/mochi-margo --recurse-submodules && \
+    git clone https://github.com/sewenew/redis-plus-plus --recurse-submodules && \
     export LD_LIBRARY_PATH=${INSTALL_PATH}/lib:${INSTALL_PATH}/lib64 && \
     export PKG_CONFIG_PATH=${INSTALL_PATH}/lib/pkgconfig:${INSTALL_PATH}/lib64/pkgconfig && \
     cd && \
@@ -93,6 +94,13 @@ RUN apt-get update && \
     ./prepare.sh && \
     PKG_CONFIG_PATH=${INSTALL_PATH}/lib/pkgconfig:${INSTALL_PATH}/lib64/pkgconfig ./configure --prefix=${INSTALL_PATH} && \
     make -j install && \
+    cd && \
+    cd deps/redis-plus-plus && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} .. && \
+    make install -j && \
+    cd ../../ && \
     cd && \
     rm -rf deps && \
     # Clean apt cache to reduce image layer size

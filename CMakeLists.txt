@@ -253,6 +253,11 @@ endif ()
 ### variables.
 mark_variables_as_advanced(REGEX "^(FETCHCONTENT|fmt|FMT|spdlog|SPDLOG)_.*$")
 
+### redisplusplus check
+message(STATUS "[${PROJECT_NAME}] Checking for Redis Plus Plus")
+find_package(RedisPlusPlus 1.3.3 REQUIRED)
+
+
 # ##############################################################################
 # Process subdirectories
 # ##############################################################################

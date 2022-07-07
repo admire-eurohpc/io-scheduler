@@ -36,7 +36,7 @@ target_include_directories(
 
 target_link_libraries(
   scord-ctl PRIVATE common::config common::logger common::network::rpc_server
-                    scord_ctl_private_rpcs fmt::fmt Boost::program_options
+                    scord_ctl_private_rpcs fmt::fmt Boost::program_options RedisPlusPlus::RedisPlusPlus
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

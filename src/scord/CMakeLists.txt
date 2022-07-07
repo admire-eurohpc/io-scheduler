@@ -67,6 +67,7 @@ target_link_libraries(
           scord_private_rpcs
           fmt::fmt
           Boost::program_options
+          RedisPlusPlus::RedisPlusPlus
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

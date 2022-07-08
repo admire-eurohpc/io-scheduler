@@ -16,7 +16,7 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    const char* path = "";
+    const char* path = "/tmpxxxxx";
     ADM_data_operation_t op_handle;
     va_list args; // FIXME: placeholder
     ADM_return_t ret = ADM_SUCCESS;

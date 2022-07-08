@@ -427,6 +427,11 @@ transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
     ADM_transfer_dataset_in_t in{};
     ADM_transfer_dataset_out_t out;
 
+    in.source = "/tmp";
+    in.destination = "/tmp";
+    in.qos_constraints = "constraints";
+    in.distribution = "distribution";
+
     endp.call("ADM_transfer_dataset", &in, &out);
 
     if(out.ret < 0) {
@@ -455,6 +460,8 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
     ADM_set_dataset_information_in_t in{};
     ADM_set_dataset_information_out_t out;
 
+    in.info = "info";
+
     endp.call("ADM_set_dataset_information", &in, &out);
 
     if(out.ret < 0) {
@@ -482,6 +489,8 @@ set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
 
     ADM_set_io_resources_in_t in{};
     ADM_set_io_resources_out_t out;
+
+    in.resources = "resources";
 
     endp.call("ADM_set_io_resources", &in, &out);
 
@@ -623,6 +632,10 @@ set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     ADM_set_qos_constraints_in_t in{};
     ADM_set_qos_constraints_out_t out;
 
+    in.scope = "dataset";
+    in.qos_class = "class";
+    in.class_value = "value";
+
     endp.call("ADM_set_qos_constraints", &in, &out);
 
     if(out.ret < 0) {
@@ -651,6 +664,8 @@ get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     // FIXME: change RPC fields to ADM_transfer_handle_t
     ADM_get_qos_constraints_in_t in{};
     ADM_get_qos_constraints_out_t out;
+
+    in.scope = "dataset";
 
     endp.call("ADM_get_qos_constraints", &in, &out);
 
@@ -682,6 +697,10 @@ define_data_operation(const server& srv, ADM_job_t job, const char* path,
     ADM_define_data_operation_in_t in{};
     ADM_define_data_operation_out_t out;
 
+    in.path = path;
+    in.operation_id = 1;
+    in.arguments = "argument1 argument2";
+
     endp.call("ADM_define_data_operation", &in, &out);
 
     if(out.ret < 0) {
@@ -712,6 +731,9 @@ connect_data_operation(const server& srv, ADM_job_t job, ADM_dataset_t input,
     // FIXME: change RPC fields to ADM_transfer_handle_t
     ADM_connect_data_operation_in_t in{};
     ADM_connect_data_operation_out_t out;
+
+    in.input="/tmp";
+    in.arguments = "argument1 argument2";
 
     endp.call("ADM_connect_data_operation", &in, &out);
 
@@ -773,6 +795,8 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
     // FIXME: change RPC fields to ADM_transfer_handle_t
     ADM_link_transfer_to_data_operation_in_t in{};
     ADM_link_transfer_to_data_operation_out_t out;
+
+    in.arguments = "argument1 argument2";
 
     endp.call("ADM_link_transfer_to_data_operation", &in, &out);
 

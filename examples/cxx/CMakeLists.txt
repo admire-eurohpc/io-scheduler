@@ -50,9 +50,9 @@ add_test(ADM_ping_test ADM_ping ofi+tcp://127.0.0.1:52000)
 
 add_test(ADM_cancel_transfer_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 42)
 
-add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 ofi+tcp://127.0.0.1:52000 ofi+tcp://127.0.0.1:52000 true arguments 10)
+add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 /tmp true arguments 10)
 
-add_test(ADM_define_data_operation_test ADM_define_data_operation ofi+tcp://127.0.0.1:52000 " " 42 arguments)
+add_test(ADM_define_data_operation_test ADM_define_data_operation ofi+tcp://127.0.0.1:52000 /tmp 42 arguments)
 
 add_test(ADM_deploy_adhoc_storage_test ADM_deploy_adhoc_storage ofi+tcp://127.0.0.1:52000 42)
 
@@ -72,20 +72,26 @@ add_test(ADM_register_adhoc_storage_test ADM_register_adhoc_storage ofi+tcp://12
 
 add_test(ADM_register_job_test ADM_register_job ofi+tcp://127.0.0.1:52000 42)
 
+add_test(ADM_register_pfs_storage_test ADM_register_pfs_storage ofi+tcp://127.0.0.1:52000 42)
+
 add_test(ADM_remove_adhoc_storage_test ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000 42)
 
 add_test(ADM_remove_job_test ADM_remove_job ofi+tcp://127.0.0.1:52000 42)
 
-add_test(ADM_set_dataset_information_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000 5 "info" 42)
+add_test(ADM_remove_pfs_storage_test ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_set_dataset_information_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000 5 info 42)
 
 add_test(ADM_set_io_resources_test ADM_set_io_resources ofi+tcp://127.0.0.1:52000 4 resources 42)
 
-add_test(ADM_set_qos_constraints_test ADM_set_qos_constraints ofi+tcp://127.0.0.1:52000 "dataset" "bandwith" 7 "iops")
+add_test(ADM_set_qos_constraints_test ADM_set_qos_constraints ofi+tcp://127.0.0.1:52000 dataset bandwith 7 iops)
 
 add_test(ADM_set_transfer_priority_test ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000 9 2)
 
 add_test(ADM_transfer_dataset_test ADM_transfer_dataset ofi+tcp://127.0.0.1:52000 /build/examples /build bandwith distribution 42)
 
-add_test(ADM_update_adhoc_storage_test ADM_update_adhoc_storage ofi+tcp://127.0.0.1:52000 9 2)
+add_test(ADM_update_adhoc_storage_test ADM_update_adhoc_storage ofi+tcp://127.0.0.1:52000 9)
 
 add_test(ADM_update_job_test ADM_update_job ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_update_pfs_storage_test ADM_update_pfs_storage ofi+tcp://127.0.0.1:52000 42)

@@ -22,10 +22,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(scord_ctl_private_rpcs STATIC)
-target_sources(scord_ctl_private_rpcs
-  PRIVATE private.cpp private.hpp)
+add_library(_rpc_types STATIC)
 
-target_include_directories(scord_ctl_private_rpcs INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(scord_ctl_private_rpcs PUBLIC common::logger Margo::Margo)
-set_property(TARGET scord_ctl_private_rpcs PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET _rpc_types PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+target_include_directories(_rpc_types PUBLIC ${CMAKE_SOURCE_DIR}/src/lib)
+target_sources(
+  _rpc_types
+  PRIVATE rpc_types.h rpc_types.c ${CMAKE_SOURCE_DIR}/src/lib/admire.h
+          ${CMAKE_SOURCE_DIR}/src/lib/admire_types.h
+)
+
+target_link_libraries(_rpc_types PRIVATE Mercury::Mercury Margo::Margo)
+

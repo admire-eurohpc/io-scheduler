@@ -24,8 +24,8 @@
 
 #include <admire.hpp>
 #include <network/engine.hpp>
+#include <network/proto/rpc_types.h>
 #include <logger/logger.hpp>
-#include "rpcs/public.hpp"
 #include "detail/impl.hpp"
 
 

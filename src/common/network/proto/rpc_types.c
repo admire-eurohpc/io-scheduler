@@ -22,11 +22,5 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_RPCS_PRIVATE_HPP
-#define SCORD_RPCS_PRIVATE_HPP
+#include "rpc_types.h"
 
-#include <margo.h>
-
-DECLARE_MARGO_RPC_HANDLER(ADM_ping);
-
-#endif // SCORD_RPCS_PRIVATE_HPP

@@ -24,7 +24,7 @@
 
 #include <tl/expected.hpp>
 #include <network/engine.hpp>
-#include "rpcs/public.hpp"
+#include <network/proto/rpc_types.h>
 #include "impl.hpp"
 
 void

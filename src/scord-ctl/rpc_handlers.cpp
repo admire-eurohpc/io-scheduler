@@ -23,7 +23,8 @@
  *****************************************************************************/
 
 #include <logger/logger.hpp>
-#include "private.hpp"
+#include <network/proto/rpc_types.h>
+#include "rpc_handlers.hpp"
 
 static void
 ADM_ping(hg_handle_t h) {

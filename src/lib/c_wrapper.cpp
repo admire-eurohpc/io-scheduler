@@ -25,6 +25,7 @@
 #include <admire.h>
 #include <admire.hpp>
 #include <logger/logger.hpp>
+#include <network/proto/rpc_types.h>
 #include "detail/impl.hpp"
 
 
@@ -35,91 +36,6 @@
 struct adm_server {
     const char* s_protocol;
     const char* s_address;
-};
-
-struct adm_node {
-    const char* n_hostname;
-};
-
-struct adm_dataset {
-    const char* d_id;
-};
-
-struct adm_job {
-    uint64_t j_id;
-};
-
-struct adm_qos_entity {
-    ADM_qos_scope_t e_scope;
-    union {
-        ADM_node_t e_node;
-        ADM_job_t e_job;
-        ADM_dataset_t e_dataset;
-        ADM_transfer_t e_transfer;
-    };
-};
-
-struct adm_qos_limit {
-    ADM_qos_entity_t l_entity;
-    ADM_qos_class_t l_class;
-    uint64_t l_value;
-};
-
-struct adm_transfer {
-    // TODO: empty for now
-};
-
-struct adm_dataset_info {
-    // TODO: empty for now
-};
-
-struct adm_storage {
-    const char* s_id;
-    ADM_storage_type_t s_type;
-    union {
-        ADM_adhoc_context_t s_adhoc_ctx;
-        ADM_pfs_context_t s_pfs_ctx;
-    };
-};
-
-struct adm_storage_resources {
-    // TODO: empty for now
-};
-
-struct adm_data_operation {
-    // TODO: empty for now
-};
-
-struct adm_adhoc_context {
-    /** The adhoc storage system execution mode */
-    ADM_adhoc_mode_t c_mode;
-    /** The adhoc storage system access type */
-    ADM_adhoc_access_t c_access;
-    /** The number of nodes for the adhoc storage system */
-    uint32_t c_nodes;
-    /** The adhoc storage system walltime */
-    uint32_t c_walltime;
-    /** Whether the adhoc storage system should flush data in the background */
-    bool c_should_bg_flush;
-};
-
-struct adm_pfs_context {
-    /** The PFS mount point */
-    const char* c_mount;
-};
-
-/** The I/O requirements for a job */
-struct adm_job_requirements {
-    /** An array of input datasets */
-    ADM_dataset_t* r_inputs;
-    /** The number of datasets in r_inputs */
-    size_t r_num_inputs;
-    /** A list of output datasets */
-    ADM_dataset_t* r_outputs;
-    /** The number of datasets in r_outputs */
-    size_t r_num_outputs;
-    /** An optional definition for a specific adhoc storage instance */
-    ADM_adhoc_context_t r_adhoc_ctx;
 };
 
 ADM_server_t

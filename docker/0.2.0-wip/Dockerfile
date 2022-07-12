@@ -59,6 +59,7 @@ RUN apt-get update && \
     git clone https://github.com/mercury-hpc/mercury --recurse-submodules && \
     git clone https://github.com/mochi-hpc/mochi-margo --recurse-submodules && \
     git clone https://github.com/sewenew/redis-plus-plus --recurse-submodules && \
+    git clone https://github.com/francielizanon/agios --recurse-submodules && \
     export LD_LIBRARY_PATH=${INSTALL_PATH}/lib:${INSTALL_PATH}/lib64 && \
     export PKG_CONFIG_PATH=${INSTALL_PATH}/lib/pkgconfig:${INSTALL_PATH}/lib64/pkgconfig && \
     cd && \
@@ -96,6 +97,14 @@ RUN apt-get update && \
     make -j install && \
     cd && \
     cd deps/redis-plus-plus && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} .. && \
+    make install -j && \
+    cd ../../ && \
+    cd && \
+    cd deps/agios && \
+    git checkout development && \
     mkdir build && \
     cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} .. && \

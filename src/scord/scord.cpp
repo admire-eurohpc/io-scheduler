@@ -37,6 +37,8 @@
 #include <config/settings.hpp>
 #include "rpc_handlers.hpp"
 
+#include <agios.h>
+
 namespace fs = std::filesystem;
 namespace bpo = boost::program_options;
 

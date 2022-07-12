@@ -23,18 +23,18 @@ main(int argc, char* argv[]) {
     try {
         ret = admire::set_io_resources(server, job, tier, resources);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
+        fmt::print(stderr, "FATAL: ADM_set_io_resources() failed: {}\n",
                    e.what());
         exit(EXIT_FAILURE);
     }
 
     if(ret != ADM_SUCCESS) {
         fmt::print(stdout,
-                   "ADM_cancel_transfer() remote procedure not completed "
+                   "ADM_set_io_resources() remote procedure not completed "
                    "successfully\n");
         exit(EXIT_FAILURE);
     }
 
-    fmt::print(stdout, "ADM_cancel_transfer() remote procedure completed "
+    fmt::print(stdout, "ADM_set_io_resources() remote procedure completed "
                        "successfully\n");
 }

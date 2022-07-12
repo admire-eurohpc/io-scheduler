@@ -58,6 +58,7 @@ namespace detail {
         }                                                                      \
     }
 
+#define _handler_for___null NULL
 
 struct margo_context {
 

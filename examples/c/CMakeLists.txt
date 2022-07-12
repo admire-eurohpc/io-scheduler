@@ -22,7 +22,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-list(APPEND examples_c ADM_register_job)
+list(APPEND examples_c ADM_register_job ADM_cancel_transfer ADM_connect_data_operation ADM_define_data_operation)
 
 foreach(example IN LISTS examples_c)
   add_executable(${example}_c)
@@ -34,3 +34,9 @@ endforeach()
 enable_testing()
 
 add_test(ADM_register_job_test ADM_register_job ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_cancel_transfer_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 42)
+
+add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 /tmp true arguments 10)
+
+add_test(ADM_define_data_operation_test ADM_define_data_operation ofi+tcp://127.0.0.1:52000 /tmp 42 arguments)

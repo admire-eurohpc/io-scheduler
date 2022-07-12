@@ -43,3 +43,5 @@ target_sources(
 )
 
 target_link_libraries(_rpc_server PUBLIC common::config _network_engine)
+
+add_subdirectory(proto)

@@ -22,15 +22,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-# target for the public rpcs defined by the API that need to be shared by scord
-add_library(api_rpcs STATIC)
-target_sources(api_rpcs
-  PRIVATE rpcs/public.cpp rpcs/public.hpp)
-
-target_include_directories(api_rpcs INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/rpcs)
-target_link_libraries(api_rpcs PUBLIC common::logger Margo::Margo)
-set_property(TARGET api_rpcs PROPERTY POSITION_INDEPENDENT_CODE ON)
-
 # the client library implementing the actual API
 add_library(adm_iosched SHARED)
 
@@ -40,7 +31,7 @@ target_sources(adm_iosched
 
 target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(adm_iosched PRIVATE common::network::engine api_rpcs PUBLIC
+target_link_libraries(adm_iosched PRIVATE common::network::engine common::network::rpc_types PUBLIC
   tl::expected)
 
 install(

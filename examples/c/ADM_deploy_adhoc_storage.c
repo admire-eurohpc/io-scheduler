@@ -18,7 +18,8 @@ main(int argc, char* argv[]) {
     ADM_job_t job;
     ADM_storage_t adhoc_storage;
 
-    ADM_return_t ret = ADM_SUCCESS;
+    ADM_return_t ret = ADM_deploy_adhoc_storage(server, job,
+                         adhoc_storage);
 
 
     if(ret != ADM_SUCCESS) {

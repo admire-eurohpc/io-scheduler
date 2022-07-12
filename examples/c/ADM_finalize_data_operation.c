@@ -5,9 +5,10 @@
 int
 main(int argc, char* argv[]) {
 
-        if(argc != 3) {
+    if(argc != 3) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_finalize_data_operation <REMOTE_IP> <OPERATION_ID>\n");
+        fprintf(stderr,
+                "Usage: ADM_finalize_data_operation <REMOTE_IP> <OPERATION_ID>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -18,12 +19,14 @@ main(int argc, char* argv[]) {
     ADM_data_operation_t op_handle;
     ADM_data_operation_status_t status;
 
-    ADM_return_t ret = ADM_SUCCESS;
+    ADM_return_t ret =
+            ADM_finalize_data_operation(server, job, op_handle, &status);
 
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_finalize_data_operation() remote procedure not completed "
-                        "successfully\n");
+        fprintf(stdout,
+                "ADM_finalize_data_operation() remote procedure not completed "
+                "successfully\n");
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }

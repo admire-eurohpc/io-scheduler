@@ -18,7 +18,8 @@ main(int argc, char* argv[]) {
     ADM_qos_entity_t entity;
     ADM_qos_limit_t* limits;
 
-    ADM_return_t ret = ADM_SUCCESS;
+    ADM_return_t ret = ADM_get_qos_constraints(server, job,
+                        entity, &limits);;
 
 
     if(ret != ADM_SUCCESS) {

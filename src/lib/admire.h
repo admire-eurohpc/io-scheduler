@@ -28,7 +28,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "types.h"
+#include "admire_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,7 +44,7 @@ extern "C" {
 /* Public type definitions and type-related functions                         */
 /******************************************************************************/
 
-// See types.h
+// See admire_types.h
 
 
 /******************************************************************************/

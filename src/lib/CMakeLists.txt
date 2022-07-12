@@ -35,7 +35,7 @@ set_property(TARGET api_rpcs PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_library(adm_iosched SHARED)
 
 target_sources(adm_iosched
-  PUBLIC admire.h types.h admire.hpp
+  PUBLIC admire.h admire_types.h admire.hpp
   PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp errors.c)
 
 target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

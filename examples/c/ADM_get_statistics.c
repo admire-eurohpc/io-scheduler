@@ -17,7 +17,7 @@ main(int argc, char* argv[]) {
     ADM_job_t job;
     ADM_job_stats_t* stats = NULL;
 
-    ADM_return_t ret = ADM_SUCCESS;
+    ADM_return_t ret = ADM_get_statistics(server, job, &stats);
 
 
     if(ret != ADM_SUCCESS) {

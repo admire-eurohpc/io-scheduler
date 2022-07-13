@@ -18,10 +18,11 @@ main(int argc, char* argv[]) {
     ADM_data_operation_t op_handle{};
     bool should_stream = false;
     va_list args;
+    ADM_transfer_t transfer;
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::link_transfer_to_data_operation(server, job, op_handle,
+        ret = admire::link_transfer_to_data_operation(server, job, op_handle, transfer,
                                                       should_stream, args);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",

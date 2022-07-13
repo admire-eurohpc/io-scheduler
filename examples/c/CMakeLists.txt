@@ -24,7 +24,7 @@
 
 list(APPEND examples_c ADM_register_job ADM_cancel_transfer ADM_connect_data_operation ADM_define_data_operation
   ADM_deploy_adhoc_storage ADM_finalize_data_operation ADM_get_pending_transfers ADM_get_qos_constraints
-  ADM_get_statistics ADM_get_transfer_priority #ADM_link_transfer_to_data_operation
+  ADM_get_statistics ADM_get_transfer_priority ADM_link_transfer_to_data_operation
   ADM_register_adhoc_storage ADM_remove_adhoc_storage ADM_remove_job ADM_set_dataset_information
   ADM_set_io_resources ADM_set_qos_constraints ADM_set_transfer_priority ADM_transfer_dataset
   ADM_update_adhoc_storage ADM_update_job)
@@ -60,7 +60,7 @@ add_test(ADM_get_statistics_test ADM_get_statistics ofi+tcp://127.0.0.1:52000 42
 
 add_test(ADM_get_transfer_priority_test ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000 8)
 
-#add_test(ADM_link_transfer_to_data_operation_test ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 8 2 dataset arguments 42)
+add_test(ADM_link_transfer_to_data_operation_test ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 8 2 dataset arguments 42)
 
 add_test(ADM_register_adhoc_storage_test ADM_register_adhoc_storage ofi+tcp://127.0.0.1:52000 42)
 

@@ -103,16 +103,40 @@ ADM_dataset_t
 ADM_dataset_create(const char* id) {
 
     struct adm_dataset* adm_dataset =
-            (struct adm_dataset*) malloc(sizeof(struct adm_dataset));
+            (struct adm_dataset*) calloc(1, sizeof(struct adm_dataset));
 
     if(!adm_dataset) {
         LOGGER_ERROR("Could not allocate ADM_dataset_t")
         return NULL;
     }
 
-    adm_dataset->d_id = id;
+    if(id) {
+        size_t n = strlen(id);
+        adm_dataset->d_id = (const char*) calloc(n + 1, sizeof(char));
+        strncpy((char*) adm_dataset->d_id, id, n);
+    }
 
     return adm_dataset;
+}
+
+ADM_dataset_t
+ADM_dataset_copy(ADM_dataset_t dst, const ADM_dataset_t src) {
+
+    if(!src || !dst) {
+        return NULL;
+    }
+
+    // copy all primitive types
+    *dst = *src;
+
+    // duplicate copy any pointer types
+    if(src->d_id) {
+        size_t n = strlen(src->d_id);
+        dst->d_id = (const char*) calloc(n + 1, sizeof(char));
+        strncpy((char*) dst->d_id, src->d_id, n);
+    }
+
+    return dst;
 }
 
 ADM_return_t
@@ -122,6 +146,10 @@ ADM_dataset_destroy(ADM_dataset_t dataset) {
     if(!dataset) {
         LOGGER_ERROR("Invalid ADM_dataset_t")
         return ADM_EBADARGS;
+    }
+
+    if(dataset->d_id) {
+        free((void*) dataset->d_id);
     }
 
     free(dataset);
@@ -230,6 +258,74 @@ ADM_dataset_info_destroy(ADM_dataset_info_t dataset_info) {
     }
 
     free(dataset_info);
+    return ret;
+}
+
+ADM_dataset_list_t
+ADM_dataset_list_create(ADM_dataset_t datasets[], size_t length) {
+
+    ADM_dataset_list_t p = (ADM_dataset_list_t) malloc(sizeof(*p));
+
+    if(!p) {
+        LOGGER_ERROR("Could not allocate ADM_dataset_list_t")
+        return NULL;
+    }
+
+    const char* error_msg = NULL;
+
+    p->l_length = length;
+    p->l_datasets = (struct adm_dataset*) calloc(length, sizeof(adm_dataset));
+
+    if(!p->l_datasets) {
+        error_msg = "Could not allocate ADM_dataset_list_t";
+        goto cleanup_on_error;
+    }
+
+    for(size_t i = 0; i < length; ++i) {
+        if(!ADM_dataset_copy(&p->l_datasets[i], datasets[i])) {
+            error_msg = "Could not allocate ADM_dataset_list_t";
+            goto cleanup_on_error;
+        };
+
+        fprintf(stderr, "o: %s -> %s\n", datasets[i]->d_id,
+                p->l_datasets[i].d_id);
+    }
+
+    return p;
+
+cleanup_on_error:
+    if(p->l_datasets) {
+        free(p->l_datasets);
+    }
+    free(p);
+
+    if(error_msg) {
+        LOGGER_ERROR(error_msg);
+    }
+
+    return NULL;
+}
+
+ADM_return_t
+ADM_dataset_list_destroy(ADM_dataset_list_t list) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!list) {
+        LOGGER_ERROR("Invalid ADM_pfs_context_t")
+        return ADM_EBADARGS;
+    }
+
+    // We cannot call ADM_dataset_destroy here because adm_datasets
+    // are stored as a consecutive array in memory. Thus, we free
+    // the dataset ids themselves and then the array.
+    if(list->l_datasets) {
+        for(size_t i = 0; i < list->l_length; ++i) {
+            free((void*) list->l_datasets[i].d_id);
+        }
+        free(list->l_datasets);
+    }
+
+    free(list);
     return ret;
 }
 
@@ -426,24 +522,62 @@ ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
         return NULL;
     }
 
-    adm_job_reqs->r_inputs = inputs;
-    adm_job_reqs->r_num_inputs = inputs_len;
-    adm_job_reqs->r_outputs = outputs;
-    adm_job_reqs->r_num_outputs = outputs_len;
-    adm_job_reqs->r_adhoc_ctx = NULL;
+    ADM_dataset_list_t inputs_list = NULL;
+    ADM_dataset_list_t outputs_list = NULL;
+    const char* error_msg = NULL;
 
-    if(storage) {
-        if(storage->s_type != ADM_STORAGE_GEKKOFS &&
-           storage->s_type != ADM_STORAGE_DATACLAY &&
-           storage->s_type != ADM_STORAGE_EXPAND &&
-           storage->s_type != ADM_STORAGE_HERCULES) {
-            LOGGER_ERROR("Invalid adhoc_storage")
-            return NULL;
-        }
-        adm_job_reqs->r_adhoc_ctx = storage->s_adhoc_ctx;
+    inputs_list = ADM_dataset_list_create(inputs, inputs_len);
+
+    if(!inputs_list) {
+        error_msg = "Could not allocate ADM_job_requirements_t";
+        goto cleanup_on_error;
     }
 
+    outputs_list = ADM_dataset_list_create(outputs, outputs_len);
+
+    if(!outputs_list) {
+        error_msg = "Could not allocate ADM_job_requirements_t";
+        goto cleanup_on_error;
+    }
+
+    adm_job_reqs->r_inputs = inputs_list;
+    adm_job_reqs->r_outputs = outputs_list;
+
+    if(!storage) {
+        adm_job_reqs->r_adhoc_ctx = NULL;
+        return adm_job_reqs;
+    }
+
+    if(storage->s_type != ADM_STORAGE_GEKKOFS &&
+       storage->s_type != ADM_STORAGE_DATACLAY &&
+       storage->s_type != ADM_STORAGE_EXPAND &&
+       storage->s_type != ADM_STORAGE_HERCULES) {
+        error_msg = "Invalid adhoc_storage argument";
+        goto cleanup_on_error;
+    }
+    adm_job_reqs->r_adhoc_ctx = storage->s_adhoc_ctx;
+
     return adm_job_reqs;
+
+cleanup_on_error:
+
+    if(outputs_list) {
+        ADM_dataset_list_destroy(outputs_list);
+    }
+
+    if(inputs_list) {
+        ADM_dataset_list_destroy(inputs_list);
+    }
+
+    if(adm_job_reqs) {
+        ADM_job_requirements_destroy(adm_job_reqs);
+    }
+
+    if(error_msg) {
+        LOGGER_ERROR(error_msg);
+    }
+
+    return NULL;
 }
 
 ADM_return_t
@@ -453,6 +587,14 @@ ADM_job_requirements_destroy(ADM_job_requirements_t reqs) {
     if(!reqs) {
         LOGGER_ERROR("Invalid ADM_job_requirements_t")
         return ADM_EBADARGS;
+    }
+
+    if(reqs->r_inputs) {
+        ADM_dataset_list_destroy(reqs->r_inputs);
+    }
+
+    if(reqs->r_outputs) {
+        ADM_dataset_list_destroy(reqs->r_outputs);
     }
 
     free(reqs);

@@ -196,21 +196,35 @@ MERCURY_GEN_STRUCT_PROC(
 );
 // clang-format on
 
+struct adm_dataset_list {
+    /** An array of datasets */
+    adm_dataset* l_datasets;
+    /** The length of the array */
+    size_t l_length;
+};
+
+hg_return_t
+hg_proc_ADM_dataset_list_t(hg_proc_t proc, void* data);
+
+
 /** The I/O requirements for a job */
 typedef struct adm_job_requirements {
     /** An array of input datasets */
-    ADM_dataset_t* r_inputs;
-    /** The number of datasets in r_inputs */
-    size_t r_num_inputs;
-    /** A list of output datasets */
-    ADM_dataset_t* r_outputs;
-    /** The number of datasets in r_outputs */
-    size_t r_num_outputs;
+    ADM_dataset_list_t r_inputs;
+    /** An array of output datasets */
+    ADM_dataset_list_t r_outputs;
     /** An optional definition for a specific adhoc storage instance */
-    ADM_adhoc_context_t r_adhoc_ctx;
+    adm_adhoc_context* r_adhoc_ctx;
 } adm_job_requirements;
 
-// TODO: MERCURY_GEN_STRUCT_PROC
+// clang-format off
+MERCURY_GEN_STRUCT_PROC(
+    adm_job_requirements,
+        ((ADM_dataset_list_t) (r_inputs))
+        ((ADM_dataset_list_t) (r_outputs))
+        ((adm_adhoc_context) (r_adhoc_ctx))
+);
+// clang-format on
 
 
 /// ADM_register_job

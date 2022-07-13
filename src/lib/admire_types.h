@@ -88,6 +88,9 @@ typedef struct adm_dataset* ADM_dataset_t;
 /** Information about a dataset */
 typedef struct adm_dataset_info* ADM_dataset_info_t;
 
+/** A list of datasets */
+typedef struct adm_dataset_list* ADM_dataset_list_t;
+
 
 /* ----------------------------------------------------- */
 /*              Storage tiers                            */
@@ -318,6 +321,29 @@ ADM_dataset_info_create();
  */
 ADM_return_t
 ADM_dataset_info_destroy(ADM_dataset_info_t dataset_info);
+
+/**
+ * Create a dataset list from an array of ADM_DATASETs and its
+ * length.
+ *
+ * @remark Dataset lists need to be freed by calling ADM_dataset_list_destroy().
+ *
+ * @param[in] datasets The array of datasets.
+ * @param[in] len The length of the array.
+ * @return A valid ADM_dataset_list_t if successful or NULL in case of
+ * failure.
+ */
+ADM_dataset_list_t
+ADM_dataset_list_create(ADM_dataset_t datasets[], size_t len);
+
+/**
+ * Destroy a dataset list created by ADM_dataset_list_create().
+ *
+ * @param[in] list A valid ADM_dataset_list_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_dataset_list_destroy(ADM_dataset_list_t list);
 
 
 /* ----------------------------------------------------- */

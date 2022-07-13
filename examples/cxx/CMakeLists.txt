@@ -97,7 +97,7 @@ add_test(ADM_register_job_test ADM_register_job ofi+tcp://127.0.0.1:52000 42)
 add_test(ADM_register_job_test_fail_a ADM_register_job ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_register_job_test_fail_a PROPERTIES WILL_FAIL TRUE)
 
-add_test(ADM_register_pfs_storage_test ADM_register_pfs_storage ofi+tcp://127.0.0.1:52000)
+#add_test(ADM_register_pfs_storage_test ADM_register_pfs_storage ofi+tcp://127.0.0.1:52000)
 add_test(ADM_register_pfs_storage_test_fail_a ADM_register_pfs_storage)
 set_tests_properties(ADM_register_pfs_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)
 
@@ -109,7 +109,7 @@ add_test(ADM_remove_job_test ADM_remove_job ofi+tcp://127.0.0.1:52000 42)
 add_test(ADM_remove_job_test_fail_a ADM_remove_job ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_remove_job_test_fail_a PROPERTIES WILL_FAIL TRUE)
 
-add_test(ADM_remove_pfs_storage_test ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000 42)
+#add_test(ADM_remove_pfs_storage_test ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000 42)
 add_test(ADM_remove_pfs_storage_test_fail_a ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_remove_pfs_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)
 
@@ -141,6 +141,6 @@ add_test(ADM_update_job_test ADM_update_job ofi+tcp://127.0.0.1:52000 42)
 add_test(ADM_update_job_test_fail_a ADM_update_job ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_update_job_test_fail_a PROPERTIES WILL_FAIL TRUE)
 
-add_test(ADM_update_pfs_storage_test ADM_update_pfs_storage ofi+tcp://127.0.0.1:52000 42)
+#add_test(ADM_update_pfs_storage_test ADM_update_pfs_storage ofi+tcp://127.0.0.1:52000 42)
 add_test(ADM_update_pfs_storage_test_fail_a ADM_update_pfs_storage ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_update_pfs_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)

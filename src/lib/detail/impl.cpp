@@ -171,7 +171,7 @@ register_job(const admire::server& srv, ADM_job_requirements_t reqs) {
 
     LOGGER_INFO("ADM_register_job(...)");
 
-    ADM_register_job_in_t in{};
+    ADM_register_job_in_t in{*reqs};
     ADM_register_job_out_t out;
 
     endp.call("ADM_register_job", &in, &out);

@@ -25,7 +25,7 @@ main(int argc, char* argv[]) {
         const char* pattern = "input-dataset-%d";
         size_t n = snprintf(NULL, 0, pattern, i);
         char* id = (char*) malloc(n + 1);
-        snprintf(id, n, pattern, i);
+        snprintf(id, n + 1, pattern, i);
         inputs[i] = ADM_dataset_create(id);
     }
 
@@ -35,7 +35,7 @@ main(int argc, char* argv[]) {
         const char* pattern = "output-dataset-%d";
         size_t n = snprintf(NULL, 0, pattern, i);
         char* id = (char*) malloc(n + 1);
-        snprintf(id, n, pattern, i);
+        snprintf(id, n + 1, pattern, i);
         outputs[i] = ADM_dataset_create(id);
     }
 

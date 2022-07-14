@@ -38,9 +38,13 @@ project(
 # Set default build type and also populate a list of available options
 get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
-if (NOT is_multi_config)
+if (is_multi_config)
+  if(NOT "ASan" IN_LIST CMAKE_CONFIGURATION_TYPES)
+    list(APPEND CMAKE_CONFIGURATION_TYPES ASan)
+  endif()
+elseif (NOT is_multi_config)
   set(default_build_type "Release")
-  set(allowed_build_types Debug Release MinSizeRel RelWithDebInfo)
+  set(allowed_build_types ASan Debug Release MinSizeRel RelWithDebInfo)
 
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${allowed_build_types}")
 
@@ -50,9 +54,31 @@ if (NOT is_multi_config)
       CACHE STRING "Choose the type of build." FORCE
       )
   elseif (NOT CMAKE_BUILD_TYPE IN_LIST allowed_build_types)
-    message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+    message(WARNING "Unknown build type '${CMAKE_BUILD_TYPE}'. "
+      "Defaulting to '${default_build_type}'")
+    set(CMAKE_BUILD_TYPE "${default_build_type}"
+      CACHE STRING "Choose the type of build." FORCE
+      )
   endif ()
 endif ()
+
+# define the desired flags for the ASan build type
+set(CMAKE_C_FLAGS_ASAN
+    "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING
+    "Flags used by the C compiler for ASan build type or configuration." FORCE)
+
+set(CMAKE_CXX_FLAGS_ASAN
+    "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING
+    "Flags used by the C++ compiler for ASan build type or configuration." FORCE)
+
+set(CMAKE_EXE_LINKER_FLAGS_ASAN
+    "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING
+    "Linker flags to be used to create executables for ASan build type." FORCE)
+
+set(CMAKE_SHARED_LINKER_FLAGS_ASAN
+    "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING
+    "Linker lags to be used to create shared libraries for ASan build type." FORCE)
+
 
 # make sure that debug versions for targets are used (if provided) in Debug mode
 set_property(GLOBAL APPEND PROPERTY DEBUG_CONFIGURATIONS Debug)

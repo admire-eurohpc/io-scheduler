@@ -64,7 +64,8 @@ hg_proc_ADM_dataset_list_t(hg_proc_t proc, void* data) {
             }
 
             // loop and create list elements
-            tmp = (ADM_dataset_list_t) calloc(1, sizeof(struct adm_dataset_list));
+            tmp = (ADM_dataset_list_t) calloc(1,
+                                              sizeof(struct adm_dataset_list));
             tmp->l_length = length;
             tmp->l_datasets =
                     (adm_dataset*) calloc(length, sizeof(adm_dataset));
@@ -86,6 +87,77 @@ hg_proc_ADM_dataset_list_t(hg_proc_t proc, void* data) {
         case HG_FREE:
             tmp = *list;
             free(tmp->l_datasets);
+            free(tmp);
+            ret = HG_SUCCESS;
+            break;
+    }
+
+    return ret;
+}
+
+hg_return_t
+hg_proc_ADM_adhoc_context_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_adhoc_context_t* ctx = (ADM_adhoc_context_t*) data;
+    ADM_adhoc_context_t tmp = NULL;
+    hg_size_t ctx_length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            // find out the length of the context
+            ctx_length = *ctx ? sizeof(adm_adhoc_context) : 0;
+            ret = hg_proc_hg_size_t(proc, &ctx_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!ctx_length) {
+                return HG_SUCCESS;
+            }
+
+            // if not NULL, write the context
+            tmp = *ctx;
+            ret = hg_proc_adm_adhoc_context(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            break;
+
+        case HG_DECODE: {
+
+            // find out the length of the context
+            ret = hg_proc_hg_size_t(proc, &ctx_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!ctx_length) {
+                *ctx = NULL;
+                break;
+            }
+
+            // if not NULL, read the context
+            tmp = (ADM_adhoc_context_t) calloc(
+                    1, sizeof(struct adm_adhoc_context));
+            ret = hg_proc_adm_adhoc_context(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // return the newly-created ctx
+            *ctx = tmp;
+            break;
+        }
+
+        case HG_FREE:
+            tmp = *ctx;
             free(tmp);
             ret = HG_SUCCESS;
             break;

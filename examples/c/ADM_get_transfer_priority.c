@@ -24,8 +24,9 @@ main(int argc, char* argv[]) {
 
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_get_transfer_priority() remote procedure not completed "
-                        "successfully\n");
+        fprintf(stdout,
+                "ADM_get_transfer_priority() remote procedure not completed "
+                "successfully\n");
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }

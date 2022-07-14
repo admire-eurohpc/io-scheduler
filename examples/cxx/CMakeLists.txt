@@ -51,6 +51,8 @@ add_test(ADM_ping_test ADM_ping ofi+tcp://127.0.0.1:52000)
 add_test(ADM_cancel_transfer_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 42)
 add_test(ADM_cancel_transfer_test_fail ADM_cancel_transfer ofi+tcp://127.0.0.1:52000)
 set_tests_properties(ADM_cancel_transfer_test_fail PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_cancel_transfer_test_fail_i ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 42 hi)
+set_tests_properties(ADM_cancel_transfer_test_fail_i PROPERTIES WILL_FAIL TRUE)
 
 
 add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 /tmp true arguments 10)

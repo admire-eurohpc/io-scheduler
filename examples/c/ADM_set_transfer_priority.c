@@ -18,8 +18,7 @@ main(int argc, char* argv[]) {
     ADM_job_t job;
     ADM_transfer_t tx_handle;
     int incr = 42;
-    ADM_return_t ret = ADM_set_transfer_priority(server, job,
-                          tx_handle, incr);
+    ADM_return_t ret = ADM_set_transfer_priority(server, job, tx_handle, incr);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

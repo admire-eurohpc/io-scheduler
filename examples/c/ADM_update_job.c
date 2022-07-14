@@ -41,13 +41,11 @@ main(int argc, char* argv[]) {
 
     ADM_job_requirements_t reqs = ADM_job_requirements_create(
             inputs, NINPUTS, outputs, NOUTPUTS, NULL);
-    ADM_return_t ret =
-            ADM_update_job(server, job, reqs);
+    ADM_return_t ret = ADM_update_job(server, job, reqs);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout,
-                "ADM_update_job() remote procedure not completed "
-                "successfully\n");
+        fprintf(stdout, "ADM_update_job() remote procedure not completed "
+                        "successfully\n");
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }

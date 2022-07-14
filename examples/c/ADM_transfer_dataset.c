@@ -26,9 +26,8 @@ main(int argc, char* argv[]) {
                                             limits, mapping, &tx_handle);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout,
-                "ADM_transfer_dataset() remote procedure not completed "
-                "successfully\n");
+        fprintf(stdout, "ADM_transfer_dataset() remote procedure not completed "
+                        "successfully\n");
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }

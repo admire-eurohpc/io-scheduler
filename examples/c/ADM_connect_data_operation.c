@@ -12,8 +12,7 @@ string_to_convert(s) {
     } else if(s == "false" || s == "FALSE" || s == "False") {
         return false;
     } else {
-        fprintf(stderr,
-                "ERROR: Incorrect input value. Please try again.\n");
+        fprintf(stderr, "ERROR: Incorrect input value. Please try again.\n");
         exit(EXIT_FAILURE);
     }
 }
@@ -21,9 +20,10 @@ string_to_convert(s) {
 int
 main(int argc, char* argv[]) {
 
-        if(argc != 7) {
+    if(argc != 7) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_connect_data_operation <REMOTE_IP> <OPERATION_ID> <INPUT> <STREAM> <ARGUMENTS> <JOB_ID>\n");
+        fprintf(stderr,
+                "Usage: ADM_connect_data_operation <REMOTE_IP> <OPERATION_ID> <INPUT> <STREAM> <ARGUMENTS> <JOB_ID>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -53,14 +53,14 @@ main(int argc, char* argv[]) {
 
     bool should_stream = false;
     va_list args; // FIXME placeholder
-    ADM_return_t ret = ADM_connect_data_operation( server,  job,
-                            inputs,  outputs,
-                            should_stream);
+    ADM_return_t ret = ADM_connect_data_operation(server, job, inputs, outputs,
+                                                  should_stream);
 
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_connect_data_operation() remote procedure not completed "
-                        "successfully\n");
+        fprintf(stdout,
+                "ADM_connect_data_operation() remote procedure not completed "
+                "successfully\n");
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }

@@ -5,9 +5,10 @@
 int
 main(int argc, char* argv[]) {
 
-        if(argc != 5) {
+    if(argc != 5) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_set_dataset_information <REMOTE_IP> <RESOURCE_ID> <INFO> <JOB_ID>\n");
+        fprintf(stderr,
+                "Usage: ADM_set_dataset_information <REMOTE_IP> <RESOURCE_ID> <INFO> <JOB_ID>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -17,12 +18,12 @@ main(int argc, char* argv[]) {
     ADM_job_t job;
     ADM_dataset_t target;
     ADM_dataset_info_t info;
-    ADM_return_t ret = ADM_set_dataset_information(server, job,
-                            target, info);
+    ADM_return_t ret = ADM_set_dataset_information(server, job, target, info);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_set_dataset_information() remote procedure not completed "
-                        "successfully\n");
+        fprintf(stdout,
+                "ADM_set_dataset_information() remote procedure not completed "
+                "successfully\n");
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }

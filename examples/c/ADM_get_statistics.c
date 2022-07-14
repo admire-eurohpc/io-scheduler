@@ -5,9 +5,10 @@
 int
 main(int argc, char* argv[]) {
 
-        if(argc != 4) {
+    if(argc != 4) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_get_statistics <REMOTE_IP> <JOB_ID> <JOB_STEP>\n");
+        fprintf(stderr,
+                "Usage: ADM_get_statistics <REMOTE_IP> <JOB_ID> <JOB_STEP>\n");
         exit(EXIT_FAILURE);
     }
 

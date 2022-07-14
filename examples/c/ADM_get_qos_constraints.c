@@ -5,9 +5,10 @@
 int
 main(int argc, char* argv[]) {
 
-        if(argc != 4) {
+    if(argc != 4) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_get_qos_constraints <REMOTE_IP> <SCOPE> <ELEMENT_ID>\n");
+        fprintf(stderr,
+                "Usage: ADM_get_qos_constraints <REMOTE_IP> <SCOPE> <ELEMENT_ID>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -18,8 +19,8 @@ main(int argc, char* argv[]) {
     ADM_qos_entity_t entity;
     ADM_qos_limit_t* limits;
 
-    ADM_return_t ret = ADM_get_qos_constraints(server, job,
-                        entity, &limits);;
+    ADM_return_t ret = ADM_get_qos_constraints(server, job, entity, &limits);
+    ;
 
 
     if(ret != ADM_SUCCESS) {

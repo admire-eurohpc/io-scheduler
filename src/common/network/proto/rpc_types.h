@@ -206,6 +206,8 @@ struct adm_dataset_list {
 hg_return_t
 hg_proc_ADM_dataset_list_t(hg_proc_t proc, void* data);
 
+hg_return_t
+hg_proc_ADM_adhoc_context_t(hg_proc_t proc, void* data);
 
 /** The I/O requirements for a job */
 typedef struct adm_job_requirements {
@@ -222,7 +224,7 @@ MERCURY_GEN_STRUCT_PROC(
     adm_job_requirements,
         ((ADM_dataset_list_t) (r_inputs))
         ((ADM_dataset_list_t) (r_outputs))
-        ((adm_adhoc_context) (r_adhoc_ctx))
+        ((ADM_adhoc_context_t) (r_adhoc_ctx))
 );
 // clang-format on
 

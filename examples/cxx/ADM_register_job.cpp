@@ -1,19 +1,33 @@
 #include <fmt/format.h>
 #include <admire.hpp>
 
+#define NINPUTS  10
+#define NOUTPUTS 5
 
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 3) {
-        fmt::print(stderr, "ERROR: no location provided\n");
-        fmt::print(stderr, "Usage: ADM_register_job <REMOTE_IP> <JOB_REQS>\n");
+    if(argc != 2) {
+        fmt::print(stderr, "ERROR: no server address provided\n");
+        fmt::print(stderr, "Usage: ADM_register_job <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_requirements_t reqs{};
+    std::vector<admire::dataset> inputs;
+    inputs.reserve(NINPUTS);
+    for(int i = 0; i < NINPUTS; ++i) {
+        inputs.emplace_back(fmt::format("input-dataset-{}", i));
+    }
+
+    std::vector<admire::dataset> outputs;
+    outputs.reserve(NOUTPUTS);
+    for(int i = 0; i < NOUTPUTS; ++i) {
+        outputs.emplace_back(fmt::format("output-dataset-{}", i));
+    }
+
+    admire::job_requirements reqs{inputs, outputs};
 
     try {
 

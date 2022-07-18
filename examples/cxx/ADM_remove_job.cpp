@@ -13,7 +13,7 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_t job{};
+    admire::job job{42};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {

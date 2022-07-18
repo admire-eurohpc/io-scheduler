@@ -24,8 +24,11 @@
 
 #include <admire.h>
 #include <tl/expected.hpp>
+#include <optional>
 #include <cstdarg>
 #include <string>
+#include <utility>
+#include "network/proto/rpc_types.h"
 
 #ifndef SCORD_ADMIRE_HPP
 #define SCORD_ADMIRE_HPP
@@ -43,14 +46,64 @@ struct job {
     job_id m_id;
 };
 
+struct dataset {
+    explicit dataset(std::string id) : m_id(std::move(id)) {}
+    std::string m_id;
+};
+
+namespace storage::adhoc {
+
+enum class execution_mode : std::underlying_type<ADM_adhoc_mode_t>::type {
+    in_job_shared = ADM_ADHOC_MODE_IN_JOB_SHARED,
+    in_job_dedicated = ADM_ADHOC_MODE_IN_JOB_DEDICATED,
+    separate_new = ADM_ADHOC_MODE_SEPARATE_NEW,
+    separate_existing = ADM_ADHOC_MODE_SEPARATE_EXISTING
+};
+
+enum class access_mode : std::underlying_type<ADM_adhoc_mode_t>::type {
+    read_only = ADM_ADHOC_ACCESS_RDONLY,
+    write_only = ADM_ADHOC_ACCESS_WRONLY,
+    read_write = ADM_ADHOC_ACCESS_RDWR,
+};
+
+struct context {
+    execution_mode m_exec_mode;
+    access_mode m_access_mode;
+    std::uint32_t m_nodes;
+    std::uint32_t m_walltime;
+    bool m_should_flush;
+};
+
+} // namespace storage::adhoc
+
+struct job_requirements {
+
+    job_requirements(std::vector<admire::dataset> inputs,
+                     std::vector<admire::dataset> outputs);
+
+    job_requirements(std::vector<admire::dataset> inputs,
+                     std::vector<admire::dataset> outputs,
+                     std::optional<storage::adhoc::context> adhoc_context);
+
+    explicit job_requirements(ADM_job_requirements_t reqs);
+
+    ADM_job_requirements_t
+    to_rpc_type() const;
+
+    std::vector<admire::dataset> m_inputs;
+    std::vector<admire::dataset> m_outputs;
+    std::optional<storage::adhoc::context> m_adhoc_context;
+};
+
+
 void
 ping(const server& srv);
 
 admire::job
-register_job(const server& srv, ADM_job_requirements_t reqs);
+register_job(const server& srv, const job_requirements& reqs);
 
 ADM_return_t
-update_job(const server& srv, ADM_job_t job, ADM_job_requirements_t reqs);
+update_job(const server& srv, ADM_job_t job, const job_requirements& reqs);
 
 ADM_return_t
 remove_job(const server& srv, ADM_job_t job);

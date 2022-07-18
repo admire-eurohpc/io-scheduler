@@ -26,4 +26,4 @@ add_library(_utils STATIC)
 
 set_property(TARGET _utils PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_sources(_utils PRIVATE utils.hpp utils.cpp signal_listener.hpp)
+target_sources(_utils PRIVATE utils.hpp utils.cpp signal_listener.hpp c_ptr.hpp)

@@ -38,7 +38,7 @@ admire::error_code
 ping(const server& srv);
 
 tl::expected<admire::job, admire::error_code>
-register_job(const server& srv, ADM_job_requirements_t reqs);
+register_job(const server& srv, const job_requirements& reqs);
 
 } // namespace admire::detail
 

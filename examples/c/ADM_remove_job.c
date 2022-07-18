@@ -5,9 +5,9 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 3) {
+    if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_remove_job <REMOTE_IP> <JOB_REQS>\n");
+        fprintf(stderr, "Usage: ADM_remove_job <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

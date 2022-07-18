@@ -5,10 +5,9 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 3) {
+    if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr,
-                "Usage: ADM_cancel_transfer <REMOTE_IP> <TRANSFER_ID>\n");
+        fprintf(stderr, "Usage: ADM_cancel_transfer <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

@@ -5,10 +5,10 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 5) {
+    if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
         fprintf(stderr,
-                "Usage: ADM_set_dataset_information <REMOTE_IP> <RESOURCE_ID> <INFO> <JOB_ID>\n");
+                "Usage: ADM_set_dataset_information <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

@@ -11,7 +11,7 @@ main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_register_job <REMOTE_IP> <JOB_REQS>\n");
+        fprintf(stderr, "Usage: ADM_register_job <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

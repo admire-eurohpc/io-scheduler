@@ -5,11 +5,9 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 7) {
+    if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr,
-                "Usage: ADM_transfer_dataset <REMOTE_IP> <SOURCE_LOCATION> <DESTINATION_LOCATION>"
-                "<QOS_CONSTRAINTS> <DISTRIBUTION> <JOB_ID>\n");
+        fprintf(stderr, "Usage: ADM_transfer_dataset <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

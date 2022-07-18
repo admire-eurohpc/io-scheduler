@@ -5,10 +5,9 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 4) {
+    if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr,
-                "Usage: ADM_set_transfer_priority <REMOTE_IP> <TRANSFER_ID> <N_POSITIONS>\n");
+        fprintf(stderr, "Usage: ADM_set_transfer_priority <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

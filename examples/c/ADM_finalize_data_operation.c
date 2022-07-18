@@ -5,10 +5,10 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 3) {
+    if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
         fprintf(stderr,
-                "Usage: ADM_finalize_data_operation <REMOTE_IP> <OPERATION_ID>\n");
+                "Usage: ADM_finalize_data_operation <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

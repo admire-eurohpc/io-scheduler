@@ -7,7 +7,7 @@ main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_get_pending_transfers <REMOTE_IP>\n");
+        fprintf(stderr, "Usage: ADM_get_pending_transfers <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

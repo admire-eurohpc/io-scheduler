@@ -8,10 +8,9 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 7) {
+    if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr,
-                "Usage: ADM_connect_data_operation <REMOTE_IP> <OPERATION_ID> <INPUT> <STREAM> <ARGUMENTS> <JOB_ID>\n");
+        fprintf(stderr, "Usage: ADM_connect_data_operation <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

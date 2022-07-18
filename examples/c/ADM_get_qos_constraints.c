@@ -5,10 +5,9 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 4) {
+    if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr,
-                "Usage: ADM_get_qos_constraints <REMOTE_IP> <SCOPE> <ELEMENT_ID>\n");
+        fprintf(stderr, "Usage: ADM_get_qos_constraints <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

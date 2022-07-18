@@ -5,18 +5,6 @@
 #define NINPUTS  10
 #define NOUTPUTS 5
 
-bool
-string_to_convert(s) {
-    if(s == "true" || s == "TRUE" || s == "True") {
-        return true;
-    } else if(s == "false" || s == "FALSE" || s == "False") {
-        return false;
-    } else {
-        fprintf(stderr, "ERROR: Incorrect input value. Please try again.\n");
-        exit(EXIT_FAILURE);
-    }
-}
-
 int
 main(int argc, char* argv[]) {
 

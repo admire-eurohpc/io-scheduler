@@ -25,6 +25,7 @@
 #include <tl/expected.hpp>
 #include <network/engine.hpp>
 #include <network/proto/rpc_types.h>
+#include <utils/c_ptr.hpp>
 #include "impl.hpp"
 
 void
@@ -160,10 +161,14 @@ ping(const server& srv) {
     return ADM_SUCCESS;
 }
 
+
 tl::expected<admire::job, admire::error_code>
-register_job(const admire::server& srv, ADM_job_requirements_t reqs) {
-    (void) srv;
-    (void) reqs;
+register_job(const admire::server& srv, const admire::job_requirements& reqs) {
+
+    using scord::utils::c_ptr;
+    using job_requirements_ptr =
+            c_ptr<adm_job_requirements, ADM_job_requirements_destroy>;
+    const auto preqs = job_requirements_ptr{reqs.to_rpc_type()};
 
     scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
 
@@ -171,7 +176,7 @@ register_job(const admire::server& srv, ADM_job_requirements_t reqs) {
 
     LOGGER_INFO("ADM_register_job(...)");
 
-    ADM_register_job_in_t in{*reqs};
+    ADM_register_job_in_t in{*preqs};
     ADM_register_job_out_t out;
 
     endp.call("ADM_register_job", &in, &out);

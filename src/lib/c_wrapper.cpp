@@ -641,7 +641,8 @@ ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    const auto rv = admire::detail::register_job(srv, reqs);
+    const auto rv =
+            admire::detail::register_job(srv, admire::job_requirements{reqs});
 
     if(!rv) {
         return rv.error();
@@ -664,7 +665,7 @@ ADM_update_job(ADM_server_t server, ADM_job_t job,
 
     const admire::server srv{server->s_protocol, server->s_address};
 
-    return admire::update_job(srv, job, reqs);
+    return admire::update_job(srv, job, admire::job_requirements{reqs});
 }
 
 ADM_return_t

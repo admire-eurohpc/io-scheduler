@@ -40,7 +40,6 @@ main(int argc, char* argv[]) {
     }
 
     bool should_stream = false;
-    va_list args; // FIXME placeholder
     ADM_return_t ret = ADM_connect_data_operation(server, job, inputs, outputs,
                                                   should_stream);
 

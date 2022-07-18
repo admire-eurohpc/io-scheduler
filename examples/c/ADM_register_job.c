@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
 #include <admire.h>
+#include <assert.h>
 
 #define NINPUTS  10
 #define NOUTPUTS 5

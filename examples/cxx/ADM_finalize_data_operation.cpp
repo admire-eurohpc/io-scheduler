@@ -15,12 +15,12 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_data_operation_t op_handle{};
+    ADM_data_operation_t op{};
     ADM_data_operation_status_t status;
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::finalize_data_operation(server, job, op_handle, &status);
+        ret = admire::finalize_data_operation(server, job, op, &status);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_finalize_data_operation() failed: {}\n",
                    e.what());

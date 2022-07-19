@@ -14,11 +14,11 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_transfer_t** tx_handles = nullptr;
+    ADM_transfer_t** tx = nullptr;
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::get_pending_transfers(server, job, tx_handles);
+        ret = admire::get_pending_transfers(server, job, tx);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_get_pending_transfers() failed: {}\n",
                    e.what());

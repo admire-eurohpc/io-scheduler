@@ -64,13 +64,15 @@ add_test(ADM_link_transfer_to_data_operation_test ADM_link_transfer_to_data_oper
 
 add_test(ADM_register_adhoc_storage_test ADM_register_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
-#ADM_register_pfs_storage (missing, not working in cpp. Will be created when they work in cpp)
+# TODO: ADM_register_pfs_storage test is missing because is not working in cpp. 
+# Will be created when it works in cpp.
 
 add_test(ADM_remove_adhoc_storage_test ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
 add_test(ADM_remove_job_test ADM_remove_job ofi+tcp://127.0.0.1:52000)
 
-#ADM_remove_pfs_storage (missing, not working in cpp. Will be created when they work in cpp)
+# TODO: ADM_remove_pfs_storage test is missing because is not working in cpp. 
+# Will be created when it works in cpp.
 
 add_test(ADM_set_dataset_information_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000)
 
@@ -86,4 +88,5 @@ add_test(ADM_update_adhoc_storage_test ADM_update_adhoc_storage ofi+tcp://127.0.
 
 add_test(ADM_update_job_test ADM_update_job ofi+tcp://127.0.0.1:52000)
 
-#ADM_update_pfs_storage (missing, not working in cpp. Will be created when they work in cpp)
+# TODO: ADM_update_pfs_storage test is missing because is not working in cpp. 
+# Will be created when it works in cpp.

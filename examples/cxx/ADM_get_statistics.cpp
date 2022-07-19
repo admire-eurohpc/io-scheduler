@@ -4,11 +4,9 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 4) {
+    if(argc != 2) {
         fmt::print(stderr, "ERROR: no location provided\n");
-        fmt::print(
-                stderr,
-                "Usage: ADM_get_statistics <REMOTE_IP> <JOB_ID> <JOB_STEP> \n");
+        fmt::print(stderr, "Usage: ADM_get_statistics <SERVER_ADDRESS> \n");
         exit(EXIT_FAILURE);
     }
 

@@ -5,10 +5,9 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 3) {
+    if(argc != 2) {
         fmt::print(stderr, "ERROR: no location provided\n");
-        fmt::print(stderr,
-                   "Usage: ADM_cancel_transfer <REMOTE_IP> <TRANSFER_ID>\n");
+        fmt::print(stderr, "Usage: ADM_cancel_transfer <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

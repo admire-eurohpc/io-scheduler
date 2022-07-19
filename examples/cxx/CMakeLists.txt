@@ -48,101 +48,47 @@ enable_testing()
 
 add_test(ADM_ping_test ADM_ping ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_cancel_transfer_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 42)
-add_test(ADM_cancel_transfer_test_fail ADM_cancel_transfer ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_cancel_transfer_test_fail PROPERTIES WILL_FAIL TRUE)
-add_test(ADM_cancel_transfer_test_fail_i ADM_cancel_transfer ofi+tcp://127.0.0.1:52000 42 hi)
-set_tests_properties(ADM_cancel_transfer_test_fail_i PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_cancel_transfer_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000)
 
 
-add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 /tmp true arguments 10)
-add_test(ADM_connect_data_operation_test_fail_a ADM_connect_data_operation ofi+tcp://127.0.0.1:52000 42 /tmp true arguments)
-set_tests_properties(ADM_connect_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_define_data_operation_test ADM_define_data_operation ofi+tcp://127.0.0.1:52000 /tmp 42 arguments)
-add_test(ADM_define_data_operation_test_fail_a ADM_define_data_operation ofi+tcp://127.0.0.1:52000 /tmp 42)
-set_tests_properties(ADM_define_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_define_data_operation_test ADM_define_data_operation ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_deploy_adhoc_storage_test ADM_deploy_adhoc_storage ofi+tcp://127.0.0.1:52000 42)
-add_test(ADM_deploy_adhoc_storage_test_fail_a ADM_deploy_adhoc_storage ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_deploy_adhoc_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_deploy_adhoc_storage_test ADM_deploy_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_finalize_data_operation_test ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000 42) #si se le pasa num incorrecto de argumentos falla tambien (tanto mas como menos)
-add_test(ADM_finalize_data_operation_test_fail_a ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_finalize_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_finalize_data_operation_test ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000)
 
 add_test(ADM_get_pending_transfers_test ADM_get_pending_transfers ofi+tcp://127.0.0.1:52000)
-add_test(ADM_get_pending_transfers_test_fail_a ADM_get_pending_transfers)
-set_tests_properties(ADM_get_pending_transfers_test_fail_a PROPERTIES WILL_FAIL TRUE)
 
-add_test(ADM_get_qos_constraints_test ADM_get_qos_constraints ofi+tcp://127.0.0.1:52000 dataset 42)
-add_test(ADM_get_qos_constraints_test_fail_a ADM_get_qos_constraints ofi+tcp://127.0.0.1:52000 dataset)
-set_tests_properties(ADM_get_qos_constraints_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_get_qos_constraints_test ADM_get_qos_constraints ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_get_statistics_test ADM_get_statistics ofi+tcp://127.0.0.1:52000 42 1)
-add_test(ADM_get_statistics_test_fail_a ADM_get_statistics ofi+tcp://127.0.0.1:52000 42)
-set_tests_properties(ADM_get_statistics_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_get_transfer_priority_test ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_get_transfer_priority_test ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000 8)
-add_test(ADM_get_transfer_priority_test_fail_a ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_get_transfer_priority_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_link_transfer_to_data_operation_test ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_link_transfer_to_data_operation_test ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 8 2 dataset arguments 42)
-add_test(ADM_link_transfer_to_data_operation_test_fail_a ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000 8 2 dataset arguments)
-set_tests_properties(ADM_link_transfer_to_data_operation_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_register_job_test ADM_register_job ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_register_adhoc_storage_test ADM_register_adhoc_storage ofi+tcp://127.0.0.1:52000 42)
-add_test(ADM_register_adhoc_storage_test_fail_a ADM_register_adhoc_storage ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_register_adhoc_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)
+# TODO: add_test(ADM_register_pfs_storage_test ADM_register_pfs_storage ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_register_job_test ADM_register_job ofi+tcp://127.0.0.1:52000 42)
-add_test(ADM_register_job_test_fail_a ADM_register_job ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_register_job_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_remove_adhoc_storage_test ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
-#add_test(ADM_register_pfs_storage_test ADM_register_pfs_storage ofi+tcp://127.0.0.1:52000)
-add_test(ADM_register_pfs_storage_test_fail_a ADM_register_pfs_storage)
-set_tests_properties(ADM_register_pfs_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_remove_job_test ADM_remove_job ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_remove_adhoc_storage_test ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000 42)
-add_test(ADM_remove_adhoc_storage_test_fail_a ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_remove_adhoc_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)
+#TODO: add_test(ADM_remove_pfs_storage_test ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000 42)
 
-add_test(ADM_remove_job_test ADM_remove_job ofi+tcp://127.0.0.1:52000 42)
-add_test(ADM_remove_job_test_fail_a ADM_remove_job ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_remove_job_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_dataset_information_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000)
 
-#add_test(ADM_remove_pfs_storage_test ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000 42)
-add_test(ADM_remove_pfs_storage_test_fail_a ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_remove_pfs_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_io_resources_test ADM_set_io_resources ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_set_dataset_information_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000 5 info 42)
-add_test(ADM_set_dataset_information_test_fail_a ADM_set_dataset_information ofi+tcp://127.0.0.1:52000 5 info)
-set_tests_properties(ADM_set_dataset_information_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_qos_constraints_test ADM_set_qos_constraints ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_set_io_resources_test ADM_set_io_resources ofi+tcp://127.0.0.1:52000 4 resources 42)
-add_test(ADM_set_io_resources_test_fail_a ADM_set_io_resources ofi+tcp://127.0.0.1:52000 4 resources)
-set_tests_properties(ADM_set_io_resources_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_set_transfer_priority_test ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_set_qos_constraints_test ADM_set_qos_constraints ofi+tcp://127.0.0.1:52000 dataset bandwith 7 iops)
-add_test(ADM_set_qos_constraints_test_fail_a ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_set_qos_constraints_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_transfer_dataset_test ADM_transfer_dataset ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_set_transfer_priority_test ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000 9 2)
-add_test(ADM_set_transfer_priority_test_fail_a ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000 9)
-set_tests_properties(ADM_set_transfer_priority_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_update_adhoc_storage_test ADM_update_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_transfer_dataset_test ADM_transfer_dataset ofi+tcp://127.0.0.1:52000 /build/examples /build bandwith distribution 42)
-add_test(ADM_transfer_dataset_test_fail_a ADM_transfer_dataset ofi+tcp://127.0.0.1:52000 /build/examples /build bandwith distribution)
-set_tests_properties(ADM_transfer_dataset_test_fail_a PROPERTIES WILL_FAIL TRUE)
+add_test(ADM_update_job_test ADM_update_job ofi+tcp://127.0.0.1:52000)
 
-add_test(ADM_update_adhoc_storage_test ADM_update_adhoc_storage ofi+tcp://127.0.0.1:52000 9)
-add_test(ADM_update_adhoc_storage_test_fail_a ADM_update_adhoc_storage ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_update_adhoc_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)
-
-add_test(ADM_update_job_test ADM_update_job ofi+tcp://127.0.0.1:52000 42)
-add_test(ADM_update_job_test_fail_a ADM_update_job ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_update_job_test_fail_a PROPERTIES WILL_FAIL TRUE)
-
-#add_test(ADM_update_pfs_storage_test ADM_update_pfs_storage ofi+tcp://127.0.0.1:52000 42)
-add_test(ADM_update_pfs_storage_test_fail_a ADM_update_pfs_storage ofi+tcp://127.0.0.1:52000)
-set_tests_properties(ADM_update_pfs_storage_test_fail_a PROPERTIES WILL_FAIL TRUE)
+# TODO: add_test(ADM_update_pfs_storage_test ADM_update_pfs_storage ofi+tcp://127.0.0.1:52000 42)

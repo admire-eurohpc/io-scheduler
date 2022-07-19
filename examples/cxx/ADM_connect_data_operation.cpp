@@ -16,11 +16,10 @@ string_to_convert(std::string s) {
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 7) {
+    if(argc != 2) {
         fmt::print(stderr, "ERROR: no location provided\n");
-        fmt::print(
-                stderr,
-                "Usage: ADM_connect_data_operation <REMOTE_IP> <OPERATION_ID> <INPUT> <STREAM> <ARGUMENTS> <JOB_ID>\n");
+        fmt::print(stderr,
+                   "Usage: ADM_connect_data_operation <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

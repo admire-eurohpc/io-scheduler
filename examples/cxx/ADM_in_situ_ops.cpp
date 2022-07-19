@@ -5,10 +5,9 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 3) {
+    if(argc != 2) {
         fmt::print(stderr, "ERROR: no location provided\n");
-        fmt::print(stderr,
-                   "Usage: ADM_in_situ_ops <REMOTE_IP> <IN_SITU_OPS>\n");
+        fmt::print(stderr, "Usage: ADM_in_situ_ops <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

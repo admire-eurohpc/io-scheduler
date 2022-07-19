@@ -5,11 +5,10 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 5) {
+    if(argc != 2) {
         fmt::print(stderr, "ERROR: no location provided\n");
-        fmt::print(
-                stderr,
-                "Usage: ADM_define_data_operation <REMOTE_IP> <PATH> <OPERATION_ID> <ARGUMENTS> \n");
+        fmt::print(stderr,
+                   "Usage: ADM_define_data_operation <SERVER_ADDRESS> \n");
         exit(EXIT_FAILURE);
     }
 
@@ -22,8 +21,7 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::define_data_operation(server, job, path, &op,
-                                            args);
+        ret = admire::define_data_operation(server, job, path, &op, args);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_define_data_operation() failed: {}\n",
                    e.what());

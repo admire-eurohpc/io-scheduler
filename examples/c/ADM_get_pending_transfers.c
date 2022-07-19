@@ -15,9 +15,9 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
-    ADM_transfer_t** tx_handles = NULL;
+    ADM_transfer_t** tx = NULL;
 
-    ADM_return_t ret = ADM_get_pending_transfers(server, job, tx_handles);
+    ADM_return_t ret = ADM_get_pending_transfers(server, job, tx);
 
 
     if(ret != ADM_SUCCESS) {

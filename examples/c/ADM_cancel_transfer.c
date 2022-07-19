@@ -15,8 +15,8 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
-    ADM_transfer_t tx_handle;
-    ADM_return_t ret = ADM_cancel_transfer(server, job, tx_handle);
+    ADM_transfer_t tx;
+    ADM_return_t ret = ADM_cancel_transfer(server, job, tx);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_cancel_transfer() remote procedure not completed "

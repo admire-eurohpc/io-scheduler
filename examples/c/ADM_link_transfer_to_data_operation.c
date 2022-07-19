@@ -16,12 +16,12 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
-    ADM_data_operation_t op_handle;
+    ADM_data_operation_t op;
     ADM_transfer_t transfer;
     bool should_stream = false;
     va_list args;
     ADM_return_t ret = ADM_link_transfer_to_data_operation(
-            server, job, op_handle, transfer, should_stream, args);
+            server, job, op, transfer, should_stream, args);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

@@ -19,9 +19,9 @@ main(int argc, char* argv[]) {
     ADM_dataset_t** targets = NULL;
     ADM_qos_limit_t** limits = NULL;
     ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
-    ADM_transfer_t tx_handle;
+    ADM_transfer_t tx;
     ADM_return_t ret = ADM_transfer_dataset(server, job, sources, targets,
-                                            limits, mapping, &tx_handle);
+                                            limits, mapping, &tx);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_transfer_dataset() remote procedure not completed "

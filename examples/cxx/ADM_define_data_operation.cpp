@@ -17,12 +17,12 @@ main(int argc, char* argv[]) {
 
     ADM_job_t job{};
     const char* path = "/tmpxxxxx";
-    ADM_data_operation_t op_handle;
+    ADM_data_operation_t op;
     va_list args; // FIXME: placeholder
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::define_data_operation(server, job, path, &op_handle,
+        ret = admire::define_data_operation(server, job, path, &op,
                                             args);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_define_data_operation() failed: {}\n",

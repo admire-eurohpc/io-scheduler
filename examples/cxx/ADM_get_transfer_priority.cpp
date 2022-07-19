@@ -16,12 +16,12 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
-    ADM_transfer_t tx_handle{};
+    ADM_transfer_t tx{};
     ADM_transfer_priority_t priority;
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::get_transfer_priority(server, job, tx_handle, &priority);
+        ret = admire::get_transfer_priority(server, job, tx, &priority);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_get_transfer_priority() failed: {}\n",
                    e.what());

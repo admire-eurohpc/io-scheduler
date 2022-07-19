@@ -21,12 +21,12 @@ main(int argc, char* argv[]) {
     ADM_dataset_t** targets = nullptr;
     ADM_qos_limit_t** limits = nullptr;
     ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
-    ADM_transfer_t tx_handle{};
+    ADM_transfer_t tx{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
         ret = admire::transfer_dataset(server, job, sources, targets, limits,
-                                       mapping, &tx_handle);
+                                       mapping, &tx);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
                    e.what());

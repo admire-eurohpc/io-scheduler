@@ -16,11 +16,11 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
-    ADM_data_operation_t op_handle;
+    ADM_data_operation_t op;
     const char* path = "/tmpxxxxx";
     va_list args; // FIXME placeholder
 
-    ADM_return_t ret = ADM_define_data_operation(server, job, path, &op_handle);
+    ADM_return_t ret = ADM_define_data_operation(server, job, path, &op);
 
 
     if(ret != ADM_SUCCESS) {

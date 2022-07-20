@@ -37,7 +37,7 @@ foreach(example IN LISTS examples_c)
   set_target_properties(${example}_c PROPERTIES OUTPUT_NAME ${example})
 endforeach()
 
-if(SCORD_BUILD_TESTS)
+if(DSCORD_BUILD_TESTS)
   add_test(ADM_register_job_test ADM_register_job ofi+tcp://127.0.0.1:52000)
 
   add_test(ADM_cancel_transfer_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000)

@@ -19,8 +19,7 @@ main(int argc, char* argv[]) {
     ADM_data_operation_t op;
     ADM_data_operation_status_t status;
 
-    ADM_return_t ret =
-            ADM_finalize_data_operation(server, job, op, &status);
+    ADM_return_t ret = ADM_finalize_data_operation(server, job, op, &status);
 
 
     if(ret != ADM_SUCCESS) {

@@ -25,18 +25,6 @@
 #include <fmt/format.h>
 #include <admire.hpp>
 
-bool
-string_to_convert(std::string s) {
-    if(s == "true" || s == "TRUE" || s == "True") {
-        return true;
-    } else if(s == "false" || s == "FALSE" || s == "False") {
-        return false;
-    } else {
-        throw std::invalid_argument(
-                "ERROR: Incorrect input value. Please try again.\n");
-    }
-}
-
 int
 main(int argc, char* argv[]) {
 

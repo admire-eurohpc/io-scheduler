@@ -27,6 +27,7 @@
 #define SCORD_ADMIRE_IMPL_HPP
 
 #include <admire.hpp>
+#include <tl/expected.hpp>
 
 namespace admire {
 using error_code = ADM_return_t;

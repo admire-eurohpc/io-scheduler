@@ -172,61 +172,6 @@ rpc_registration_cb(scord::network::rpc_client* client) {
 
 namespace admire {
 
-job_requirements::job_requirements(std::vector<admire::dataset> inputs,
-                                   std::vector<admire::dataset> outputs)
-    : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)) {}
-
-job_requirements::job_requirements(
-        std::vector<admire::dataset> inputs,
-        std::vector<admire::dataset> outputs,
-        std::optional<storage::adhoc::context> adhoc_context)
-    : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)),
-      m_adhoc_context(adhoc_context) {}
-
-job_requirements::job_requirements(ADM_job_requirements_t reqs) {
-
-    m_inputs.reserve(reqs->r_inputs->l_length);
-
-    for(size_t i = 0; i < reqs->r_inputs->l_length; ++i) {
-        m_inputs.emplace_back(reqs->r_inputs->l_datasets[i].d_id);
-    }
-
-    m_outputs.reserve(reqs->r_outputs->l_length);
-
-    for(size_t i = 0; i < reqs->r_outputs->l_length; ++i) {
-        m_outputs.emplace_back(reqs->r_outputs->l_datasets[i].d_id);
-    }
-}
-
-
-ADM_job_requirements_t
-job_requirements::to_rpc_type() const {
-
-    using scord::utils::c_ptr;
-    using scord::utils::c_ptr_vector;
-    using dataset_vector = c_ptr_vector<adm_dataset, ADM_dataset_destroy>;
-
-    dataset_vector inputs;
-    inputs.reserve(m_inputs.size());
-
-    for(const auto& in : m_inputs) {
-        inputs.emplace_back(ADM_dataset_create(in.m_id.c_str()));
-    }
-
-    dataset_vector outputs;
-    outputs.reserve(m_outputs.size());
-
-    for(const auto& out : m_outputs) {
-        outputs.emplace_back(ADM_dataset_create(out.m_id.c_str()));
-    }
-
-    if(m_adhoc_context) {
-    }
-
-    return ADM_job_requirements_create(inputs.data(), inputs.size(),
-                                       outputs.data(), outputs.size(), nullptr);
-}
-
 void
 ping(const server& srv) {
 
@@ -251,7 +196,7 @@ register_job(const server& srv, const job_requirements& reqs) {
 }
 
 ADM_return_t
-update_job(const server& srv, ADM_job_t job, const job_requirements& reqs) {
+update_job(const server& srv, const job& job, const job_requirements& reqs) {
     (void) srv;
     (void) job;
     (void) reqs;
@@ -277,7 +222,7 @@ update_job(const server& srv, ADM_job_t job, const job_requirements& reqs) {
 }
 
 ADM_return_t
-remove_job(const server& srv, ADM_job_t job) {
+remove_job(const server& srv, const job& job) {
     (void) srv;
     (void) job;
 

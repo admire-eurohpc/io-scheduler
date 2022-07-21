@@ -39,6 +39,7 @@ target_link_libraries(
           common::logger
           common::network::rpc_server
           common::network::rpc_types
+          admire_types
           fmt::fmt
           Boost::program_options
           RedisPlusPlus::RedisPlusPlus

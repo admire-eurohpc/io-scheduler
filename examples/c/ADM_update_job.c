@@ -79,6 +79,14 @@ main(int argc, char* argv[]) {
 
 cleanup:
 
+    for(int i = 0; i < NINPUTS; ++i) {
+        ADM_dataset_destroy(inputs[i]);
+    }
+
+    for(int i = 0; i < NOUTPUTS; ++i) {
+        ADM_dataset_destroy(outputs[i]);
+    }
+
     ADM_server_destroy(server);
     exit(exit_status);
 }

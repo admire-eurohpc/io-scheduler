@@ -24,7 +24,16 @@
 
 #include <logger/logger.hpp>
 #include <network/proto/rpc_types.h>
+#include <admire.hpp>
 #include "rpc_handlers.hpp"
+
+struct remote_procedure {
+    static std::uint64_t
+    new_id() {
+        static std::atomic_uint64_t current_id;
+        return current_id++;
+    }
+};
 
 static void
 ADM_ping(hg_handle_t h) {
@@ -54,11 +63,14 @@ ADM_register_job(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
+    const admire::job_requirements reqs(&in.reqs);
 
-    LOGGER_INFO("ADM_register_job()");
+    const auto id = remote_procedure::new_id();
+    LOGGER_INFO("RPC ID {} ({}): {{{}}}", id, __FUNCTION__, reqs);
 
-    out.ret = 0;
+    out.ret = ADM_SUCCESS;
+
+    LOGGER_INFO("RPC ID {} ({}) = {}", id, __FUNCTION__, out.ret);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

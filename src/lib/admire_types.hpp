@@ -255,4 +255,239 @@ private:
 
 } // namespace admire
 
+
+////////////////////////////////////////////////////////////////////////////////
+//  Formatting functions
+////////////////////////////////////////////////////////////////////////////////
+
+template <>
+struct fmt::formatter<admire::job> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::job& j, FormatContext& ctx) const {
+        return formatter<std::string_view>::format(
+                fmt::format("id: {}", j.id()), ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::dataset> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::dataset& d, FormatContext& ctx) const {
+        return formatter<std::string_view>::format("\"" + d.id() + "\"", ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<enum admire::storage::type>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const enum admire::storage::type& t, FormatContext& ctx) const {
+
+        using admire::storage;
+        std::string_view name = "unknown";
+
+        switch(t) {
+            case storage::type::gekkofs:
+                name = "ADM_STORAGE_GEKKOFS";
+                break;
+            case storage::type::dataclay:
+                name = "ADM_STORAGE_DATACLAY";
+                break;
+            case storage::type::expand:
+                name = "ADM_STORAGE_EXPAND";
+                break;
+            case storage::type::hercules:
+                name = "ADM_STORAGE_HERCULES";
+                break;
+            case storage::type::lustre:
+                name = "ADM_STORAGE_LUSTRE";
+                break;
+            case storage::type::gpfs:
+                name = "ADM_STORAGE_GPFS";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::adhoc_storage::execution_mode>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::adhoc_storage::execution_mode& exec_mode,
+           FormatContext& ctx) const {
+
+        using execution_mode = admire::adhoc_storage::execution_mode;
+
+        std::string_view name = "unknown";
+
+        switch(exec_mode) {
+            case execution_mode::in_job_shared:
+                name = "IN_JOB_SHARED";
+                break;
+            case execution_mode::in_job_dedicated:
+                name = "IN_JOB_DEDICATED";
+                break;
+            case execution_mode::separate_new:
+                name = "SEPARATE_NEW";
+                break;
+            case execution_mode::separate_existing:
+                name = "SEPARATE_EXISTING";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::adhoc_storage::access_type>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::adhoc_storage::access_type& type,
+           FormatContext& ctx) const {
+
+        using access_type = admire::adhoc_storage::access_type;
+
+        std::string_view name = "unknown";
+
+        switch(type) {
+            case access_type::read_only:
+                name = "RDONLY";
+                break;
+            case access_type::write_only:
+                name = "WRONLY";
+                break;
+            case access_type::read_write:
+                name = "RDWR";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<std::shared_ptr<admire::storage>>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::shared_ptr<admire::storage>& s,
+           FormatContext& ctx) const {
+
+        if(!s) {
+            return formatter<std::string_view>::format("NULL", ctx);
+        }
+
+        switch(s->type()) {
+            case admire::storage::type::gekkofs:
+            case admire::storage::type::dataclay:
+            case admire::storage::type::expand:
+            case admire::storage::type::hercules:
+                return formatter<std::string_view>::format(
+                        fmt::format("{}",
+                                    *(dynamic_cast<admire::adhoc_storage*>(
+                                            s.get()))),
+                        ctx);
+            case admire::storage::type::lustre:
+            case admire::storage::type::gpfs:
+                return formatter<std::string_view>::format(
+                        fmt::format("{}", *(dynamic_cast<admire::pfs_storage*>(
+                                                  s.get()))),
+                        ctx);
+            default:
+                return formatter<std::string_view>::format("unknown", ctx);
+        }
+    }
+};
+
+template <>
+struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::adhoc_storage& s, FormatContext& ctx) const {
+
+        const auto pctx = std::dynamic_pointer_cast<admire::adhoc_storage::ctx>(
+                s.context());
+
+        const auto str =
+                fmt::format("{{type: {}, id: {}, context: {}}}", s.type(),
+                            std::quoted(s.id()),
+                            (pctx ? fmt::format("{}", *pctx) : "NULL"));
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::adhoc_storage::ctx>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::adhoc_storage::ctx& c, FormatContext& ctx) const {
+
+        const auto str =
+                fmt::format("{{execution_mode: {}, access_type: {}, "
+                            "nodes: {}, walltime: {}, should_flush: {}}}",
+                            c.exec_mode(), c.access_type(), c.nodes(),
+                            c.walltime(), c.should_flush());
+
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+
+template <>
+struct fmt::formatter<admire::pfs_storage> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::pfs_storage& s, FormatContext& ctx) const {
+
+        const auto pctx = std::dynamic_pointer_cast<admire::pfs_storage::ctx>(
+                s.context());
+        const auto str = fmt::format(
+                "{{context: {}}}", (pctx ? fmt::format("{}", *pctx) : "NULL"));
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::pfs_storage::ctx> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::pfs_storage::ctx& c, FormatContext& ctx) const {
+        const auto str = fmt::format("{{mount_point: {}}}", c.mount_point());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::job_requirements> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::job_requirements& r, FormatContext& ctx) const {
+        return formatter<std::string_view>::format(
+                fmt::format("inputs: [{}], outputs: [{}], storage: {}",
+                            fmt::join(r.inputs(), ", "),
+                            fmt::join(r.outputs(), ", "), r.storage()),
+                ctx);
+    }
+};
+
 #endif // SCORD_ADMIRE_TYPES_HPP

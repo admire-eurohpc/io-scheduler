@@ -174,7 +174,7 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
 
     auto endp = rpc_client.lookup(srv.m_address);
 
-    LOGGER_INFO("ADM_register_job(...)");
+    LOGGER_INFO("RPC ({}): {{{}}}", "ADM_register_job", reqs);
 
     ADM_register_job_in_t in{*preqs};
     ADM_register_job_out_t out;

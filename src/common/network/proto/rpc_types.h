@@ -25,7 +25,7 @@
 #ifndef SCORD_PROTO_TYPES_HPP
 #define SCORD_PROTO_TYPES_HPP
 
-#include <stdlib.h>
+#include <stdlib.h> // NOLINT
 #include <mercury_macros.h>
 #include <mercury_proc_string.h>
 #include <admire_types.h>
@@ -46,7 +46,7 @@ typedef struct adm_node {
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_node,
+    adm_node, // NOLINT
         ((hg_const_string_t) (n_hostname))
 );
 // clang-format on
@@ -57,7 +57,7 @@ typedef struct adm_dataset {
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_dataset,
+    adm_dataset, // NOLINT
         ((hg_const_string_t) (d_id))
 );
 // clang-format on
@@ -68,7 +68,7 @@ typedef struct adm_job {
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_job,
+    adm_job, // NOLINT
         ((hg_uint64_t) (j_id))
 );
 // clang-format on
@@ -86,7 +86,7 @@ struct adm_qos_entity {
     };
 };
 
-// TODO: union decoder
+// TODO: encoder/decoder
 
 struct adm_qos_limit {
     ADM_qos_entity_t l_entity;
@@ -94,16 +94,7 @@ struct adm_qos_limit {
     uint64_t l_value;
 };
 
-#if 0
-// clang-format off
-MERCURY_GEN_STRUCT_PROC(
-    adm_qos_limit,
-        ((adm_qos_entity) (l_entity))
-        ((int)            (l_class))
-        ((hg_uint64_t)    (l_value))
-);
-// clang-format on
-#endif
+// TODO: encoder/decoder
 
 typedef struct adm_transfer {
     // TODO: undefined for now
@@ -112,8 +103,8 @@ typedef struct adm_transfer {
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_transfer,
-    ((hg_int32_t) (placeholder))
+    adm_transfer, // NOLINT
+        ((hg_int32_t) (placeholder))
 );
 // clang-format on
 
@@ -124,7 +115,7 @@ typedef struct adm_dataset_info {
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_dataset_info,
+    adm_dataset_info, // NOLINT
         ((hg_int32_t) (placeholder))
 );
 // clang-format on
@@ -144,12 +135,12 @@ typedef struct adm_adhoc_context {
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-        adm_adhoc_context,
+    adm_adhoc_context, // NOLINT
         ((hg_int32_t)  (c_mode))
-                ((hg_int32_t)  (c_access))
-                ((hg_uint32_t) (c_nodes))
-                ((hg_uint32_t) (c_walltime))
-                ((hg_bool_t)   (c_should_bg_flush))
+        ((hg_int32_t)  (c_access))
+        ((hg_uint32_t) (c_nodes))
+        ((hg_uint32_t) (c_walltime))
+        ((hg_bool_t)   (c_should_bg_flush))
 )
 // clang-format on
 
@@ -160,12 +151,11 @@ typedef struct adm_pfs_context {
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_pfs_context,
+    adm_pfs_context, // NOLINT
         ((hg_const_string_t) (c_mount))
 );
 // clang-format on
 
-// TODO: union decoder
 typedef struct adm_storage {
     const char* s_id;
     ADM_storage_type_t s_type;
@@ -185,7 +175,7 @@ typedef struct adm_storage_resources {
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_storage_resources,
+    adm_storage_resources, // NOLINT
         ((hg_int32_t) (placeholder))
 );
 // clang-format on
@@ -197,7 +187,7 @@ typedef struct adm_data_operation {
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_data_operation,
+    adm_data_operation, // NOLINT
         ((hg_int32_t) (placeholder))
 );
 // clang-format on
@@ -242,7 +232,10 @@ MERCURY_GEN_STRUCT_PROC(
 // clang-format off
 
 /// ADM_register_job
-MERCURY_GEN_PROC(ADM_register_job_in_t, ((adm_job_requirements) (reqs)))
+MERCURY_GEN_PROC(
+    ADM_register_job_in_t,
+        ((adm_job_requirements) (reqs))
+);
 
 MERCURY_GEN_PROC(
     ADM_register_job_out_t,

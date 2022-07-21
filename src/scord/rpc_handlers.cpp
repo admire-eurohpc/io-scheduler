@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <logger/logger.hpp>
-#include <network/proto/rpc_types.h>
+#include <net/proto/rpc_types.h>
 #include <admire.hpp>
 #include "rpc_handlers.hpp"
 

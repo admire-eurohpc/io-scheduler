@@ -34,4 +34,3 @@ target_sources(
 )
 
 target_link_libraries(_rpc_types PRIVATE Mercury::Mercury Margo::Margo)
-

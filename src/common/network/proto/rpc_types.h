@@ -122,19 +122,58 @@ typedef struct adm_dataset_info {
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
     adm_dataset_info,
-    ((hg_int32_t) (placeholder))
+        ((hg_int32_t) (placeholder))
+);
+// clang-format on
+
+typedef struct adm_adhoc_context {
+    /** The adhoc storage system execution mode */
+    ADM_adhoc_mode_t c_mode;
+    /** The adhoc storage system access type */
+    ADM_adhoc_access_t c_access;
+    /** The number of nodes for the adhoc storage system */
+    uint32_t c_nodes;
+    /** The adhoc storage system walltime */
+    uint32_t c_walltime;
+    /** Whether the adhoc storage system should flush data in the background */
+    bool c_should_bg_flush;
+} adm_adhoc_context;
+
+// clang-format off
+MERCURY_GEN_STRUCT_PROC(
+        adm_adhoc_context,
+        ((hg_int32_t)  (c_mode))
+                ((hg_int32_t)  (c_access))
+                ((hg_uint32_t) (c_nodes))
+                ((hg_uint32_t) (c_walltime))
+                ((hg_bool_t)   (c_should_bg_flush))
+)
+// clang-format on
+
+typedef struct adm_pfs_context {
+    /** The PFS mount point */
+    const char* c_mount;
+} adm_pfs_context;
+
+// clang-format off
+MERCURY_GEN_STRUCT_PROC(
+    adm_pfs_context,
+        ((hg_const_string_t) (c_mount))
 );
 // clang-format on
 
 // TODO: union decoder
-struct adm_storage {
+typedef struct adm_storage {
     const char* s_id;
     ADM_storage_type_t s_type;
     union {
-        ADM_adhoc_context_t s_adhoc_ctx;
-        ADM_pfs_context_t s_pfs_ctx;
+        adm_adhoc_context s_adhoc_ctx;
+        adm_pfs_context s_pfs_ctx;
     };
-};
+} adm_storage;
+
+hg_return_t
+hg_proc_ADM_storage_t(hg_proc_t proc, void* data);
 
 typedef struct adm_storage_resources {
     // TODO: undefined for now
@@ -160,41 +199,6 @@ MERCURY_GEN_STRUCT_PROC(
 );
 // clang-format on
 
-typedef struct adm_adhoc_context {
-    /** The adhoc storage system execution mode */
-    ADM_adhoc_mode_t c_mode;
-    /** The adhoc storage system access type */
-    ADM_adhoc_access_t c_access;
-    /** The number of nodes for the adhoc storage system */
-    uint32_t c_nodes;
-    /** The adhoc storage system walltime */
-    uint32_t c_walltime;
-    /** Whether the adhoc storage system should flush data in the background */
-    bool c_should_bg_flush;
-} adm_adhoc_context;
-
-// clang-format off
-MERCURY_GEN_STRUCT_PROC(
-    adm_adhoc_context,
-        ((hg_int32_t)  (c_mode))
-        ((hg_int32_t)  (c_access))
-        ((hg_uint32_t) (c_nodes))
-        ((hg_uint32_t) (c_walltime))
-        ((hg_bool_t)   (c_should_bg_flush))
-)
-// clang-format on
-
-typedef struct adm_pfs_context {
-    /** The PFS mount point */
-    const char* c_mount;
-} adm_pfs_context;
-
-// clang-format off
-MERCURY_GEN_STRUCT_PROC(
-    adm_pfs_context,
-        ((hg_const_string_t) (c_mount))
-);
-// clang-format on
 
 struct adm_dataset_list {
     /** An array of datasets */
@@ -209,25 +213,30 @@ hg_proc_ADM_dataset_list_t(hg_proc_t proc, void* data);
 hg_return_t
 hg_proc_ADM_adhoc_context_t(hg_proc_t proc, void* data);
 
+hg_return_t
+hg_proc_ADM_pfs_context_t(hg_proc_t proc, void* data);
+
+
 /** The I/O requirements for a job */
 typedef struct adm_job_requirements {
     /** An array of input datasets */
     ADM_dataset_list_t r_inputs;
     /** An array of output datasets */
     ADM_dataset_list_t r_outputs;
-    /** An optional definition for a specific adhoc storage instance */
-    adm_adhoc_context* r_adhoc_ctx;
+    /** An optional definition for a specific storage instance */
+    ADM_storage_t r_storage;
 } adm_job_requirements;
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_job_requirements,
+    adm_job_requirements, // NOLINT
         ((ADM_dataset_list_t) (r_inputs))
         ((ADM_dataset_list_t) (r_outputs))
-        ((ADM_adhoc_context_t) (r_adhoc_ctx))
+        ((ADM_storage_t) (r_storage))
 );
 // clang-format on
 
+// clang-format off
 
 /// ADM_register_job
 MERCURY_GEN_PROC(ADM_register_job_in_t, ((adm_job_requirements) (reqs)))
@@ -479,6 +488,7 @@ MERCURY_GEN_PROC(ADM_get_statistics_in_t,
 MERCURY_GEN_PROC(ADM_get_statistics_out_t,
                  ((int32_t) (ret))((hg_const_string_t) (job_statistics)))
 
+// clang-format on
 
 #ifdef __cplusplus
 };     // extern "C"

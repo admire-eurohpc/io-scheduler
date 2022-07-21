@@ -26,7 +26,7 @@
 #include <string>
 #include <utility>
 #include "admire_types.hpp"
-#include "network/proto/rpc_types.h"
+#include "net/proto/rpc_types.h"
 
 #ifndef SCORD_ADMIRE_HPP
 #define SCORD_ADMIRE_HPP

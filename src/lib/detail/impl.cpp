@@ -23,8 +23,8 @@
  *****************************************************************************/
 
 #include <tl/expected.hpp>
-#include <network/engine.hpp>
-#include <network/proto/rpc_types.h>
+#include <net/engine.hpp>
+#include <net/proto/rpc_types.h>
 #include <utils/c_ptr.hpp>
 #include "impl.hpp"
 

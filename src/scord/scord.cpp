@@ -32,8 +32,8 @@
 #include <string>
 
 #include <version.hpp>
-#include <network/server.hpp>
-#include <network/proto/rpc_types.h>
+#include <net/server.hpp>
+#include <net/proto/rpc_types.h>
 #include <config/settings.hpp>
 #include "rpc_handlers.hpp"
 

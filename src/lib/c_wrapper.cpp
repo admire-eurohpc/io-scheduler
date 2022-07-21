@@ -25,7 +25,7 @@
 #include <admire.h>
 #include <admire.hpp>
 #include <logger/logger.hpp>
-#include <network/proto/rpc_types.h>
+#include <net/proto/rpc_types.h>
 #include <stdarg.h>
 #include "admire_types.hpp"
 #include "admire_types.h"

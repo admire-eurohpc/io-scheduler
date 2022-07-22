@@ -73,6 +73,9 @@ MERCURY_GEN_STRUCT_PROC(
 );
 // clang-format on
 
+hg_return_t
+hg_proc_ADM_job_t(hg_proc_t proc, void* data);
+
 struct adm_qos_entity {
     ADM_qos_scope_t e_scope;
     union {

@@ -25,6 +25,77 @@
 #include "rpc_types.h"
 
 hg_return_t
+hg_proc_ADM_job_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_job_t* job = (ADM_job_t*) data;
+    ADM_job_t tmp = NULL;
+    hg_size_t job_length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            // find out the length of the adm_storage object we need to send
+            job_length = *job ? sizeof(adm_job) : 0;
+            ret = hg_proc_hg_size_t(proc, &job_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!job_length) {
+                return HG_SUCCESS;
+            }
+
+            // if we actually need to send an adm_job object,
+            // write it to the mercury buffer
+            tmp = *job;
+
+            ret = hg_proc_adm_job(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            break;
+
+        case HG_DECODE:
+            // find out the length of the adm_storage object
+            ret = hg_proc_hg_size_t(proc, &job_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!job_length) {
+                *job = NULL;
+                break;
+            }
+
+            // if the received adm_job object was not NULL, read each of
+            // its fields from the mercury buffer
+            tmp = (adm_job*) calloc(1, sizeof(adm_job));
+
+            ret = hg_proc_adm_job(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // return the newly-created ctx
+            *job = tmp;
+            break;
+
+        case HG_FREE:
+            tmp = *job;
+            free(tmp);
+            break;
+    }
+
+    return ret;
+}
+
+hg_return_t
 hg_proc_ADM_dataset_list_t(hg_proc_t proc, void* data) {
     hg_return_t ret = HG_SUCCESS;
     ADM_dataset_list_t* list = (ADM_dataset_list_t*) data;

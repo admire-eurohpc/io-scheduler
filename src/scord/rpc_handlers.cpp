@@ -68,9 +68,15 @@ ADM_register_job(hg_handle_t h) {
     const auto id = remote_procedure::new_id();
     LOGGER_INFO("RPC ID {} ({}): {{{}}}", id, __FUNCTION__, reqs);
 
-    out.ret = ADM_SUCCESS;
+    const auto job = admire::job{42};
 
-    LOGGER_INFO("RPC ID {} ({}) = {}", id, __FUNCTION__, out.ret);
+    const auto rpc_job = admire::unmanaged_rpc_type<admire::job>{job};
+
+    out.retval = ADM_SUCCESS;
+    out.job = rpc_job.get();
+
+    LOGGER_INFO("RPC ID {} ({}) = {{{}, job: {{{}}}}}", id, __FUNCTION__,
+                out.retval, job);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

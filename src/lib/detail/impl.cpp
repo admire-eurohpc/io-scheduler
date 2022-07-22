@@ -25,7 +25,7 @@
 #include <tl/expected.hpp>
 #include <net/engine.hpp>
 #include <net/proto/rpc_types.h>
-#include <utils/c_ptr.hpp>
+#include <admire_types.hpp>
 #include "impl.hpp"
 
 void
@@ -150,9 +150,9 @@ namespace admire::detail {
 admire::error_code
 ping(const server& srv) {
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_ping()");
     endp.call("ADM_ping");
@@ -161,33 +161,34 @@ ping(const server& srv) {
     return ADM_SUCCESS;
 }
 
-
 tl::expected<admire::job, admire::error_code>
 register_job(const admire::server& srv, const admire::job_requirements& reqs) {
 
-    using scord::utils::c_ptr;
-    using job_requirements_ptr =
-            c_ptr<adm_job_requirements, ADM_job_requirements_destroy>;
-    const auto preqs = job_requirements_ptr{reqs.to_rpc_type()};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
-
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("RPC ({}): {{{}}}", "ADM_register_job", reqs);
 
-    ADM_register_job_in_t in{*preqs};
+    auto rpc_reqs = managed_rpc_type<admire::job_requirements>{reqs};
+
+    ADM_register_job_in_t in{*rpc_reqs.get()};
     ADM_register_job_out_t out;
 
     endp.call("ADM_register_job", &in, &out);
 
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_register_job() = {}", out.ret);
-        return tl::make_unexpected(static_cast<admire::error_code>(out.ret));
+    if(out.retval < 0) {
+        LOGGER_ERROR("RPC ({}) = {}", "ADM_register_job", out.retval);
+        return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
-    LOGGER_INFO("ADM_register_job() = {}", ADM_SUCCESS);
-    return admire::job{42};
+    const auto rpc_job = managed_rpc_type<ADM_job_t>{out.job};
+    const admire::job job = rpc_job.get();
+
+    LOGGER_INFO("RPC ({}) = {{{}, job: {{{}}}}}", "ADM_register_job",
+                ADM_SUCCESS, job.id());
+
+    return job;
 }
 
 } // namespace admire::detail

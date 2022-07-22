@@ -54,13 +54,7 @@ ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
         return rv.error();
     }
 
-    const auto jh = ADM_job_create(rv->m_id);
-
-    if(!jh) {
-        return ADM_EOTHER;
-    }
-
-    *job = jh;
+    *job = admire::unmanaged_rpc_type<admire::job>{*rv}.get();
 
     return ADM_SUCCESS;
 }

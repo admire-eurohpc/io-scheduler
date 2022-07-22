@@ -71,9 +71,6 @@ struct job {
     job_id
     id() const;
 
-    [[nodiscard]] ADM_job_t
-    to_ctype() const;
-
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;

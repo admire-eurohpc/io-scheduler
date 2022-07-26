@@ -48,8 +48,6 @@ rpc:
     - compiled/bin/scord -f --force-console &
     - build/examples/cxx/ADM_ping ofi+tcp://127.0.0.1:52000
     - pkill -TERM scord
-  cache:
-    key: $CI_COMMIT_REF_SLUG
 
 # run unit tests
 unit:
@@ -59,8 +57,6 @@ unit:
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
     - cd build/tests
     - ctest -j$(nproc) --output-junit report.xml
-  cache:
-    key: $CI_COMMIT_REF_SLUG
   artifacts:
     expire_in: 1 week
     paths:

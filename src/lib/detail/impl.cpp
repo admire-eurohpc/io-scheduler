@@ -190,4 +190,33 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     return admire::job{42};
 }
 
+tl::expected<admire::job, admire::error_code>
+update_job(const admire::server& srv, const admire::job& job,
+           const admire::job_requirements& reqs) {
+
+    using scord::utils::c_ptr;
+    using job_requirements_ptr =
+            c_ptr<adm_job_requirements, ADM_job_requirements_destroy>;
+    const auto preqs = job_requirements_ptr{reqs.to_rpc_type()};
+
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    LOGGER_INFO("RPC ({}): {{{}}}", "ADM_update_job", reqs);
+
+    ADM_update_job_in_t in{};
+    ADM_update_job_out_t out;
+
+    endp.call("ADM_update_job", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_update_job() = {}", out.ret);
+        return tl::make_unexpected(static_cast<admire::error_code>(out.ret));
+    }
+
+    LOGGER_INFO("ADM_update_job() = {}", ADM_SUCCESS);
+    return admire::job{42};
+}
+
 } // namespace admire::detail

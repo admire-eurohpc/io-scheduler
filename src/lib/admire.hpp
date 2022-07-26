@@ -50,7 +50,7 @@ ping(const server& srv);
 admire::job
 register_job(const server& srv, const job_requirements& reqs);
 
-ADM_return_t
+admire::job
 update_job(const server& srv, const job&, const job_requirements& reqs);
 
 ADM_return_t

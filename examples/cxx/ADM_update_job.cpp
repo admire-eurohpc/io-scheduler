@@ -27,23 +27,21 @@ main(int argc, char* argv[]) {
         outputs.emplace_back(fmt::format("output-dataset-{}", i));
     }
 
-    admire::job job{42};
     admire::job_requirements reqs{inputs, outputs};
-    ADM_return_t ret = ADM_SUCCESS;
+    admire::job job{42};
 
     try {
-        ret = admire::update_job(server, job, reqs);
+
+        [[maybe_unused]] const auto ret = admire::update_job(server, job, reqs);
+
+        // do something with job. name changed to ret to not create conflict.
+
+        fmt::print(stdout, "ADM_update_job() remote procedure completed "
+                           "successfully\n");
+        exit(EXIT_SUCCESS);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_update_job() failed: {}\n", e.what());
         exit(EXIT_FAILURE);
     }
-
-    if(ret != ADM_SUCCESS) {
-        fmt::print(stdout, "ADM_update_job() remote procedure not completed "
-                           "successfully\n");
-        exit(EXIT_FAILURE);
-    }
-
-    fmt::print(stdout, "ADM_update_job() remote procedure completed "
-                       "successfully\n");
 }
+

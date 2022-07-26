@@ -41,6 +41,9 @@ ping(const server& srv);
 tl::expected<admire::job, admire::error_code>
 register_job(const server& srv, const job_requirements& reqs);
 
+tl::expected<admire::job, admire::error_code>
+update_job(const server& srv, const job& job, const job_requirements& reqs);
+
 } // namespace admire::detail
 
 #endif // SCORD_ADMIRE_IMPL_HPP

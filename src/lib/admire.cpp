@@ -195,30 +195,17 @@ register_job(const server& srv, const job_requirements& reqs) {
     return rv.value();
 }
 
-ADM_return_t
+admire::job
 update_job(const server& srv, const job& job, const job_requirements& reqs) {
-    (void) srv;
-    (void) job;
-    (void) reqs;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    const auto rv = detail::update_job(srv, job, reqs);
 
-    auto endp = rpc_client.lookup(srv.m_address);
-
-    LOGGER_INFO("ADM_update_job(...)");
-
-    ADM_update_job_in_t in{};
-    ADM_update_job_out_t out;
-
-    endp.call("ADM_update_job", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_update_job() = {}", out.ret);
-        return static_cast<ADM_return_t>(out.ret);
+    if(!rv) {
+        throw std::runtime_error(fmt::format("ADM_update_job() error: {}",
+                                             ADM_strerror(rv.error())));
     }
 
-    LOGGER_INFO("ADM_update_job() = {}", ADM_SUCCESS);
-    return ADM_SUCCESS;
+    return rv.value();
 }
 
 ADM_return_t

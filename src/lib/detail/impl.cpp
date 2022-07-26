@@ -219,4 +219,29 @@ update_job(const admire::server& srv, const admire::job& job,
     return admire::job{42};
 }
 
+tl::expected<admire::job, admire::error_code>
+remove_job(const admire::server& srv, const admire::job& job) {
+
+    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.m_address);
+
+    // LOGGER_INFO("RPC ({}): {{{}}}", "ADM_remove_job", reqs);
+    // TODO: check how to proceed when reqs is not an argument
+    LOGGER_INFO("ADM_remove_job(...)");
+
+    ADM_remove_job_in_t in{};
+    ADM_remove_job_out_t out;
+
+    endp.call("ADM_remove_job", &in, &out);
+
+    if(out.ret < 0) {
+        LOGGER_ERROR("ADM_remove_job() = {}", out.ret);
+        return tl::make_unexpected(static_cast<admire::error_code>(out.ret));
+    }
+
+    LOGGER_INFO("ADM_remove_job() = {}", ADM_SUCCESS);
+    return admire::job{42};
+}
+
 } // namespace admire::detail

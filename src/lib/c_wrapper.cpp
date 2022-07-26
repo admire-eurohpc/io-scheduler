@@ -80,7 +80,13 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job) {
 
     const admire::server srv{server};
 
-    return admire::remove_job(srv, admire::job{job});
+    const auto rv = admire::detail::remove_job(srv, admire::job{job});
+
+    if(!rv) {
+        return rv.error();
+    }
+
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

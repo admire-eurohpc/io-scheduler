@@ -34,7 +34,8 @@ main(int argc, char* argv[]) {
 
         [[maybe_unused]] const auto ret = admire::update_job(server, job, reqs);
 
-        // do something with job. name changed to ret to not create conflict.
+        // do something with job. 
+        // TODO: name changed from job to ret to not create conflict.
 
         fmt::print(stdout, "ADM_update_job() remote procedure completed "
                            "successfully\n");

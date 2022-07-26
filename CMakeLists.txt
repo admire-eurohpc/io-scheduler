@@ -218,7 +218,7 @@ message(STATUS "[${PROJECT_NAME}] Downloading and building file_options")
 FetchContent_Declare(
   file_options
   GIT_REPOSITORY https://storage.bsc.es/gitlab/utils/file_options
-  GIT_TAG 240028735a4c28fd188a83ff9b8f350c0094c43d # v0.1.0-pre
+  GIT_TAG 50071ff78d0974b2f1178f27ce1a08d22e5e8fa2 # v0.1.0-pre
   GIT_SHALLOW ON
   GIT_PROGRESS ON
 )

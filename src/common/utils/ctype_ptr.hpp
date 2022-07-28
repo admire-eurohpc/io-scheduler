@@ -43,7 +43,7 @@ struct deleter {
 };
 
 template <typename T, auto fn>
-using c_ptr =
+using ctype_ptr =
         std::unique_ptr<typename std::remove_pointer<T>::type,
                         deleter<typename std::remove_pointer<T>::type, fn>>;
 
@@ -53,11 +53,11 @@ using c_ptr =
 // available). Can also be used to directly pass an array of C pointers to C
 // APIs by means of the data() function.
 template <typename T, auto fn>
-struct c_ptr_vector {
+struct ctype_ptr_vector {
 
-    c_ptr_vector() = default;
+    ctype_ptr_vector() = default;
 
-    ~c_ptr_vector() = default;
+    ~ctype_ptr_vector() = default;
 
     constexpr void
     reserve(size_t n) {
@@ -87,7 +87,7 @@ struct c_ptr_vector {
         return m_data.size();
     }
 
-    std::vector<scord::utils::c_ptr<T, fn>> m_data{};
+    std::vector<scord::utils::ctype_ptr<T, fn>> m_data{};
     std::vector<T> m_addrs{};
 };
 

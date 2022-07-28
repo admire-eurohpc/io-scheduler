@@ -25,7 +25,7 @@
 #include <logger/logger.hpp>
 #include <net/proto/rpc_types.h>
 #include <utility>
-#include <utils/c_ptr.hpp>
+#include <utils/ctype_ptr.hpp>
 #include <cstdarg>
 #include "admire_types.hpp"
 

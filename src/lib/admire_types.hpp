@@ -30,7 +30,7 @@
 #include <vector>
 #include <filesystem>
 #include <fmt/format.h>
-#include <utils/c_ptr.hpp>
+#include <utils/ctype_ptr.hpp>
 #include "admire_types.h"
 
 namespace admire {
@@ -269,7 +269,7 @@ template <>
 struct admire::managed_rpc_type<admire::adhoc_storage::ctx> {
 
     template <typename T, auto Deleter>
-    using managed_ptr = scord::utils::c_ptr<T, Deleter>;
+    using managed_ptr = scord::utils::ctype_ptr<T, Deleter>;
 
     explicit managed_rpc_type(const admire::adhoc_storage::ctx& ctx)
         : m_adhoc_context(ADM_adhoc_context_create(
@@ -290,10 +290,10 @@ template <>
 struct admire::managed_rpc_type<admire::adhoc_storage> {
 
     template <typename T, auto Deleter>
-    using rpc_storage_ptr = scord::utils::c_ptr<T, Deleter>;
+    using rpc_storage_ptr = scord::utils::ctype_ptr<T, Deleter>;
 
     template <typename T, auto Deleter>
-    using managed_ptr = scord::utils::c_ptr<T, Deleter>;
+    using managed_ptr = scord::utils::ctype_ptr<T, Deleter>;
 
     explicit managed_rpc_type(const admire::adhoc_storage& st)
         : m_adhoc_context(*std::static_pointer_cast<admire::adhoc_storage::ctx>(
@@ -315,7 +315,7 @@ template <>
 struct admire::managed_rpc_type<std::vector<admire::dataset>> {
 
     template <typename T, auto Deleter>
-    using managed_ptr_vector = scord::utils::c_ptr_vector<T, Deleter>;
+    using managed_ptr_vector = scord::utils::ctype_ptr_vector<T, Deleter>;
 
     explicit managed_rpc_type(const std::vector<admire::dataset>& datasets) {
         m_datasets.reserve(datasets.size());
@@ -347,7 +347,7 @@ template <>
 struct admire::managed_rpc_type<admire::job_requirements> {
 
     template <typename T, auto Deleter>
-    using rpc_requirements_ptr = scord::utils::c_ptr<T, Deleter>;
+    using rpc_requirements_ptr = scord::utils::ctype_ptr<T, Deleter>;
 
     explicit managed_rpc_type(const admire::job_requirements& reqs)
         : m_inputs(reqs.inputs()), m_outputs(reqs.outputs()),
@@ -379,7 +379,7 @@ template <>
 struct admire::managed_rpc_type<admire::job> {
 
     template <typename T, auto Deleter>
-    using rpc_job_ptr = scord::utils::c_ptr<T, Deleter>;
+    using rpc_job_ptr = scord::utils::ctype_ptr<T, Deleter>;
 
     explicit managed_rpc_type(const admire::job& j)
         : m_job(ADM_job_create(j.id())) {}
@@ -396,7 +396,7 @@ template <>
 struct admire::managed_rpc_type<ADM_job_t> {
 
     template <typename T, auto Deleter>
-    using rpc_job_ptr = scord::utils::c_ptr<T, Deleter>;
+    using rpc_job_ptr = scord::utils::ctype_ptr<T, Deleter>;
 
     explicit managed_rpc_type(ADM_job_t job) : m_job(job) {}
 

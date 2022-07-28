@@ -170,8 +170,8 @@ typedef struct adm_storage {
     const char* s_id;
     ADM_storage_type_t s_type;
     union {
-        adm_adhoc_context s_adhoc_ctx;
-        adm_pfs_context s_pfs_ctx;
+        ADM_adhoc_context_t s_adhoc_ctx;
+        ADM_pfs_context_t s_pfs_ctx;
     };
 } adm_storage;
 

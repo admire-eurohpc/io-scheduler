@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
+# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,24 +22,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(_network_engine STATIC)
+add_library(_rpc_types STATIC)
+
+set_property(TARGET _rpc_types PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+target_include_directories(_rpc_types PUBLIC ${CMAKE_SOURCE_DIR}/src/lib)
 target_sources(
-  _network_engine
-  INTERFACE engine.hpp
-  PRIVATE detail/address.hpp
+  _rpc_types
+  PRIVATE rpc_types.h rpc_types.c ${CMAKE_SOURCE_DIR}/src/lib/admire.h
+          ${CMAKE_SOURCE_DIR}/src/lib/admire_types.h
 )
 
-target_link_libraries(
-  _network_engine PUBLIC common::logger transport_library Mercury::Mercury
-                        Argobots::Argobots Margo::Margo
-)
-set_property(TARGET _network_engine PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-add_library(_rpc_server STATIC)
-target_sources(
-  _rpc_server
-  INTERFACE server.hpp
-  PRIVATE server.cpp
-)
-
-target_link_libraries(_rpc_server PUBLIC common::config _network_engine)
+target_link_libraries(_rpc_types PRIVATE Mercury::Mercury Margo::Margo)

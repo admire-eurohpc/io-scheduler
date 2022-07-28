@@ -22,8 +22,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_TYPES_H
-#define SCORD_TYPES_H
+#ifndef SCORD_ADMIRE_TYPES_H
+#define SCORD_ADMIRE_TYPES_H
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,6 +87,9 @@ typedef struct adm_dataset* ADM_dataset_t;
 
 /** Information about a dataset */
 typedef struct adm_dataset_info* ADM_dataset_info_t;
+
+/** A list of datasets */
+typedef struct adm_dataset_list* ADM_dataset_list_t;
 
 
 /* ----------------------------------------------------- */
@@ -314,6 +322,29 @@ ADM_dataset_info_create();
 ADM_return_t
 ADM_dataset_info_destroy(ADM_dataset_info_t dataset_info);
 
+/**
+ * Create a dataset list from an array of ADM_DATASETs and its
+ * length.
+ *
+ * @remark Dataset lists need to be freed by calling ADM_dataset_list_destroy().
+ *
+ * @param[in] datasets The array of datasets.
+ * @param[in] len The length of the array.
+ * @return A valid ADM_dataset_list_t if successful or NULL in case of
+ * failure.
+ */
+ADM_dataset_list_t
+ADM_dataset_list_create(ADM_dataset_t datasets[], size_t len);
+
+/**
+ * Destroy a dataset list created by ADM_dataset_list_create().
+ *
+ * @param[in] list A valid ADM_dataset_list_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_dataset_list_destroy(ADM_dataset_list_t list);
+
 
 /* ----------------------------------------------------- */
 /*              Storage tiers                            */
@@ -495,4 +526,4 @@ ADM_data_operation_destroy(ADM_data_operation_t op);
 } // extern "C"
 #endif
 
-#endif // SCORD_TYPES_H
+#endif // SCORD_ADMIRE_TYPES_H

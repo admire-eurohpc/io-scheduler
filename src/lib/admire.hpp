@@ -23,37 +23,38 @@
  *****************************************************************************/
 
 #include <admire.h>
-#include <tl/expected.hpp>
-#include <cstdarg>
 #include <string>
+#include <utility>
+#include "admire_types.hpp"
+#include "net/proto/rpc_types.h"
 
 #ifndef SCORD_ADMIRE_HPP
 #define SCORD_ADMIRE_HPP
 
+/******************************************************************************/
+/* Public type definitions and type-related functions                         */
+/******************************************************************************/
+
+// See admire_types.hpp
+
+
+/******************************************************************************/
+/* Public prototypes                                                          */
+/******************************************************************************/
+
 namespace admire {
-
-using job_id = int64_t;
-
-struct server {
-    std::string m_protocol;
-    std::string m_address;
-};
-
-struct job {
-    job_id m_id;
-};
 
 void
 ping(const server& srv);
 
 admire::job
-register_job(const server& srv, ADM_job_requirements_t reqs);
+register_job(const server& srv, const job_requirements& reqs);
 
 ADM_return_t
-update_job(const server& srv, ADM_job_t job, ADM_job_requirements_t reqs);
+update_job(const server& srv, const job&, const job_requirements& reqs);
 
 ADM_return_t
-remove_job(const server& srv, ADM_job_t job);
+remove_job(const server& srv, const job& job);
 
 ADM_return_t
 register_adhoc_storage(const server& srv, ADM_job_t job,

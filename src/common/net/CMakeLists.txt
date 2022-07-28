@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
+# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,10 +22,26 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(scord_ctl_private_rpcs STATIC)
-target_sources(scord_ctl_private_rpcs
-  PRIVATE private.cpp private.hpp)
+add_library(_network_engine STATIC)
+target_sources(
+  _network_engine
+  INTERFACE engine.hpp
+  PRIVATE detail/address.hpp
+)
 
-target_include_directories(scord_ctl_private_rpcs INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(scord_ctl_private_rpcs PUBLIC common::logger Margo::Margo)
-set_property(TARGET scord_ctl_private_rpcs PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(
+  _network_engine PUBLIC common::logger transport_library Mercury::Mercury
+                        Argobots::Argobots Margo::Margo
+)
+set_property(TARGET _network_engine PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+add_library(_rpc_server STATIC)
+target_sources(
+  _rpc_server
+  INTERFACE server.hpp
+  PRIVATE server.cpp
+)
+
+target_link_libraries(_rpc_server PUBLIC common::config _network_engine)
+
+add_subdirectory(proto)

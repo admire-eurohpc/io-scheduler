@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -22,12 +22,23 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include "public.hpp"
+#include <logger/logger.hpp>
+#include <net/proto/rpc_types.h>
+#include <admire.hpp>
+#include "rpc_handlers.hpp"
+
+struct remote_procedure {
+    static std::uint64_t
+    new_id() {
+        static std::atomic_uint64_t current_id;
+        return current_id++;
+    }
+};
 
 static void
 ADM_ping(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
@@ -42,7 +53,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_ping);
 static void
 ADM_register_job(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_register_job_in_t in;
     ADM_register_job_out_t out;
@@ -52,11 +63,22 @@ ADM_register_job(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
+    const admire::job_requirements reqs(&in.reqs);
 
-    LOGGER_INFO("ADM_register_job()");
+    const auto id = remote_procedure::new_id();
+    LOGGER_INFO("RPC ID {} ({}) <= {{job_requirements: {{{}}}}}", id,
+                __FUNCTION__, reqs);
 
-    out.ret = 0;
+    const auto job = admire::job{42};
+
+    const auto rpc_job = admire::unmanaged_rpc_type<admire::job>{job};
+    admire::error_code rv = ADM_SUCCESS;
+
+    out.retval = rv;
+    out.job = rpc_job.get();
+
+    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}, job: {{{}}}}}", id,
+                __FUNCTION__, rv, job);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -74,7 +96,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_register_job);
 static void
 ADM_update_job(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_update_job_in_t in;
     ADM_update_job_out_t out;
@@ -84,11 +106,17 @@ ADM_update_job(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
+    const admire::job job(in.job);
+    const admire::job_requirements reqs(&in.reqs);
 
-    LOGGER_INFO("ADM_update_job()");
+    const auto id = remote_procedure::new_id();
+    LOGGER_INFO("RPC ID {} ({}) <= {{job: {{{}}}, job_requirements: {{{}}}}}",
+                id, __FUNCTION__, job, reqs);
 
-    out.ret = 0;
+    admire::error_code rv = ADM_SUCCESS;
+    out.retval = rv;
+
+    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}}}", id, __FUNCTION__, rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -106,7 +134,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_update_job);
 static void
 ADM_remove_job(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_remove_job_in_t in;
     ADM_remove_job_out_t out;
@@ -116,11 +144,15 @@ ADM_remove_job(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
+    const admire::job job(in.job);
 
-    LOGGER_INFO("ADM_remove_job()");
+    const auto id = remote_procedure::new_id();
+    LOGGER_INFO("RPC ID {} ({}) <= {{job: {{{}}}", id, __FUNCTION__, job);
 
-    out.ret = 0;
+    admire::error_code rv = ADM_SUCCESS;
+    out.retval = rv;
+
+    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}}}", id, __FUNCTION__, rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -137,7 +169,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_remove_job);
 static void
 ADM_register_adhoc_storage(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_register_adhoc_storage_in_t in;
     ADM_register_adhoc_storage_out_t out;
@@ -168,7 +200,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_register_adhoc_storage);
 static void
 ADM_update_adhoc_storage(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_update_adhoc_storage_in_t in;
     ADM_update_adhoc_storage_out_t out;
@@ -199,7 +231,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_update_adhoc_storage);
 static void
 ADM_remove_adhoc_storage(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_remove_adhoc_storage_in_t in;
     ADM_remove_adhoc_storage_out_t out;
@@ -230,7 +262,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_remove_adhoc_storage);
 static void
 ADM_deploy_adhoc_storage(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_deploy_adhoc_storage_in_t in;
     ADM_deploy_adhoc_storage_out_t out;
@@ -261,7 +293,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_deploy_adhoc_storage);
 static void
 ADM_register_pfs_storage(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_register_pfs_storage_in_t in;
     ADM_register_pfs_storage_out_t out;
@@ -292,7 +324,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_register_pfs_storage);
 static void
 ADM_update_pfs_storage(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_update_pfs_storage_in_t in;
     ADM_update_pfs_storage_out_t out;
@@ -323,7 +355,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_update_pfs_storage);
 static void
 ADM_remove_pfs_storage(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_remove_pfs_storage_in_t in;
     ADM_remove_pfs_storage_out_t out;
@@ -363,7 +395,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_remove_pfs_storage);
  */
 static void
 ADM_input(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_input_in_t in;
     ADM_input_out_t out;
@@ -408,7 +441,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_input)
  */
 static void
 ADM_output(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_output_in_t in;
     ADM_output_out_t out;
@@ -453,7 +487,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_output)
  */
 static void
 ADM_inout(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_inout_in_t in;
     ADM_inout_out_t out;
@@ -507,7 +542,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_inout)
  */
 static void
 ADM_adhoc_context(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_adhoc_context_in_t in;
     ADM_adhoc_context_out_t out;
@@ -561,7 +597,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_context)
  */
 static void
 ADM_adhoc_context_id(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_adhoc_context_id_in_t in;
     ADM_adhoc_context_id_out_t out;
@@ -606,7 +643,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_context_id)
  */
 static void
 ADM_adhoc_nodes(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_adhoc_nodes_in_t in;
     ADM_adhoc_nodes_out_t out;
@@ -654,7 +692,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_nodes)
  */
 static void
 ADM_adhoc_walltime(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_adhoc_walltime_in_t in;
     ADM_adhoc_walltime_out_t out;
@@ -697,7 +736,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_walltime)
  */
 static void
 ADM_adhoc_access(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_adhoc_access_in_t in;
     ADM_adhoc_access_out_t out;
@@ -750,7 +790,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_access)
  */
 static void
 ADM_adhoc_distribution(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_adhoc_distribution_in_t in;
     ADM_adhoc_distribution_out_t out;
@@ -793,7 +834,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_distribution)
  */
 static void
 ADM_adhoc_background_flush(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_adhoc_background_flush_in_t in;
     ADM_adhoc_background_flush_out_t out;
@@ -827,7 +869,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_adhoc_background_flush)
  */
 static void
 ADM_in_situ_ops(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_in_situ_ops_in_t in;
     ADM_in_situ_ops_out_t out;
@@ -868,7 +911,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_in_situ_ops)
  */
 static void
 ADM_in_transit_ops(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_in_transit_ops_in_t in;
     ADM_in_transit_ops_out_t out;
@@ -925,7 +969,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_in_transit_ops)
  */
 static void
 ADM_transfer_dataset(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_transfer_dataset_in_t in;
     ADM_transfer_dataset_out_t out;
@@ -984,7 +1029,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_transfer_dataset)
  */
 static void
 ADM_set_dataset_information(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_set_dataset_information_in_t in;
     ADM_set_dataset_information_out_t out;
@@ -1039,7 +1085,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_set_dataset_information)
  */
 static void
 ADM_set_io_resources(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_set_io_resources_in_t in;
     ADM_set_io_resources_out_t out;
@@ -1090,7 +1137,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_set_io_resources)
  */
 static void
 ADM_get_transfer_priority(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_get_transfer_priority_in_t in;
     ADM_get_transfer_priority_out_t out;
@@ -1138,7 +1186,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_get_transfer_priority)
  */
 static void
 ADM_set_transfer_priority(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_set_transfer_priority_in_t in;
     ADM_set_transfer_priority_out_t out;
@@ -1185,7 +1234,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_set_transfer_priority)
  */
 static void
 ADM_cancel_transfer(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_cancel_transfer_in_t in;
     ADM_cancel_transfer_out_t out;
@@ -1229,7 +1279,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_cancel_transfer)
  */
 static void
 ADM_get_pending_transfers(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_get_pending_transfers_in_t in;
     ADM_get_pending_transfers_out_t out;
@@ -1272,7 +1323,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_get_pending_transfers)
  */
 static void
 ADM_set_qos_constraints(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_set_qos_constraints_in_t in;
     ADM_set_qos_constraints_out_t out;
@@ -1336,7 +1388,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_set_qos_constraints)
  */
 static void
 ADM_get_qos_constraints(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_get_qos_constraints_in_t in;
     ADM_get_qos_constraints_out_t out;
@@ -1398,7 +1451,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_get_qos_constraints)
  */
 static void
 ADM_define_data_operation(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_define_data_operation_in_t in;
     ADM_define_data_operation_out_t out;
@@ -1461,7 +1515,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_define_data_operation)
  */
 static void
 ADM_connect_data_operation(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_connect_data_operation_in_t in;
     ADM_connect_data_operation_out_t out;
@@ -1520,7 +1575,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_connect_data_operation)
  */
 static void
 ADM_finalize_data_operation(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_finalize_data_operation_in_t in;
     ADM_finalize_data_operation_out_t out;
@@ -1576,7 +1632,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_finalize_data_operation)
  */
 static void
 ADM_link_transfer_to_data_operation(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_link_transfer_to_data_operation_in_t in;
     ADM_link_transfer_to_data_operation_out_t out;
@@ -1638,7 +1695,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_link_transfer_to_data_operation)
  */
 static void
 ADM_get_statistics(hg_handle_t h) {
-    hg_return_t ret;
+
+    [[maybe_unused]] hg_return_t ret;
 
     ADM_get_statistics_in_t in;
     ADM_get_statistics_out_t out;

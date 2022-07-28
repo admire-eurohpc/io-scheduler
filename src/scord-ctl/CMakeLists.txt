@@ -22,11 +22,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-# import rpc definitions for scord-ctl
-add_subdirectory(rpcs)
-
 # scord-ctl daemon
-add_executable(scord-ctl scord-ctl.cpp)
+add_executable(scord-ctl)
+
+target_sources(scord-ctl PRIVATE scord-ctl.cpp rpc_handlers.hpp rpc_handlers.cpp)
 
 target_include_directories(
   scord-ctl
@@ -36,7 +35,7 @@ target_include_directories(
 
 target_link_libraries(
   scord-ctl PRIVATE common::config common::logger common::network::rpc_server
-                    scord_ctl_private_rpcs fmt::fmt Boost::program_options RedisPlusPlus::RedisPlusPlus
+                    common::network::rpc_types admire_types fmt::fmt Boost::program_options
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

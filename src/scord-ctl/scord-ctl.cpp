@@ -32,10 +32,10 @@
 #include <string>
 
 #include <version.hpp>
-#include <network/server.hpp>
+#include <net/server.hpp>
+#include <net/proto/rpc_types.h>
 #include <config/settings.hpp>
-#include <lib/rpcs/public.hpp>
-#include "rpcs/private.hpp"
+#include "rpc_handlers.hpp"
 
 namespace fs = std::filesystem;
 namespace bpo = boost::program_options;

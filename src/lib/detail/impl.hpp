@@ -27,10 +27,7 @@
 #define SCORD_ADMIRE_IMPL_HPP
 
 #include <admire.hpp>
-
-namespace admire {
-using error_code = ADM_return_t;
-} // namespace admire
+#include <tl/expected.hpp>
 
 namespace admire::detail {
 
@@ -38,7 +35,13 @@ admire::error_code
 ping(const server& srv);
 
 tl::expected<admire::job, admire::error_code>
-register_job(const server& srv, ADM_job_requirements_t reqs);
+register_job(const server& srv, const job_requirements& reqs);
+
+admire::error_code
+update_job(const server& srv, const job& job, const job_requirements& reqs);
+
+admire::error_code
+remove_job(const server& srv, const job& job);
 
 } // namespace admire::detail
 

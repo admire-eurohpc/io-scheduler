@@ -37,10 +37,15 @@ add_subdirectory(logger)
 target_include_directories(_logger INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(common::logger ALIAS _logger)
 
-add_subdirectory(network)
+add_subdirectory(net)
 target_include_directories(_network_engine INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(common::network::engine ALIAS _network_engine)
 target_include_directories(_rpc_server INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(common::network::rpc_server ALIAS _rpc_server)
+
+
+target_include_directories(_rpc_types INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(common::network::rpc_types ALIAS _rpc_types)

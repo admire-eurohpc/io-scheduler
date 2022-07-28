@@ -22,25 +22,27 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-# target for the public rpcs defined by the API that need to be shared by scord
-add_library(api_rpcs STATIC)
-target_sources(api_rpcs
-  PRIVATE rpcs/public.cpp rpcs/public.hpp)
+add_library(admire_types STATIC)
 
-target_include_directories(api_rpcs INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/rpcs)
-target_link_libraries(api_rpcs PUBLIC common::logger Margo::Margo)
-set_property(TARGET api_rpcs PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_sources(admire_types PUBLIC admire_types.h admire_types.hpp PRIVATE
+  types.cpp)
+
+target_link_libraries(admire_types PRIVATE common::network::rpc_types
+  Margo::Margo common::logger)
+
+set_target_properties(admire_types PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # the client library implementing the actual API
 add_library(adm_iosched SHARED)
 
 target_sources(adm_iosched
-  PUBLIC admire.h types.h admire.hpp
-  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp errors.c)
+  PUBLIC admire.h admire_types.h admire.hpp admire_types.hpp
+  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp errors.c types.cpp)
 
 target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(adm_iosched PRIVATE common::network::engine api_rpcs PUBLIC
+target_link_libraries(adm_iosched PRIVATE common::network::engine
+  common::network::rpc_types admire_types PUBLIC
   tl::expected)
 
 install(

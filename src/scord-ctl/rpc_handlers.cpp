@@ -22,11 +22,21 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_CTL_RPCS_PRIVATE_HPP
-#define SCORD_CTL_RPCS_PRIVATE_HPP
+#include <logger/logger.hpp>
+#include <net/proto/rpc_types.h>
+#include "rpc_handlers.hpp"
 
-#include <margo.h>
+static void
+ADM_ping(hg_handle_t h) {
 
-DECLARE_MARGO_RPC_HANDLER(ADM_ping);
+    hg_return_t ret;
 
-#endif // SCORD_CTL_RPCS_PRIVATE_HPP
+    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    LOGGER_INFO("PING(noargs)");
+
+    ret = margo_destroy(h);
+    assert(ret == HG_SUCCESS);
+}
+
+DEFINE_MARGO_RPC_HANDLER(ADM_ping);

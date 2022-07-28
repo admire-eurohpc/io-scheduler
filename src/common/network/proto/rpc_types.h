@@ -244,7 +244,11 @@ MERCURY_GEN_STRUCT_PROC(
 /// ADM_register_job
 MERCURY_GEN_PROC(ADM_register_job_in_t, ((adm_job_requirements) (reqs)))
 
-MERCURY_GEN_PROC(ADM_register_job_out_t, ((int32_t) (ret)))
+MERCURY_GEN_PROC(
+    ADM_register_job_out_t,
+        ((int32_t) (retval))
+        ((ADM_job_t) (job))
+);
 
 /// ADM_update_job
 MERCURY_GEN_PROC(ADM_update_job_in_t, ((int32_t) (reqs)))

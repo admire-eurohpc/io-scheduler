@@ -201,9 +201,9 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
     (void) job;
     (void) reqs;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_update_job(...)");
 
@@ -226,9 +226,9 @@ remove_job(const server& srv, const job& job) {
     (void) srv;
     (void) job;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_remove_job(...)");
 
@@ -254,9 +254,9 @@ register_adhoc_storage(const server& srv, ADM_job_t job,
     (void) ctx;
     (void) adhoc_storage;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_register_adhoc_storage(...)");
 
@@ -282,9 +282,9 @@ update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
     (void) ctx;
     (void) adhoc_storage;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_update_adhoc_storage(...)");
 
@@ -309,9 +309,9 @@ remove_adhoc_storage(const server& srv, ADM_job_t job,
     (void) job;
     (void) adhoc_storage;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_remove_adhoc_storage(...)");
 
@@ -336,9 +336,9 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
     (void) job;
     (void) adhoc_storage;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_deploy_adhoc_storage(...)");
 
@@ -364,9 +364,9 @@ register_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
     (void) ctx;
     (void) pfs_storage;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_register_pfs_storage(...)");
 
@@ -392,9 +392,9 @@ update_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
     (void) ctx;
     (void) pfs_storage;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_update_pfs_storage(...)");
 
@@ -419,9 +419,9 @@ remove_pfs_storage(const server& srv, ADM_job_t job,
     (void) job;
     (void) pfs_storage;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_remove_pfs_storage(...)");
 
@@ -451,9 +451,9 @@ transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
     (void) mapping;
     (void) transfer;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_transfer_dataset(...)");
 
@@ -479,9 +479,9 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
     (void) target;
     (void) info;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_set_dataset_information(...)");
 
@@ -507,9 +507,9 @@ set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
     (void) tier;
     (void) resources;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_set_io_resources(...)");
 
@@ -535,9 +535,9 @@ get_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
     (void) transfer;
     (void) priority;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_get_transfer_priority(...)");
 
@@ -563,9 +563,9 @@ set_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
     (void) transfer;
     (void) incr;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_set_transfer_priority(...)");
 
@@ -589,9 +589,9 @@ cancel_transfer(const server& srv, ADM_job_t job, ADM_transfer_t transfer) {
     (void) job;
     (void) transfer;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_cancel_transfer(...)");
 
@@ -617,9 +617,9 @@ get_pending_transfers(const server& srv, ADM_job_t job,
     (void) job;
     (void) pending_transfers;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_get_pending_transfers(...)");
 
@@ -646,9 +646,9 @@ set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     (void) entity;
     (void) limit;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_set_qos_constraints(...)");
 
@@ -675,9 +675,9 @@ get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     (void) entity;
     (void) limits;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_get_qos_constraints(...)");
 
@@ -705,9 +705,9 @@ define_data_operation(const server& srv, ADM_job_t job, const char* path,
     (void) op;
     (void) args;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_define_data_operation(...)");
 
@@ -736,9 +736,9 @@ connect_data_operation(const server& srv, ADM_job_t job, ADM_dataset_t input,
     (void) should_stream;
     (void) args;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_connect_data_operation(...)");
 
@@ -766,9 +766,9 @@ finalize_data_operation(const server& srv, ADM_job_t job,
     (void) op;
     (void) status;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_finalize_data_operation(...)");
 
@@ -797,9 +797,9 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
     (void) should_stream;
     (void) args;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_link_transfer_to_data_operation(...)");
 
@@ -824,9 +824,9 @@ get_statistics(const server& srv, ADM_job_t job, ADM_job_stats_t** stats) {
     (void) job;
     (void) stats;
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
-    auto endp = rpc_client.lookup(srv.m_address);
+    auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_get_statistics(...)");
 

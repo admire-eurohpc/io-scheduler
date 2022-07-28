@@ -40,31 +40,62 @@ using job_id = std::uint64_t;
 struct server {
 
     server(std::string protocol, std::string address);
-
     explicit server(const ADM_server_t& srv);
+    server(server&&) noexcept;
+    server&
+    operator=(server&&) noexcept;
+    ~server();
 
-    std::string m_protocol;
-    std::string m_address;
+    std::string
+    protocol() const;
+    std::string
+    address() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
 };
 
 struct job {
 
     explicit job(job_id id);
-
     explicit job(ADM_job_t job);
+    job(const job&) noexcept;
+    job(job&&) noexcept;
+    job&
+    operator=(job&&) noexcept;
+    job&
+    operator=(const job&) noexcept;
+    ~job();
 
-    job_id m_id;
+    job_id
+    id() const;
+
+    [[nodiscard]] ADM_job_t
+    to_ctype() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
 };
 
 struct dataset {
-    explicit dataset(std::string id) : m_id(std::move(id)) {}
+    explicit dataset(std::string id);
+    explicit dataset(ADM_dataset_t dataset);
+    dataset(const dataset&) noexcept;
+    dataset(dataset&&) noexcept;
+    dataset&
+    operator=(const dataset&) noexcept;
+    dataset&
+    operator=(dataset&&) noexcept;
+    ~dataset();
 
     std::string
-    to_string() const {
-        return "foo";
-    }
+    id() const;
 
-    std::string m_id;
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
 };
 
 struct storage {
@@ -78,15 +109,25 @@ struct storage {
         gpfs = ADM_STORAGE_GPFS
     };
 
+    struct ctx {
+        virtual ~ctx() = default;
+    };
+
     storage(storage::type type, std::string id);
 
     virtual ~storage() = default;
 
-    virtual ADM_storage_t
-    to_rpc_type() const = 0;
+    std::string
+    id() const;
+    type
+    type() const;
 
+    virtual std::shared_ptr<ctx>
+    context() const = 0;
+
+protected:
     std::string m_id;
-    type m_type;
+    enum type m_type;
 };
 
 struct adhoc_storage : public storage {
@@ -104,59 +145,80 @@ struct adhoc_storage : public storage {
         read_write = ADM_ADHOC_ACCESS_RDWR,
     };
 
-    struct context {
+    struct ctx : storage::ctx {
 
-        context(execution_mode exec_mode, access_type access_type,
-                std::uint32_t nodes, std::uint32_t walltime, bool should_flush);
+        ctx(execution_mode exec_mode, access_type access_type,
+            std::uint32_t nodes, std::uint32_t walltime, bool should_flush);
 
-        explicit context(ADM_adhoc_context_t ctx);
+        explicit ctx(ADM_adhoc_context_t ctx);
 
-        ADM_adhoc_context_t
-        to_rpc_type() const;
+        execution_mode
+        exec_mode() const;
+        enum access_type
+        access_type() const;
+        std::uint32_t
+        nodes() const;
+        std::uint32_t
+        walltime() const;
+        bool
+        should_flush() const;
 
+    private:
         execution_mode m_exec_mode;
-        access_type m_access_type;
+        enum access_type m_access_type;
         std::uint32_t m_nodes;
         std::uint32_t m_walltime;
         bool m_should_flush;
     };
 
-    adhoc_storage(storage::type type, std::string id, execution_mode exec_mode,
-                  access_type access_type, std::uint32_t nodes,
-                  std::uint32_t walltime, bool should_flush);
+    adhoc_storage(enum storage::type type, std::string id,
+                  execution_mode exec_mode, access_type access_type,
+                  std::uint32_t nodes, std::uint32_t walltime,
+                  bool should_flush);
+    adhoc_storage(enum storage::type type, std::string id,
+                  ADM_adhoc_context_t ctx);
+    adhoc_storage(adhoc_storage&&) noexcept = default;
+    adhoc_storage&
+    operator=(adhoc_storage&&) noexcept = default;
+    ~adhoc_storage() override;
 
-    adhoc_storage(storage::type type, std::string id, ADM_adhoc_context_t ctx);
+    std::shared_ptr<storage::ctx>
+    context() const final;
 
-
-    ADM_storage_t
-    to_rpc_type() const final;
-
-    context m_ctx;
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
 };
 
 struct pfs_storage : public storage {
 
-    struct context {
+    struct ctx : storage::ctx {
 
-        explicit context(std::filesystem::path mount_point);
+        explicit ctx(std::filesystem::path mount_point);
 
-        explicit context(ADM_pfs_context_t ctx);
+        explicit ctx(ADM_pfs_context_t ctx);
 
-        ADM_pfs_context_t
-        to_rpc_type() const;
+        std::filesystem::path
+        mount_point() const;
 
+    private:
         std::filesystem::path m_mount_point;
     };
 
-    pfs_storage(storage::type type, std::string id,
+    pfs_storage(enum storage::type type, std::string id,
                 std::filesystem::path mount_point);
+    pfs_storage(enum storage::type type, std::string id, ADM_pfs_context_t ctx);
+    pfs_storage(pfs_storage&&) noexcept = default;
+    pfs_storage&
+    operator=(pfs_storage&&) noexcept = default;
+    ~pfs_storage() override;
 
-    pfs_storage(storage::type type, std::string id, ADM_pfs_context_t ctx);
+    std::shared_ptr<storage::ctx>
+    context() const final;
 
-    ADM_storage_t
-    to_rpc_type() const final;
-
-    context m_ctx;
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
 };
 
 struct job_requirements {
@@ -170,12 +232,25 @@ struct job_requirements {
 
     explicit job_requirements(ADM_job_requirements_t reqs);
 
-    ADM_job_requirements_t
-    to_rpc_type() const;
+    job_requirements(const job_requirements&) noexcept;
+    job_requirements(job_requirements&&) noexcept;
+    job_requirements&
+    operator=(const job_requirements&) noexcept;
+    job_requirements&
+    operator=(job_requirements&&) noexcept;
 
-    std::vector<admire::dataset> m_inputs;
-    std::vector<admire::dataset> m_outputs;
-    std::unique_ptr<admire::storage> m_storage;
+    ~job_requirements();
+
+    std::vector<admire::dataset>
+    inputs() const;
+    std::vector<admire::dataset>
+    outputs() const;
+    std::shared_ptr<admire::storage>
+    storage() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
 };
 
 } // namespace admire

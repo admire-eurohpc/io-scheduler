@@ -698,170 +698,408 @@ ADM_job_destroy(ADM_job_t job) {
 
 namespace admire {
 
+class server::impl {
+
+public:
+    impl(std::string protocol, std::string address)
+        : m_protocol(std::move(protocol)), m_address(std::move(address)) {}
+
+    std::string
+    protocol() const {
+        return m_protocol;
+    }
+
+    std::string
+    address() const {
+        return m_address;
+    }
+
+private:
+    std::string m_protocol;
+    std::string m_address;
+};
+
 server::server(std::string protocol, std::string address)
-    : m_protocol(std::move(protocol)), m_address(std::move(address)) {}
+    : m_pimpl(std::make_unique<server::impl>(std::move(protocol),
+                                             std::move(address))) {}
 
 server::server(const ADM_server_t& srv)
-    : m_protocol(srv->s_protocol), m_address(srv->s_address) {}
+    : server::server(srv->s_protocol, srv->s_address) {}
 
-job::job(job_id id) : m_id(id) {}
+server::server(server&&) noexcept = default;
 
-job::job(ADM_job_t job) : m_id(job->j_id) {}
+server&
+server::operator=(server&&) noexcept = default;
 
-storage::storage(storage::type type, std::string id)
-    : m_id(std::move(id)), m_type(type) {}
+server::~server() = default;
 
-adhoc_storage::adhoc_storage(storage::type type, std::string id,
-                             execution_mode exec_mode, access_type access_type,
-                             std::uint32_t nodes, std::uint32_t walltime,
-                             bool should_flush)
-    : storage(type, std::move(id)), m_ctx{exec_mode, access_type, nodes,
-                                          walltime, should_flush} {}
+std::string
+server::protocol() const {
+    return m_pimpl->protocol();
+}
 
-adhoc_storage::adhoc_storage(storage::type type, std::string id,
-                             ADM_adhoc_context_t ctx)
-    : storage(type, std::move(id)), m_ctx(ctx) {}
-
-ADM_storage_t
-adhoc_storage::to_rpc_type() const {
-
-    // ADM_storage_create() copies the context internally, so it is fine
-    // to use a local variable address here as an argument
-    adm_adhoc_context ctx{
-            .c_mode = static_cast<ADM_adhoc_mode_t>(m_ctx.m_exec_mode),
-            .c_access = static_cast<ADM_adhoc_access_t>(m_ctx.m_access_type),
-            .c_nodes = m_ctx.m_nodes,
-            .c_walltime = m_ctx.m_walltime,
-            .c_should_bg_flush = m_ctx.m_should_flush};
-
-    return ADM_storage_create(m_id.c_str(),
-                              static_cast<ADM_storage_type_t>(m_type),
-                              reinterpret_cast<void*>(&ctx));
+std::string
+server::address() const {
+    return m_pimpl->address();
 }
 
 
-adhoc_storage::context::context(adhoc_storage::execution_mode exec_mode,
-                                adhoc_storage::access_type access_type,
-                                std::uint32_t nodes, std::uint32_t walltime,
-                                bool should_flush)
+class job::impl {
+
+public:
+    explicit impl(job_id id) : m_id(id) {}
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    job_id
+    id() const {
+        return m_id;
+    }
+
+private:
+    job_id m_id;
+};
+
+job::job(job_id id) : m_pimpl(std::make_unique<job::impl>(id)) {}
+
+job::job(ADM_job_t job) : job::job(job->j_id) {}
+
+job::job(job&&) noexcept = default;
+
+job&
+job::operator=(job&&) noexcept = default;
+
+job::job(const job& other) noexcept
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+job&
+job::operator=(const job& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+job::~job() = default;
+
+job_id
+job::id() const {
+    return m_pimpl->id();
+}
+
+class dataset::impl {
+public:
+    explicit impl(std::string id) : m_id(std::move(id)) {}
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+    ~impl() = default;
+
+    std::string
+    id() const {
+        return m_id;
+    }
+
+private:
+    std::string m_id;
+};
+
+dataset::dataset(std::string id)
+    : m_pimpl(std::make_unique<dataset::impl>(std::move(id))) {}
+
+dataset::dataset(ADM_dataset_t dataset) : dataset::dataset(dataset->d_id) {}
+
+dataset::dataset(const dataset& other) noexcept
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+dataset::dataset(dataset&&) noexcept = default;
+
+dataset&
+dataset::operator=(const dataset& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+dataset&
+dataset::operator=(dataset&&) noexcept = default;
+
+dataset::~dataset() = default;
+
+std::string
+dataset::id() const {
+    return m_pimpl->id();
+}
+
+
+storage::storage(enum storage::type type, std::string id)
+    : m_id(std::move(id)), m_type(type) {}
+
+std::string
+storage::id() const {
+    return m_id;
+}
+
+enum storage::type
+storage::type() const {
+    return m_type;
+}
+
+adhoc_storage::ctx::ctx(adhoc_storage::execution_mode exec_mode,
+                        adhoc_storage::access_type access_type,
+                        std::uint32_t nodes, std::uint32_t walltime,
+                        bool should_flush)
     : m_exec_mode(exec_mode), m_access_type(access_type), m_nodes(nodes),
       m_walltime(walltime), m_should_flush(should_flush) {}
 
-adhoc_storage::context::context(ADM_adhoc_context_t ctx)
-    : context(static_cast<execution_mode>(ctx->c_mode),
-              static_cast<access_type>(ctx->c_access), ctx->c_nodes,
-              ctx->c_walltime, ctx->c_should_bg_flush) {}
+adhoc_storage::ctx::ctx(ADM_adhoc_context_t ctx)
+    : adhoc_storage::ctx(static_cast<execution_mode>(ctx->c_mode),
+                         static_cast<enum access_type>(ctx->c_access),
+                         ctx->c_nodes, ctx->c_walltime,
+                         ctx->c_should_bg_flush) {}
 
-ADM_adhoc_context_t
-adhoc_storage::context::to_rpc_type() const {
-
-    return ADM_adhoc_context_create(
-            static_cast<ADM_adhoc_mode_t>(m_exec_mode),
-            static_cast<ADM_adhoc_access_t>(m_access_type), m_nodes, m_walltime,
-            m_should_flush);
+adhoc_storage::execution_mode
+adhoc_storage::ctx::exec_mode() const {
+    return m_exec_mode;
 }
 
-
-pfs_storage::pfs_storage(storage::type type, std::string id,
-                         std::filesystem::path mount_point)
-    : storage(type, std::move(id)), m_ctx(std::move(mount_point)) {}
-
-pfs_storage::pfs_storage(storage::type type, std::string id,
-                         ADM_pfs_context_t ctx)
-    : storage(type, std::move(id)), m_ctx(ctx) {}
-
-ADM_storage_t
-pfs_storage::to_rpc_type() const {
-
-    // ADM_storage_create() copies the context internally, so it is fine
-    // to use a local variable address here as an argument
-    adm_pfs_context ctx{.c_mount = m_ctx.m_mount_point.c_str()};
-
-    return ADM_storage_create(m_id.c_str(),
-                              static_cast<ADM_storage_type_t>(m_type),
-                              reinterpret_cast<void*>(&ctx));
+adhoc_storage::access_type
+adhoc_storage::ctx::access_type() const {
+    return m_access_type;
 }
 
+std::uint32_t
+adhoc_storage::ctx::nodes() const {
+    return m_nodes;
+}
 
-pfs_storage::context::context(std::filesystem::path mount_point)
+std::uint32_t
+adhoc_storage::ctx::walltime() const {
+    return m_walltime;
+}
+
+bool
+adhoc_storage::ctx::should_flush() const {
+    return m_should_flush;
+}
+
+class adhoc_storage::impl {
+
+public:
+    explicit impl(adhoc_storage::ctx ctx) : m_ctx(std::move(ctx)) {}
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    adhoc_storage::ctx
+    context() const {
+        return m_ctx;
+    }
+
+private:
+    adhoc_storage::ctx m_ctx;
+};
+
+
+adhoc_storage::adhoc_storage(enum storage::type type, std::string id,
+                             execution_mode exec_mode, access_type access_type,
+                             std::uint32_t nodes, std::uint32_t walltime,
+                             bool should_flush)
+    : storage(type, std::move(id)),
+      m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{
+              exec_mode, access_type, nodes, walltime, should_flush})) {}
+
+adhoc_storage::adhoc_storage(enum storage::type type, std::string id,
+                             ADM_adhoc_context_t ctx)
+    : storage(type, std::move(id)),
+      m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{ctx})) {}
+
+std::shared_ptr<storage::ctx>
+adhoc_storage::context() const {
+    return std::make_shared<adhoc_storage::ctx>(m_pimpl->context());
+}
+
+adhoc_storage::~adhoc_storage() = default;
+
+pfs_storage::ctx::ctx(std::filesystem::path mount_point)
     : m_mount_point(std::move(mount_point)) {}
 
-pfs_storage::context::context(ADM_pfs_context_t ctx) : context(ctx->c_mount) {}
+pfs_storage::ctx::ctx(ADM_pfs_context_t ctx) : pfs_storage::ctx(ctx->c_mount) {}
 
-ADM_pfs_context_t
-pfs_storage::context::to_rpc_type() const {
-    return ADM_pfs_context_create(m_mount_point.c_str());
+std::filesystem::path
+pfs_storage::ctx::mount_point() const {
+    return m_mount_point;
 }
+
+class pfs_storage::impl {
+
+public:
+    explicit impl(pfs_storage::ctx ctx) : m_ctx(std::move(ctx)) {}
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    pfs_storage::ctx
+    context() const {
+        return m_ctx;
+    }
+
+private:
+    pfs_storage::ctx m_ctx;
+};
+
+pfs_storage::pfs_storage(enum storage::type type, std::string id,
+                         std::filesystem::path mount_point)
+    : storage(type, std::move(id)),
+      m_pimpl(std::make_unique<impl>(
+              pfs_storage::ctx{std::move(mount_point)})) {}
+
+pfs_storage::pfs_storage(enum storage::type type, std::string id,
+                         ADM_pfs_context_t ctx)
+    : storage(type, std::move(id)),
+      m_pimpl(std::make_unique<impl>(pfs_storage::ctx{ctx})) {}
+
+pfs_storage::~pfs_storage() = default;
+
+std::shared_ptr<storage::ctx>
+pfs_storage::context() const {
+    return std::make_shared<pfs_storage::ctx>(m_pimpl->context());
+}
+
+class job_requirements::impl {
+
+public:
+    impl(std::vector<admire::dataset> inputs,
+         std::vector<admire::dataset> outputs)
+        : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)) {}
+
+    impl(std::vector<admire::dataset> inputs,
+         std::vector<admire::dataset> outputs,
+         std::unique_ptr<admire::storage> storage)
+        : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)),
+          m_storage(std::move(storage)) {}
+
+    explicit impl(ADM_job_requirements_t reqs) {
+        m_inputs.reserve(reqs->r_inputs->l_length);
+
+        for(size_t i = 0; i < reqs->r_inputs->l_length; ++i) {
+            m_inputs.emplace_back(reqs->r_inputs->l_datasets[i].d_id);
+        }
+
+        m_outputs.reserve(reqs->r_outputs->l_length);
+
+        for(size_t i = 0; i < reqs->r_outputs->l_length; ++i) {
+            m_outputs.emplace_back(reqs->r_outputs->l_datasets[i].d_id);
+        }
+
+        if(reqs->r_storage) {
+
+            switch(reqs->r_storage->s_type) {
+
+                case ADM_STORAGE_GEKKOFS:
+                case ADM_STORAGE_DATACLAY:
+                case ADM_STORAGE_EXPAND:
+                case ADM_STORAGE_HERCULES:
+                    m_storage = std::make_unique<adhoc_storage>(
+                            static_cast<enum storage::type>(
+                                    reqs->r_storage->s_type),
+                            reqs->r_storage->s_id,
+                            reqs->r_storage->s_adhoc_ctx);
+                    break;
+                case ADM_STORAGE_LUSTRE:
+                case ADM_STORAGE_GPFS:
+                    m_storage = std::make_unique<pfs_storage>(
+                            static_cast<enum storage::type>(
+                                    reqs->r_storage->s_type),
+                            reqs->r_storage->s_id, reqs->r_storage->s_pfs_ctx);
+                    break;
+            }
+        }
+    }
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    std::vector<admire::dataset>
+    inputs() const {
+        return m_inputs;
+    }
+
+    std::vector<admire::dataset>
+    outputs() const {
+        return m_outputs;
+    }
+
+    std::shared_ptr<admire::storage>
+    storage() const {
+        return m_storage;
+    }
+
+private:
+    std::vector<admire::dataset> m_inputs;
+    std::vector<admire::dataset> m_outputs;
+    std::shared_ptr<admire::storage> m_storage;
+};
 
 
 job_requirements::job_requirements(std::vector<admire::dataset> inputs,
                                    std::vector<admire::dataset> outputs)
-    : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)) {}
+    : m_pimpl(std::make_unique<impl>(std::move(inputs), std::move(outputs))) {}
 
 job_requirements::job_requirements(std::vector<admire::dataset> inputs,
                                    std::vector<admire::dataset> outputs,
-                                   std::unique_ptr<storage> storage)
-    : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)),
-      m_storage(std::move(storage)) {}
+                                   std::unique_ptr<admire::storage> storage)
+    : m_pimpl(std::make_unique<impl>(std::move(inputs), std::move(outputs),
+                                     std::move(storage))) {}
 
-job_requirements::job_requirements(ADM_job_requirements_t reqs) {
-    m_inputs.reserve(reqs->r_inputs->l_length);
+job_requirements::job_requirements(ADM_job_requirements_t reqs)
+    : m_pimpl(std::make_unique<impl>(reqs)) {}
 
-    for(size_t i = 0; i < reqs->r_inputs->l_length; ++i) {
-        m_inputs.emplace_back(reqs->r_inputs->l_datasets[i].d_id);
-    }
+job_requirements::job_requirements(const job_requirements& other) noexcept
+    : m_pimpl(std::make_unique<job_requirements::impl>(*other.m_pimpl)) {}
 
-    m_outputs.reserve(reqs->r_outputs->l_length);
+job_requirements::job_requirements(job_requirements&&) noexcept = default;
 
-    for(size_t i = 0; i < reqs->r_outputs->l_length; ++i) {
-        m_outputs.emplace_back(reqs->r_outputs->l_datasets[i].d_id);
-    }
-
-    if(reqs->r_storage) {
-
-        switch(reqs->r_storage->s_type) {
-
-            case ADM_STORAGE_GEKKOFS:
-            case ADM_STORAGE_DATACLAY:
-            case ADM_STORAGE_EXPAND:
-            case ADM_STORAGE_HERCULES:
-                m_storage = std::make_unique<adhoc_storage>(
-                        static_cast<storage::type>(reqs->r_storage->s_type),
-                        reqs->r_storage->s_id, reqs->r_storage->s_adhoc_ctx);
-                break;
-            case ADM_STORAGE_LUSTRE:
-            case ADM_STORAGE_GPFS:
-                m_storage = std::make_unique<pfs_storage>(
-                        static_cast<storage::type>(reqs->r_storage->s_type),
-                        reqs->r_storage->s_id, reqs->r_storage->s_pfs_ctx);
-                break;
-        }
-    }
+job_requirements&
+job_requirements::operator=(const job_requirements& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
 }
 
-ADM_job_requirements_t
-job_requirements::to_rpc_type() const {
-    using scord::utils::c_ptr;
-    using scord::utils::c_ptr_vector;
-    using dataset_vector = c_ptr_vector<adm_dataset, ADM_dataset_destroy>;
+job_requirements&
+job_requirements::operator=(job_requirements&&) noexcept = default;
 
-    dataset_vector inputs;
-    inputs.reserve(m_inputs.size());
+job_requirements::~job_requirements() = default;
 
-    for(const auto& in : m_inputs) {
-        inputs.emplace_back(ADM_dataset_create(in.m_id.c_str()));
-    }
+std::vector<admire::dataset>
+job_requirements::inputs() const {
+    return m_pimpl->inputs();
+}
 
-    dataset_vector outputs;
-    outputs.reserve(m_outputs.size());
+std::vector<admire::dataset>
+job_requirements::outputs() const {
+    return m_pimpl->outputs();
+}
 
-    for(const auto& out : m_outputs) {
-        outputs.emplace_back(ADM_dataset_create(out.m_id.c_str()));
-    }
-
-    return ADM_job_requirements_create(
-            inputs.data(), inputs.size(), outputs.data(), outputs.size(),
-            m_storage ? m_storage->to_rpc_type() : nullptr);
+std::shared_ptr<admire::storage>
+job_requirements::storage() const {
+    return m_pimpl->storage();
 }
 
 

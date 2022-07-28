@@ -29,10 +29,6 @@
 #include <admire.hpp>
 #include <tl/expected.hpp>
 
-namespace admire {
-using error_code = ADM_return_t;
-} // namespace admire
-
 namespace admire::detail {
 
 admire::error_code

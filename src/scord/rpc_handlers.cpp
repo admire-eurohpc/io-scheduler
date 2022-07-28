@@ -71,12 +71,13 @@ ADM_register_job(hg_handle_t h) {
     const auto job = admire::job{42};
 
     const auto rpc_job = admire::unmanaged_rpc_type<admire::job>{job};
+    admire::error_code rv = ADM_SUCCESS;
 
-    out.retval = ADM_SUCCESS;
+    out.retval = rv;
     out.job = rpc_job.get();
 
-    LOGGER_INFO("RPC ID {} ({}) = {{{}, job: {{{}}}}}", id, __FUNCTION__,
-                out.retval, job);
+    LOGGER_INFO("RPC ID {} ({}) = {{{}, job: {{{}}}}}", id, __FUNCTION__, rv,
+                job);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

@@ -35,6 +35,8 @@
 
 namespace admire {
 
+using error_code = ADM_return_t;
+
 using job_id = std::uint64_t;
 
 struct server {
@@ -424,6 +426,38 @@ struct admire::unmanaged_rpc_type<admire::job> {
 ////////////////////////////////////////////////////////////////////////////////
 //  Formatting functions
 ////////////////////////////////////////////////////////////////////////////////
+
+template <>
+struct fmt::formatter<admire::error_code> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::error_code& ec, FormatContext& ctx) const {
+        std::string_view name = "unknown";
+
+        switch(ec) {
+            case ADM_SUCCESS:
+                name = "ADM_SUCCESS";
+                break;
+            case ADM_ESNAFU:
+                name = "ADM_ESNAFU";
+                break;
+            case ADM_EBADARGS:
+                name = "ADM_EBADARGS";
+                break;
+            case ADM_ENOMEM:
+                name = "ADM_ENOMEM";
+                break;
+            case ADM_EOTHER:
+                name = "ADM_EOTHER";
+                break;
+            default:
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
 
 template <>
 struct fmt::formatter<admire::job> : formatter<std::string_view> {

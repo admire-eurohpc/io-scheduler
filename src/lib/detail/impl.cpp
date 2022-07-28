@@ -168,7 +168,8 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
 
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC ({}): {{{}}}", "ADM_register_job", reqs);
+    LOGGER_INFO("RPC (ADM_{}) => {{job_requirements: {{{}}}}}", __FUNCTION__,
+                reqs);
 
     auto rpc_reqs = managed_rpc_type<admire::job_requirements>{reqs};
 
@@ -178,14 +179,14 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     endp.call("ADM_register_job", &in, &out);
 
     if(out.retval < 0) {
-        LOGGER_ERROR("RPC ({}) = {}", "ADM_register_job", out.retval);
+        LOGGER_ERROR("RPC (ADM_{}) <= {}", __FUNCTION__, out.retval);
         return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
     const auto rpc_job = managed_rpc_type<ADM_job_t>{out.job};
     const admire::job job = rpc_job.get();
 
-    LOGGER_INFO("RPC ({}) = {{{}, job: {{{}}}}}", "ADM_register_job",
+    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}, job: {{{}}}}}", __FUNCTION__,
                 ADM_SUCCESS, job.id());
 
     return job;

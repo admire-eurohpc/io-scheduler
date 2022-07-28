@@ -56,7 +56,7 @@ update_job(const server& srv, const job&, const job_requirements& reqs);
 admire::job
 remove_job(const server& srv, const job& job);
 
-ADM_return_t
+admire::adhoc_storage
 register_adhoc_storage(const server& srv, ADM_job_t job,
                        ADM_adhoc_context_t ctx, ADM_storage_t* adhoc_storage);
 

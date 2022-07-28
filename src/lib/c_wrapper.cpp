@@ -96,7 +96,18 @@ ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job,
 
     const admire::server srv{server};
 
-    return admire::register_adhoc_storage(srv, job, ctx, adhoc_storage);
+    const auto rv = admire::detail::register_adhoc_storage(
+            srv, admire::job{job}, admire::adhoc_storage::context{ctx});
+            //admire::adhoc_storage::storage{adhoc_storage});
+
+    if(!rv) {
+        return rv.error();
+    }
+
+    *adhoc_storage = admire::managed_rpc_type<admire::adhoc_storage>{*rv}.get();
+    
+
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

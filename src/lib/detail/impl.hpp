@@ -47,6 +47,10 @@ update_job(const server& srv, const job& job, const job_requirements& reqs);
 tl::expected<admire::job, admire::error_code>
 remove_job(const server& srv, const job& job);
 
+tl::expected<admire::adhoc_storage, admire::error_code>
+register_adhoc_storage(const server& srv, const job& job,
+                       const admire::adhoc_storage::context& ctx);
+
 } // namespace admire::detail
 
 #endif // SCORD_ADMIRE_IMPL_HPP

@@ -244,4 +244,31 @@ remove_job(const admire::server& srv, const admire::job& job) {
     return admire::job{42};
 }
 
+tl::expected<admire::adhoc_storage, admire::error_code>
+register_adhoc_storage(const admire::server& srv, const admire::job& job,
+                       const admire::adhoc_storage::context& ctx){
+
+        scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
+
+        auto endp = rpc_client.lookup(srv.m_address);
+
+        // TODO: check how to proceed when reqs is not an argument
+        LOGGER_INFO("ADM_register_adhoc_storage(...)");
+
+        ADM_register_adhoc_storage_in_t in{};
+        ADM_register_adhoc_storage_out_t out;
+
+        endp.call("ADM_register_adhoc_storage", &in, &out);
+
+        if(out.ret < 0) {
+                LOGGER_ERROR("ADM_register_adhoc_storage() = {}", out.ret);
+                return static_cast<ADM_return_t>(out.ret);
+        }
+
+        LOGGER_INFO("ADM_register_adhoc_storage() = {}", ADM_SUCCESS);
+        return  admire::adhoc_storage{"read-only", 10, ctx};
+
+        // TODO: take a look about what the return!
+}
+
 } // namespace admire::detail

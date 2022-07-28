@@ -221,32 +221,17 @@ remove_job(const server& srv, const job& job) {
     return rv.value();
 }
 
-ADM_return_t
-register_adhoc_storage(const server& srv, ADM_job_t job,
-                       ADM_adhoc_context_t ctx, ADM_storage_t* adhoc_storage) {
-    (void) srv;
-    (void) job;
-    (void) ctx;
-    (void) adhoc_storage;
+admire::adhoc_storage
+register_adhoc_storage(const server& srv, const job& job,
+                       const adhoc_storage::context& ctx) {
+    const auto rv = detail::register_adhoc_storage(srv, job, ctx);
 
-    scord::network::rpc_client rpc_client{srv.m_protocol, rpc_registration_cb};
-
-    auto endp = rpc_client.lookup(srv.m_address);
-
-    LOGGER_INFO("ADM_register_adhoc_storage(...)");
-
-    ADM_register_adhoc_storage_in_t in{};
-    ADM_register_adhoc_storage_out_t out;
-
-    endp.call("ADM_register_adhoc_storage", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_register_adhoc_storage() = {}", out.ret);
-        return static_cast<ADM_return_t>(out.ret);
+    if(!rv) {
+        throw std::runtime_error(fmt::format("ADM_register_adhoc_storage() error: {}",
+                                             ADM_strerror(rv.error())));
     }
 
-    LOGGER_INFO("ADM_register_adhoc_storage() = {}", ADM_SUCCESS);
-    return ADM_SUCCESS;
+    return rv.value();
 }
 
 ADM_return_t

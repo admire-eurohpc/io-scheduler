@@ -202,27 +202,7 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
 
 ADM_return_t
 remove_job(const server& srv, const job& job) {
-    (void) srv;
-    (void) job;
-
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
-
-    auto endp = rpc_client.lookup(srv.address());
-
-    LOGGER_INFO("ADM_remove_job(...)");
-
-    ADM_remove_job_in_t in{};
-    ADM_remove_job_out_t out;
-
-    endp.call("ADM_remove_job", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_remove_job() = {}", out.ret);
-        return static_cast<ADM_return_t>(out.ret);
-    }
-
-    LOGGER_INFO("ADM_remove_job() = {}", ADM_SUCCESS);
-    return ADM_SUCCESS;
+    return detail::remove_job(srv, job);
 }
 
 ADM_return_t

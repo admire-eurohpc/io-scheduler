@@ -192,4 +192,34 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     return job;
 }
 
+admire::error_code
+update_job(const server& srv, const job& job, const job_requirements& reqs) {
+
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.address());
+
+    LOGGER_INFO("RPC ({}): {{job: {{{}}}, job_requirements: {{{}}}}}",
+                "ADM_update_job", job, reqs);
+
+    const auto rpc_job = managed_rpc_type<admire::job>{job};
+    const auto rpc_reqs = managed_rpc_type<admire::job_requirements>{reqs};
+
+    ADM_update_job_in_t in{rpc_job.get(), *rpc_reqs.get()};
+    ADM_update_job_out_t out;
+
+    endp.call("ADM_update_job", &in, &out);
+
+
+    if(out.retval < 0) {
+        const auto retval = static_cast<admire::error_code>(out.retval);
+        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__,
+                     retval);
+        return retval;
+    }
+
+    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
+    return ADM_SUCCESS;
+}
+
 } // namespace admire::detail

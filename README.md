@@ -23,6 +23,8 @@ available in the system:
     - [libfabric](https://github.com/ofiwg/libfabric) version 1.14.0rc3 and/or
 [ucx](https://github.com/openucx/ucx.git) version 1.13.
   - [JSON-C](https://github.com/json-c/json-c) version 0.13.1.
+- [libconfig-dev] version 1.4.9 or later.
+- [agios] (https://github.com/francielizanon/agios) (development branch)
 
 The following libraries are also required by `scord`, but will be downloaded
 and compiled by the project as part of the standard build process.

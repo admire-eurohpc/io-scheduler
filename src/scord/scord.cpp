@@ -185,6 +185,17 @@ main(int argc, char* argv[]) {
                          ADM_deploy_adhoc_storage_out_t,
                          ADM_deploy_adhoc_storage, true);
 
+            REGISTER_RPC(ctx, "ADM_register_pfs_storage",
+                         ADM_register_pfs_storage_in_t,
+                         ADM_register_pfs_storage_out_t,
+                         ADM_register_pfs_storage, true);
+            REGISTER_RPC(
+                    ctx, "ADM_update_pfs_storage", ADM_update_pfs_storage_in_t,
+                    ADM_update_pfs_storage_out_t, ADM_update_pfs_storage, true);
+            REGISTER_RPC(
+                    ctx, "ADM_remove_pfs_storage", ADM_remove_pfs_storage_in_t,
+                    ADM_remove_pfs_storage_out_t, ADM_remove_pfs_storage, true);
+
             REGISTER_RPC(ctx, "ADM_input", ADM_input_in_t, ADM_input_out_t,
                          ADM_input, true);
 

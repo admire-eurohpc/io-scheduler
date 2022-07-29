@@ -54,6 +54,14 @@ rpc_registration_cb(scord::network::rpc_client* client) {
                  ADM_deploy_adhoc_storage_in_t, ADM_deploy_adhoc_storage_out_t,
                  NULL, true);
 
+    REGISTER_RPC(client, "ADM_register_pfs_storage",
+                 ADM_register_pfs_storage_in_t, ADM_register_pfs_storage_out_t,
+                 NULL, true);
+    REGISTER_RPC(client, "ADM_update_pfs_storage", ADM_update_pfs_storage_in_t,
+                 ADM_update_pfs_storage_out_t, NULL, true);
+    REGISTER_RPC(client, "ADM_remove_pfs_storage", ADM_remove_pfs_storage_in_t,
+                 ADM_remove_pfs_storage_out_t, NULL, true);
+
     REGISTER_RPC(client, "ADM_input", ADM_input_in_t, ADM_input_out_t, NULL,
                  true);
 
@@ -213,8 +221,7 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
 
     if(out.retval < 0) {
         const auto retval = static_cast<admire::error_code>(out.retval);
-        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__,
-                     retval);
+        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, retval);
         return retval;
     }
 
@@ -240,9 +247,8 @@ remove_job(const server& srv, const job& job) {
 
     if(out.retval < 0) {
         const auto retval = static_cast<admire::error_code>(out.retval);
-        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__,
-                     retval);        
-return retval;
+        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, retval);
+        return retval;
     }
 
     LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);

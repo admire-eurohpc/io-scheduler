@@ -29,7 +29,7 @@
 static void
 ADM_ping(hg_handle_t h) {
 
-    hg_return_t ret;
+    [[maybe_unused]] hg_return_t ret;
 
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 

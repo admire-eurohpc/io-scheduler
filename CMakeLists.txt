@@ -293,7 +293,7 @@ find_package(RedisPlusPlus 1.3.3 REQUIRED)
 # ##############################################################################
 
 # set compile flags
-add_compile_options("-Wall" "-Wextra" "$<$<CONFIG:RELEASE>:-O3>")
+add_compile_options("-Wall" "-Wextra" "-Werror" "$<$<CONFIG:RELEASE>:-O3>")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   add_compile_options("-stdlib=libc++")
 else ()

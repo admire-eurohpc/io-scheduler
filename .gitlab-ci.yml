@@ -14,6 +14,7 @@ build:
     - mkdir -p build
     - cd build
     - cmake
+      -DCMAKE_BUILD_TYPE:STRING=ASan
       -DCMAKE_PREFIX_PATH:STRING=/usr/local
       -DCMAKE_INSTALL_PREFIX:STRING=${CI_PROJECT_DIR}/compiled
       -DSCORD_BUILD_EXAMPLES:BOOL=ON

@@ -61,7 +61,7 @@ unit:
     - export LSAN_OPTIONS=verbosity=1:log_threads=1:suppressions=${CI_PROJECT_DIR}/tests/LSanSuppress.supp
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
     - cd build/tests
-    - ctest -j$(nproc) --output-junit report.xml
+    - ctest -j$(nproc) --output-on-failure --output-junit report.xml
   artifacts:
     expire_in: 1 week
     paths:

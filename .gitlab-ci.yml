@@ -45,6 +45,8 @@ rpc:
   stage: test
   needs: [build]
   script:
+    - export ASAN_OPTIONS=detect_odr_violation=0
+    - export LSAN_OPTIONS=verbosity=1:log_threads=1:suppressions=tests/LSanSuppress.supp
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
     - compiled/bin/scord -f --force-console &
     - build/examples/cxx/ADM_ping ofi+tcp://127.0.0.1:52000
@@ -56,7 +58,7 @@ unit:
   needs: [build]
   script:
     - export ASAN_OPTIONS=detect_odr_violation=0
-    - export LSAN_OPTIONS=verbosity=1:log_threads=1
+    - export LSAN_OPTIONS=verbosity=1:log_threads=1:suppressions=${CI_PROJECT_DIR}/tests/LSanSuppress.supp
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
     - cd build/tests
     - ctest -j$(nproc) --output-junit report.xml

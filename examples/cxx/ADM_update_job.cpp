@@ -56,12 +56,28 @@ main(int argc, char* argv[]) {
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write, 42, 100, false);
 
-    admire::job job{42};
     admire::job_requirements reqs{inputs, outputs, std::move(p)};
+    const auto job = admire::register_job(server, reqs);
+
+
+    std::vector<admire::dataset> new_inputs;
+    new_inputs.reserve(NINPUTS);
+    for(int i = 0; i < NINPUTS; ++i) {
+        new_inputs.emplace_back(fmt::format("input-new-dataset-{}", i));
+    }
+
+    std::vector<admire::dataset> new_outputs;
+    new_outputs.reserve(NOUTPUTS);
+    for(int i = 0; i < NOUTPUTS; ++i) {
+        new_outputs.emplace_back(fmt::format("output-new-dataset-{}", i));
+    }
+
+    admire::job_requirements new_reqs{new_inputs, new_outputs, std::move(p)};
+
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::update_job(server, job, reqs);
+        ret = admire::update_job(server, job, new_reqs);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_update_job() failed: {}\n", e.what());
         exit(EXIT_FAILURE);

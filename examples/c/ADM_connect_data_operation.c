@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <admire.h>
+#include <assert.h>
 
 #define NINPUTS  10
 #define NOUTPUTS 5
@@ -42,7 +43,8 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
-    ADM_dataset_t inputs[NINPUTS];
+
+        ADM_dataset_t inputs[NINPUTS];
 
     for(int i = 0; i < NINPUTS; ++i) {
         const char* pattern = "input-dataset-%d";
@@ -62,8 +64,46 @@ main(int argc, char* argv[]) {
         outputs[i] = ADM_dataset_create(id);
     }
 
+    ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 42, 100, false);
+    assert(ctx);
+
+    ADM_storage_t st = ADM_storage_create("foobar", ADM_STORAGE_GEKKOFS, ctx);
+    assert(st);
+
+    ADM_job_requirements_t reqs =
+            ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
+    assert(reqs);
+
+    ADM_dataset_t input;
+
+    const char* pattern_i = "input-dataset";
+    size_t n_i = snprintf(NULL, 0, pattern_i);
+    char* id_i = (char*) malloc(n_i + 1);
+    snprintf(id_i, n_i + 1, pattern_i);
+    input= ADM_dataset_create(id_i);
+
+    ADM_dataset_t output;
+
+    const char* pattern_o = "output-dataset";
+    size_t n_o = snprintf(NULL, 0, pattern_o);
+    char* id_o = (char*) malloc(n_o + 1);
+    snprintf(id_o, n_o + 1, pattern_o);
+    output= ADM_dataset_create(id_o);
+
+
+    ADM_return_t ret_job = ADM_register_job(server, reqs, &job);
+
+    if(ret_job != ADM_SUCCESS) {
+        fprintf(stdout, "ADM_register_job() remote procedure not completed "
+                        "successfully\n");
+        exit_status = EXIT_FAILURE;
+    } 
+
+    exit_status = EXIT_SUCCESS;
+
     bool should_stream = false;
-    ADM_return_t ret = ADM_connect_data_operation(server, job, inputs, outputs,
+    ADM_return_t ret = ADM_connect_data_operation(server, job, input, output,
                                                   should_stream);
 
 
@@ -80,6 +120,10 @@ main(int argc, char* argv[]) {
 
 cleanup:
 
+    ADM_dataset_destroy(input);
+    ADM_dataset_destroy(output);
+
+    
     for(int i = 0; i < NINPUTS; ++i) {
         ADM_dataset_destroy(inputs[i]);
     }

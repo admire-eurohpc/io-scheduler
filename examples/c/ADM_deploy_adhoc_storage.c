@@ -25,6 +25,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <admire.h>
+#include <assert.h>
+
+#define NINPUTS  10
+#define NOUTPUTS 5
 
 int
 main(int argc, char* argv[]) {
@@ -39,7 +43,61 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
+
+    ADM_dataset_t inputs[NINPUTS];
+
+    for(int i = 0; i < NINPUTS; ++i) {
+        const char* pattern = "input-dataset-%d";
+        size_t n = snprintf(NULL, 0, pattern, i);
+        char* id = (char*) malloc(n + 1);
+        snprintf(id, n + 1, pattern, i);
+        inputs[i] = ADM_dataset_create(id);
+    }
+
+    ADM_dataset_t outputs[NOUTPUTS];
+
+    for(int i = 0; i < NOUTPUTS; ++i) {
+        const char* pattern = "output-dataset-%d";
+        size_t n = snprintf(NULL, 0, pattern, i);
+        char* id = (char*) malloc(n + 1);
+        snprintf(id, n + 1, pattern, i);
+        outputs[i] = ADM_dataset_create(id);
+    }
+
+    ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 42, 100, false);
+    assert(ctx);
+
+    ADM_storage_t st = ADM_storage_create("foobar", ADM_STORAGE_GEKKOFS, ctx);
+    assert(st);
+
+    ADM_job_requirements_t reqs =
+            ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
+    assert(reqs);
+
+    ADM_return_t ret_job = ADM_register_job(server, reqs, &job);
+
+    if(ret_job != ADM_SUCCESS) {
+        fprintf(stdout, "ADM_register_job() remote procedure not completed "
+                        "successfully\n");
+        exit_status = EXIT_FAILURE;
+    }
+
     ADM_storage_t adhoc_storage;
+
+    ADM_return_t ret_as =
+            ADM_register_adhoc_storage(server, job, ctx, &adhoc_storage);
+
+    if(ret_as != ADM_SUCCESS) {
+        fprintf(stdout,
+                "ADM_register_adhoc_storage() remote procedure not completed "
+                "successfully\n");
+        exit_status = EXIT_FAILURE;
+        goto cleanup;
+    }
+
+    fprintf(stdout, "ADM_register_adhoc_storage() remote procedure completed "
+                    "successfully\n");
 
     ADM_return_t ret = ADM_deploy_adhoc_storage(server, job, adhoc_storage);
 

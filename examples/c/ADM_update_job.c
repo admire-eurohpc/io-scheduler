@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <admire.h>
+#include <assert.h>
 
 #define NINPUTS  10
 #define NOUTPUTS 5
@@ -63,9 +64,42 @@ main(int argc, char* argv[]) {
         outputs[i] = ADM_dataset_create(id);
     }
 
-    ADM_job_requirements_t reqs = ADM_job_requirements_create(
-            inputs, NINPUTS, outputs, NOUTPUTS, NULL);
-    ADM_return_t ret = ADM_update_job(server, job, reqs);
+    ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 42, 100, false);
+    assert(ctx);
+
+    ADM_storage_t st = ADM_storage_create("foobar", ADM_STORAGE_GEKKOFS, ctx);
+    assert(st);
+
+    ADM_job_requirements_t reqs =
+            ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
+    assert(reqs);
+
+    ADM_register_job(server, reqs, &job);
+
+    ADM_dataset_t new_inputs[NINPUTS];
+
+    for(int i = 0; i < NINPUTS; ++i) {
+        const char* pattern = "input-new-dataset-%d";
+        size_t n = snprintf(NULL, 0, pattern, i);
+        char* id = (char*) malloc(n + 1);
+        snprintf(id, n + 1, pattern, i);
+        new_inputs[i] = ADM_dataset_create(id);
+    }
+
+    ADM_dataset_t new_outputs[NOUTPUTS];
+
+    for(int i = 0; i < NOUTPUTS; ++i) {
+        const char* pattern = "output-new-dataset-%d";
+        size_t n = snprintf(NULL, 0, pattern, i);
+        char* id = (char*) malloc(n + 1);
+        snprintf(id, n + 1, pattern, i);
+        new_outputs[i] = ADM_dataset_create(id);
+    }
+
+    ADM_job_requirements_t new_reqs = ADM_job_requirements_create(
+            new_inputs, NINPUTS, new_outputs, NOUTPUTS, NULL);
+    ADM_return_t ret = ADM_update_job(server, job, new_reqs);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_update_job() remote procedure not completed "

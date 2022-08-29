@@ -57,7 +57,9 @@ main(int argc, char* argv[]) {
             admire::adhoc_storage::access_type::read_write, 42, 100, false);
 
     admire::job_requirements reqs{inputs, outputs, std::move(p)};
-    
+
+    const auto job = admire::register_job(server, reqs);
+    /*
     try {
         [[maybe_unused]] const auto job = admire::register_job(server, reqs);
 
@@ -67,7 +69,7 @@ main(int argc, char* argv[]) {
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_register_job() failed: {}\n", e.what());
         exit(EXIT_FAILURE);
-    }
+    }*/
 
 
     std::vector<admire::dataset> new_inputs;

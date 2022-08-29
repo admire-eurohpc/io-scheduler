@@ -58,19 +58,6 @@ main(int argc, char* argv[]) {
 
     admire::job_requirements reqs{inputs, outputs, std::move(p)};
 
-    const auto job = admire::register_job(server, reqs);
-    /*
-    try {
-        [[maybe_unused]] const auto job = admire::register_job(server, reqs);
-
-        fmt::print(stdout, "ADM_register_job() remote procedure completed "
-                           "successfully\n");
-        exit(EXIT_SUCCESS);
-    } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_register_job() failed: {}\n", e.what());
-        exit(EXIT_FAILURE);
-    }*/
-
 
     std::vector<admire::dataset> new_inputs;
     new_inputs.reserve(NINPUTS);
@@ -89,9 +76,19 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
+        [[maybe_unused]] const auto job = admire::register_job(server, reqs);
+
         ret = admire::update_job(server, job, new_reqs);
+
+        fmt::print(
+                stdout,
+                "ADM_register_job() and ADM_update_job() remote procedure completed "
+                "successfully\n");
+        exit(EXIT_SUCCESS);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_update_job() failed: {}\n", e.what());
+        fmt::print(stderr,
+                   "FATAL: ADM_register_job() or ADM_update_job() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
 
@@ -100,7 +97,4 @@ main(int argc, char* argv[]) {
                            "successfully\n");
         exit(EXIT_FAILURE);
     }
-
-    fmt::print(stdout, "ADM_update_job() remote procedure completed "
-                       "successfully\n");
 }

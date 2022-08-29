@@ -25,6 +25,8 @@
 #include <fmt/format.h>
 #include <admire.hpp>
 
+#define NINPUTS  10
+#define NOUTPUTS 5
 
 int
 main(int argc, char* argv[]) {

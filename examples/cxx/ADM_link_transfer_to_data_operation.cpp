@@ -42,7 +42,7 @@ main(int argc, char* argv[]) {
     ADM_data_operation_t op{};
     bool should_stream = false;
     va_list args;
-    ADM_transfer_t transfer;
+    ADM_transfer_t transfer{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {

@@ -30,11 +30,33 @@
 
 namespace admire::api {
 
+// convenience types for managing the types from the C API in a RAII fashion
 template <typename T>
-struct managed_rpc_type;
+struct managed_ctype;
 
 template <typename T>
-struct unmanaged_rpc_type;
+struct managed_ctype_array;
+
+// conversion functions between C API and CXX API types
+
+managed_ctype<ADM_adhoc_context_t>
+convert(const adhoc_storage::ctx& ctx);
+
+managed_ctype<ADM_storage_t>
+convert(const admire::adhoc_storage& st);
+
+managed_ctype_array<ADM_dataset_t>
+convert(const std::vector<admire::dataset>& datasets);
+
+managed_ctype<ADM_job_requirements_t>
+convert(const admire::job_requirements& reqs);
+
+managed_ctype<ADM_job_t>
+convert(const job& j);
+
+job
+convert(ADM_job_t j);
+
 
 } // namespace admire::api
 
@@ -44,160 +66,128 @@ struct unmanaged_rpc_type;
 ////////////////////////////////////////////////////////////////////////////////
 
 template <>
-struct admire::api::managed_rpc_type<admire::adhoc_storage::ctx> {
+struct admire::api::managed_ctype<ADM_adhoc_context_t> {
 
-    template <typename T, auto Deleter>
-    using managed_ptr = scord::utils::ctype_ptr<T, Deleter>;
-
-    explicit managed_rpc_type(const admire::adhoc_storage::ctx& ctx)
-        : m_adhoc_context(ADM_adhoc_context_create(
-                  static_cast<ADM_adhoc_mode_t>(ctx.exec_mode()),
-                  static_cast<ADM_adhoc_access_t>(ctx.access_type()),
-                  ctx.nodes(), ctx.walltime(), ctx.should_flush())) {}
+    explicit managed_ctype(ADM_adhoc_context_t ctx) : m_adhoc_context(ctx) {}
 
     ADM_adhoc_context_t
     get() const {
         return m_adhoc_context.get();
     }
 
-    managed_ptr<ADM_adhoc_context_t, ADM_adhoc_context_destroy> m_adhoc_context;
+    ADM_adhoc_context_t
+    release() {
+        return m_adhoc_context.release();
+    }
+
+    scord::utils::ctype_ptr<ADM_adhoc_context_t, ADM_adhoc_context_destroy>
+            m_adhoc_context;
 };
 
-
 template <>
-struct admire::api::managed_rpc_type<admire::adhoc_storage> {
+struct admire::api::managed_ctype<ADM_storage_t> {
 
-    template <typename T, auto Deleter>
-    using rpc_storage_ptr = scord::utils::ctype_ptr<T, Deleter>;
-
-    template <typename T, auto Deleter>
-    using managed_ptr = scord::utils::ctype_ptr<T, Deleter>;
-
-    explicit managed_rpc_type(const admire::adhoc_storage& st)
-        : m_adhoc_context(*std::static_pointer_cast<admire::adhoc_storage::ctx>(
-                  st.context())),
-          m_storage(ADM_storage_create(
-                  st.id().c_str(), static_cast<ADM_storage_type_t>(st.type()),
-                  m_adhoc_context.get())) {}
+    explicit managed_ctype(ADM_storage_t st,
+                           managed_ctype<ADM_adhoc_context_t>&& ctx)
+        : m_storage(st), m_ctx(std::move(ctx)) {}
 
     ADM_storage_t
     get() const {
         return m_storage.get();
     }
 
-    managed_rpc_type<admire::adhoc_storage::ctx> m_adhoc_context;
-    rpc_storage_ptr<ADM_storage_t, ADM_storage_destroy> m_storage;
+    ADM_storage_t
+    release() {
+        return m_storage.release();
+    }
+
+    scord::utils::ctype_ptr<ADM_storage_t, ADM_storage_destroy> m_storage;
+    managed_ctype<ADM_adhoc_context_t> m_ctx;
 };
 
 template <>
-struct admire::api::managed_rpc_type<std::vector<admire::dataset>> {
+struct admire::api::managed_ctype_array<ADM_dataset_t> {
 
-    template <typename T, auto Deleter>
-    using managed_ptr_vector = scord::utils::ctype_ptr_vector<T, Deleter>;
+    explicit managed_ctype_array(ADM_dataset_t* data, size_t size)
+        : m_datasets(data, size) {}
 
-    explicit managed_rpc_type(const std::vector<admire::dataset>& datasets) {
-        m_datasets.reserve(datasets.size());
+    explicit managed_ctype_array(std::vector<ADM_dataset_t>&& v)
+        : m_datasets(v.data(), v.size()) {}
 
-        for(const auto& d : datasets) {
-            m_datasets.emplace_back(ADM_dataset_create(d.id().c_str()));
-        }
-    }
-
-    const ADM_dataset_t*
-    data() const {
-        return m_datasets.data();
-    }
-
-    ADM_dataset_t*
-    data() {
-        return m_datasets.data();
-    }
-
-    std::size_t
+    constexpr size_t
     size() const {
         return m_datasets.size();
     }
 
-    managed_ptr_vector<ADM_dataset_t, ADM_dataset_destroy> m_datasets;
+    constexpr const ADM_dataset_t*
+    data() const noexcept {
+        return m_datasets.data();
+    }
+
+    constexpr ADM_dataset_t*
+    data() noexcept {
+        return m_datasets.data();
+    }
+
+    constexpr ADM_dataset_t*
+    release() noexcept {
+        return m_datasets.release();
+    }
+
+    scord::utils::ctype_ptr_vector<ADM_dataset_t, ADM_dataset_destroy>
+            m_datasets;
 };
 
 template <>
-struct admire::api::managed_rpc_type<admire::job_requirements> {
+struct admire::api::managed_ctype<ADM_job_requirements_t> {
 
-    template <typename T, auto Deleter>
-    using rpc_requirements_ptr = scord::utils::ctype_ptr<T, Deleter>;
-
-    explicit managed_rpc_type(const admire::job_requirements& reqs)
-        : m_inputs(reqs.inputs()), m_outputs(reqs.outputs()),
-          m_storage(*std::dynamic_pointer_cast<admire::adhoc_storage>(
-                  reqs.storage())),
-          m_reqs(ADM_job_requirements_create(m_inputs.data(), m_inputs.size(),
-                                             m_outputs.data(), m_outputs.size(),
-                                             m_storage.get())) {}
+    explicit managed_ctype(ADM_job_requirements_t reqs,
+                           managed_ctype_array<ADM_dataset_t>&& inputs,
+                           managed_ctype_array<ADM_dataset_t>&& outputs,
+                           managed_ctype<ADM_storage_t>&& storage)
+        : m_reqs(reqs), m_inputs(std::move(inputs)),
+          m_outputs(std::move(outputs)), m_storage(std::move(storage)) {}
 
     ADM_job_requirements_t
     get() const {
         return m_reqs.get();
     }
 
-    managed_rpc_type<std::vector<admire::dataset>> m_inputs;
-    managed_rpc_type<std::vector<admire::dataset>> m_outputs;
-    managed_rpc_type<admire::adhoc_storage> m_storage;
-    rpc_requirements_ptr<ADM_job_requirements_t, ADM_job_requirements_destroy>
+    ADM_job_requirements_t
+    release() {
+        return m_reqs.release();
+    }
+
+
+    scord::utils::ctype_ptr<ADM_job_requirements_t,
+                            ADM_job_requirements_destroy>
             m_reqs;
+    managed_ctype_array<ADM_dataset_t> m_inputs;
+    managed_ctype_array<ADM_dataset_t> m_outputs;
+    managed_ctype<ADM_storage_t> m_storage;
 };
 
+
 // forward declarations
-ADM_job_t
-ADM_job_create(uint64_t id);
 ADM_return_t
 ADM_job_destroy(ADM_job_t job);
 
 template <>
-struct admire::api::managed_rpc_type<admire::job> {
+struct admire::api::managed_ctype<ADM_job_t> {
 
-    template <typename T, auto Deleter>
-    using rpc_job_ptr = scord::utils::ctype_ptr<T, Deleter>;
-
-    explicit managed_rpc_type(const admire::job& j)
-        : m_job(ADM_job_create(j.id())) {}
+    explicit managed_ctype(ADM_job_t job) : m_job(job) {}
 
     ADM_job_t
     get() const {
         return m_job.get();
     }
 
-    rpc_job_ptr<ADM_job_t, ADM_job_destroy> m_job;
-};
-
-template <>
-struct admire::api::managed_rpc_type<ADM_job_t> {
-
-    template <typename T, auto Deleter>
-    using rpc_job_ptr = scord::utils::ctype_ptr<T, Deleter>;
-
-    explicit managed_rpc_type(ADM_job_t job) : m_job(job) {}
-
-    admire::job
-    get() const {
-        return admire::job(m_job.get());
-    }
-
-    rpc_job_ptr<ADM_job_t, ADM_job_destroy> m_job;
-};
-
-template <>
-struct admire::api::unmanaged_rpc_type<admire::job> {
-
-    explicit unmanaged_rpc_type(const admire::job& j)
-        : m_job(ADM_job_create(j.id())) {}
-
     ADM_job_t
-    get() const {
-        return m_job;
+    release() {
+        return m_job.release();
     }
 
-    ADM_job_t m_job;
+    scord::utils::ctype_ptr<ADM_job_t, ADM_job_destroy> m_job;
 };
 
 #endif // SCORD_CONVERT_HPP

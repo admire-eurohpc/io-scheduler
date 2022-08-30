@@ -180,7 +180,7 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     LOGGER_INFO("RPC (ADM_{}) => {{job_requirements: {{{}}}}}", __FUNCTION__,
                 reqs);
 
-    auto rpc_reqs = api::managed_rpc_type<admire::job_requirements>{reqs};
+    auto rpc_reqs = api::convert(reqs);
 
     ADM_register_job_in_t in{*rpc_reqs.get()};
     ADM_register_job_out_t out;
@@ -192,8 +192,7 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
         return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
-    const auto rpc_job = api::managed_rpc_type<ADM_job_t>{out.job};
-    const admire::job job = rpc_job.get();
+    const admire::job job = api::convert(out.job);
 
     LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}, job: {{{}}}}}", __FUNCTION__,
                 ADM_SUCCESS, job.id());
@@ -211,8 +210,8 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
     LOGGER_INFO("RPC ({}): {{job: {{{}}}, job_requirements: {{{}}}}}",
                 "ADM_update_job", job, reqs);
 
-    const auto rpc_job = api::managed_rpc_type<admire::job>{job};
-    const auto rpc_reqs = api::managed_rpc_type<admire::job_requirements>{reqs};
+    const auto rpc_job = api::convert(job);
+    const auto rpc_reqs = api::convert(reqs);
 
     ADM_update_job_in_t in{rpc_job.get(), *rpc_reqs.get()};
     ADM_update_job_out_t out;
@@ -239,7 +238,7 @@ remove_job(const server& srv, const job& job) {
 
     LOGGER_INFO("RPC (ADM_{}) => {{job: {}}}", __FUNCTION__, job);
 
-    const auto rpc_job = api::managed_rpc_type<admire::job>{job};
+    const auto rpc_job = api::convert(job);
 
     ADM_remove_job_in_t in{rpc_job.get()};
     ADM_remove_job_out_t out;

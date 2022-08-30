@@ -55,7 +55,7 @@ ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
         return rv.error();
     }
 
-    *job = admire::api::unmanaged_rpc_type<admire::job>{*rv}.get();
+    *job = admire::api::convert(*rv).release();
 
     return ADM_SUCCESS;
 }

@@ -72,7 +72,7 @@ ADM_register_job(hg_handle_t h) {
 
     const auto job = admire::job{42};
 
-    const auto rpc_job = admire::unmanaged_rpc_type<admire::job>{job};
+    const auto rpc_job = admire::api::unmanaged_rpc_type<admire::job>{job};
     admire::error_code rv = ADM_SUCCESS;
 
     out.retval = rv;

@@ -22,15 +22,19 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(_rpc_types STATIC)
+add_library(_api_types STATIC)
 
-set_property(TARGET _rpc_types PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_sources(_api_types PUBLIC admire_types.h admire_types.hpp PRIVATE
+  types.cpp convert.hpp convert.cpp)
 
-target_include_directories(_rpc_types PUBLIC ${CMAKE_SOURCE_DIR}/src/lib)
-target_sources(
-  _rpc_types
-  PRIVATE rpc_types.h rpc_types.c ${CMAKE_SOURCE_DIR}/src/lib/admire.h
+target_include_directories(_api_types PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(_api_types PRIVATE
+  Margo::Margo common::logger PUBLIC fmt::fmt)
+
+set_property(TARGET _api_types PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+install(
+  FILES admire_types.h admire_types.hpp
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
-
-target_link_libraries(_rpc_types PRIVATE common::api::types Mercury::Mercury
-  Margo::Margo)

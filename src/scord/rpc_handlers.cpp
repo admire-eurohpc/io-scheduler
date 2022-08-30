@@ -25,6 +25,7 @@
 #include <logger/logger.hpp>
 #include <net/proto/rpc_types.h>
 #include <admire.hpp>
+#include <api/convert.hpp>
 #include "rpc_handlers.hpp"
 
 struct remote_procedure {

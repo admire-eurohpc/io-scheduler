@@ -28,7 +28,7 @@
 #include <stdlib.h> // NOLINT
 #include <mercury_macros.h>
 #include <mercury_proc_string.h>
-#include <admire_types.h>
+#include <api/admire_types.h>
 
 #ifdef __cplusplus
 extern "C" {

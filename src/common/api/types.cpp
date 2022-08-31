@@ -746,6 +746,45 @@ server::address() const {
     return m_pimpl->address();
 }
 
+class node::impl {
+
+public:
+    explicit impl(std::string hostname) : m_hostname(std::move(hostname)) {}
+
+    std::string
+    hostname() const {
+        return m_hostname;
+    }
+
+private:
+    std::string m_hostname;
+};
+
+node::node(std::string hostname)
+    : m_pimpl(std::make_unique<node::impl>(std::move(hostname))) {}
+
+node::node(const ADM_node_t& node) : node::node(node->n_hostname) {}
+
+node::node(const node& other) noexcept
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+node::node(node&&) noexcept = default;
+
+node&
+node::operator=(const node& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+node&
+node::operator=(node&&) noexcept = default;
+
+node::~node() = default;
+
+std::string
+node::hostname() const {
+    return m_pimpl->hostname();
+}
 
 class job::impl {
 

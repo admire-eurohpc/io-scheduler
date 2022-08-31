@@ -59,6 +59,26 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
+struct node {
+
+    explicit node(std::string hostname);
+    explicit node(const ADM_node_t& srv);
+    node(const node&) noexcept;
+    node(node&&) noexcept;
+    node&
+    operator=(const node&) noexcept;
+    node&
+    operator=(node&&) noexcept;
+    ~node();
+
+    std::string
+    hostname() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
 struct job {
 
     explicit job(job_id id);

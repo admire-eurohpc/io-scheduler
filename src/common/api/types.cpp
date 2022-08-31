@@ -28,6 +28,7 @@
 #include <utils/ctype_ptr.hpp>
 #include <cstdarg>
 #include <api/convert.hpp>
+#include <variant>
 #include "admire_types.hpp"
 
 /******************************************************************************/
@@ -1212,5 +1213,67 @@ job_requirements::storage() const {
     return m_pimpl->storage();
 }
 
+namespace qos {
+
+class entity::impl {
+public:
+    template <typename T>
+    impl(const admire::qos::scope& s, T&& data) : m_scope(s), m_data(data) {}
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    admire::qos::scope
+    scope() const {
+        return m_scope;
+    }
+
+    template <typename T>
+    T
+    data() const {
+        return std::get<T>(m_data);
+    }
+
+private:
+    admire::qos::scope m_scope;
+    std::variant<dataset, node, job, transfer> m_data;
+};
+
+template <typename T>
+entity::entity(admire::qos::scope s, T&& data)
+    : m_pimpl(std::make_unique<entity::impl>(s, std::forward<T>(data))) {}
+
+entity::entity(const entity& other) noexcept
+    : m_pimpl(std::make_unique<entity::impl>(*other.m_pimpl)) {}
+
+entity::entity(entity&&) noexcept = default;
+
+entity&
+entity::operator=(const entity& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+entity&
+entity::operator=(entity&&) noexcept = default;
+
+entity::~entity() = default;
+
+admire::qos::scope
+entity::scope() const {
+    return m_pimpl->scope();
+}
+
+template <typename T>
+T
+entity::data() const {
+    return m_pimpl->data<T>();
+}
+
+} // namespace qos
 
 } // namespace admire

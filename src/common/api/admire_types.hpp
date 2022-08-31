@@ -127,6 +127,48 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
+namespace qos {
+
+enum class subclass : std::underlying_type<ADM_qos_class_t>::type {
+    bandwidth = ADM_QOS_CLASS_BANDWIDTH,
+    iops = ADM_QOS_CLASS_IOPS,
+};
+
+enum class scope : std::underlying_type<ADM_qos_scope_t>::type {
+    dataset = ADM_QOS_SCOPE_DATASET,
+    node = ADM_QOS_SCOPE_NODE,
+    job = ADM_QOS_SCOPE_JOB,
+    transfer = ADM_QOS_SCOPE_TRANSFER
+};
+
+struct entity {
+
+    template <typename T>
+    entity(admire::qos::scope s, T&& data);
+
+    entity(const entity&) noexcept;
+    entity(entity&&) noexcept;
+    entity&
+    operator=(const entity&) noexcept;
+    entity&
+    operator=(entity&&) noexcept;
+
+    ~entity();
+
+    admire::qos::scope
+    scope() const;
+
+    template <typename T>
+    T
+    data() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
+} // namespace qos
+
 
 struct dataset {
     explicit dataset(std::string id);

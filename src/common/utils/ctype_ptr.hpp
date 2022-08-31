@@ -57,6 +57,20 @@ struct ctype_ptr_vector {
 
     ctype_ptr_vector() = default;
 
+    ctype_ptr_vector(T* const data, size_t size) {
+        reserve(size);
+
+        for(size_t i = 0; i < size; ++i) {
+            emplace_back(data[i]);
+        }
+    }
+
+    ctype_ptr_vector(ctype_ptr_vector&& rhs) noexcept
+        : m_data(std::move(rhs.m_data)), m_addrs(std::move(rhs.m_addrs)) {}
+
+    ctype_ptr_vector&
+    operator=(ctype_ptr_vector&&) noexcept = default;
+
     ~ctype_ptr_vector() = default;
 
     constexpr void
@@ -86,6 +100,20 @@ struct ctype_ptr_vector {
     size() const noexcept {
         return m_data.size();
     }
+
+    constexpr T*
+    release() noexcept {
+
+        auto* data = (T*) calloc(m_data.size(), sizeof(T));
+
+        for(size_t i = 0; i < m_data.size(); ++i) {
+            data[i] = m_data[i].release();
+            m_addrs[i] = nullptr;
+        }
+
+        return data;
+    }
+
 
     std::vector<scord::utils::ctype_ptr<T, fn>> m_data{};
     std::vector<T> m_addrs{};

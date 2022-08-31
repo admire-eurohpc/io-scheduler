@@ -35,7 +35,7 @@ target_include_directories(
 
 target_link_libraries(
   scord-ctl PRIVATE common::config common::logger common::network::rpc_server
-                    common::network::rpc_types admire_types fmt::fmt Boost::program_options
+                    common::network::rpc_types common::api::types fmt::fmt Boost::program_options
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -27,8 +27,9 @@
 #include <logger/logger.hpp>
 #include <net/proto/rpc_types.h>
 #include <stdarg.h>
-#include "admire_types.hpp"
-#include "admire_types.h"
+#include <admire_types.hpp>
+#include <admire_types.h>
+#include <api/convert.hpp>
 #include "detail/impl.hpp"
 
 
@@ -54,7 +55,7 @@ ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
         return rv.error();
     }
 
-    *job = admire::unmanaged_rpc_type<admire::job>{*rv}.get();
+    *job = admire::api::convert(*rv).release();
 
     return ADM_SUCCESS;
 }

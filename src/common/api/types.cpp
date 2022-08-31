@@ -27,6 +27,7 @@
 #include <utility>
 #include <utils/ctype_ptr.hpp>
 #include <cstdarg>
+#include <api/convert.hpp>
 #include "admire_types.hpp"
 
 /******************************************************************************/

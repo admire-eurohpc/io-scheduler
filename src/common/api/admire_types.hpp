@@ -38,6 +38,7 @@ namespace admire {
 using error_code = ADM_return_t;
 
 using job_id = std::uint64_t;
+using transfer_id = std::uint64_t;
 
 struct server {
 
@@ -77,6 +78,35 @@ private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
 };
+
+struct transfer {
+
+    enum class mapping : std::underlying_type<ADM_transfer_mapping_t>::type {
+        one_to_one = ADM_MAPPING_ONE_TO_ONE,
+        one_to_n = ADM_MAPPING_ONE_TO_N,
+        n_to_n = ADM_MAPPING_N_TO_N
+    };
+
+    explicit transfer(transfer_id id);
+    explicit transfer(ADM_transfer_t transfer);
+
+    transfer(const transfer&) noexcept;
+    transfer(transfer&&) noexcept;
+    transfer&
+    operator=(const transfer&) noexcept;
+    transfer&
+    operator=(transfer&&) noexcept;
+
+    ~transfer();
+
+    transfer_id
+    id() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
 
 struct dataset {
     explicit dataset(std::string id);

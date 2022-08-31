@@ -793,6 +793,54 @@ job::id() const {
     return m_pimpl->id();
 }
 
+class transfer::impl {
+
+public:
+    explicit impl(transfer_id id) : m_id(id) {}
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    transfer_id
+    id() const {
+        return m_id;
+    }
+
+private:
+    transfer_id m_id;
+};
+
+transfer::transfer(transfer_id id)
+    : m_pimpl(std::make_unique<transfer::impl>(id)) {}
+
+transfer::transfer(ADM_transfer_t transfer)
+    : transfer::transfer(transfer->t_id) {}
+
+transfer::transfer(transfer&&) noexcept = default;
+
+transfer&
+transfer::operator=(transfer&&) noexcept = default;
+
+transfer::transfer(const transfer& other) noexcept
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+transfer&
+transfer::operator=(const transfer& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+transfer::~transfer() = default;
+
+transfer_id
+transfer::id() const {
+    return m_pimpl->id();
+}
+
 class dataset::impl {
 public:
     explicit impl(std::string id) : m_id(std::move(id)) {}

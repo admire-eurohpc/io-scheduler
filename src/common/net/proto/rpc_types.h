@@ -97,14 +97,13 @@ struct adm_qos_limit {
 // TODO: encoder/decoder
 
 typedef struct adm_transfer {
-    // TODO: undefined for now
-    int32_t placeholder;
+    uint64_t t_id;
 } adm_transfer;
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
     adm_transfer, // NOLINT
-        ((hg_int32_t) (placeholder))
+        ((hg_uint64_t) (t_id))
 );
 // clang-format on
 

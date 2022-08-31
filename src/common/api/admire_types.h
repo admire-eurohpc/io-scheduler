@@ -145,7 +145,8 @@ typedef struct adm_pfs_context* ADM_pfs_context_t;
 typedef enum {
     ADM_QOS_SCOPE_DATASET,
     ADM_QOS_SCOPE_NODE,
-    ADM_QOS_SCOPE_JOB
+    ADM_QOS_SCOPE_JOB,
+    ADM_QOS_SCOPE_TRANSFER
 } ADM_qos_scope_t;
 
 /** The class of QoS limit applied to a scope */

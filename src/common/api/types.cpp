@@ -183,6 +183,8 @@ ADM_qos_entity_create(ADM_qos_scope_t scope, ...) {
         case ADM_QOS_SCOPE_DATASET:
             adm_qos_entity->e_dataset = va_arg(ap, ADM_dataset_t);
             break;
+        case ADM_QOS_SCOPE_TRANSFER:
+            adm_qos_entity->e_transfer = va_arg(ap, ADM_transfer_t);
     }
     va_end(ap);
 

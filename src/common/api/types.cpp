@@ -695,6 +695,53 @@ ADM_job_destroy(ADM_job_t job) {
     return ret;
 }
 
+/**
+ * Initialize a transfer handle that can be used by clients to refer to a
+ * transfer.
+ *
+ * @remark This function is not actually part of the public API, but it is
+ * useful to have for internal purposes
+ *
+ * @param [in] id The identifier for this transfer
+ * @return A valid TRANSFER HANDLE or NULL in case of failure.
+ */
+ADM_transfer_t
+ADM_transfer_create(uint64_t id) {
+
+    struct adm_transfer* adm_transfer =
+            (struct adm_transfer*) malloc(sizeof(struct adm_transfer));
+
+    if(!adm_transfer) {
+        LOGGER_ERROR("Could not allocate ADM_transfer_t")
+        return NULL;
+    }
+
+    adm_transfer->t_id = id;
+
+    return adm_transfer;
+}
+
+/**
+ * Destroy a ADM_transfer_t created by ADM_transfer_create().
+ *
+ * @remark This function is not actually part of the public API, but it is
+ * useful to have for internal purposes
+ *
+ * @param[in] tx The ADM_transfer_t to destroy.
+ * @return ADM_SUCCESS or corresponding error code.
+ */
+ADM_return_t
+ADM_transfer_destroy(ADM_transfer_t tx) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!tx) {
+        LOGGER_ERROR("Invalid ADM_transfer_t")
+        return ADM_EBADARGS;
+    }
+
+    free(tx);
+    return ret;
+}
 
 /******************************************************************************/
 /* C++ Type definitions and related functions                                 */

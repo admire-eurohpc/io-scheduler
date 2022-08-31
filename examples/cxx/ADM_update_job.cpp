@@ -71,7 +71,13 @@ main(int argc, char* argv[]) {
         new_outputs.emplace_back(fmt::format("output-new-dataset-{}", i));
     }
 
-    admire::job_requirements new_reqs{new_inputs, new_outputs, std::move(p)};
+    auto p2 = std::make_unique<admire::adhoc_storage>(
+            admire::storage::type::gekkofs, "foobar",
+            admire::adhoc_storage::execution_mode::separate_new,
+            admire::adhoc_storage::access_type::read_write, 42, 100, false);
+
+    admire::job_requirements new_reqs{new_inputs, new_outputs, std::move(p2)};
+
 
     ADM_return_t ret = ADM_SUCCESS;
 

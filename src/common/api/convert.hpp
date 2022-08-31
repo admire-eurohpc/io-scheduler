@@ -60,6 +60,9 @@ convert(const job& j);
 job
 convert(ADM_job_t j);
 
+managed_ctype<ADM_transfer_t>
+convert(const transfer& t);
+
 
 } // namespace admire::api
 
@@ -175,6 +178,9 @@ struct admire::api::managed_ctype<ADM_job_requirements_t> {
 ADM_return_t
 ADM_job_destroy(ADM_job_t job);
 
+ADM_return_t
+ADM_transfer_destroy(ADM_transfer_t tx);
+
 template <>
 struct admire::api::managed_ctype<ADM_job_t> {
 
@@ -192,5 +198,24 @@ struct admire::api::managed_ctype<ADM_job_t> {
 
     scord::utils::ctype_ptr<ADM_job_t, ADM_job_destroy> m_job;
 };
+
+template <>
+struct admire::api::managed_ctype<ADM_transfer_t> {
+
+    explicit managed_ctype(ADM_transfer_t tx) : m_transfer(tx) {}
+
+    ADM_transfer_t
+    get() const {
+        return m_transfer.get();
+    }
+
+    ADM_transfer_t
+    release() {
+        return m_transfer.release();
+    }
+
+    scord::utils::ctype_ptr<ADM_transfer_t, ADM_transfer_destroy> m_transfer;
+};
+
 
 #endif // SCORD_CONVERT_HPP

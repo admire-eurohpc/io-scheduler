@@ -29,6 +29,9 @@
 ADM_job_t
 ADM_job_create(uint64_t id);
 
+ADM_transfer_t
+ADM_transfer_create(uint64_t id);
+
 namespace admire::api {
 
 managed_ctype<ADM_adhoc_context_t>
@@ -108,6 +111,11 @@ convert(const job& j) {
 job
 convert(ADM_job_t j) {
     return admire::job{j};
+}
+
+managed_ctype<ADM_transfer_t>
+convert(const transfer& tx) {
+    return managed_ctype<ADM_transfer_t>(ADM_transfer_create(tx.id()));
 }
 
 } // namespace admire::api

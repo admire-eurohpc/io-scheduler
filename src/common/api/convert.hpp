@@ -48,6 +48,9 @@ convert(const admire::adhoc_storage& st);
 managed_ctype_array<ADM_dataset_t>
 convert(const std::vector<admire::dataset>& datasets);
 
+std::vector<admire::dataset>
+convert(ADM_dataset_t datasets[], size_t datasets_len);
+
 managed_ctype<ADM_job_requirements_t>
 convert(const admire::job_requirements& reqs);
 

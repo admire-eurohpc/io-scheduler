@@ -66,6 +66,19 @@ convert(const std::vector<admire::dataset>& datasets) {
     return managed_ctype_array<ADM_dataset_t>{std::move(tmp)};
 }
 
+std::vector<admire::dataset>
+convert(ADM_dataset_t datasets[], size_t datasets_len) {
+
+    std::vector<admire::dataset> rv;
+    rv.reserve(datasets_len);
+
+    for(size_t i = 0; i < datasets_len; ++i) {
+        rv.emplace_back(datasets[i]);
+    }
+
+    return rv;
+}
+
 managed_ctype<ADM_job_requirements_t>
 convert(const admire::job_requirements& reqs) {
 

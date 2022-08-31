@@ -1274,6 +1274,75 @@ entity::data() const {
     return m_pimpl->data<T>();
 }
 
+class limit::impl {
+
+public:
+    impl(admire::qos::entity e, admire::qos::subclass cls, uint64_t value)
+        : m_entity(std::move(e)), m_subclass(cls), m_value(value) {}
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    admire::qos::entity
+    entity() const {
+        return m_entity;
+    }
+
+    admire::qos::subclass
+    subclass() const {
+        return m_subclass;
+    }
+
+    uint64_t
+    value() const {
+        return m_value;
+    }
+
+private:
+    admire::qos::entity m_entity;
+    admire::qos::subclass m_subclass;
+    uint64_t m_value;
+};
+
+limit::limit(const admire::qos::entity& e, admire::qos::subclass cls,
+             uint64_t value)
+    : m_pimpl(std::make_unique<limit::impl>(e, cls, value)) {}
+
+limit::limit(const limit& other) noexcept
+    : m_pimpl(std::make_unique<limit::impl>(*other.m_pimpl)) {}
+
+limit::limit(limit&&) noexcept = default;
+
+limit&
+limit::operator=(const limit& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+limit&
+limit::operator=(limit&&) noexcept = default;
+
+limit::~limit() = default;
+
+admire::qos::entity
+limit::entity() const {
+    return m_pimpl->entity();
+}
+
+admire::qos::subclass
+limit::subclass() const {
+    return m_pimpl->subclass();
+}
+
+uint64_t
+limit::value() const {
+    return m_pimpl->value();
+}
+
 } // namespace qos
 
 } // namespace admire

@@ -167,6 +167,34 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
+struct limit {
+
+    limit(const admire::qos::entity& e, admire::qos::subclass cls,
+          uint64_t value);
+
+    limit(const limit&) noexcept;
+    limit(limit&&) noexcept;
+    limit&
+    operator=(const limit&) noexcept;
+    limit&
+    operator=(limit&&) noexcept;
+
+    ~limit();
+
+    admire::qos::entity
+    entity() const;
+
+    admire::qos::subclass
+    subclass() const;
+
+    uint64_t
+    value() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
 } // namespace qos
 
 

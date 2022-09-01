@@ -460,13 +460,13 @@ ADM_pfs_context_destroy(ADM_pfs_context_t ctx);
  *
  * @param[in] scope The scope of the entity, i.e. ADM_QOS_SCOPE_DATASET,
  * ADM_QOS_SCOPE_NODE, or ADM_QOS_SCOPE_JOB.
- * @param[in] ... A single argument with data from either a ADM_dataset_t,
+ * @param[in] data A single argument with data from either a ADM_dataset_t,
  * ADM_node_t, or ADM_job_t variable. The argument must correspond properly
  * to the scope provided.
  * @return A valid ADM_qos_entity_t if successful or NULL in case of failure.
  */
 ADM_qos_entity_t
-ADM_qos_entity_create(ADM_qos_scope_t scope, ...);
+ADM_qos_entity_create(ADM_qos_scope_t scope, void* data);
 
 /**
  * Destroy a QoS entity created by ADM_qos_entity_create().

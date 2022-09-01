@@ -159,7 +159,7 @@ ADM_dataset_destroy(ADM_dataset_t dataset) {
 }
 
 ADM_qos_entity_t
-ADM_qos_entity_create(ADM_qos_scope_t scope, ...) {
+ADM_qos_entity_create(ADM_qos_scope_t scope, void* data) {
 
     struct adm_qos_entity* adm_qos_entity =
             (struct adm_qos_entity*) malloc(sizeof(struct adm_qos_entity));
@@ -171,23 +171,19 @@ ADM_qos_entity_create(ADM_qos_scope_t scope, ...) {
 
     adm_qos_entity->e_scope = scope;
 
-    va_list ap;
-    va_start(ap, scope);
-
     switch(scope) {
         case ADM_QOS_SCOPE_NODE:
-            adm_qos_entity->e_node = va_arg(ap, ADM_node_t);
+            adm_qos_entity->e_node = (ADM_node_t) data;
             break;
         case ADM_QOS_SCOPE_JOB:
-            adm_qos_entity->e_job = va_arg(ap, ADM_job_t);
+            adm_qos_entity->e_job = (ADM_job_t) data;
             break;
         case ADM_QOS_SCOPE_DATASET:
-            adm_qos_entity->e_dataset = va_arg(ap, ADM_dataset_t);
+            adm_qos_entity->e_dataset = (ADM_dataset_t) data;
             break;
         case ADM_QOS_SCOPE_TRANSFER:
-            adm_qos_entity->e_transfer = va_arg(ap, ADM_transfer_t);
+            adm_qos_entity->e_transfer = (ADM_transfer_t) data;
     }
-    va_end(ap);
 
     return adm_qos_entity;
 }

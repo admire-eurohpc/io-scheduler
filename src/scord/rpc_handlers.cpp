@@ -980,28 +980,9 @@ ADM_transfer_dataset(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
-    out.transfer_handle = "fail";
+    // TODO
 
-    if(in.source == nullptr) {
-        LOGGER_ERROR("ADM_transfer_dataset(): invalid source (nullptr)");
-    } else if(in.destination == nullptr) {
-        LOGGER_ERROR("ADM_transfer_dataset(): invalid destination (nullptr)");
-    } else if(in.qos_constraints == nullptr) {
-        LOGGER_ERROR(
-                "ADM_transfer_dataset(): invalid qos_constraints (nullptr)");
-    } else if(in.distribution == nullptr) {
-        LOGGER_ERROR("ADM_transfer_dataset(): invalid distribution (nullptr)");
-    } else if(in.job_id < 0) {
-        LOGGER_ERROR("ADM_transfer_dataset(): invalid job_id (< 0)");
-    } else {
-        LOGGER_INFO("ADM_transfer_dataset({},{},{},{},{})", in.source,
-                    in.destination, in.qos_constraints, in.distribution,
-                    in.job_id);
-        out.ret = 0;
-        out.transfer_handle = "ok";
-    }
-
+    out.ret = 0;
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

@@ -234,6 +234,23 @@ ADM_qos_limit_destroy(ADM_qos_limit_t limit) {
     return ret;
 }
 
+ADM_return_t
+ADM_qos_limit_destroy_all(ADM_qos_limit_t limit) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!limit) {
+        LOGGER_ERROR("Invalid ADM_qos_limit_t")
+        return ADM_EBADARGS;
+    }
+
+    if(limit->l_entity) {
+        ADM_qos_entity_destroy(limit->l_entity);
+    }
+
+    free(limit);
+    return ret;
+}
+
 ADM_dataset_info_t
 ADM_dataset_info_create() {
 

@@ -1423,11 +1423,30 @@ entity::scope() const {
     return m_pimpl->scope();
 }
 
-template <typename T>
-T
-entity::data() const {
-    return m_pimpl->data<T>();
+template <>
+admire::node
+entity::data<admire::node>() const {
+    return m_pimpl->data<admire::node>();
 }
+
+template <>
+admire::job
+entity::data<admire::job>() const {
+    return m_pimpl->data<admire::job>();
+}
+
+template <>
+admire::dataset
+entity::data<admire::dataset>() const {
+    return m_pimpl->data<admire::dataset>();
+}
+
+template <>
+admire::transfer
+entity::data<admire::transfer>() const {
+    return m_pimpl->data<admire::transfer>();
+}
+
 
 class limit::impl {
 

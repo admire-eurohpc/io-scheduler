@@ -44,6 +44,9 @@ typedef struct adm_node {
     const char* n_hostname;
 } adm_node;
 
+hg_return_t
+hg_proc_ADM_node_t(hg_proc_t proc, void* data);
+
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
     adm_node, // NOLINT
@@ -54,6 +57,9 @@ MERCURY_GEN_STRUCT_PROC(
 typedef struct adm_dataset {
     const char* d_id;
 } adm_dataset;
+
+hg_return_t
+hg_proc_ADM_dataset_t(hg_proc_t proc, void* data);
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
@@ -86,7 +92,8 @@ typedef struct adm_qos_entity {
     };
 } adm_qos_entity;
 
-// TODO: encoder/decoder
+extern hg_return_t (*hg_proc_ADM_qos_scope_t)(hg_proc_t, void*);
+
 hg_return_t
 hg_proc_ADM_qos_entity_t(hg_proc_t proc, void* data);
 
@@ -96,7 +103,8 @@ typedef struct adm_qos_limit {
     hg_uint64_t l_value;
 } adm_qos_limit;
 
-// TODO: encoder/decoder
+extern hg_return_t (*hg_proc_ADM_qos_class_t)(hg_proc_t, void*);
+
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
     adm_qos_limit, // NOLINT
@@ -109,6 +117,9 @@ MERCURY_GEN_STRUCT_PROC(
 typedef struct adm_transfer {
     uint64_t t_id;
 } adm_transfer;
+
+hg_return_t
+hg_proc_ADM_transfer_t(hg_proc_t proc, void* data);
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(

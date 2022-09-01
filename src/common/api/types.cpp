@@ -743,6 +743,75 @@ ADM_transfer_destroy(ADM_transfer_t tx) {
     return ret;
 }
 
+ADM_qos_limit_list_t
+ADM_qos_limit_list_create(ADM_qos_limit_t limits[], size_t length) {
+
+    ADM_qos_limit_list_t p = (ADM_qos_limit_list_t) malloc(sizeof(*p));
+
+    if(!p) {
+        LOGGER_ERROR("Could not allocate ADM_qos_limit_list_t")
+        return NULL;
+    }
+
+    const char* error_msg = NULL;
+
+    p->l_length = length;
+    p->l_limits = (struct adm_qos_limit*) calloc(length, sizeof(adm_qos_limit));
+
+    if(!p->l_limits) {
+        error_msg = "Could not allocate ADM_qos_limit_list_t";
+        goto cleanup_on_error;
+    }
+
+    for(size_t i = 0; i < length; ++i) {
+        memcpy(&p->l_limits[i], limits[i], sizeof(adm_qos_limit));
+    }
+
+    return p;
+
+cleanup_on_error:
+    if(p->l_limits) {
+        free(p->l_limits);
+    }
+    free(p);
+
+    if(error_msg) {
+        LOGGER_ERROR(error_msg);
+    }
+
+    return NULL;
+}
+
+ADM_return_t
+ADM_qos_limit_list_destroy(ADM_qos_limit_list_t list) {
+
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!list) {
+        LOGGER_ERROR("Invalid ADM_qos_limit_list_t")
+        return ADM_EBADARGS;
+    }
+
+    // We cannot call ADM_qos_limit_destroy here because adm_limits
+    // are stored as a consecutive array in memory. Thus, we free
+    // the entities themselves and then the array.
+    if(list->l_limits) {
+        for(size_t i = 0; i < list->l_length; ++i) {
+
+            ADM_qos_entity_t entity = list->l_limits[i].l_entity;
+
+            if(entity) {
+                ADM_qos_entity_destroy(entity);
+            }
+        }
+        free(list->l_limits);
+    }
+
+    free(list);
+    return ret;
+}
+
+
 /******************************************************************************/
 /* C++ Type definitions and related functions                                 */
 /******************************************************************************/

@@ -88,11 +88,11 @@ struct adm_qos_entity {
 
 // TODO: encoder/decoder
 
-struct adm_qos_limit {
+typedef struct adm_qos_limit {
     ADM_qos_entity_t l_entity;
     ADM_qos_class_t l_class;
     uint64_t l_value;
-};
+} adm_qos_limit;
 
 // TODO: encoder/decoder
 

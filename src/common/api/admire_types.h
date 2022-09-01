@@ -91,6 +91,9 @@ typedef struct adm_dataset_info* ADM_dataset_info_t;
 /** A list of datasets */
 typedef struct adm_dataset_list* ADM_dataset_list_t;
 
+/** A list of QoS limits */
+typedef struct adm_qos_limit_list* ADM_qos_limit_list_t;
+
 
 /* ----------------------------------------------------- */
 /*              Storage tiers                            */
@@ -496,6 +499,30 @@ ADM_qos_limit_create(ADM_qos_entity_t entity, ADM_qos_class_t cls,
  */
 ADM_return_t
 ADM_qos_limit_destroy(ADM_qos_limit_t limit);
+
+/**
+ * Create a list of QoS limits from an array of ADM_QOS_LIMITs and its
+ * length.
+ *
+ * @remark QoS limit lists need to be freed by calling
+ * ADM_qos_limit_list_destroy().
+ *
+ * @param[in] limits The array of QoS limits.
+ * @param[in] len The length of the array.
+ * @return A valid ADM_qos_limit_list_t if successful or NULL in case of
+ * failure.
+ */
+ADM_qos_limit_list_t
+ADM_qos_limit_list_create(ADM_qos_limit_t limits[], size_t len);
+
+/**
+ * Destroy a QoS limit list created by ADM_qos_limit_list_create().
+ *
+ * @param[in] list A valid ADM_qos_limit_list_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_qos_limit_list_destroy(ADM_qos_limit_list_t list);
 
 
 /* ----------------------------------------------------- */

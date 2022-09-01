@@ -1349,6 +1349,10 @@ public:
     template <typename T>
     impl(const admire::qos::scope& s, T&& data) : m_scope(s), m_data(data) {}
 
+    explicit impl(ADM_qos_entity_t entity)
+        : m_scope(static_cast<qos::scope>(entity->e_scope)),
+          m_data(init_helper(entity)) {}
+
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -1368,6 +1372,25 @@ public:
     }
 
 private:
+    static std::variant<dataset, node, job, transfer>
+    init_helper(ADM_qos_entity_t entity) {
+        switch(entity->e_scope) {
+            case ADM_QOS_SCOPE_DATASET:
+                return admire::dataset(entity->e_dataset);
+            case ADM_QOS_SCOPE_NODE:
+                return admire::node(entity->e_node);
+            case ADM_QOS_SCOPE_JOB:
+                return admire::job(entity->e_job);
+            case ADM_QOS_SCOPE_TRANSFER:
+                return admire::transfer(entity->e_transfer);
+            default:
+                throw std::runtime_error(fmt::format(
+                        "Unexpected scope value: {}", entity->e_scope));
+        }
+    }
+
+
+private:
     admire::qos::scope m_scope;
     std::variant<dataset, node, job, transfer> m_data;
 };
@@ -1375,6 +1398,9 @@ private:
 template <typename T>
 entity::entity(admire::qos::scope s, T&& data)
     : m_pimpl(std::make_unique<entity::impl>(s, std::forward<T>(data))) {}
+
+entity::entity(ADM_qos_entity_t entity)
+    : m_pimpl(std::make_unique<entity::impl>(entity)) {}
 
 entity::entity(const entity& other) noexcept
     : m_pimpl(std::make_unique<entity::impl>(*other.m_pimpl)) {}
@@ -1409,6 +1435,11 @@ public:
     impl(admire::qos::entity e, admire::qos::subclass cls, uint64_t value)
         : m_entity(std::move(e)), m_subclass(cls), m_value(value) {}
 
+    explicit impl(ADM_qos_limit_t l)
+        : m_entity(l->l_entity),
+          m_subclass(static_cast<qos::subclass>(l->l_class)),
+          m_value(l->l_value) {}
+
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -1440,6 +1471,8 @@ private:
 limit::limit(const admire::qos::entity& e, admire::qos::subclass cls,
              uint64_t value)
     : m_pimpl(std::make_unique<limit::impl>(e, cls, value)) {}
+
+limit::limit(ADM_qos_limit_t l) : m_pimpl(std::make_unique<limit::impl>(l)) {}
 
 limit::limit(const limit& other) noexcept
     : m_pimpl(std::make_unique<limit::impl>(*other.m_pimpl)) {}

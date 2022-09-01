@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <algorithm>
+#include <net/proto/rpc_types.h>
 #include "convert.hpp"
 
 // forward declarations
@@ -32,7 +33,29 @@ ADM_job_create(uint64_t id);
 ADM_transfer_t
 ADM_transfer_create(uint64_t id);
 
+namespace {
+
+admire::api::managed_ctype_array<ADM_dataset_t>
+as_ctype_array(const std::vector<admire::dataset>& datasets) {
+
+    std::vector<ADM_dataset_t> tmp;
+
+    std::transform(datasets.cbegin(), datasets.cend(), std::back_inserter(tmp),
+                   [](const admire::dataset& d) {
+                       return ADM_dataset_create(d.id().c_str());
+                   });
+
+    return admire::api::managed_ctype_array<ADM_dataset_t>{std::move(tmp)};
+}
+
+} // namespace
+
 namespace admire::api {
+
+managed_ctype<ADM_node_t>
+convert(const node& node) {
+    return managed_ctype<ADM_node_t>(ADM_node_create(node.hostname().c_str()));
+}
 
 managed_ctype<ADM_adhoc_context_t>
 convert(const adhoc_storage::ctx& ctx) {
@@ -56,7 +79,13 @@ convert(const admire::adhoc_storage& st) {
     return managed_ctype<ADM_storage_t>{c_st, std::move(managed_ctx)};
 }
 
-managed_ctype_array<ADM_dataset_t>
+managed_ctype<ADM_dataset_t>
+convert(const admire::dataset& dataset) {
+    return managed_ctype<ADM_dataset_t>(
+            ADM_dataset_create(dataset.id().c_str()));
+}
+
+managed_ctype<ADM_dataset_list_t>
 convert(const std::vector<admire::dataset>& datasets) {
 
     std::vector<ADM_dataset_t> tmp;
@@ -66,7 +95,13 @@ convert(const std::vector<admire::dataset>& datasets) {
                        return ADM_dataset_create(d.id().c_str());
                    });
 
-    return managed_ctype_array<ADM_dataset_t>{std::move(tmp)};
+    auto rv = managed_ctype<ADM_dataset_list_t>{
+            ADM_dataset_list_create(tmp.data(), tmp.size())};
+
+    std::for_each(tmp.cbegin(), tmp.cend(),
+                  [](ADM_dataset_t d) { ADM_dataset_destroy(d); });
+
+    return rv;
 }
 
 std::vector<admire::dataset>
@@ -82,6 +117,19 @@ convert(ADM_dataset_t datasets[], size_t datasets_len) {
     return rv;
 }
 
+std::vector<admire::dataset>
+convert(ADM_dataset_list_t list) {
+
+    std::vector<admire::dataset> rv;
+    rv.reserve(list->l_length);
+
+    for(size_t i = 0; i < list->l_length; ++i) {
+        rv.emplace_back(&list->l_datasets[i]);
+    }
+
+    return rv;
+}
+
 managed_ctype<ADM_job_requirements_t>
 convert(const admire::job_requirements& reqs) {
 
@@ -89,8 +137,8 @@ convert(const admire::job_requirements& reqs) {
             *std::dynamic_pointer_cast<admire::adhoc_storage>(reqs.storage());
 
     auto managed_storage = convert(adhoc_storage);
-    auto managed_inputs = convert(reqs.inputs());
-    auto managed_outputs = convert(reqs.outputs());
+    auto managed_inputs = as_ctype_array(reqs.inputs());
+    auto managed_outputs = as_ctype_array(reqs.outputs());
 
     ADM_job_requirements_t c_reqs = ADM_job_requirements_create(
             managed_inputs.data(), managed_inputs.size(),
@@ -117,5 +165,97 @@ managed_ctype<ADM_transfer_t>
 convert(const transfer& tx) {
     return managed_ctype<ADM_transfer_t>(ADM_transfer_create(tx.id()));
 }
+
+transfer
+convert(ADM_transfer_t tx) {
+    return transfer{tx};
+}
+
+managed_ctype<ADM_qos_limit_list_t>
+convert(const std::vector<qos::limit>& limits) {
+
+    std::vector<ADM_qos_limit_t> tmp;
+
+    std::transform(
+            limits.cbegin(), limits.cend(), std::back_inserter(tmp),
+            [](const admire::qos::limit& l) {
+                ADM_qos_entity_t e = nullptr;
+
+                switch(l.entity().scope()) {
+                    case qos::scope::dataset: {
+                        e = ADM_qos_entity_create(
+                                static_cast<ADM_qos_scope_t>(
+                                        qos::scope::dataset),
+                                convert(l.entity().data<admire::dataset>())
+                                        .release());
+                        break;
+                    }
+
+                    case qos::scope::node: {
+                        e = ADM_qos_entity_create(
+                                static_cast<ADM_qos_scope_t>(qos::scope::node),
+                                convert(l.entity().data<admire::node>())
+                                        .release());
+                        break;
+                    }
+
+                    case qos::scope::job: {
+                        e = ADM_qos_entity_create(
+                                static_cast<ADM_qos_scope_t>(qos::scope::job),
+                                convert(l.entity().data<admire::job>())
+                                        .release());
+                        break;
+                    }
+
+                    case qos::scope::transfer: {
+                        e = ADM_qos_entity_create(
+                                static_cast<ADM_qos_scope_t>(
+                                        qos::scope::transfer),
+                                convert(l.entity().data<admire::transfer>())
+                                        .release());
+                        break;
+                    }
+                }
+
+                return ADM_qos_limit_create(
+                        e, static_cast<ADM_qos_class_t>(l.subclass()),
+                        l.value());
+            });
+
+    auto rv = managed_ctype<ADM_qos_limit_list_t>{
+            ADM_qos_limit_list_create(tmp.data(), tmp.size())};
+
+    std::for_each(tmp.cbegin(), tmp.cend(),
+                  [](ADM_qos_limit_t l) { ADM_qos_limit_destroy_all(l); });
+
+    return rv;
+}
+
+std::vector<qos::limit>
+convert(ADM_qos_limit_t limits[], size_t limits_len) {
+
+    std::vector<admire::qos::limit> rv;
+    rv.reserve(limits_len);
+
+    for(size_t i = 0; i < limits_len; ++i) {
+        rv.emplace_back(limits[i]);
+    }
+
+    return rv;
+}
+
+std::vector<admire::qos::limit>
+convert(ADM_qos_limit_list_t list) {
+
+    std::vector<admire::qos::limit> rv;
+    rv.reserve(list->l_length);
+
+    for(size_t i = 0; i < list->l_length; ++i) {
+        rv.emplace_back(&list->l_limits[i]);
+    }
+
+    return rv;
+}
+
 
 } // namespace admire::api

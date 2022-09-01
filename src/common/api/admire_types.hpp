@@ -145,6 +145,7 @@ struct entity {
 
     template <typename T>
     entity(admire::qos::scope s, T&& data);
+    explicit entity(ADM_qos_entity_t entity);
 
     entity(const entity&) noexcept;
     entity(entity&&) noexcept;
@@ -171,6 +172,7 @@ struct limit {
 
     limit(const admire::qos::entity& e, admire::qos::subclass cls,
           uint64_t value);
+    explicit limit(ADM_qos_limit_t l);
 
     limit(const limit&) noexcept;
     limit(limit&&) noexcept;

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -24,43 +24,51 @@
 
 #include <fmt/format.h>
 #include <admire.hpp>
+#include "common.hpp"
 
+#define NINPUTS  10
+#define NOUTPUTS 5
+#define NSOURCES 5
+#define NTARGETS 5
+#define NLIMITS  4
 
 int
 main(int argc, char* argv[]) {
 
     if(argc != 2) {
-        fmt::print(stderr, "ERROR: no location provided\n");
+        fmt::print(stderr, "ERROR: no server address provided\n");
         fmt::print(stderr, "Usage: ADM_transfer_dataset <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_t job{};
-    ADM_dataset_t** sources = nullptr;
-    ADM_dataset_t** targets = nullptr;
-    ADM_qos_limit_t** limits = nullptr;
-    ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
-    ADM_transfer_t tx{};
-    ADM_return_t ret = ADM_SUCCESS;
+    const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
+    const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
+
+    const auto sources = prepare_datasets("source-dataset-{}", NSOURCES);
+    const auto targets = prepare_datasets("target-dataset-{}", NTARGETS);
+    const auto qos_limits = prepare_qos_limits(NLIMITS);
+    const auto mapping = admire::transfer::mapping::n_to_n;
+
+    auto p = std::make_unique<admire::adhoc_storage>(
+            admire::storage::type::gekkofs, "foobar",
+            admire::adhoc_storage::execution_mode::separate_new,
+            admire::adhoc_storage::access_type::read_write, 42, 100, false);
+
+    admire::job_requirements reqs(inputs, outputs, std::move(p));
 
     try {
-        ret = admire::transfer_dataset(server, job, sources, targets, limits,
-                                       mapping, &tx);
+        const auto job = admire::register_job(server, reqs);
+        const auto transfer = admire::transfer_dataset(
+                server, job, sources, targets, qos_limits, mapping);
+
+        fmt::print(stdout, "ADM_transfer_dataset() remote procedure completed "
+                           "successfully\n");
+        exit(EXIT_SUCCESS);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
                    e.what());
         exit(EXIT_FAILURE);
-    }
-
-    if(ret != ADM_SUCCESS) {
-        fmt::print(stdout,
-                   "ADM_transfer_dataset() remote procedure not completed "
-                   "successfully\n");
-        exit(EXIT_FAILURE);
-    } else {
-        fmt::print(stdout, "ADM_transfer_dataset() remote procedure completed "
-                           "successfully\n");
     }
 }

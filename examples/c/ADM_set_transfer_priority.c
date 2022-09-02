@@ -68,13 +68,17 @@ main(int argc, char* argv[]) {
         exit_status = EXIT_FAILURE;
     }
 
-    ADM_dataset_t** sources = NULL;
-    ADM_dataset_t** targets = NULL;
-    ADM_qos_limit_t** limits = NULL;
+    ADM_dataset_t* sources = NULL;
+    size_t sources_len = 0;
+    ADM_dataset_t* targets = NULL;
+    size_t targets_len = 0;
+    ADM_qos_limit_t* limits = NULL;
+    size_t limits_len = 0;
     ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
     ADM_transfer_t tx;
-    ret = ADM_transfer_dataset(server, job, sources, targets, limits, mapping,
-                               &tx);
+
+    ret = ADM_transfer_dataset(server, job, sources, sources_len, targets,
+                               targets_len, limits, limits_len, mapping, &tx);
 
     int incr = 42;
     ret = ADM_set_transfer_priority(server, job, tx, incr);

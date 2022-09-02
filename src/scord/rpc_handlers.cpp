@@ -980,9 +980,29 @@ ADM_transfer_dataset(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    // TODO
+    const admire::job job{in.job};
+    const std::vector<admire::dataset> sources =
+            admire::api::convert(in.sources);
+    const std::vector<admire::dataset> targets =
+            admire::api::convert(in.targets);
+    const std::vector<admire::qos::limit> limits =
+            admire::api::convert(in.qos_limits);
+    const auto mapping = static_cast<admire::transfer::mapping>(in.mapping);
 
-    out.ret = 0;
+    const auto id = remote_procedure::new_id();
+    LOGGER_INFO("RPC ID {} ({}) <= {{job: {{{}}}, sources: {}, targets: {}, "
+                "limits: {}, mapping: {}}}",
+                id, __FUNCTION__, job, sources, targets, limits, mapping);
+
+    admire::error_code rv = ADM_SUCCESS;
+
+    const auto transfer = admire::transfer{42};
+
+    out.retval = rv;
+    out.tx = admire::api::convert(transfer).release();
+
+    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}, transfer: {{{}}}}}", id,
+                __FUNCTION__, rv, transfer);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

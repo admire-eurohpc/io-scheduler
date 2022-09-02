@@ -81,10 +81,12 @@ update_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
 ADM_return_t
 remove_pfs_storage(const server& srv, ADM_storage_t pfs_storage);
 
-ADM_return_t
-transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
-                 ADM_dataset_t** targets, ADM_qos_limit_t** limits,
-                 ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer);
+admire::transfer
+transfer_dataset(const server& srv, const job& job,
+                 const std::vector<dataset>& sources,
+                 const std::vector<dataset>& targets,
+                 const std::vector<qos::limit>& limits,
+                 transfer::mapping mapping);
 
 ADM_return_t
 set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,

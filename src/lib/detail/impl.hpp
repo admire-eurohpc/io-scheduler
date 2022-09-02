@@ -43,6 +43,13 @@ update_job(const server& srv, const job& job, const job_requirements& reqs);
 admire::error_code
 remove_job(const server& srv, const job& job);
 
+tl::expected<transfer, error_code>
+transfer_dataset(const server& srv, const job& job,
+                 const std::vector<dataset>& sources,
+                 const std::vector<dataset>& targets,
+                 const std::vector<qos::limit>& limits,
+                 transfer::mapping mapping);
+
 } // namespace admire::detail
 
 #endif // SCORD_ADMIRE_IMPL_HPP

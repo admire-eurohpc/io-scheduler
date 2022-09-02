@@ -661,4 +661,31 @@ struct fmt::formatter<admire::qos::limit> : formatter<std::string_view> {
     }
 };
 
+template <>
+struct fmt::formatter<admire::transfer::mapping> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::transfer::mapping& m, FormatContext& ctx) const {
+
+        using mapping = admire::transfer::mapping;
+
+        std::string_view name = "unknown";
+
+        switch(m) {
+            case mapping::one_to_one:
+                name = "ADM_MAPPING_ONE_TO_ONE";
+                break;
+            case mapping::one_to_n:
+                name = "ADM_MAPPING_ONE_TO_N";
+                break;
+            case mapping::n_to_n:
+                name = "ADM_MAPPING_N_TO_N";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
 #endif // SCORD_ADMIRE_TYPES_HPP

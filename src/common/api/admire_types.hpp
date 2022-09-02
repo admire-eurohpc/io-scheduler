@@ -711,4 +711,16 @@ struct fmt::formatter<std::vector<admire::dataset>>
     }
 };
 
+template <>
+struct fmt::formatter<std::vector<admire::qos::limit>>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::vector<admire::qos::limit>& l, FormatContext& ctx) const {
+        const auto str = fmt::format("[{}]", fmt::join(l, ", "));
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
 #endif // SCORD_ADMIRE_TYPES_HPP

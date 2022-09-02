@@ -649,4 +649,16 @@ struct fmt::formatter<admire::job_requirements> : formatter<std::string_view> {
     }
 };
 
+template <>
+struct fmt::formatter<admire::qos::limit> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::qos::limit& l, FormatContext& ctx) const {
+        const auto str = fmt::format("{{entity: {}, subclass: {}, value: {}}}",
+                                     l.entity(), l.subclass(), l.value());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
 #endif // SCORD_ADMIRE_TYPES_HPP

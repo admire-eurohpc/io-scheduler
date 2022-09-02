@@ -688,4 +688,15 @@ struct fmt::formatter<admire::transfer::mapping> : formatter<std::string_view> {
     }
 };
 
+template <>
+struct fmt::formatter<admire::transfer> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::transfer& tx, FormatContext& ctx) const {
+        const auto str = fmt::format("id: {}", tx.id());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
 #endif // SCORD_ADMIRE_TYPES_HPP

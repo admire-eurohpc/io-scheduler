@@ -412,17 +412,17 @@ hg_proc_ADM_qos_limit_list_t(hg_proc_t proc, void* data);
 
 MERCURY_GEN_PROC(
     ADM_transfer_dataset_in_t,
-        ((ADM_job_t) (job_id))
+        ((ADM_job_t) (job))
         ((ADM_dataset_list_t) (sources))
         ((ADM_dataset_list_t) (targets))
         ((ADM_qos_limit_list_t) (qos_limits))
-        ((hg_int32_t) (distribution))
+        ((hg_int32_t) (mapping))
 )
 
 MERCURY_GEN_PROC(
     ADM_transfer_dataset_out_t,
-                 ((int32_t) (ret))
-((hg_const_string_t) (transfer_handle)))
+        ((hg_int32_t) (retval))
+        ((ADM_transfer_t) (tx)))
 
 
 /// ADM_set_dataset_information

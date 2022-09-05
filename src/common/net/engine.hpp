@@ -126,6 +126,35 @@ struct engine {
     std::shared_ptr<detail::margo_context> m_context;
 };
 
+template <typename Output>
+class rpc_handle {
+public:
+    rpc_handle(hg_handle_t handle, Output output)
+        : m_handle(handle), m_output(output) {}
+
+    ~rpc_handle() {
+
+        if(m_handle) {
+
+            if(m_output) {
+                margo_free_output(m_handle, m_output);
+            }
+
+            margo_destroy(m_handle);
+        }
+    }
+
+    hg_handle_t
+    native() {
+        return m_handle;
+    }
+
+private:
+    hg_handle_t m_handle;
+    Output m_output;
+};
+
+
 struct endpoint {
 private:
     // Endpoints should only be created by calling engine::lookup()
@@ -186,7 +215,7 @@ public:
      *
      **/
     template <typename T1 = void*, typename T2 = void*>
-    void
+    [[nodiscard]] rpc_handle<T2>
     call(const std::string& id, T1 input = nullptr, T2 output = nullptr) {
 
         const auto it = m_margo_context->m_rpc_names.find(id);
@@ -218,14 +247,7 @@ public:
             ret = ::margo_get_output(handle, output);
         }
 
-
-        ret = ::margo_destroy(handle);
-
-        if(ret != HG_SUCCESS) {
-            throw std::runtime_error(
-                    fmt::format("Error during endpoint::call(): {}",
-                                ::HG_Error_to_string(ret)));
-        }
+        return rpc_handle<T2>{handle, output};
     }
 
 private:

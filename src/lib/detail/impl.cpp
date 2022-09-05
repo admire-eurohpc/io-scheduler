@@ -164,7 +164,7 @@ ping(const server& srv) {
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("ADM_ping()");
-    endp.call("ADM_ping");
+    const auto rpc = endp.call("ADM_ping");
 
     LOGGER_INFO("ADM_register_job() = {}", ADM_SUCCESS);
     return ADM_SUCCESS;
@@ -185,7 +185,7 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     ADM_register_job_in_t in{*rpc_reqs.get()};
     ADM_register_job_out_t out;
 
-    endp.call("ADM_register_job", &in, &out);
+    const auto rpc = endp.call("ADM_register_job", &in, &out);
 
     if(out.retval < 0) {
         LOGGER_ERROR("RPC (ADM_{}) <= {}", __FUNCTION__, out.retval);
@@ -216,7 +216,7 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
     ADM_update_job_in_t in{rpc_job.get(), *rpc_reqs.get()};
     ADM_update_job_out_t out;
 
-    endp.call("ADM_update_job", &in, &out);
+    const auto rpc = endp.call("ADM_update_job", &in, &out);
 
 
     if(out.retval < 0) {
@@ -243,7 +243,7 @@ remove_job(const server& srv, const job& job) {
     ADM_remove_job_in_t in{rpc_job.get()};
     ADM_remove_job_out_t out;
 
-    endp.call("ADM_remove_job", &in, &out);
+    const auto rpc = endp.call("ADM_remove_job", &in, &out);
 
     if(out.retval < 0) {
         const auto retval = static_cast<admire::error_code>(out.retval);

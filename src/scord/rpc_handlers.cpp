@@ -75,7 +75,7 @@ ADM_register_job(hg_handle_t h) {
     admire::error_code rv = ADM_SUCCESS;
 
     out.retval = rv;
-    out.job = admire::api::convert(job).get();
+    out.job = admire::api::convert(job).release();
 
     LOGGER_INFO("RPC ID {} ({}) => {{retval: {}, job: {{{}}}}}", id,
                 __FUNCTION__, rv, job);

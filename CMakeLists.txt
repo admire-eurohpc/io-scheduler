@@ -82,6 +82,7 @@ set(CMAKE_SHARED_LINKER_FLAGS_ASAN
 
 # make sure that debug versions for targets are used (if provided) in Debug mode
 set_property(GLOBAL APPEND PROPERTY DEBUG_CONFIGURATIONS Debug)
+set_property(GLOBAL APPEND PROPERTY DEBUG_CONFIGURATIONS ASan)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

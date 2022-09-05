@@ -104,7 +104,7 @@ main(int argc, char* argv[]) {
     }
 
     ADM_job_requirements_t new_reqs = ADM_job_requirements_create(
-            new_inputs, NINPUTS, new_outputs, NOUTPUTS, NULL);
+            new_inputs, NINPUTS, new_outputs, NOUTPUTS, st);
     ADM_return_t ret = ADM_update_job(server, job, new_reqs);
 
     if(ret != ADM_SUCCESS) {

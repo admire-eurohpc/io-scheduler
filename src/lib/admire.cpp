@@ -759,6 +759,7 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
     (void) srv;
     (void) job;
     (void) op;
+    (void) transfer;
     (void) should_stream;
     (void) args;
 

@@ -35,7 +35,7 @@ main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_register_job <SERVER_ADDRESS>\n");
+        fprintf(stderr, "Usage: ADM_update_job <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -43,6 +43,7 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
+
     ADM_dataset_t inputs[NINPUTS];
 
     for(int i = 0; i < NINPUTS; ++i) {
@@ -80,13 +81,45 @@ main(int argc, char* argv[]) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
+    }
+
+    ADM_dataset_t new_inputs[NINPUTS];
+
+    for(int i = 0; i < NINPUTS; ++i) {
+        const char* pattern = "input-new-dataset-%d";
+        size_t n = snprintf(NULL, 0, pattern, i);
+        char* id = (char*) alloca(n + 1);
+        snprintf(id, n + 1, pattern, i);
+        new_inputs[i] = ADM_dataset_create(id);
+    }
+
+    ADM_dataset_t new_outputs[NOUTPUTS];
+
+    for(int i = 0; i < NOUTPUTS; ++i) {
+        const char* pattern = "output-new-dataset-%d";
+        size_t n = snprintf(NULL, 0, pattern, i);
+        char* id = (char*) alloca(n + 1);
+        snprintf(id, n + 1, pattern, i);
+        new_outputs[i] = ADM_dataset_create(id);
+    }
+
+    ADM_job_requirements_t new_reqs = ADM_job_requirements_create(
+            new_inputs, NINPUTS, new_outputs, NOUTPUTS, st);
+
+    ret = ADM_update_job(server, job, new_reqs);
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout, "ADM_update_job() remote procedure not completed "
+                        "successfully\n");
+        exit_status = EXIT_FAILURE;
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_register_job() remote procedure completed "
+    fprintf(stdout, "ADM_update_job() remote procedure completed "
                     "successfully\n");
 
 cleanup:
+
     for(int i = 0; i < NINPUTS; ++i) {
         ADM_dataset_destroy(inputs[i]);
     }
@@ -94,12 +127,6 @@ cleanup:
     for(int i = 0; i < NOUTPUTS; ++i) {
         ADM_dataset_destroy(outputs[i]);
     }
-
-    ADM_storage_destroy(st);
-
-    ADM_adhoc_context_destroy(ctx);
-
-    ADM_job_requirements_destroy(reqs);
 
     ADM_server_destroy(server);
     exit(exit_status);

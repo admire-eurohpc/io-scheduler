@@ -134,7 +134,7 @@ finalize_data_operation(const server& srv, ADM_job_t job,
 
 ADM_return_t
 link_transfer_to_data_operation(const server& srv, ADM_job_t job,
-                                ADM_data_operation_t op, bool should_stream,
+                                ADM_data_operation_t op, ADM_transfer_t transfer, bool should_stream,
                                 va_list args);
 
 ADM_return_t

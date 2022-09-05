@@ -27,6 +27,7 @@
 #include <admire.h>
 #include <assert.h>
 
+
 #define NINPUTS  10
 #define NOUTPUTS 5
 
@@ -35,7 +36,7 @@ main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_register_job <SERVER_ADDRESS>\n");
+        fprintf(stderr, "Usage: ADM_set_io_resources <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -43,6 +44,7 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
+
     ADM_dataset_t inputs[NINPUTS];
 
     for(int i = 0; i < NINPUTS; ++i) {
@@ -80,26 +82,23 @@ main(int argc, char* argv[]) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
+    }
+
+    ADM_storage_t tier = NULL;
+    ADM_storage_resources_t resources = NULL;
+    ret = ADM_set_io_resources(server, job, tier, resources);
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout, "ADM_set_io_resources() remote procedure not completed "
+                        "successfully\n");
+        exit_status = EXIT_FAILURE;
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_register_job() remote procedure completed "
+    fprintf(stdout, "ADM_set_io_resources() remote procedure completed "
                     "successfully\n");
 
 cleanup:
-    for(int i = 0; i < NINPUTS; ++i) {
-        ADM_dataset_destroy(inputs[i]);
-    }
-
-    for(int i = 0; i < NOUTPUTS; ++i) {
-        ADM_dataset_destroy(outputs[i]);
-    }
-
-    ADM_storage_destroy(st);
-
-    ADM_adhoc_context_destroy(ctx);
-
-    ADM_job_requirements_destroy(reqs);
 
     ADM_server_destroy(server);
     exit(exit_status);

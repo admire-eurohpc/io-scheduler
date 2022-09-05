@@ -1,26 +1,37 @@
+/******************************************************************************
+ * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ *
+ * This software was partially supported by the EuroHPC-funded project ADMIRE
+ *   (Project ID: 956748, https://www.admire-eurohpc.eu).
+ *
+ * This file is part of scord.
+ *
+ * scord is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * scord is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with scord.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *****************************************************************************/
+
 #include <fmt/format.h>
 #include <admire.hpp>
-
-bool
-string_to_convert(std::string s) {
-    if(s == "true" || s == "TRUE" || s == "True") {
-        return true;
-    } else if(s == "false" || s == "FALSE" || s == "False") {
-        return false;
-    } else {
-        throw std::invalid_argument(
-                "ERROR: Incorrect input value. Please try again.\n");
-    }
-}
 
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 7) {
+    if(argc != 2) {
         fmt::print(stderr, "ERROR: no location provided\n");
-        fmt::print(
-                stderr,
-                "Usage: ADM_connect_data_operation <REMOTE_IP> <OPERATION_ID> <INPUT> <STREAM> <ARGUMENTS> <JOB_ID>\n");
+        fmt::print(stderr,
+                   "Usage: ADM_connect_data_operation <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 

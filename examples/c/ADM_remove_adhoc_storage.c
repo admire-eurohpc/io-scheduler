@@ -35,12 +35,13 @@ main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_register_job <SERVER_ADDRESS>\n");
+        fprintf(stderr, "Usage: ADM_remove_adhoc_storage <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
     int exit_status = EXIT_SUCCESS;
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
+
 
     ADM_job_t job;
     ADM_dataset_t inputs[NINPUTS];
@@ -80,27 +81,36 @@ main(int argc, char* argv[]) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
+    }
+
+    ADM_storage_t adhoc_storage;
+    ret = ADM_register_adhoc_storage(server, job, ctx, &adhoc_storage);
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout,
+                "ADM_register_adhoc_storage() remote procedure not completed "
+                "successfully\n");
+        exit_status = EXIT_FAILURE;
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_register_job() remote procedure completed "
+    fprintf(stdout, "ADM_register_adhoc_storage() remote procedure completed "
+                    "successfully\n");
+
+    ret = ADM_remove_adhoc_storage(server, job, adhoc_storage);
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout,
+                "ADM_remove_adhoc_storage() remote procedure not completed "
+                "successfully\n");
+        exit_status = EXIT_FAILURE;
+        goto cleanup;
+    }
+
+    fprintf(stdout, "ADM_remove_adhoc_storage() remote procedure completed "
                     "successfully\n");
 
 cleanup:
-    for(int i = 0; i < NINPUTS; ++i) {
-        ADM_dataset_destroy(inputs[i]);
-    }
-
-    for(int i = 0; i < NOUTPUTS; ++i) {
-        ADM_dataset_destroy(outputs[i]);
-    }
-
-    ADM_storage_destroy(st);
-
-    ADM_adhoc_context_destroy(ctx);
-
-    ADM_job_requirements_destroy(reqs);
-
     ADM_server_destroy(server);
     exit(exit_status);
 }

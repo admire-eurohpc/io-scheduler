@@ -230,7 +230,7 @@ register_adhoc_storage(const server& srv, ADM_job_t job,
     ADM_register_adhoc_storage_in_t in{};
     ADM_register_adhoc_storage_out_t out;
 
-    endp.call("ADM_register_adhoc_storage", &in, &out);
+    const auto rpc = endp.call("ADM_register_adhoc_storage", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_register_adhoc_storage() = {}", out.ret);
@@ -258,7 +258,7 @@ update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
     ADM_update_adhoc_storage_in_t in{};
     ADM_update_adhoc_storage_out_t out;
 
-    endp.call("ADM_update_adhoc_storage", &in, &out);
+    const auto rpc = endp.call("ADM_update_adhoc_storage", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_update_adhoc_storage() = {}", out.ret);
@@ -285,7 +285,7 @@ remove_adhoc_storage(const server& srv, ADM_job_t job,
     ADM_remove_adhoc_storage_in_t in{};
     ADM_remove_adhoc_storage_out_t out;
 
-    endp.call("ADM_remove_adhoc_storage", &in, &out);
+    const auto rpc = endp.call("ADM_remove_adhoc_storage", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_remove_adhoc_storage() = {}", out.ret);
@@ -312,7 +312,7 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
     ADM_deploy_adhoc_storage_in_t in{};
     ADM_deploy_adhoc_storage_out_t out;
 
-    endp.call("ADM_deploy_adhoc_storage", &in, &out);
+    const auto rpc = endp.call("ADM_deploy_adhoc_storage", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_deploy_adhoc_storage() = {}", out.ret);
@@ -340,7 +340,7 @@ register_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
     ADM_register_pfs_storage_in_t in{};
     ADM_register_pfs_storage_out_t out;
 
-    endp.call("ADM_register_pfs_storage", &in, &out);
+    const auto rpc = endp.call("ADM_register_pfs_storage", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_register_pfs_storage() = {}", out.ret);
@@ -368,7 +368,7 @@ update_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
     ADM_update_pfs_storage_in_t in{};
     ADM_update_pfs_storage_out_t out;
 
-    endp.call("ADM_update_pfs_storage", &in, &out);
+    const auto rpc = endp.call("ADM_update_pfs_storage", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_update_pfs_storage() = {}", out.ret);
@@ -395,7 +395,7 @@ remove_pfs_storage(const server& srv, ADM_job_t job,
     ADM_remove_pfs_storage_in_t in{};
     ADM_remove_pfs_storage_out_t out;
 
-    endp.call("ADM_remove_pfs_storage", &in, &out);
+    const auto rpc = endp.call("ADM_remove_pfs_storage", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_remove_pfs_storage() = {}", out.ret);
@@ -427,7 +427,12 @@ transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
     ADM_transfer_dataset_in_t in{};
     ADM_transfer_dataset_out_t out;
 
-    endp.call("ADM_transfer_dataset", &in, &out);
+    in.source = "/tmp";
+    in.destination = "/tmp";
+    in.qos_constraints = "constraints";
+    in.distribution = "distribution";
+
+    const auto rpc = endp.call("ADM_transfer_dataset", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_transfer_dataset() = {}", out.ret);
@@ -455,7 +460,9 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
     ADM_set_dataset_information_in_t in{};
     ADM_set_dataset_information_out_t out;
 
-    endp.call("ADM_set_dataset_information", &in, &out);
+    in.info = "info";
+
+    const auto rpc = endp.call("ADM_set_dataset_information", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_set_dataset_information() = {}", out.ret);
@@ -483,7 +490,9 @@ set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
     ADM_set_io_resources_in_t in{};
     ADM_set_io_resources_out_t out;
 
-    endp.call("ADM_set_io_resources", &in, &out);
+    in.resources = "resources";
+
+    const auto rpc = endp.call("ADM_set_io_resources", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_set_io_resources() = {}", out.ret);
@@ -511,7 +520,7 @@ get_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
     ADM_get_transfer_priority_in_t in{};
     ADM_get_transfer_priority_out_t out;
 
-    endp.call("ADM_get_transfer_priority", &in, &out);
+    const auto rpc = endp.call("ADM_get_transfer_priority", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_get_transfer_priority() = {}", out.ret);
@@ -539,7 +548,7 @@ set_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
     ADM_set_transfer_priority_in_t in{};
     ADM_set_transfer_priority_out_t out;
 
-    endp.call("ADM_set_transfer_priority", &in, &out);
+    const auto rpc = endp.call("ADM_set_transfer_priority", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_set_transfer_priority() = {}", out.ret);
@@ -566,7 +575,7 @@ cancel_transfer(const server& srv, ADM_job_t job, ADM_transfer_t transfer) {
     ADM_cancel_transfer_in_t in{42};
     ADM_cancel_transfer_out_t out;
 
-    endp.call("ADM_cancel_transfer", &in, &out);
+    const auto rpc = endp.call("ADM_cancel_transfer", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_cancel_transfer() = {}", out.ret);
@@ -594,7 +603,7 @@ get_pending_transfers(const server& srv, ADM_job_t job,
     ADM_get_pending_transfers_in_t in{};
     ADM_get_pending_transfers_out_t out;
 
-    endp.call("ADM_get_pending_transfers", &in, &out);
+    const auto rpc = endp.call("ADM_get_pending_transfers", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_get_pending_transfers() = {}", out.ret);
@@ -623,7 +632,11 @@ set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     ADM_set_qos_constraints_in_t in{};
     ADM_set_qos_constraints_out_t out;
 
-    endp.call("ADM_set_qos_constraints", &in, &out);
+    in.scope = "dataset";
+    in.qos_class = "class";
+    in.class_value = "value";
+
+    const auto rpc = endp.call("ADM_set_qos_constraints", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_set_qos_constraints() = {}", out.ret);
@@ -652,7 +665,9 @@ get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     ADM_get_qos_constraints_in_t in{};
     ADM_get_qos_constraints_out_t out;
 
-    endp.call("ADM_get_qos_constraints", &in, &out);
+    in.scope = "dataset";
+
+    const auto rpc = endp.call("ADM_get_qos_constraints", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_get_qos_constraints() = {}", out.ret);
@@ -682,7 +697,11 @@ define_data_operation(const server& srv, ADM_job_t job, const char* path,
     ADM_define_data_operation_in_t in{};
     ADM_define_data_operation_out_t out;
 
-    endp.call("ADM_define_data_operation", &in, &out);
+    in.path = path;
+    in.operation_id = 1;
+    in.arguments = "argument1 argument2";
+
+    const auto rpc = endp.call("ADM_define_data_operation", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_define_data_operation() = {}", out.ret);
@@ -713,7 +732,10 @@ connect_data_operation(const server& srv, ADM_job_t job, ADM_dataset_t input,
     ADM_connect_data_operation_in_t in{};
     ADM_connect_data_operation_out_t out;
 
-    endp.call("ADM_connect_data_operation", &in, &out);
+    in.input = "/tmp";
+    in.arguments = "argument1 argument2";
+
+    const auto rpc = endp.call("ADM_connect_data_operation", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_connect_data_operation() = {}", out.ret);
@@ -743,7 +765,7 @@ finalize_data_operation(const server& srv, ADM_job_t job,
     ADM_finalize_data_operation_in_t in{};
     ADM_finalize_data_operation_out_t out;
 
-    endp.call("ADM_finalize_data_operation", &in, &out);
+    const auto rpc = endp.call("ADM_finalize_data_operation", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_finalize_data_operation() = {}", out.ret);
@@ -756,13 +778,15 @@ finalize_data_operation(const server& srv, ADM_job_t job,
 
 ADM_return_t
 link_transfer_to_data_operation(const server& srv, ADM_job_t job,
-                                ADM_data_operation_t op, bool should_stream,
+                                ADM_data_operation_t op,
+                                ADM_transfer_t transfer, bool should_stream,
                                 va_list args) {
     (void) srv;
     (void) job;
     (void) op;
     (void) should_stream;
     (void) args;
+    (void) transfer;
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
@@ -774,7 +798,10 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
     ADM_link_transfer_to_data_operation_in_t in{};
     ADM_link_transfer_to_data_operation_out_t out;
 
-    endp.call("ADM_link_transfer_to_data_operation", &in, &out);
+    in.arguments = "argument1 argument2";
+
+    const auto rpc =
+            endp.call("ADM_link_transfer_to_data_operation", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_link_transfer_to_data_operation() = {}", out.ret);
@@ -801,7 +828,7 @@ get_statistics(const server& srv, ADM_job_t job, ADM_job_stats_t** stats) {
     ADM_get_statistics_in_t in{};
     ADM_get_statistics_out_t out;
 
-    endp.call("ADM_get_statistics", &in, &out);
+    const auto rpc = endp.call("ADM_get_statistics", &in, &out);
 
     if(out.ret < 0) {
         LOGGER_ERROR("ADM_get_statistics() = {}", out.ret);

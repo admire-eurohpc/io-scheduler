@@ -35,7 +35,7 @@ main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_register_job <SERVER_ADDRESS>\n");
+        fprintf(stderr, "Usage: ADM_get_transfer_priority <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -80,26 +80,38 @@ main(int argc, char* argv[]) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
+    }
+
+    ADM_dataset_t** sources = NULL;
+    ADM_dataset_t** targets = NULL;
+    ADM_qos_limit_t** limits = NULL;
+    ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
+    ADM_transfer_t tx;
+    ret = ADM_transfer_dataset(server, job, sources, targets, limits, mapping,
+                               &tx);
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout, "ADM_transfer_dataset() remote procedure not completed "
+                        "successfully\n");
+        exit_status = EXIT_FAILURE;
+        goto cleanup;
+    }
+    ADM_transfer_priority_t priority;
+
+    ret = ADM_get_transfer_priority(server, job, tx, &priority);
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout,
+                "ADM_get_transfer_priority() remote procedure not completed "
+                "successfully\n");
+        exit_status = EXIT_FAILURE;
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_register_job() remote procedure completed "
+    fprintf(stdout, "ADM_get_transfer_priority() remote procedure completed "
                     "successfully\n");
 
 cleanup:
-    for(int i = 0; i < NINPUTS; ++i) {
-        ADM_dataset_destroy(inputs[i]);
-    }
-
-    for(int i = 0; i < NOUTPUTS; ++i) {
-        ADM_dataset_destroy(outputs[i]);
-    }
-
-    ADM_storage_destroy(st);
-
-    ADM_adhoc_context_destroy(ctx);
-
-    ADM_job_requirements_destroy(reqs);
 
     ADM_server_destroy(server);
     exit(exit_status);

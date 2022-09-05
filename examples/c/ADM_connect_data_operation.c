@@ -34,8 +34,8 @@ int
 main(int argc, char* argv[]) {
 
     if(argc != 2) {
-        fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_register_job <SERVER_ADDRESS>\n");
+        fprintf(stderr, "ERROR: no server address provided\n");
+        fprintf(stderr, "Usage: ADM_connect_data_operation <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -43,6 +43,7 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
+
     ADM_dataset_t inputs[NINPUTS];
 
     for(int i = 0; i < NINPUTS; ++i) {
@@ -80,10 +81,24 @@ main(int argc, char* argv[]) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
+    }
+
+    exit_status = EXIT_SUCCESS;
+
+    bool should_stream = false;
+    ret = ADM_connect_data_operation(server, job, inputs[0], outputs[0],
+                                     should_stream);
+
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout,
+                "ADM_connect_data_operation() remote procedure not completed "
+                "successfully\n");
+        exit_status = EXIT_FAILURE;
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_register_job() remote procedure completed "
+    fprintf(stdout, "ADM_connect_data_operation() remote procedure completed "
                     "successfully\n");
 
 cleanup:
@@ -94,12 +109,6 @@ cleanup:
     for(int i = 0; i < NOUTPUTS; ++i) {
         ADM_dataset_destroy(outputs[i]);
     }
-
-    ADM_storage_destroy(st);
-
-    ADM_adhoc_context_destroy(ctx);
-
-    ADM_job_requirements_destroy(reqs);
 
     ADM_server_destroy(server);
     exit(exit_status);

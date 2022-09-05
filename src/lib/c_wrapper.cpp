@@ -267,16 +267,18 @@ ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
     return admire::finalize_data_operation(srv, job, op, status);
 }
 
+
 ADM_return_t
 ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_t job,
-                                    ADM_data_operation_t op, bool should_stream,
+                                    ADM_data_operation_t op,
+                                    ADM_transfer_t transfer, bool should_stream,
                                     ...) {
 
     const admire::server srv{server};
 
     va_list args;
     va_start(args, should_stream);
-    auto ret = admire::link_transfer_to_data_operation(srv, job, op,
+    auto ret = admire::link_transfer_to_data_operation(srv, job, op, transfer,
                                                        should_stream, args);
     va_end(args);
 

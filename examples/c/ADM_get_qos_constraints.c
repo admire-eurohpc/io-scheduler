@@ -35,7 +35,7 @@ main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_register_job <SERVER_ADDRESS>\n");
+        fprintf(stderr, "Usage: ADM_get_qos_constraints <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -43,6 +43,7 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
+
     ADM_dataset_t inputs[NINPUTS];
 
     for(int i = 0; i < NINPUTS; ++i) {
@@ -80,26 +81,25 @@ main(int argc, char* argv[]) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
+    }
+
+    ADM_qos_entity_t entity = NULL;
+    ADM_qos_limit_t* limits;
+
+    ret = ADM_get_qos_constraints(server, job, entity, &limits);
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout,
+                "ADM_get_qos_constraints() remote procedure not completed "
+                "successfully\n");
+        exit_status = EXIT_FAILURE;
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_register_job() remote procedure completed "
+    fprintf(stdout, "ADM_get_qos_constraints() remote procedure completed "
                     "successfully\n");
 
 cleanup:
-    for(int i = 0; i < NINPUTS; ++i) {
-        ADM_dataset_destroy(inputs[i]);
-    }
-
-    for(int i = 0; i < NOUTPUTS; ++i) {
-        ADM_dataset_destroy(outputs[i]);
-    }
-
-    ADM_storage_destroy(st);
-
-    ADM_adhoc_context_destroy(ctx);
-
-    ADM_job_requirements_destroy(reqs);
 
     ADM_server_destroy(server);
     exit(exit_status);

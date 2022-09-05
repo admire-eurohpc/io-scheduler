@@ -75,18 +75,18 @@ main(int argc, char* argv[]) {
             ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
     assert(reqs);
 
-    ADM_return_t ret_job = ADM_register_job(server, reqs, &job);
+    ADM_return_t ret = ADM_register_job(server, reqs, &job);
 
-    if(ret_job != ADM_SUCCESS) {
+    if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
     }
-    ADM_storage_t adhoc_storage;
-    ADM_return_t ret_as =
-            ADM_register_adhoc_storage(server, job, ctx, &adhoc_storage);
 
-    if(ret_as != ADM_SUCCESS) {
+    ADM_storage_t adhoc_storage;
+    ret = ADM_register_adhoc_storage(server, job, ctx, &adhoc_storage);
+
+    if(ret != ADM_SUCCESS) {
         fprintf(stdout,
                 "ADM_register_adhoc_storage() remote procedure not completed "
                 "successfully\n");
@@ -97,7 +97,7 @@ main(int argc, char* argv[]) {
     fprintf(stdout, "ADM_register_adhoc_storage() remote procedure completed "
                     "successfully\n");
 
-    ADM_return_t ret = ADM_remove_adhoc_storage(server, job, adhoc_storage);
+    ret = ADM_remove_adhoc_storage(server, job, adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,
@@ -111,7 +111,6 @@ main(int argc, char* argv[]) {
                     "successfully\n");
 
 cleanup:
-
     ADM_server_destroy(server);
     exit(exit_status);
 }

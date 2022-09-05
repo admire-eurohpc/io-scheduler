@@ -74,22 +74,23 @@ main(int argc, char* argv[]) {
             ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
     assert(reqs);
 
-    ADM_return_t ret_job = ADM_register_job(server, reqs, &job);
+    ADM_return_t ret = ADM_register_job(server, reqs, &job);
 
-    if(ret_job != ADM_SUCCESS) {
+    if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
     }
+
     ADM_dataset_t** sources = NULL;
     ADM_dataset_t** targets = NULL;
     ADM_qos_limit_t** limits = NULL;
     ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
     ADM_transfer_t tx;
-    ADM_return_t ret_tx = ADM_transfer_dataset(server, job, sources, targets,
-                                               limits, mapping, &tx);
+    ret = ADM_transfer_dataset(server, job, sources, targets, limits, mapping,
+                               &tx);
 
-    if(ret_tx != ADM_SUCCESS) {
+    if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_transfer_dataset() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
@@ -97,8 +98,7 @@ main(int argc, char* argv[]) {
     }
     ADM_transfer_priority_t priority;
 
-    ADM_return_t ret = ADM_get_transfer_priority(server, job, tx, &priority);
-
+    ret = ADM_get_transfer_priority(server, job, tx, &priority);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

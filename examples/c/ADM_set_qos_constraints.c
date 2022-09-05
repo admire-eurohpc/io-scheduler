@@ -75,9 +75,9 @@ main(int argc, char* argv[]) {
             ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
     assert(reqs);
 
-    ADM_return_t ret_job = ADM_register_job(server, reqs, &job);
+    ADM_return_t ret = ADM_register_job(server, reqs, &job);
 
-    if(ret_job != ADM_SUCCESS) {
+    if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
@@ -86,7 +86,7 @@ main(int argc, char* argv[]) {
     ADM_qos_entity_t entity = NULL;
     ADM_qos_limit_t limit = NULL;
 
-    ADM_return_t ret = ADM_set_qos_constraints(server, job, entity, limit);
+    ret = ADM_set_qos_constraints(server, job, entity, limit);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

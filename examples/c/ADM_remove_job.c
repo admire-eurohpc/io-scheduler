@@ -74,15 +74,15 @@ main(int argc, char* argv[]) {
             ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
     assert(reqs);
 
-    ADM_return_t ret_job = ADM_register_job(server, reqs, &job);
+    ADM_return_t ret = ADM_register_job(server, reqs, &job);
 
-    if(ret_job != ADM_SUCCESS) {
+    if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
     }
 
-    ADM_return_t ret = ADM_remove_job(server, job);
+    ret = ADM_remove_job(server, job);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_remove_job() remote procedure not completed "

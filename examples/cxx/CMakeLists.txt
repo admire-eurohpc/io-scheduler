@@ -48,45 +48,46 @@ endforeach()
 if(SCORD_BUILD_TESTS)
   add_test(ADM_ping_test ADM_ping ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_cancel_transfer_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_cancel_transfer_cxx_test ADM_cancel_transfer ofi+tcp://127.0.0.1:52000)
+  set_tests_properties(ADM_cancel_transfer_cxx_test PROPERTIES LABELS "ADM_cancel_transfer;cxx")
 
-  add_test(ADM_connect_data_operation_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_connect_data_operation_cxx_test ADM_connect_data_operation ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_define_data_operation_test ADM_define_data_operation ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_define_data_operation_cxx_test ADM_define_data_operation ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_deploy_adhoc_storage_test ADM_deploy_adhoc_storage ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_deploy_adhoc_storage_cxx_test ADM_deploy_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_finalize_data_operation_test ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_finalize_data_operation_cxx_test ADM_finalize_data_operation ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_get_pending_transfers_test ADM_get_pending_transfers ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_get_pending_transfers_cxx_test ADM_get_pending_transfers ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_get_qos_constraints_test ADM_get_qos_constraints ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_get_qos_constraints_cxx_test ADM_get_qos_constraints ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_get_transfer_priority_test ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_get_transfer_priority_cxx_test ADM_get_transfer_priority ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_link_transfer_to_data_operation_test ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_link_transfer_to_data_operation_cxx_test ADM_link_transfer_to_data_operation ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_register_job_test ADM_register_job ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_register_job_cxx_test ADM_register_job ofi+tcp://127.0.0.1:52000)
 
   # TODO: add_test(ADM_register_pfs_storage_test ADM_register_pfs_storage ofi+tcp://127.0.0.1:52000)
-  add_test(ADM_remove_adhoc_storage_test ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_remove_adhoc_storage_cxx_test ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_remove_job_test ADM_remove_job ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_remove_job_cxx_test ADM_remove_job ofi+tcp://127.0.0.1:52000)
 
   # TODO: add_test(ADM_remove_pfs_storage_test ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000 42)
-  add_test(ADM_set_dataset_information_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_set_dataset_information_cxx_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_set_io_resources_test ADM_set_io_resources ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_set_io_resources_cxx_test ADM_set_io_resources ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_set_qos_constraints_test ADM_set_qos_constraints ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_set_qos_constraints_cxx_test ADM_set_qos_constraints ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_set_transfer_priority_test ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_set_transfer_priority_cxx_test ADM_set_transfer_priority ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_transfer_dataset_test ADM_transfer_dataset ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_transfer_dataset_cxx_test ADM_transfer_dataset ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_update_adhoc_storage_test ADM_update_adhoc_storage ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_update_adhoc_storage_cxx_test ADM_update_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
-  add_test(ADM_update_job_test ADM_update_job ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_update_job_cxx_test ADM_update_job ofi+tcp://127.0.0.1:52000)
 
-  # TODO: add_test(ADM_update_pfs_storage_test ADM_update_pfs_storage ofi+tcp://127.0.0.1:52000 42)
+  # TODO: add_test(ADM_update_pfs_storage_cxx_test ADM_update_pfs_storage ofi+tcp://127.0.0.1:52000 42)
 endif()

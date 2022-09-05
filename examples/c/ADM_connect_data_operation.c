@@ -34,7 +34,7 @@ int
 main(int argc, char* argv[]) {
 
     if(argc != 2) {
-        fprintf(stderr, "ERROR: no location provided\n");
+        fprintf(stderr, "ERROR: no server address provided\n");
         fprintf(stderr, "Usage: ADM_connect_data_operation <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
@@ -44,7 +44,7 @@ main(int argc, char* argv[]) {
 
     ADM_job_t job;
 
-        ADM_dataset_t inputs[NINPUTS];
+    ADM_dataset_t inputs[NINPUTS];
 
     for(int i = 0; i < NINPUTS; ++i) {
         const char* pattern = "input-dataset-%d";
@@ -75,36 +75,19 @@ main(int argc, char* argv[]) {
             ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
     assert(reqs);
 
-    ADM_dataset_t input;
-
-    const char* pattern_i = "input-dataset";
-    size_t n_i = snprintf(NULL, 0, pattern_i);
-    char* id_i = (char*) malloc(n_i + 1);
-    snprintf(id_i, n_i + 1, pattern_i);
-    input= ADM_dataset_create(id_i);
-
-    ADM_dataset_t output;
-
-    const char* pattern_o = "output-dataset";
-    size_t n_o = snprintf(NULL, 0, pattern_o);
-    char* id_o = (char*) malloc(n_o + 1);
-    snprintf(id_o, n_o + 1, pattern_o);
-    output= ADM_dataset_create(id_o);
-
-
     ADM_return_t ret_job = ADM_register_job(server, reqs, &job);
 
     if(ret_job != ADM_SUCCESS) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
-    } 
+    }
 
     exit_status = EXIT_SUCCESS;
 
     bool should_stream = false;
-    ADM_return_t ret = ADM_connect_data_operation(server, job, input, output,
-                                                  should_stream);
+    ADM_return_t ret = ADM_connect_data_operation(server, job, inputs[0],
+                                                  outputs[0], should_stream);
 
 
     if(ret != ADM_SUCCESS) {
@@ -119,11 +102,6 @@ main(int argc, char* argv[]) {
                     "successfully\n");
 
 cleanup:
-
-    ADM_dataset_destroy(input);
-    ADM_dataset_destroy(output);
-
-    
     for(int i = 0; i < NINPUTS; ++i) {
         ADM_dataset_destroy(inputs[i]);
     }

@@ -49,7 +49,7 @@ main(int argc, char* argv[]) {
     for(int i = 0; i < NINPUTS; ++i) {
         const char* pattern = "input-dataset-%d";
         size_t n = snprintf(NULL, 0, pattern, i);
-        char* id = (char*) malloc(n + 1);
+        char* id = (char*) alloca(n + 1);
         snprintf(id, n + 1, pattern, i);
         inputs[i] = ADM_dataset_create(id);
     }
@@ -59,7 +59,7 @@ main(int argc, char* argv[]) {
     for(int i = 0; i < NOUTPUTS; ++i) {
         const char* pattern = "output-dataset-%d";
         size_t n = snprintf(NULL, 0, pattern, i);
-        char* id = (char*) malloc(n + 1);
+        char* id = (char*) alloca(n + 1);
         snprintf(id, n + 1, pattern, i);
         outputs[i] = ADM_dataset_create(id);
     }
@@ -82,10 +82,10 @@ main(int argc, char* argv[]) {
                         "successfully\n");
         exit_status = EXIT_FAILURE;
     }
-    
+
     ADM_data_operation_t op;
     const char* path = "/tmpxxxxx";
-    //va_list args; // FIXME placeholder
+    // va_list args; // FIXME placeholder
 
     ADM_return_t ret = ADM_define_data_operation(server, job, path, &op);
 

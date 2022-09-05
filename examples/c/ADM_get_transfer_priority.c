@@ -48,7 +48,7 @@ main(int argc, char* argv[]) {
     for(int i = 0; i < NINPUTS; ++i) {
         const char* pattern = "input-dataset-%d";
         size_t n = snprintf(NULL, 0, pattern, i);
-        char* id = (char*) malloc(n + 1);
+        char* id = (char*) alloca(n + 1);
         snprintf(id, n + 1, pattern, i);
         inputs[i] = ADM_dataset_create(id);
     }
@@ -58,7 +58,7 @@ main(int argc, char* argv[]) {
     for(int i = 0; i < NOUTPUTS; ++i) {
         const char* pattern = "output-dataset-%d";
         size_t n = snprintf(NULL, 0, pattern, i);
-        char* id = (char*) malloc(n + 1);
+        char* id = (char*) alloca(n + 1);
         snprintf(id, n + 1, pattern, i);
         outputs[i] = ADM_dataset_create(id);
     }
@@ -87,7 +87,7 @@ main(int argc, char* argv[]) {
     ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
     ADM_transfer_t tx;
     ADM_return_t ret_tx = ADM_transfer_dataset(server, job, sources, targets,
-                                            limits, mapping, &tx);
+                                               limits, mapping, &tx);
 
     if(ret_tx != ADM_SUCCESS) {
         fprintf(stdout, "ADM_transfer_dataset() remote procedure not completed "

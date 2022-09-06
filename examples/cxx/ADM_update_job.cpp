@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -24,6 +24,7 @@
 
 #include <fmt/format.h>
 #include <admire.hpp>
+#include "common.hpp"
 
 #define NINPUTS  10
 #define NOUTPUTS 5
@@ -39,17 +40,8 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    std::vector<admire::dataset> inputs;
-    inputs.reserve(NINPUTS);
-    for(int i = 0; i < NINPUTS; ++i) {
-        inputs.emplace_back(fmt::format("input-dataset-{}", i));
-    }
-
-    std::vector<admire::dataset> outputs;
-    outputs.reserve(NOUTPUTS);
-    for(int i = 0; i < NOUTPUTS; ++i) {
-        outputs.emplace_back(fmt::format("output-dataset-{}", i));
-    }
+    const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
+    const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
     auto p = std::make_unique<admire::adhoc_storage>(
             admire::storage::type::gekkofs, "foobar",
@@ -59,17 +51,9 @@ main(int argc, char* argv[]) {
     admire::job_requirements reqs{inputs, outputs, std::move(p)};
 
 
-    std::vector<admire::dataset> new_inputs;
-    new_inputs.reserve(NINPUTS);
-    for(int i = 0; i < NINPUTS; ++i) {
-        new_inputs.emplace_back(fmt::format("input-new-dataset-{}", i));
-    }
-
-    std::vector<admire::dataset> new_outputs;
-    new_outputs.reserve(NOUTPUTS);
-    for(int i = 0; i < NOUTPUTS; ++i) {
-        new_outputs.emplace_back(fmt::format("output-new-dataset-{}", i));
-    }
+    const auto new_inputs = prepare_datasets("input-new-dataset-{}", NINPUTS);
+    const auto new_outputs =
+            prepare_datasets("output-new-dataset-{}", NOUTPUTS);
 
     auto p2 = std::make_unique<admire::adhoc_storage>(
             admire::storage::type::gekkofs, "foobar",
@@ -78,13 +62,11 @@ main(int argc, char* argv[]) {
 
     admire::job_requirements new_reqs{new_inputs, new_outputs, std::move(p2)};
 
-
-    ADM_return_t ret = ADM_SUCCESS;
-
     try {
         [[maybe_unused]] const auto job = admire::register_job(server, reqs);
 
-        ret = admire::update_job(server, job, new_reqs);
+        [[maybe_unused]] ADM_return_t ret =
+                admire::update_job(server, job, new_reqs);
 
         fmt::print(
                 stdout,
@@ -95,12 +77,6 @@ main(int argc, char* argv[]) {
         fmt::print(stderr,
                    "FATAL: ADM_register_job() or ADM_update_job() failed: {}\n",
                    e.what());
-        exit(EXIT_FAILURE);
-    }
-
-    if(ret != ADM_SUCCESS) {
-        fmt::print(stdout, "ADM_update_job() remote procedure not completed "
-                           "successfully\n");
         exit(EXIT_FAILURE);
     }
 }

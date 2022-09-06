@@ -31,10 +31,16 @@ list(APPEND examples_c ADM_register_job ADM_cancel_transfer ADM_connect_data_ope
   ADM_update_pfs_storage ADM_remove_pfs_storage)
 
 # ADM_in_situ_ops ADM_in_transit_ops not implemented
+
+add_library(c_examples_common STATIC)
+target_sources(c_examples_common PUBLIC common.h PRIVATE common.c)
+target_link_libraries(c_examples_common common::api::types)
+
+
 foreach(example IN LISTS examples_c)
   add_executable(${example}_c)
   target_sources(${example}_c PRIVATE ${example}.c)
-  target_link_libraries(${example}_c PUBLIC adm_iosched)
+  target_link_libraries(${example}_c PUBLIC adm_iosched c_examples_common)
   set_target_properties(${example}_c PROPERTIES OUTPUT_NAME ${example})
 endforeach()
 

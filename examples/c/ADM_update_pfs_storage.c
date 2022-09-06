@@ -27,9 +27,6 @@
 #include <admire.h>
 #include <assert.h>
 
-#define NINPUTS  10
-#define NOUTPUTS 5
-
 int
 main(int argc, char* argv[]) {
 

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
+# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -37,11 +37,15 @@ list(APPEND examples_cxx
   ADM_set_qos_constraints ADM_get_qos_constraints ADM_define_data_operation ADM_connect_data_operation
   ADM_finalize_data_operation ADM_link_transfer_to_data_operation ADM_get_statistics)
 
+add_library(cxx_examples_common STATIC)
+target_sources(cxx_examples_common PUBLIC common.hpp PRIVATE common.cpp)
+target_link_libraries(cxx_examples_common common::api::types)
+
 foreach(example IN LISTS examples_cxx)
   add_executable(${example}_cxx)
   target_sources(${example}_cxx PRIVATE ${example}.cpp)
   target_link_libraries(${example}_cxx
-    PUBLIC common::network::engine fmt::fmt adm_iosched)
+    PUBLIC common::network::engine fmt::fmt adm_iosched cxx_examples_common)
   set_target_properties(${example}_cxx PROPERTIES OUTPUT_NAME ${example})
 endforeach()
 

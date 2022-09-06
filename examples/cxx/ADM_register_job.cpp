@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -24,6 +24,7 @@
 
 #include <fmt/format.h>
 #include <admire.hpp>
+#include "common.hpp"
 
 #define NINPUTS  10
 #define NOUTPUTS 5
@@ -39,17 +40,8 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    std::vector<admire::dataset> inputs;
-    inputs.reserve(NINPUTS);
-    for(int i = 0; i < NINPUTS; ++i) {
-        inputs.emplace_back(fmt::format("input-dataset-{}", i));
-    }
-
-    std::vector<admire::dataset> outputs;
-    outputs.reserve(NOUTPUTS);
-    for(int i = 0; i < NOUTPUTS; ++i) {
-        outputs.emplace_back(fmt::format("output-dataset-{}", i));
-    }
+    const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
+    const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
     auto p = std::make_unique<admire::adhoc_storage>(
             admire::storage::type::gekkofs, "foobar",

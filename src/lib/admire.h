@@ -87,7 +87,6 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job);
  * Register an adhoc storage system.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] ctx The EXECUTION_CONTEXT for the adhoc storage system.
  * @param[out] adhoc_storage An ADM_STORAGE referring to the newly-created
  * adhoc storage instance.
@@ -95,15 +94,13 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job);
  * successfully.
  */
 ADM_return_t
-ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job,
-                           ADM_adhoc_context_t ctx,
+ADM_register_adhoc_storage(ADM_server_t server, ADM_adhoc_context_t ctx,
                            ADM_storage_t* adhoc_storage);
 
 /**
  * Update an already-registered adhoc storage system.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] ctx The updated EXECUTION_CONTEXT for the adhoc storage system.
  * @param[in] adhoc_storage An ADM_STORAGE referring to the adhoc storage
  * instance of interest.
@@ -111,8 +108,8 @@ ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job,
  * successfully.
  */
 ADM_return_t
-ADM_update_adhoc_storage(ADM_server_t server, ADM_job_t job,
-                         ADM_adhoc_context_t ctx, ADM_storage_t adhoc_storage);
+ADM_update_adhoc_storage(ADM_server_t server, ADM_adhoc_context_t ctx,
+                         ADM_storage_t adhoc_storage);
 
 /**
  * Remove an already-registered adhoc storage system.
@@ -125,8 +122,7 @@ ADM_update_adhoc_storage(ADM_server_t server, ADM_job_t job,
  * successfully.
  */
 ADM_return_t
-ADM_remove_adhoc_storage(ADM_server_t server, ADM_job_t job,
-                         ADM_storage_t adhoc_storage);
+ADM_remove_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
 
 /**
  * Initiate the deployment of an adhoc storage system instance.
@@ -138,14 +134,12 @@ ADM_remove_adhoc_storage(ADM_server_t server, ADM_job_t job,
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
-                         ADM_storage_t adhoc_storage);
+ADM_deploy_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
 
 /**
  * Register a PFS storage tier.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] ctx The EXECUTION_CONTEXT for the PFS.
  * @param[out] adhoc_storage An ADM_STORAGE referring to the newly-created
  * PFS instance.
@@ -153,14 +147,13 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_job_t job,
  * successfully.
  */
 ADM_return_t
-ADM_register_pfs_storage(ADM_server_t server, ADM_job_t job,
-                         ADM_pfs_context_t ctx, ADM_storage_t* pfs_storage);
+ADM_register_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
+                         ADM_storage_t* pfs_storage);
 
 /**
  * Update an already-registered PFS storage tier.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] ctx The updated EXECUTION_CONTEXT for the PFS.
  * @param[in] adhoc_storage An ADM_STORAGE referring to the PFS
  * instance of interest.
@@ -168,8 +161,8 @@ ADM_register_pfs_storage(ADM_server_t server, ADM_job_t job,
  * successfully.
  */
 ADM_return_t
-ADM_update_pfs_storage(ADM_server_t server, ADM_job_t job,
-                       ADM_pfs_context_t ctx, ADM_storage_t adhoc_storage);
+ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
+                       ADM_storage_t adhoc_storage);
 
 /**
  * Remove an already-registered PFS storage tier.
@@ -182,8 +175,7 @@ ADM_update_pfs_storage(ADM_server_t server, ADM_job_t job,
  * successfully.
  */
 ADM_return_t
-ADM_remove_pfs_storage(ADM_server_t server, ADM_job_t job,
-                       ADM_storage_t adhoc_storage);
+ADM_remove_pfs_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
 
 /**
  * Transfers the dataset identified by the source_name to the storage tier

@@ -57,31 +57,29 @@ ADM_return_t
 remove_job(const server& srv, const job& job);
 
 ADM_return_t
-register_adhoc_storage(const server& srv, ADM_job_t job,
-                       ADM_adhoc_context_t ctx, ADM_storage_t* adhoc_storage);
+register_adhoc_storage(const server& srv, ADM_adhoc_context_t ctx,
+                       ADM_storage_t* adhoc_storage);
 
 ADM_return_t
-update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
+update_adhoc_storage(const server& srv, ADM_adhoc_context_t ctx,
                      ADM_storage_t adhoc_storage);
 
 ADM_return_t
-remove_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_storage_t adhoc_storage);
+remove_adhoc_storage(const server& srv, ADM_storage_t adhoc_storage);
 
 ADM_return_t
-deploy_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_storage_t adhoc_storage);
+deploy_adhoc_storage(const server& srv, ADM_storage_t adhoc_storage);
 
 ADM_return_t
-register_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+register_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
                      ADM_storage_t* pfs_storage);
 
 ADM_return_t
-update_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+update_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
                    ADM_storage_t pfs_storage);
 
 ADM_return_t
-remove_pfs_storage(const server& srv, ADM_job_t job, ADM_storage_t pfs_storage);
+remove_pfs_storage(const server& srv, ADM_storage_t pfs_storage);
 
 ADM_return_t
 transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
@@ -134,7 +132,8 @@ finalize_data_operation(const server& srv, ADM_job_t job,
 
 ADM_return_t
 link_transfer_to_data_operation(const server& srv, ADM_job_t job,
-                                ADM_data_operation_t op, ADM_transfer_t transfer, bool should_stream,
+                                ADM_data_operation_t op,
+                                ADM_transfer_t transfer, bool should_stream,
                                 va_list args);
 
 ADM_return_t

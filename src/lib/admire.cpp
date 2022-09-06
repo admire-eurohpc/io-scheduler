@@ -214,10 +214,10 @@ remove_job(const server& srv, const job& job) {
 }
 
 ADM_return_t
-register_adhoc_storage(const server& srv, ADM_job_t job,
-                       ADM_adhoc_context_t ctx, ADM_storage_t* adhoc_storage) {
+register_adhoc_storage(const server& srv, ADM_adhoc_context_t ctx,
+                       ADM_storage_t* adhoc_storage) {
+
     (void) srv;
-    (void) job;
     (void) ctx;
     (void) adhoc_storage;
 
@@ -242,10 +242,10 @@ register_adhoc_storage(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
+update_adhoc_storage(const server& srv, ADM_adhoc_context_t ctx,
                      ADM_storage_t adhoc_storage) {
+
     (void) srv;
-    (void) job;
     (void) ctx;
     (void) adhoc_storage;
 
@@ -270,10 +270,9 @@ update_adhoc_storage(const server& srv, ADM_job_t job, ADM_adhoc_context_t ctx,
 }
 
 ADM_return_t
-remove_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_storage_t adhoc_storage) {
+remove_adhoc_storage(const server& srv, ADM_storage_t adhoc_storage) {
+
     (void) srv;
-    (void) job;
     (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
@@ -297,10 +296,9 @@ remove_adhoc_storage(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-deploy_adhoc_storage(const server& srv, ADM_job_t job,
-                     ADM_storage_t adhoc_storage) {
+deploy_adhoc_storage(const server& srv, ADM_storage_t adhoc_storage) {
+
     (void) srv;
-    (void) job;
     (void) adhoc_storage;
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
@@ -324,10 +322,9 @@ deploy_adhoc_storage(const server& srv, ADM_job_t job,
 }
 
 ADM_return_t
-register_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+register_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
                      ADM_storage_t* pfs_storage) {
     (void) srv;
-    (void) job;
     (void) ctx;
     (void) pfs_storage;
 
@@ -352,10 +349,9 @@ register_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
 }
 
 ADM_return_t
-update_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
+update_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
                    ADM_storage_t pfs_storage) {
     (void) srv;
-    (void) job;
     (void) ctx;
     (void) pfs_storage;
 
@@ -380,10 +376,8 @@ update_pfs_storage(const server& srv, ADM_job_t job, ADM_pfs_context_t ctx,
 }
 
 ADM_return_t
-remove_pfs_storage(const server& srv, ADM_job_t job,
-                   ADM_storage_t pfs_storage) {
+remove_pfs_storage(const server& srv, ADM_storage_t pfs_storage) {
     (void) srv;
-    (void) job;
     (void) pfs_storage;
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};

@@ -42,9 +42,6 @@ main(int argc, char* argv[]) {
     int exit_status = EXIT_SUCCESS;
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
-
-    ADM_job_t job;
-
     ADM_dataset_t inputs[NINPUTS];
 
     for(int i = 0; i < NINPUTS; ++i) {
@@ -76,17 +73,9 @@ main(int argc, char* argv[]) {
             ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
     assert(reqs);
 
-    ADM_return_t ret = ADM_register_job(server, reqs, &job);
-
-    if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_register_job() remote procedure not completed "
-                        "successfully\n");
-        exit_status = EXIT_FAILURE;
-    }
-
     ADM_storage_t adhoc_storage;
 
-    ret = ADM_register_adhoc_storage(server, job, ctx, &adhoc_storage);
+    ADM_return_t ret = ADM_register_adhoc_storage(server, ctx, &adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

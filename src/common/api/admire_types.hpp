@@ -210,7 +210,10 @@ struct pfs_storage : public storage {
     pfs_storage(enum storage::type type, std::string id,
                 std::filesystem::path mount_point);
     pfs_storage(enum storage::type type, std::string id, ADM_pfs_context_t ctx);
+    pfs_storage(const pfs_storage& other) noexcept;
     pfs_storage(pfs_storage&&) noexcept = default;
+    pfs_storage&
+    operator=(const pfs_storage& other) noexcept;
     pfs_storage&
     operator=(pfs_storage&&) noexcept = default;
     ~pfs_storage() override;

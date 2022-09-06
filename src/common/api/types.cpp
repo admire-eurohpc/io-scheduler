@@ -946,6 +946,16 @@ pfs_storage::ctx::ctx(std::filesystem::path mount_point)
 
 pfs_storage::ctx::ctx(ADM_pfs_context_t ctx) : pfs_storage::ctx(ctx->c_mount) {}
 
+pfs_storage::pfs_storage(const pfs_storage& other) noexcept
+    : storage(other.m_type, other.m_id),
+      m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+pfs_storage&
+pfs_storage::operator=(const pfs_storage& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
 std::filesystem::path
 pfs_storage::ctx::mount_point() const {
     return m_mount_point;

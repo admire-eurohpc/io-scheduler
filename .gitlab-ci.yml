@@ -51,8 +51,14 @@ rpc:
     - compiled/bin/scord -f --force-console &
     - build/examples/cxx/ADM_ping ofi+tcp://127.0.0.1:52000
     - cd build/examples/
-    - ctest -j$(nproc) --output-on-failure --output-junit report.xml
+    - ctest -j$(nproc) --output-on-failure --output-junit rpc-report.xml
     - pkill -TERM scord
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build/examples/rpc-report.xml
+    reports:
+      junit: build/examples/rpc-report.xml
 
 # run unit tests
 unit:
@@ -63,10 +69,10 @@ unit:
     - export LSAN_OPTIONS=verbosity=1:log_threads=1:suppressions=${CI_PROJECT_DIR}/tests/LSanSuppress.supp
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
     - cd build/tests
-    - ctest -j$(nproc) --output-on-failure --output-junit report.xml
+    - ctest -j$(nproc) --output-on-failure --output-junit unit-report.xml
   artifacts:
     expire_in: 1 week
     paths:
-      - build/tests/report.xml
+      - build/tests/unit-report.xml
     reports:
-      junit: build/tests/report.xml
+      junit: build/tests/unit-report.xml

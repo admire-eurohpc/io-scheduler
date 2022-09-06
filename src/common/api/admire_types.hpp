@@ -176,7 +176,10 @@ struct adhoc_storage : public storage {
                   bool should_flush);
     adhoc_storage(enum storage::type type, std::string id,
                   ADM_adhoc_context_t ctx);
+    adhoc_storage(const adhoc_storage& other) noexcept;
     adhoc_storage(adhoc_storage&&) noexcept = default;
+    adhoc_storage&
+    operator=(const adhoc_storage&) noexcept;
     adhoc_storage&
     operator=(adhoc_storage&&) noexcept = default;
     ~adhoc_storage() override;

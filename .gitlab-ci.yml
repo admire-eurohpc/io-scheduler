@@ -53,6 +53,12 @@ rpc:
     - cd build/examples/
     - ctest -j$(nproc) --output-on-failure --output-junit report.xml
     - pkill -TERM scord
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build/tests/report.xml
+    reports:
+      junit: build/tests/report.xml
 
 # run unit tests
 unit:

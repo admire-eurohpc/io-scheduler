@@ -37,12 +37,11 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_t job{};
     ADM_storage_t pfs_storage{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::remove_pfs_storage(server, job, pfs_storage);
+        ret = admire::remove_pfs_storage(server, pfs_storage);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_remove_pfs_storage() failed: {}\n",
                    e.what());

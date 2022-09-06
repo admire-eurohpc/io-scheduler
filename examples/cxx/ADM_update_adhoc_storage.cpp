@@ -38,13 +38,12 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_job_t job{};
     ADM_adhoc_context_t ctx{};
     ADM_storage_t adhoc_storage{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::update_adhoc_storage(server, job, ctx, adhoc_storage);
+        ret = admire::update_adhoc_storage(server, ctx, adhoc_storage);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_update_adhoc_storage() failed: {}\n",
                    e.what());

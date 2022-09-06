@@ -924,6 +924,16 @@ adhoc_storage::adhoc_storage(enum storage::type type, std::string id,
     : storage(type, std::move(id)),
       m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{ctx})) {}
 
+adhoc_storage::adhoc_storage(const adhoc_storage& other) noexcept
+    : storage(other.m_type, other.m_id),
+      m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+adhoc_storage&
+adhoc_storage::operator=(const adhoc_storage& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
 std::shared_ptr<storage::ctx>
 adhoc_storage::context() const {
     return std::make_shared<adhoc_storage::ctx>(m_pimpl->context());
@@ -935,6 +945,16 @@ pfs_storage::ctx::ctx(std::filesystem::path mount_point)
     : m_mount_point(std::move(mount_point)) {}
 
 pfs_storage::ctx::ctx(ADM_pfs_context_t ctx) : pfs_storage::ctx(ctx->c_mount) {}
+
+pfs_storage::pfs_storage(const pfs_storage& other) noexcept
+    : storage(other.m_type, other.m_id),
+      m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+pfs_storage&
+pfs_storage::operator=(const pfs_storage& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
 
 std::filesystem::path
 pfs_storage::ctx::mount_point() const {

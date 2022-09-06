@@ -69,12 +69,14 @@ if(SCORD_BUILD_TESTS)
 
   add_test(ADM_register_job_cxx_test ADM_register_job ofi+tcp://127.0.0.1:52000)
 
-  # TODO: add_test(ADM_register_pfs_storage_test ADM_register_pfs_storage ofi+tcp://127.0.0.1:52000)
+  add_test(ADM_register_pfs_storage_cxx_test ADM_register_pfs_storage ofi+tcp://127.0.0.1:52000)
+
   add_test(ADM_remove_adhoc_storage_cxx_test ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
   add_test(ADM_remove_job_cxx_test ADM_remove_job ofi+tcp://127.0.0.1:52000)
 
-  # TODO: add_test(ADM_remove_pfs_storage_test ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000 42)
+  add_test(ADM_remove_pfs_storage_cxx_test ADM_remove_pfs_storage ofi+tcp://127.0.0.1:52000)
+
   add_test(ADM_set_dataset_information_cxx_test ADM_set_dataset_information ofi+tcp://127.0.0.1:52000)
 
   add_test(ADM_set_io_resources_cxx_test ADM_set_io_resources ofi+tcp://127.0.0.1:52000)

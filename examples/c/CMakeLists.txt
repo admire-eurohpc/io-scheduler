@@ -27,7 +27,8 @@ list(APPEND examples_c ADM_register_job ADM_cancel_transfer ADM_connect_data_ope
   ADM_get_statistics ADM_get_transfer_priority ADM_link_transfer_to_data_operation
   ADM_register_adhoc_storage ADM_remove_adhoc_storage ADM_remove_job ADM_set_dataset_information
   ADM_set_io_resources ADM_set_qos_constraints ADM_set_transfer_priority ADM_transfer_dataset
-  ADM_update_adhoc_storage ADM_update_job)
+  ADM_update_adhoc_storage ADM_update_job ADM_register_pfs_storage
+  ADM_update_pfs_storage ADM_remove_pfs_storage)
 
 # ADM_in_situ_ops ADM_in_transit_ops not implemented
 foreach(example IN LISTS examples_c)
@@ -62,8 +63,8 @@ if(SCORD_BUILD_TESTS)
 
   add_test(ADM_register_adhoc_storage_c_test ADM_register_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
-  # TODO: ADM_register_pfs_storage test is missing because is not working in cpp.
-  # Will be created when it works in cpp.
+  add_test(ADM_register_pfs_storage_c_test ADM_register_pfs_storage ofi+tcp://127.0.0.1:52000)
+
   add_test(ADM_remove_adhoc_storage_c_test ADM_remove_adhoc_storage ofi+tcp://127.0.0.1:52000)
 
   add_test(ADM_remove_job_c_test ADM_remove_job ofi+tcp://127.0.0.1:52000)

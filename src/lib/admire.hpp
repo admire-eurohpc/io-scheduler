@@ -56,14 +56,9 @@ update_job(const server& srv, const job&, const job_requirements& reqs);
 ADM_return_t
 remove_job(const server& srv, const job& job);
 
-ADM_return_t
-<<<<<<< HEAD
-register_adhoc_storage(const server& srv, ADM_adhoc_context_t ctx,
-                       ADM_storage_t* adhoc_storage);
-=======
+admire::adhoc_storage
 register_adhoc_storage(const server& srv, const job& job, const std::string& id,
                        const adhoc_storage::ctx& ctx);
->>>>>>> 3eee4b5 (Files updated, some errors fixed)
 
 ADM_return_t
 update_adhoc_storage(const server& srv, ADM_adhoc_context_t ctx,

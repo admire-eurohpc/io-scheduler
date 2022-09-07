@@ -28,6 +28,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <iostream>
 #include "admire_types.h"
 
 #ifdef __cplusplus

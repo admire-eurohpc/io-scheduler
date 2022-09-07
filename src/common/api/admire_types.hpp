@@ -303,6 +303,8 @@ struct adhoc_storage : public storage {
     adhoc_storage(const adhoc_storage& other) noexcept;
     /*adhoc_storage(enum storage::type type, std::string id, std::uint64_t server_id,
                   ADM_adhoc_context_t ctx);
+    //adhoc_storage(enum storage::type type, std::string id, std::uint64_t server_id,
+                  //ADM_adhoc_context_t ctx);
     adhoc_storage(enum storage::type type, std::string id,
                   const admire::adhoc_storage::ctx& ctx);*/
                   
@@ -608,7 +610,7 @@ struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
 
         const auto str =
                 fmt::format("{{type: {}, id: {}, context: {}}}", s.type(),
-                            std::quoted(s.id()),
+                            std::quoted(std::to_string(s.id())),
                             (pctx ? fmt::format("{}", *pctx) : "NULL"));
         return formatter<std::string_view>::format(str, ctx);
     }

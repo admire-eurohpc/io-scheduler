@@ -181,39 +181,41 @@ convert(const std::vector<qos::limit>& limits) {
             [](const admire::qos::limit& l) {
                 ADM_qos_entity_t e = nullptr;
 
-                switch(l.entity().scope()) {
-                    case qos::scope::dataset: {
-                        e = ADM_qos_entity_create(
-                                static_cast<ADM_qos_scope_t>(
-                                        qos::scope::dataset),
-                                convert(l.entity().data<admire::dataset>())
-                                        .release());
-                        break;
-                    }
+                if(l.entity()) {
 
-                    case qos::scope::node: {
-                        e = ADM_qos_entity_create(
-                                static_cast<ADM_qos_scope_t>(qos::scope::node),
-                                convert(l.entity().data<admire::node>())
-                                        .release());
-                        break;
-                    }
+                    switch(const auto s = l.entity()->scope()) {
+                        case qos::scope::dataset: {
+                            e = ADM_qos_entity_create(
+                                    static_cast<ADM_qos_scope_t>(s),
+                                    convert(l.entity()->data<admire::dataset>())
+                                            .release());
+                            break;
+                        }
 
-                    case qos::scope::job: {
-                        e = ADM_qos_entity_create(
-                                static_cast<ADM_qos_scope_t>(qos::scope::job),
-                                convert(l.entity().data<admire::job>())
-                                        .release());
-                        break;
-                    }
+                        case qos::scope::node: {
+                            e = ADM_qos_entity_create(
+                                    static_cast<ADM_qos_scope_t>(s),
+                                    convert(l.entity()->data<admire::node>())
+                                            .release());
+                            break;
+                        }
 
-                    case qos::scope::transfer: {
-                        e = ADM_qos_entity_create(
-                                static_cast<ADM_qos_scope_t>(
-                                        qos::scope::transfer),
-                                convert(l.entity().data<admire::transfer>())
-                                        .release());
-                        break;
+                        case qos::scope::job: {
+                            e = ADM_qos_entity_create(
+                                    static_cast<ADM_qos_scope_t>(s),
+                                    convert(l.entity()->data<admire::job>())
+                                            .release());
+                            break;
+                        }
+
+                        case qos::scope::transfer: {
+                            e = ADM_qos_entity_create(
+                                    static_cast<ADM_qos_scope_t>(s),
+                                    convert(l.entity()
+                                                    ->data<admire::transfer>())
+                                            .release());
+                            break;
+                        }
                     }
                 }
 

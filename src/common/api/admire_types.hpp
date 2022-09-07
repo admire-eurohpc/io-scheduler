@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <fmt/format.h>
 #include <utils/ctype_ptr.hpp>
+#include <optional>
 #include "admire_types.h"
 
 namespace admire {
@@ -170,8 +171,9 @@ private:
 
 struct limit {
 
-    limit(const admire::qos::entity& e, admire::qos::subclass cls,
-          uint64_t value);
+    limit(admire::qos::subclass cls, uint64_t value);
+    limit(admire::qos::subclass cls, uint64_t value,
+          const admire::qos::entity& e);
     explicit limit(ADM_qos_limit_t l);
 
     limit(const limit&) noexcept;
@@ -183,7 +185,7 @@ struct limit {
 
     ~limit();
 
-    admire::qos::entity
+    std::optional<admire::qos::entity>
     entity() const;
 
     admire::qos::subclass

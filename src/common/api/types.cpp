@@ -29,6 +29,7 @@
 #include <cstdarg>
 #include <api/convert.hpp>
 #include <variant>
+#include <optional>
 #include "admire_types.hpp"
 
 /******************************************************************************/
@@ -1451,13 +1452,17 @@ entity::data<admire::transfer>() const {
 class limit::impl {
 
 public:
-    impl(admire::qos::entity e, admire::qos::subclass cls, uint64_t value)
-        : m_entity(std::move(e)), m_subclass(cls), m_value(value) {}
+    impl(admire::qos::subclass cls, uint64_t value, admire::qos::entity e)
+        : m_subclass(cls), m_value(value), m_entity(std::move(e)) {}
+
+    impl(admire::qos::subclass cls, uint64_t value)
+        : m_subclass(cls), m_value(value) {}
 
     explicit impl(ADM_qos_limit_t l)
-        : m_entity(l->l_entity),
-          m_subclass(static_cast<qos::subclass>(l->l_class)),
-          m_value(l->l_value) {}
+        : m_subclass(static_cast<qos::subclass>(l->l_class)),
+          m_value(l->l_value),
+          m_entity(l->l_entity ? std::optional(admire::qos::entity(l->l_entity))
+                               : std::nullopt) {}
 
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
@@ -1466,7 +1471,7 @@ public:
     impl&
     operator=(impl&&) noexcept = default;
 
-    admire::qos::entity
+    std::optional<admire::qos::entity>
     entity() const {
         return m_entity;
     }
@@ -1482,14 +1487,17 @@ public:
     }
 
 private:
-    admire::qos::entity m_entity;
     admire::qos::subclass m_subclass;
     uint64_t m_value;
+    std::optional<admire::qos::entity> m_entity;
 };
 
-limit::limit(const admire::qos::entity& e, admire::qos::subclass cls,
-             uint64_t value)
-    : m_pimpl(std::make_unique<limit::impl>(e, cls, value)) {}
+limit::limit(admire::qos::subclass cls, uint64_t value)
+    : m_pimpl(std::make_unique<limit::impl>(cls, value)) {}
+
+limit::limit(admire::qos::subclass cls, uint64_t value,
+             const admire::qos::entity& e)
+    : m_pimpl(std::make_unique<limit::impl>(cls, value, e)) {}
 
 limit::limit(ADM_qos_limit_t l) : m_pimpl(std::make_unique<limit::impl>(l)) {}
 
@@ -1509,7 +1517,7 @@ limit::operator=(limit&&) noexcept = default;
 
 limit::~limit() = default;
 
-admire::qos::entity
+std::optional<admire::qos::entity>
 limit::entity() const {
     return m_pimpl->entity();
 }

@@ -1112,8 +1112,12 @@ adhoc_storage::ctx::should_flush() const {
 
 class adhoc_storage::impl {
 
+    static std::uint64_t generate_id() {
+        return 42;
+    }
+
 public:
-    explicit impl(adhoc_storage::ctx ctx) : m_ctx(std::move(ctx)) {}
+    explicit impl(adhoc_storage::ctx ctx) : m_id(generate_id()), m_ctx(std::move(ctx)) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -1121,12 +1125,15 @@ public:
     impl&
     operator=(impl&&) noexcept = default;
 
+    std::uint64_t id() const { return m_id; }
+
     adhoc_storage::ctx
     context() const {
         return m_ctx;
     }
 
 private:
+    std::uint64_t m_id;
     adhoc_storage::ctx m_ctx;
 };
 
@@ -1153,6 +1160,16 @@ adhoc_storage::operator=(const adhoc_storage& other) noexcept {
     this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
     return *this;
 }
+
+/*adhoc_storage::adhoc_storage(enum storage::type type, std::string id, const adhoc_storage::ctx& ctx)
+    : storage(type, std::move(id)),
+      m_pimpl(std::make_unique<impl>(ctx)) {}*/
+
+std::uint64_t
+adhoc_storage::id() const {
+    return m_pimpl->id();
+}
+
 
 std::shared_ptr<storage::ctx>
 adhoc_storage::context() const {

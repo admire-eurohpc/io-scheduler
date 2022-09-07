@@ -301,12 +301,21 @@ struct adhoc_storage : public storage {
     adhoc_storage(enum storage::type type, std::string id,
                   ADM_adhoc_context_t ctx);
     adhoc_storage(const adhoc_storage& other) noexcept;
+    /*adhoc_storage(enum storage::type type, std::string id, std::uint64_t server_id,
+                  ADM_adhoc_context_t ctx);
+    adhoc_storage(enum storage::type type, std::string id,
+                  const admire::adhoc_storage::ctx& ctx);*/
+                  
     adhoc_storage(adhoc_storage&&) noexcept = default;
     adhoc_storage&
     operator=(const adhoc_storage&) noexcept;
     adhoc_storage&
     operator=(adhoc_storage&&) noexcept = default;
     ~adhoc_storage() override;
+
+
+    std::uint64_t
+    id() const;
 
     std::shared_ptr<storage::ctx>
     context() const final;

@@ -22,7 +22,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-list(APPEND examples_c ADM_register_job ADM_cancel_transfer ADM_connect_data_operation ADM_define_data_operation
+list(APPEND examples_c ADM_ping ADM_register_job ADM_cancel_transfer ADM_connect_data_operation ADM_define_data_operation
   ADM_deploy_adhoc_storage ADM_finalize_data_operation ADM_get_pending_transfers ADM_get_qos_constraints
   ADM_get_statistics ADM_get_transfer_priority ADM_link_transfer_to_data_operation
   ADM_register_adhoc_storage ADM_remove_adhoc_storage ADM_remove_job ADM_set_dataset_information

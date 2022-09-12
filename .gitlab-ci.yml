@@ -32,6 +32,8 @@ build:
       - compiled/lib/
       - build/examples/
       - build/tests/
+      - build/src/scord/scord
+      - build/src/scord-ctl/scord-ctl
       # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
   cache:
     key: $CI_COMMIT_REF_SLUG
@@ -48,11 +50,8 @@ rpc:
     - export ASAN_OPTIONS=detect_odr_violation=0
     - export LSAN_OPTIONS=verbosity=1:log_threads=1:suppressions=${CI_PROJECT_DIR}/tests/LSanSuppress.supp
     - export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:${CI_PROJECT_DIR}/compiled/lib
-    - compiled/bin/scord -f --force-console &
-    - build/examples/cxx/ADM_ping ofi+tcp://127.0.0.1:52000
     - cd build/examples/
     - ctest -j$(nproc) --output-on-failure --output-junit rpc-report.xml
-    - pkill -TERM scord
   artifacts:
     expire_in: 1 week
     paths:

@@ -22,5 +22,22 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
+if(SCORD_BUILD_TESTS)
+  add_test(start_scord_daemon
+    ${CMAKE_SOURCE_DIR}/scripts/runner.sh start scord.pid
+           ${CMAKE_BINARY_DIR}/src/scord/scord -C -f
+  )
+
+  set_tests_properties(start_scord_daemon PROPERTIES FIXTURES_SETUP
+    scord_daemon)
+
+  add_test(stop_scord_daemon
+    ${CMAKE_SOURCE_DIR}/scripts/runner.sh stop TERM scord.pid
+    )
+
+  set_tests_properties(stop_scord_daemon PROPERTIES FIXTURES_CLEANUP
+    scord_daemon)
+endif()
+
 add_subdirectory(c)
 add_subdirectory(cxx)

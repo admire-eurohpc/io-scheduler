@@ -59,7 +59,7 @@ endforeach()
 
 if(SCORD_BUILD_TESTS)
   foreach(example IN LISTS examples_cxx)
-    add_test(${example}_cxx_test ${example} ofi+tcp://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
+    add_test(${example}_cxx_test ${example} ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
     set_tests_properties(${example}_cxx_test
       PROPERTIES FIXTURES_REQUIRED scord_daemon)
   endforeach()

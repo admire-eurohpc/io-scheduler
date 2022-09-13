@@ -663,6 +663,36 @@ struct fmt::formatter<admire::job_requirements> : formatter<std::string_view> {
 };
 
 template <>
+struct fmt::formatter<admire::qos::scope> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::qos::scope& s, FormatContext& ctx) const {
+
+        using scope = admire::qos::scope;
+
+        std::string_view name = "unknown";
+
+        switch(s) {
+            case scope::dataset:
+                name = "ADM_QOS_SCOPE_DATASET";
+                break;
+            case scope::node:
+                name = "ADM_QOS_SCOPE_NODE";
+                break;
+            case scope::job:
+                name = "ADM_QOS_SCOPE_JOB";
+                break;
+            case scope::transfer:
+                name = "ADM_QOS_SCOPE_TRANSFER";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
 struct fmt::formatter<admire::qos::limit> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>

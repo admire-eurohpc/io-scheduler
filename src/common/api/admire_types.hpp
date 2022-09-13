@@ -443,6 +443,17 @@ struct fmt::formatter<admire::dataset> : formatter<std::string_view> {
 };
 
 template <>
+struct fmt::formatter<admire::node> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::node& n, FormatContext& ctx) const {
+        const auto str = fmt::format("hostname: {}", std::quoted(n.hostname()));
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
 struct fmt::formatter<enum admire::storage::type>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.

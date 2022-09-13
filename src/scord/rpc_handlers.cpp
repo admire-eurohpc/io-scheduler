@@ -437,14 +437,28 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
+
+    auto adhoc_storage = in.adhoc_storage;
+
     assert(ret == HG_SUCCESS);
 
     out.retval = -1;
 
     LOGGER_INFO("ADM_deploy_adhoc_storage()");
 
-    out.retval = 0;
+    /* Look inside adhoc_storage and launch gkfs script */
 
+    if (adhoc_storage->s_type == ADM_STORAGE_GEKKOFS)
+    {
+    /* Extract Job ID -> SLURM_JOB_ID */
+
+    /* Extract paths */
+
+    /* Launch script */
+
+        out.retval = 0;
+    }
+    
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
 

@@ -38,7 +38,11 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_storage_t adhoc_storage{};
+    admire::adhoc_storage adhoc_storage(
+        admire::storage::type::gekkofs, "foobar",
+        admire::adhoc_storage::execution_mode::separate_new,
+        admire::adhoc_storage::access_type::read_write, 42, 100, false);
+
     ADM_return_t ret = ADM_SUCCESS;
 
     try {

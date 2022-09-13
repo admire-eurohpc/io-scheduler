@@ -374,7 +374,7 @@ MERCURY_GEN_PROC(
 );
 
 /// ADM_deploy_adhoc_storage
-MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_in_t, ((ADM_storage_t) (reqs)))
+MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_in_t, ((ADM_storage_t) (adhoc_storage)))
 
 MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_out_t, ((int32_t) (retval)))
 

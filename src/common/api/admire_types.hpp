@@ -693,6 +693,41 @@ struct fmt::formatter<admire::qos::scope> : formatter<std::string_view> {
 };
 
 template <>
+struct fmt::formatter<std::optional<admire::qos::entity>>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::optional<admire::qos::entity>& e,
+           FormatContext& ctx) const {
+
+        if(!e) {
+            return formatter<std::string_view>::format("none", ctx);
+        }
+
+        std::string_view data = "unknown";
+
+        switch(e->scope()) {
+            case admire::qos::scope::dataset:
+                data = fmt::format("{}", e->data<admire::dataset>());
+                break;
+            case admire::qos::scope::node:
+                data = fmt::format("{}", e->data<admire::node>());
+                break;
+            case admire::qos::scope::job:
+                data = fmt::format("{}", e->data<admire::job>());
+                break;
+            case admire::qos::scope::transfer:
+                data = fmt::format("{}", e->data<admire::transfer>());
+                break;
+        }
+
+        const auto str = fmt::format("scope: {}, data: {}", e->scope(), data);
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
 struct fmt::formatter<admire::qos::limit> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>

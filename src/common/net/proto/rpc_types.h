@@ -408,10 +408,10 @@ struct adm_qos_limit_list {
 hg_return_t
 hg_proc_ADM_qos_limit_list_t(hg_proc_t proc, void* data);
 
-/// ADM_transfer_dataset
+/// ADM_transfer_datasets
 
 MERCURY_GEN_PROC(
-    ADM_transfer_dataset_in_t,
+    ADM_transfer_datasets_in_t,
         ((ADM_job_t) (job))
         ((ADM_dataset_list_t) (sources))
         ((ADM_dataset_list_t) (targets))
@@ -420,7 +420,7 @@ MERCURY_GEN_PROC(
 )
 
 MERCURY_GEN_PROC(
-    ADM_transfer_dataset_out_t,
+    ADM_transfer_datasets_out_t,
         ((hg_int32_t) (retval))
         ((ADM_transfer_t) (tx)))
 

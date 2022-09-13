@@ -82,11 +82,11 @@ ADM_return_t
 remove_pfs_storage(const server& srv, ADM_storage_t pfs_storage);
 
 admire::transfer
-transfer_dataset(const server& srv, const job& job,
-                 const std::vector<dataset>& sources,
-                 const std::vector<dataset>& targets,
-                 const std::vector<qos::limit>& limits,
-                 transfer::mapping mapping);
+transfer_datasets(const server& srv, const job& job,
+                  const std::vector<dataset>& sources,
+                  const std::vector<dataset>& targets,
+                  const std::vector<qos::limit>& limits,
+                  transfer::mapping mapping);
 
 ADM_return_t
 set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,

@@ -44,11 +44,11 @@ admire::error_code
 remove_job(const server& srv, const job& job);
 
 tl::expected<transfer, error_code>
-transfer_dataset(const server& srv, const job& job,
-                 const std::vector<dataset>& sources,
-                 const std::vector<dataset>& targets,
-                 const std::vector<qos::limit>& limits,
-                 transfer::mapping mapping);
+transfer_datasets(const server& srv, const job& job,
+                  const std::vector<dataset>& sources,
+                  const std::vector<dataset>& targets,
+                  const std::vector<qos::limit>& limits,
+                  transfer::mapping mapping);
 
 } // namespace admire::detail
 

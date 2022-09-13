@@ -106,8 +106,8 @@ DECLARE_MARGO_RPC_HANDLER(ADM_in_situ_ops);
 DECLARE_MARGO_RPC_HANDLER(ADM_in_transit_ops);
 
 
-/// ADM_transfer_dataset
-DECLARE_MARGO_RPC_HANDLER(ADM_transfer_dataset);
+/// ADM_transfer_datasets
+DECLARE_MARGO_RPC_HANDLER(ADM_transfer_datasets);
 
 /// ADM_set_dataset_information
 DECLARE_MARGO_RPC_HANDLER(ADM_set_dataset_information);

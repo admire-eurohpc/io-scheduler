@@ -33,7 +33,7 @@ list(APPEND examples_c
   # pfs storage
   ADM_register_pfs_storage ADM_update_pfs_storage ADM_remove_pfs_storage
   # transfers
-  ADM_transfer_dataset ADM_get_transfer_priority ADM_set_transfer_priority
+  ADM_transfer_datasets ADM_get_transfer_priority ADM_set_transfer_priority
   ADM_cancel_transfer ADM_get_pending_transfers
   # qos
   ADM_set_qos_constraints ADM_get_qos_constraints

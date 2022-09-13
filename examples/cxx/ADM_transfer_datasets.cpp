@@ -37,7 +37,7 @@ main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fmt::print(stderr, "ERROR: no server address provided\n");
-        fmt::print(stderr, "Usage: ADM_transfer_dataset <SERVER_ADDRESS>\n");
+        fmt::print(stderr, "Usage: ADM_transfer_datasets <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -60,14 +60,14 @@ main(int argc, char* argv[]) {
 
     try {
         const auto job = admire::register_job(server, reqs);
-        const auto transfer = admire::transfer_dataset(
+        const auto transfer = admire::transfer_datasets(
                 server, job, sources, targets, qos_limits, mapping);
 
-        fmt::print(stdout, "ADM_transfer_dataset() remote procedure completed "
+        fmt::print(stdout, "ADM_transfer_datasets() remote procedure completed "
                            "successfully\n");
         exit(EXIT_SUCCESS);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
+        fmt::print(stderr, "FATAL: ADM_transfer_datasets() failed: {}\n",
                    e.what());
         exit(EXIT_FAILURE);
     }

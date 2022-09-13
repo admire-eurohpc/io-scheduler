@@ -122,8 +122,8 @@ rpc_registration_cb(scord::network::rpc_client* client) {
     REGISTER_RPC(client, "ADM_in_transit_ops", ADM_in_transit_ops_in_t,
                  ADM_in_transit_ops_out_t, NULL, true);
 
-    REGISTER_RPC(client, "ADM_transfer_dataset", ADM_transfer_dataset_in_t,
-                 ADM_transfer_dataset_out_t, NULL, true);
+    REGISTER_RPC(client, "ADM_transfer_datasets", ADM_transfer_datasets_in_t,
+                 ADM_transfer_datasets_out_t, NULL, true);
 
     REGISTER_RPC(client, "ADM_set_dataset_information",
                  ADM_set_dataset_information_in_t,
@@ -401,18 +401,18 @@ remove_pfs_storage(const server& srv, ADM_storage_t pfs_storage) {
 }
 
 admire::transfer
-transfer_dataset(const server& srv, const job& job,
-                 const std::vector<dataset>& sources,
-                 const std::vector<dataset>& targets,
-                 const std::vector<qos::limit>& limits,
-                 transfer::mapping mapping) {
+transfer_datasets(const server& srv, const job& job,
+                  const std::vector<dataset>& sources,
+                  const std::vector<dataset>& targets,
+                  const std::vector<qos::limit>& limits,
+                  transfer::mapping mapping) {
 
-    const auto rv = detail::transfer_dataset(srv, job, sources, targets, limits,
-                                             mapping);
+    const auto rv = detail::transfer_datasets(srv, job, sources, targets,
+                                              limits, mapping);
 
     if(!rv) {
-        throw std::runtime_error(fmt::format("ADM_transfer_dataset() error: {}",
-                                             ADM_strerror(rv.error())));
+        throw std::runtime_error(fmt::format(
+                "ADM_transfer_datasets() error: {}", ADM_strerror(rv.error())));
     }
 
     return rv.value();

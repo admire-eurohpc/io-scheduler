@@ -968,12 +968,12 @@ DEFINE_MARGO_RPC_HANDLER(ADM_in_transit_ops)
  * successfully or not.
  */
 static void
-ADM_transfer_dataset(hg_handle_t h) {
+ADM_transfer_datasets(hg_handle_t h) {
 
     [[maybe_unused]] hg_return_t ret;
 
-    ADM_transfer_dataset_in_t in;
-    ADM_transfer_dataset_out_t out;
+    ADM_transfer_datasets_in_t in;
+    ADM_transfer_datasets_out_t out;
 
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
@@ -1014,7 +1014,7 @@ ADM_transfer_dataset(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 }
 
-DEFINE_MARGO_RPC_HANDLER(ADM_transfer_dataset)
+DEFINE_MARGO_RPC_HANDLER(ADM_transfer_datasets)
 
 /**
  * Sets information for the dataset identified by resource_id.

@@ -101,8 +101,8 @@ rpc_registration_cb(scord::network::rpc_client* client) {
     REGISTER_RPC(client, "ADM_in_transit_ops", ADM_in_transit_ops_in_t,
                  ADM_in_transit_ops_out_t, NULL, true);
 
-    REGISTER_RPC(client, "ADM_transfer_dataset", ADM_transfer_dataset_in_t,
-                 ADM_transfer_dataset_out_t, NULL, true);
+    REGISTER_RPC(client, "ADM_transfer_datasets", ADM_transfer_datasets_in_t,
+                 ADM_transfer_datasets_out_t, NULL, true);
 
     REGISTER_RPC(client, "ADM_set_dataset_information",
                  ADM_set_dataset_information_in_t,
@@ -255,11 +255,11 @@ remove_job(const server& srv, const job& job) {
 }
 
 tl::expected<transfer, error_code>
-transfer_dataset(const server& srv, const job& job,
-                 const std::vector<dataset>& sources,
-                 const std::vector<dataset>& targets,
-                 const std::vector<qos::limit>& limits,
-                 transfer::mapping mapping) {
+transfer_datasets(const server& srv, const job& job,
+                  const std::vector<dataset>& sources,
+                  const std::vector<dataset>& targets,
+                  const std::vector<qos::limit>& limits,
+                  transfer::mapping mapping) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
@@ -274,13 +274,13 @@ transfer_dataset(const server& srv, const job& job,
     const auto rpc_targets = api::convert(targets);
     const auto rpc_qos_limits = api::convert(limits);
 
-    ADM_transfer_dataset_in_t in{rpc_job.get(), rpc_sources.get(),
-                                 rpc_targets.get(), rpc_qos_limits.get(),
-                                 static_cast<ADM_transfer_mapping_t>(mapping)};
-    ADM_transfer_dataset_out_t out;
+    ADM_transfer_datasets_in_t in{rpc_job.get(), rpc_sources.get(),
+                                  rpc_targets.get(), rpc_qos_limits.get(),
+                                  static_cast<ADM_transfer_mapping_t>(mapping)};
+    ADM_transfer_datasets_out_t out;
 
     [[maybe_unused]] const auto rpc =
-            endp.call("ADM_transfer_dataset", &in, &out);
+            endp.call("ADM_transfer_datasets", &in, &out);
 
     if(out.retval < 0) {
         LOGGER_ERROR("RPC (ADM_{}) => {{retval: {}}}", __FUNCTION__,

@@ -77,8 +77,15 @@ main(int argc, char* argv[]) {
     ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
     ADM_transfer_t tx;
 
-    ret = ADM_transfer_dataset(server, job, sources, sources_len, targets,
-                               targets_len, limits, limits_len, mapping, &tx);
+    ret = ADM_transfer_datasets(server, job, sources, sources_len, targets,
+                                targets_len, limits, limits_len, mapping, &tx);
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout, "ADM_transfer_datasets() remote procedure not "
+                        "completed successfully\n");
+        exit_status = EXIT_FAILURE;
+        goto cleanup;
+    }
 
     int incr = 42;
     ret = ADM_set_transfer_priority(server, job, tx, incr);

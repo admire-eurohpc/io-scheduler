@@ -139,13 +139,14 @@ ADM_remove_pfs_storage(ADM_server_t server, ADM_storage_t pfs_storage) {
 }
 
 ADM_return_t
-ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
-                     ADM_dataset_t sources[], size_t sources_len,
-                     ADM_dataset_t targets[], size_t targets_len,
-                     ADM_qos_limit_t limits[], size_t limits_len,
-                     ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer) {
+ADM_transfer_datasets(ADM_server_t server, ADM_job_t job,
+                      ADM_dataset_t sources[], size_t sources_len,
+                      ADM_dataset_t targets[], size_t targets_len,
+                      ADM_qos_limit_t limits[], size_t limits_len,
+                      ADM_transfer_mapping_t mapping,
+                      ADM_transfer_t* transfer) {
 
-    const auto rv = admire::detail::transfer_dataset(
+    const auto rv = admire::detail::transfer_datasets(
             admire::server{server}, admire::job{job},
             admire::api::convert(sources, sources_len),
             admire::api::convert(targets, targets_len),

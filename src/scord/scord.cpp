@@ -237,9 +237,9 @@ main(int argc, char* argv[]) {
             REGISTER_RPC(ctx, "ADM_in_transit_ops", ADM_in_transit_ops_in_t,
                          ADM_in_transit_ops_out_t, ADM_in_transit_ops, true);
 
-            REGISTER_RPC(ctx, "ADM_transfer_dataset", ADM_transfer_dataset_in_t,
-                         ADM_transfer_dataset_out_t, ADM_transfer_dataset,
-                         true);
+            REGISTER_RPC(
+                    ctx, "ADM_transfer_datasets", ADM_transfer_datasets_in_t,
+                    ADM_transfer_datasets_out_t, ADM_transfer_datasets, true);
 
             REGISTER_RPC(ctx, "ADM_set_dataset_information",
                          ADM_set_dataset_information_in_t,

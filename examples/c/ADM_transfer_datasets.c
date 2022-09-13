@@ -30,6 +30,9 @@
 
 #define NINPUTS  10
 #define NOUTPUTS 5
+#define NSOURCES 5
+#define NTARGETS 5
+#define NLIMITS  3
 
 int
 main(int argc, char* argv[]) {
@@ -68,17 +71,17 @@ main(int argc, char* argv[]) {
         exit_status = EXIT_FAILURE;
     }
 
-    ADM_dataset_t* sources = NULL;
-    size_t sources_len = 0;
-    ADM_dataset_t* targets = NULL;
-    size_t targets_len = 0;
-    ADM_qos_limit_t* limits = NULL;
-    size_t limits_len = 0;
+    ADM_dataset_t* sources = prepare_datasets("source-dataset-%d", NSOURCES);
+    assert(sources);
+    ADM_dataset_t* targets = prepare_datasets("target-dataset-%d", NTARGETS);
+    assert(targets);
+    ADM_qos_limit_t* limits = prepare_qos_limits(NLIMITS);
+    assert(limits);
     ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
     ADM_transfer_t tx;
 
-    ret = ADM_transfer_datasets(server, job, sources, sources_len, targets,
-                                targets_len, limits, limits_len, mapping, &tx);
+    ret = ADM_transfer_datasets(server, job, sources, NSOURCES, targets,
+                                NTARGETS, limits, NLIMITS, mapping, &tx);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_transfer_datasets() remote procedure not "

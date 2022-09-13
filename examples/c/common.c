@@ -15,11 +15,13 @@ prepare_datasets(const char* pattern, size_t n) {
     }
 
     for(size_t i = 0; i < n; ++i) {
-        // const char* pattern = "input-dataset-%d";
         size_t len = snprintf(NULL, 0, pattern, i);
         char* id = (char*) alloca(len + 1);
         snprintf(id, len + 1, pattern, i);
         datasets[i] = ADM_dataset_create(id);
+        if(!datasets[i]) {
+            return NULL;
+        }
     }
 
     return datasets;
@@ -36,5 +38,37 @@ destroy_datasets(ADM_dataset_t datasets[], size_t n) {
 
     free(datasets);
 }
+
+ADM_qos_limit_t*
+prepare_qos_limits(size_t n) {
+
+    ADM_qos_limit_t* limits = calloc(n, sizeof(ADM_qos_limit_t));
+
+    if(!limits) {
+        return NULL;
+    }
+
+    for(size_t i = 0; i < n; ++i) {
+        limits[i] = ADM_qos_limit_create(NULL, ADM_QOS_CLASS_BANDWIDTH, 50);
+        if(!limits[i]) {
+            return NULL;
+        }
+    }
+
+    return limits;
+}
+
+void
+destroy_qos_limits(ADM_qos_limit_t* limits, size_t n) {
+
+    for(size_t i = 0; i < n; ++i) {
+        if(limits[i]) {
+            ADM_qos_limit_destroy(limits[i]);
+        }
+    }
+
+    free(limits);
+}
+
 
 #endif // SCORD_COMMON_H

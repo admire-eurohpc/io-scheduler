@@ -439,11 +439,11 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
+    out.retval = -1;
 
     LOGGER_INFO("ADM_deploy_adhoc_storage()");
 
-    out.ret = 0;
+    out.retval = 0;
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

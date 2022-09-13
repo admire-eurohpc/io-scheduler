@@ -284,29 +284,8 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 }
 
 ADM_return_t
-deploy_adhoc_storage(const server& srv, ADM_storage_t adhoc_storage) {
-
-    (void) srv;
-    (void) adhoc_storage;
-
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
-
-    auto endp = rpc_client.lookup(srv.address());
-
-    LOGGER_INFO("ADM_deploy_adhoc_storage(...)");
-
-    ADM_deploy_adhoc_storage_in_t in{};
-    ADM_deploy_adhoc_storage_out_t out;
-
-    const auto rpc = endp.call("ADM_deploy_adhoc_storage", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_deploy_adhoc_storage() = {}", out.ret);
-        return static_cast<ADM_return_t>(out.ret);
-    }
-
-    LOGGER_INFO("ADM_deploy_adhoc_storage() = {}", ADM_SUCCESS);
-    return ADM_SUCCESS;
+deploy_adhoc_storage(const server& srv, const admire::adhoc_storage& adhoc_storage) {
+    return detail::deploy_adhoc_storage(srv, adhoc_storage);
 }
 
 ADM_return_t

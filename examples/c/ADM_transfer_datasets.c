@@ -30,13 +30,16 @@
 
 #define NINPUTS  10
 #define NOUTPUTS 5
+#define NSOURCES 5
+#define NTARGETS 5
+#define NLIMITS  3
 
 int
 main(int argc, char* argv[]) {
 
     if(argc != 2) {
         fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_transfer_dataset <SERVER_ADDRESS>\n");
+        fprintf(stderr, "Usage: ADM_transfer_datasets <SERVER_ADDRESS>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -68,22 +71,26 @@ main(int argc, char* argv[]) {
         exit_status = EXIT_FAILURE;
     }
 
-    ADM_dataset_t** sources = NULL;
-    ADM_dataset_t** targets = NULL;
-    ADM_qos_limit_t** limits = NULL;
+    ADM_dataset_t* sources = prepare_datasets("source-dataset-%d", NSOURCES);
+    assert(sources);
+    ADM_dataset_t* targets = prepare_datasets("target-dataset-%d", NTARGETS);
+    assert(targets);
+    ADM_qos_limit_t* limits = prepare_qos_limits(NLIMITS);
+    assert(limits);
     ADM_transfer_mapping_t mapping = ADM_MAPPING_ONE_TO_ONE;
     ADM_transfer_t tx;
-    ret = ADM_transfer_dataset(server, job, sources, targets, limits, mapping,
-                               &tx);
+
+    ret = ADM_transfer_datasets(server, job, sources, NSOURCES, targets,
+                                NTARGETS, limits, NLIMITS, mapping, &tx);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_transfer_dataset() remote procedure not completed "
-                        "successfully\n");
+        fprintf(stdout, "ADM_transfer_datasets() remote procedure not "
+                        "completed successfully\n");
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_transfer_dataset() remote procedure completed "
+    fprintf(stdout, "ADM_transfer_datasets() remote procedure completed "
                     "successfully\n");
 
 cleanup:

@@ -10,3 +10,16 @@ prepare_datasets(const std::string& pattern, size_t n) {
 
     return datasets;
 }
+
+std::vector<admire::qos::limit>
+prepare_qos_limits(size_t n) {
+
+    std::vector<admire::qos::limit> limits;
+    limits.reserve(n);
+
+    for(size_t i = 0; i < n; ++i) {
+        limits.emplace_back(admire::qos::subclass::bandwidth, 50);
+    }
+
+    return limits;
+}

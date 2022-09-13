@@ -122,8 +122,8 @@ rpc_registration_cb(scord::network::rpc_client* client) {
     REGISTER_RPC(client, "ADM_in_transit_ops", ADM_in_transit_ops_in_t,
                  ADM_in_transit_ops_out_t, NULL, true);
 
-    REGISTER_RPC(client, "ADM_transfer_dataset", ADM_transfer_dataset_in_t,
-                 ADM_transfer_dataset_out_t, NULL, true);
+    REGISTER_RPC(client, "ADM_transfer_datasets", ADM_transfer_datasets_in_t,
+                 ADM_transfer_datasets_out_t, NULL, true);
 
     REGISTER_RPC(client, "ADM_set_dataset_information",
                  ADM_set_dataset_information_in_t,
@@ -400,41 +400,22 @@ remove_pfs_storage(const server& srv, ADM_storage_t pfs_storage) {
     return ADM_SUCCESS;
 }
 
-ADM_return_t
-transfer_dataset(const server& srv, ADM_job_t job, ADM_dataset_t** sources,
-                 ADM_dataset_t** targets, ADM_qos_limit_t** limits,
-                 ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer) {
-    (void) srv;
-    (void) job;
-    (void) sources;
-    (void) targets;
-    (void) limits;
-    (void) mapping;
-    (void) transfer;
+admire::transfer
+transfer_datasets(const server& srv, const job& job,
+                  const std::vector<dataset>& sources,
+                  const std::vector<dataset>& targets,
+                  const std::vector<qos::limit>& limits,
+                  transfer::mapping mapping) {
 
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+    const auto rv = detail::transfer_datasets(srv, job, sources, targets,
+                                              limits, mapping);
 
-    auto endp = rpc_client.lookup(srv.address());
-
-    LOGGER_INFO("ADM_transfer_dataset(...)");
-
-    ADM_transfer_dataset_in_t in{};
-    ADM_transfer_dataset_out_t out;
-
-    in.source = "/tmp";
-    in.destination = "/tmp";
-    in.qos_constraints = "constraints";
-    in.distribution = "distribution";
-
-    const auto rpc = endp.call("ADM_transfer_dataset", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_transfer_dataset() = {}", out.ret);
-        return static_cast<ADM_return_t>(out.ret);
+    if(!rv) {
+        throw std::runtime_error(fmt::format(
+                "ADM_transfer_datasets() error: {}", ADM_strerror(rv.error())));
     }
 
-    LOGGER_INFO("ADM_transfer_dataset() = {}", ADM_SUCCESS);
-    return ADM_SUCCESS;
+    return rv.value();
 }
 
 ADM_return_t
@@ -778,9 +759,9 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
     (void) srv;
     (void) job;
     (void) op;
+    (void) transfer;
     (void) should_stream;
     (void) args;
-    (void) transfer;
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 

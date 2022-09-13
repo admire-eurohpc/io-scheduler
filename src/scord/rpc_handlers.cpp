@@ -67,8 +67,8 @@ ADM_register_job(hg_handle_t h) {
     const admire::job_requirements reqs(&in.reqs);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) <= {{job_requirements: {{{}}}}}", id,
-                __FUNCTION__, reqs);
+    LOGGER_INFO("RPC ID {} ({}) => {{job_requirements: {}}}", id, __FUNCTION__,
+                reqs);
 
     const auto job = admire::job{42};
 
@@ -77,8 +77,8 @@ ADM_register_job(hg_handle_t h) {
     out.retval = rv;
     out.job = admire::api::convert(job).release();
 
-    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}, job: {{{}}}}}", id,
-                __FUNCTION__, rv, job);
+    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}, job: {}}}", id, __FUNCTION__,
+                rv, job);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -110,13 +110,13 @@ ADM_update_job(hg_handle_t h) {
     const admire::job_requirements reqs(&in.reqs);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) <= {{job: {{{}}}, job_requirements: {{{}}}}}",
-                id, __FUNCTION__, job, reqs);
+    LOGGER_INFO("RPC ID {} ({}) => {{job: {}, job_requirements: {}}}", id,
+                __FUNCTION__, job, reqs);
 
     admire::error_code rv = ADM_SUCCESS;
     out.retval = rv;
 
-    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}}}", id, __FUNCTION__, rv);
+    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}}}", id, __FUNCTION__, rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -147,12 +147,12 @@ ADM_remove_job(hg_handle_t h) {
     const admire::job job(in.job);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) <= {{job: {{{}}}", id, __FUNCTION__, job);
+    LOGGER_INFO("RPC ID {} ({}) => {{job: {}}}", id, __FUNCTION__, job);
 
     admire::error_code rv = ADM_SUCCESS;
     out.retval = rv;
 
-    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}}}", id, __FUNCTION__, rv);
+    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}}}", id, __FUNCTION__, rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -968,40 +968,41 @@ DEFINE_MARGO_RPC_HANDLER(ADM_in_transit_ops)
  * successfully or not.
  */
 static void
-ADM_transfer_dataset(hg_handle_t h) {
+ADM_transfer_datasets(hg_handle_t h) {
 
     [[maybe_unused]] hg_return_t ret;
 
-    ADM_transfer_dataset_in_t in;
-    ADM_transfer_dataset_out_t out;
+    ADM_transfer_datasets_in_t in;
+    ADM_transfer_datasets_out_t out;
 
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
-    out.transfer_handle = "fail";
+    const admire::job job{in.job};
+    const std::vector<admire::dataset> sources =
+            admire::api::convert(in.sources);
+    const std::vector<admire::dataset> targets =
+            admire::api::convert(in.targets);
+    const std::vector<admire::qos::limit> limits =
+            admire::api::convert(in.qos_limits);
+    const auto mapping = static_cast<admire::transfer::mapping>(in.mapping);
 
-    if(in.source == nullptr) {
-        LOGGER_ERROR("ADM_transfer_dataset(): invalid source (nullptr)");
-    } else if(in.destination == nullptr) {
-        LOGGER_ERROR("ADM_transfer_dataset(): invalid destination (nullptr)");
-    } else if(in.qos_constraints == nullptr) {
-        LOGGER_ERROR(
-                "ADM_transfer_dataset(): invalid qos_constraints (nullptr)");
-    } else if(in.distribution == nullptr) {
-        LOGGER_ERROR("ADM_transfer_dataset(): invalid distribution (nullptr)");
-    } else if(in.job_id < 0) {
-        LOGGER_ERROR("ADM_transfer_dataset(): invalid job_id (< 0)");
-    } else {
-        LOGGER_INFO("ADM_transfer_dataset({},{},{},{},{})", in.source,
-                    in.destination, in.qos_constraints, in.distribution,
-                    in.job_id);
-        out.ret = 0;
-        out.transfer_handle = "ok";
-    }
+    const auto id = remote_procedure::new_id();
+    LOGGER_INFO("RPC ID {} ({}) => {{job: {}, sources: {}, targets: {}, "
+                "limits: {}, mapping: {}}}",
+                id, __FUNCTION__, job, sources, targets, limits, mapping);
 
+    admire::error_code rv = ADM_SUCCESS;
+
+    const auto transfer = admire::transfer{42};
+
+    out.retval = rv;
+    out.tx = admire::api::convert(transfer).release();
+
+    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}, transfer: {}}}", id,
+                __FUNCTION__, rv, transfer);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -1013,7 +1014,7 @@ ADM_transfer_dataset(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 }
 
-DEFINE_MARGO_RPC_HANDLER(ADM_transfer_dataset)
+DEFINE_MARGO_RPC_HANDLER(ADM_transfer_datasets)
 
 /**
  * Sets information for the dataset identified by resource_id.

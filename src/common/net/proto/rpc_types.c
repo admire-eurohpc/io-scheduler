@@ -24,6 +24,151 @@
 
 #include "rpc_types.h"
 
+hg_return_t (*hg_proc_ADM_qos_scope_t)(hg_proc_t, void*) = hg_proc_hg_uint32_t;
+hg_return_t (*hg_proc_ADM_qos_class_t)(hg_proc_t, void*) = hg_proc_hg_uint32_t;
+
+hg_return_t
+hg_proc_ADM_node_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_node_t* node = (ADM_node_t*) data;
+    ADM_node_t tmp = NULL;
+    hg_size_t node_length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            // find out the length of the adm_node object we need to send
+            node_length = *node ? sizeof(adm_node) : 0;
+            ret = hg_proc_hg_size_t(proc, &node_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!node_length) {
+                return HG_SUCCESS;
+            }
+
+            // if we actually need to send an adm_node object,
+            // write it to the mercury buffer
+            tmp = *node;
+
+            ret = hg_proc_adm_node(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            break;
+
+        case HG_DECODE:
+            // find out the length of the adm_node object
+            ret = hg_proc_hg_size_t(proc, &node_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!node_length) {
+                *node = NULL;
+                break;
+            }
+
+            // if the received adm_node object was not NULL, read each of
+            // its fields from the mercury buffer
+            tmp = (adm_node*) calloc(1, sizeof(adm_node));
+
+            ret = hg_proc_adm_node(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // return the newly-created ctx
+            *node = tmp;
+            break;
+
+        case HG_FREE:
+            tmp = *node;
+            free(tmp);
+            break;
+    }
+
+    return ret;
+}
+
+hg_return_t
+hg_proc_ADM_dataset_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_dataset_t* dataset = (ADM_dataset_t*) data;
+    ADM_dataset_t tmp = NULL;
+    hg_size_t dataset_length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            // find out the length of the adm_dataset object we need to send
+            dataset_length = *dataset ? sizeof(adm_node) : 0;
+            ret = hg_proc_hg_size_t(proc, &dataset_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!dataset_length) {
+                return HG_SUCCESS;
+            }
+
+            // if we actually need to send an adm_dataset object,
+            // write it to the mercury buffer
+            tmp = *dataset;
+
+            ret = hg_proc_adm_dataset(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            break;
+
+        case HG_DECODE:
+            // find out the length of the adm_dataset object
+            ret = hg_proc_hg_size_t(proc, &dataset_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!dataset_length) {
+                *dataset = NULL;
+                break;
+            }
+
+            // if the received adm_dataset object was not NULL, read each of
+            // its fields from the mercury buffer
+            tmp = (adm_dataset*) calloc(1, sizeof(adm_dataset));
+
+            ret = hg_proc_adm_dataset(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // return the newly-created ctx
+            *dataset = tmp;
+            break;
+
+        case HG_FREE:
+            tmp = *dataset;
+            free(tmp);
+            break;
+    }
+
+    return ret;
+}
+
 hg_return_t
 hg_proc_ADM_job_t(hg_proc_t proc, void* data) {
 
@@ -96,7 +241,79 @@ hg_proc_ADM_job_t(hg_proc_t proc, void* data) {
 }
 
 hg_return_t
+hg_proc_ADM_transfer_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_transfer_t* transfer = (ADM_transfer_t*) data;
+    ADM_transfer_t tmp = NULL;
+    hg_size_t transfer_length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            // find out the length of the adm_transfer object we need to send
+            transfer_length = *transfer ? sizeof(adm_transfer) : 0;
+            ret = hg_proc_hg_size_t(proc, &transfer_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!transfer_length) {
+                return HG_SUCCESS;
+            }
+
+            // if we actually need to send an adm_transfer object,
+            // write it to the mercury buffer
+            tmp = *transfer;
+
+            ret = hg_proc_adm_transfer(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            break;
+
+        case HG_DECODE:
+            // find out the length of the adm_transfer object
+            ret = hg_proc_hg_size_t(proc, &transfer_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!transfer_length) {
+                *transfer = NULL;
+                break;
+            }
+
+            // if the received adm_transfer object was not NULL, read each of
+            // its fields from the mercury buffer
+            tmp = (adm_transfer*) calloc(1, sizeof(adm_transfer));
+
+            ret = hg_proc_adm_transfer(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // return the newly-created ctx
+            *transfer = tmp;
+            break;
+
+        case HG_FREE:
+            tmp = *transfer;
+            free(tmp);
+            break;
+    }
+
+    return ret;
+}
+
+hg_return_t
 hg_proc_ADM_dataset_list_t(hg_proc_t proc, void* data) {
+
     hg_return_t ret = HG_SUCCESS;
     ADM_dataset_list_t* list = (ADM_dataset_list_t*) data;
     ADM_dataset_list_t tmp = NULL;
@@ -419,6 +636,186 @@ hg_proc_ADM_pfs_context_t(hg_proc_t proc, void* data) {
             tmp = *ctx;
             free(tmp);
             ret = HG_SUCCESS;
+            break;
+    }
+
+    return ret;
+}
+
+
+hg_return_t
+hg_proc_ADM_qos_limit_list_t(hg_proc_t proc, void* data) {
+    hg_return_t ret = HG_SUCCESS;
+    ADM_qos_limit_list_t* list = (ADM_qos_limit_list_t*) data;
+    ADM_qos_limit_list_t tmp = NULL;
+
+    hg_size_t length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            tmp = *list;
+            // write the length of the list
+            length = tmp->l_length;
+            ret = hg_proc_hg_size_t(proc, &tmp->l_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // write the list
+            for(size_t i = 0; i < length; ++i) {
+                ret = hg_proc_adm_qos_limit(proc, &tmp->l_limits[i]);
+
+                if(ret != HG_SUCCESS) {
+                    break;
+                }
+            }
+            break;
+
+        case HG_DECODE: {
+
+            // find out the length of the list
+            ret = hg_proc_hg_size_t(proc, &length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // loop and create list elements
+            tmp = (ADM_qos_limit_list_t) calloc(
+                    1, sizeof(struct adm_qos_limit_list));
+            tmp->l_length = length;
+            tmp->l_limits =
+                    (adm_qos_limit*) calloc(length, sizeof(adm_qos_limit));
+
+            for(size_t i = 0; i < length; ++i) {
+                ret = hg_proc_adm_qos_limit(proc, &tmp->l_limits[i]);
+
+                if(ret != HG_SUCCESS) {
+                    break;
+                }
+            }
+
+            // return the newly-created list
+            *list = tmp;
+
+            break;
+        }
+
+        case HG_FREE:
+            tmp = *list;
+            free(tmp->l_limits);
+            free(tmp);
+            ret = HG_SUCCESS;
+            break;
+    }
+
+    return ret;
+}
+
+hg_return_t
+hg_proc_ADM_qos_entity_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_qos_entity_t* qos_entity = (ADM_qos_entity_t*) data;
+    ADM_qos_entity_t tmp = NULL;
+    hg_size_t qos_entity_length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            // find out the length of the adm_qos_entity object we need to send
+            qos_entity_length = *qos_entity ? sizeof(adm_qos_entity) : 0;
+            ret = hg_proc_hg_size_t(proc, &qos_entity_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!qos_entity_length) {
+                return HG_SUCCESS;
+            }
+
+            // if we actually need to send an adm_qos_entity object,
+            // write each of its fields to the mercury buffer
+
+            // 1. the QoS scope
+            ret = hg_proc_ADM_qos_scope_t(proc, &tmp->e_scope);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 2. the appropriate related data depending on the scope (i.e. an
+            // ADM_node_t, ADM_job_t, ADM_dataset_t, or ADM_transfer_t)
+            switch(tmp->e_scope) {
+
+                case ADM_QOS_SCOPE_DATASET:
+                    ret = hg_proc_ADM_dataset_t(proc, &tmp->e_dataset);
+                    break;
+                case ADM_QOS_SCOPE_NODE:
+                    ret = hg_proc_ADM_node_t(proc, &tmp->e_node);
+                    break;
+                case ADM_QOS_SCOPE_JOB:
+                    ret = hg_proc_ADM_job_t(proc, &tmp->e_job);
+                    break;
+                case ADM_QOS_SCOPE_TRANSFER:
+                    ret = hg_proc_ADM_transfer_t(proc, &tmp->e_transfer);
+                    break;
+            }
+
+            break;
+
+        case HG_DECODE:
+            // find out the length of the adm_qos_entity object
+            ret = hg_proc_hg_size_t(proc, &qos_entity_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!qos_entity_length) {
+                *qos_entity = NULL;
+                break;
+            }
+
+            // if the received adm_qos_entity object was not NULL, read each
+            // of its fields from the mercury buffer
+            tmp = (adm_qos_entity*) calloc(1, sizeof(adm_qos_entity));
+
+            // 1. the QoS scope
+            ret = hg_proc_ADM_qos_scope_t(proc, &tmp->e_scope);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 2. the appropriate related data depending on the scope (i.e. an
+            // ADM_node_t, ADM_job_t, ADM_dataset_t, or ADM_transfer_t)
+            switch(tmp->e_scope) {
+
+                case ADM_QOS_SCOPE_DATASET:
+                    ret = hg_proc_ADM_dataset_t(proc, &tmp->e_dataset);
+                    break;
+                case ADM_QOS_SCOPE_NODE:
+                    ret = hg_proc_ADM_node_t(proc, &tmp->e_node);
+                    break;
+                case ADM_QOS_SCOPE_JOB:
+                    ret = hg_proc_ADM_job_t(proc, &tmp->e_job);
+                    break;
+                case ADM_QOS_SCOPE_TRANSFER:
+                    ret = hg_proc_ADM_transfer_t(proc, &tmp->e_transfer);
+                    break;
+            }
+
+            // return the newly-created entity
+            *qos_entity = tmp;
+            break;
+
+        case HG_FREE:
+            tmp = *qos_entity;
+            free(tmp);
             break;
     }
 

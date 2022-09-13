@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <fmt/format.h>
 #include <utils/ctype_ptr.hpp>
+#include <optional>
 #include "admire_types.h"
 
 namespace admire {
@@ -38,6 +39,7 @@ namespace admire {
 using error_code = ADM_return_t;
 
 using job_id = std::uint64_t;
+using transfer_id = std::uint64_t;
 
 struct server {
 
@@ -52,6 +54,26 @@ struct server {
     protocol() const;
     std::string
     address() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
+struct node {
+
+    explicit node(std::string hostname);
+    explicit node(const ADM_node_t& srv);
+    node(const node&) noexcept;
+    node(node&&) noexcept;
+    node&
+    operator=(const node&) noexcept;
+    node&
+    operator=(node&&) noexcept;
+    ~node();
+
+    std::string
+    hostname() const;
 
 private:
     class impl;
@@ -77,6 +99,108 @@ private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
 };
+
+struct transfer {
+
+    enum class mapping : std::underlying_type<ADM_transfer_mapping_t>::type {
+        one_to_one = ADM_MAPPING_ONE_TO_ONE,
+        one_to_n = ADM_MAPPING_ONE_TO_N,
+        n_to_n = ADM_MAPPING_N_TO_N
+    };
+
+    explicit transfer(transfer_id id);
+    explicit transfer(ADM_transfer_t transfer);
+
+    transfer(const transfer&) noexcept;
+    transfer(transfer&&) noexcept;
+    transfer&
+    operator=(const transfer&) noexcept;
+    transfer&
+    operator=(transfer&&) noexcept;
+
+    ~transfer();
+
+    transfer_id
+    id() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
+namespace qos {
+
+enum class subclass : std::underlying_type<ADM_qos_class_t>::type {
+    bandwidth = ADM_QOS_CLASS_BANDWIDTH,
+    iops = ADM_QOS_CLASS_IOPS,
+};
+
+enum class scope : std::underlying_type<ADM_qos_scope_t>::type {
+    dataset = ADM_QOS_SCOPE_DATASET,
+    node = ADM_QOS_SCOPE_NODE,
+    job = ADM_QOS_SCOPE_JOB,
+    transfer = ADM_QOS_SCOPE_TRANSFER
+};
+
+struct entity {
+
+    template <typename T>
+    entity(admire::qos::scope s, T&& data);
+    explicit entity(ADM_qos_entity_t entity);
+
+    entity(const entity&) noexcept;
+    entity(entity&&) noexcept;
+    entity&
+    operator=(const entity&) noexcept;
+    entity&
+    operator=(entity&&) noexcept;
+
+    ~entity();
+
+    admire::qos::scope
+    scope() const;
+
+    template <typename T>
+    T
+    data() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
+struct limit {
+
+    limit(admire::qos::subclass cls, uint64_t value);
+    limit(admire::qos::subclass cls, uint64_t value,
+          const admire::qos::entity& e);
+    explicit limit(ADM_qos_limit_t l);
+
+    limit(const limit&) noexcept;
+    limit(limit&&) noexcept;
+    limit&
+    operator=(const limit&) noexcept;
+    limit&
+    operator=(limit&&) noexcept;
+
+    ~limit();
+
+    std::optional<admire::qos::entity>
+    entity() const;
+
+    admire::qos::subclass
+    subclass() const;
+
+    uint64_t
+    value() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
+} // namespace qos
+
 
 struct dataset {
     explicit dataset(std::string id);
@@ -304,7 +428,7 @@ struct fmt::formatter<admire::job> : formatter<std::string_view> {
     auto
     format(const admire::job& j, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
-                fmt::format("id: {}", j.id()), ctx);
+                fmt::format("{{id: {}}}", j.id()), ctx);
     }
 };
 
@@ -314,7 +438,20 @@ struct fmt::formatter<admire::dataset> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const admire::dataset& d, FormatContext& ctx) const {
-        return formatter<std::string_view>::format("\"" + d.id() + "\"", ctx);
+        const auto str = fmt::format("{{id: {}}}", std::quoted(d.id()));
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::node> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::node& n, FormatContext& ctx) const {
+        const auto str =
+                fmt::format("{{hostname: {}}}", std::quoted(n.hostname()));
+        return formatter<std::string_view>::format(str, ctx);
     }
 };
 
@@ -520,10 +657,173 @@ struct fmt::formatter<admire::job_requirements> : formatter<std::string_view> {
     auto
     format(const admire::job_requirements& r, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
-                fmt::format("inputs: [{}], outputs: [{}], storage: {}",
-                            fmt::join(r.inputs(), ", "),
-                            fmt::join(r.outputs(), ", "), r.storage()),
+                fmt::format("{{inputs: {}, outputs: {}, storage: {}}}",
+                            r.inputs(), r.outputs(), r.storage()),
                 ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::qos::scope> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::qos::scope& s, FormatContext& ctx) const {
+
+        using scope = admire::qos::scope;
+
+        std::string_view name = "unknown";
+
+        switch(s) {
+            case scope::dataset:
+                name = "ADM_QOS_SCOPE_DATASET";
+                break;
+            case scope::node:
+                name = "ADM_QOS_SCOPE_NODE";
+                break;
+            case scope::job:
+                name = "ADM_QOS_SCOPE_JOB";
+                break;
+            case scope::transfer:
+                name = "ADM_QOS_SCOPE_TRANSFER";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<std::optional<admire::qos::entity>>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::optional<admire::qos::entity>& e,
+           FormatContext& ctx) const {
+
+        if(!e) {
+            return formatter<std::string_view>::format("none", ctx);
+        }
+
+        std::string_view data = "unknown";
+
+        switch(e->scope()) {
+            case admire::qos::scope::dataset:
+                data = fmt::format("{}", e->data<admire::dataset>());
+                break;
+            case admire::qos::scope::node:
+                data = fmt::format("{}", e->data<admire::node>());
+                break;
+            case admire::qos::scope::job:
+                data = fmt::format("{}", e->data<admire::job>());
+                break;
+            case admire::qos::scope::transfer:
+                data = fmt::format("{}", e->data<admire::transfer>());
+                break;
+        }
+
+        const auto str =
+                fmt::format("{{scope: {}, data: {}}}", e->scope(), data);
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::qos::subclass> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::qos::subclass& sc, FormatContext& ctx) const {
+
+        using subclass = admire::qos::subclass;
+
+        std::string_view name = "unknown";
+
+        switch(sc) {
+            case subclass::bandwidth:
+                name = "ADM_QOS_CLASS_BANDWIDTH";
+                break;
+            case subclass::iops:
+                name = "ADM_QOS_CLASS_IOPS";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::qos::limit> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::qos::limit& l, FormatContext& ctx) const {
+        const auto str = fmt::format("{{entity: {}, subclass: {}, value: {}}}",
+                                     l.entity(), l.subclass(), l.value());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::transfer::mapping> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::transfer::mapping& m, FormatContext& ctx) const {
+
+        using mapping = admire::transfer::mapping;
+
+        std::string_view name = "unknown";
+
+        switch(m) {
+            case mapping::one_to_one:
+                name = "ADM_MAPPING_ONE_TO_ONE";
+                break;
+            case mapping::one_to_n:
+                name = "ADM_MAPPING_ONE_TO_N";
+                break;
+            case mapping::n_to_n:
+                name = "ADM_MAPPING_N_TO_N";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::transfer> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::transfer& tx, FormatContext& ctx) const {
+        const auto str = fmt::format("{{id: {}}}", tx.id());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<std::vector<admire::dataset>>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::vector<admire::dataset>& v, FormatContext& ctx) const {
+        const auto str = fmt::format("[{}]", fmt::join(v, ", "));
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<std::vector<admire::qos::limit>>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::vector<admire::qos::limit>& l, FormatContext& ctx) const {
+        const auto str = fmt::format("[{}]", fmt::join(l, ", "));
+        return formatter<std::string_view>::format(str, ctx);
     }
 };
 

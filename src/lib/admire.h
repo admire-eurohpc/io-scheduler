@@ -185,13 +185,16 @@ ADM_remove_pfs_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
  *
  * @param[in] server The server to which the request is directed
  * @param[in] job An ADM_JOB identifying the originating job.
- * @param[in] sources A list of DATASETs identifying the source dataset/s
+ * @param[in] sources An array of DATASETs identifying the source dataset/s
  * to be transferred.
- * @param[in] targets A list of DATASETs identifying the destination
+ * @param[in] sources_len The number of DATASETs stored in sources.
+ * @param[in] targets An array of DATASETs identifying the destination
  * dataset/s and its/their desired locations in a storage tier.
- * @param[in] limits A list of QOS_CONSTRAINTS that must be applied to
+ * @param[in] targets_len The number of DATASETs stored in targets.
+ * @param[in] limits An array of QOS_CONSTRAINTS that must be applied to
  * the transfer. These may not exceed the global ones set at node, application,
  * or resource level.
+ * @param[in] limits_len The number of QOS_CONSTRAINTS stored in limits.
  * @param[in] mapping A distribution strategy for the transfers (e.g.
  * ONE_TO_ONE, ONE_TO_MANY, MANY_TO_MANY)
  * @param[out] transfer A ADM_TRANSFER allowing clients to interact
@@ -201,10 +204,11 @@ ADM_remove_pfs_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
  * successfully or not.
  */
 ADM_return_t
-ADM_transfer_dataset(ADM_server_t server, ADM_job_t job,
-                     ADM_dataset_t** sources, ADM_dataset_t** targets,
-                     ADM_qos_limit_t** limits, ADM_transfer_mapping_t mapping,
-                     ADM_transfer_t* transfer);
+ADM_transfer_datasets(ADM_server_t server, ADM_job_t job,
+                      ADM_dataset_t sources[], size_t sources_len,
+                      ADM_dataset_t targets[], size_t targets_len,
+                      ADM_qos_limit_t limits[], size_t limits_len,
+                      ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer);
 
 
 /**

@@ -91,6 +91,9 @@ typedef struct adm_dataset_info* ADM_dataset_info_t;
 /** A list of datasets */
 typedef struct adm_dataset_list* ADM_dataset_list_t;
 
+/** A list of QoS limits */
+typedef struct adm_qos_limit_list* ADM_qos_limit_list_t;
+
 
 /* ----------------------------------------------------- */
 /*              Storage tiers                            */
@@ -145,7 +148,8 @@ typedef struct adm_pfs_context* ADM_pfs_context_t;
 typedef enum {
     ADM_QOS_SCOPE_DATASET,
     ADM_QOS_SCOPE_NODE,
-    ADM_QOS_SCOPE_JOB
+    ADM_QOS_SCOPE_JOB,
+    ADM_QOS_SCOPE_TRANSFER
 } ADM_qos_scope_t;
 
 /** The class of QoS limit applied to a scope */
@@ -456,13 +460,13 @@ ADM_pfs_context_destroy(ADM_pfs_context_t ctx);
  *
  * @param[in] scope The scope of the entity, i.e. ADM_QOS_SCOPE_DATASET,
  * ADM_QOS_SCOPE_NODE, or ADM_QOS_SCOPE_JOB.
- * @param[in] ... A single argument with data from either a ADM_dataset_t,
+ * @param[in] data A single argument with data from either a ADM_dataset_t,
  * ADM_node_t, or ADM_job_t variable. The argument must correspond properly
  * to the scope provided.
  * @return A valid ADM_qos_entity_t if successful or NULL in case of failure.
  */
 ADM_qos_entity_t
-ADM_qos_entity_create(ADM_qos_scope_t scope, ...);
+ADM_qos_entity_create(ADM_qos_scope_t scope, void* data);
 
 /**
  * Destroy a QoS entity created by ADM_qos_entity_create().
@@ -495,6 +499,30 @@ ADM_qos_limit_create(ADM_qos_entity_t entity, ADM_qos_class_t cls,
  */
 ADM_return_t
 ADM_qos_limit_destroy(ADM_qos_limit_t limit);
+
+/**
+ * Create a list of QoS limits from an array of ADM_QOS_LIMITs and its
+ * length.
+ *
+ * @remark QoS limit lists need to be freed by calling
+ * ADM_qos_limit_list_destroy().
+ *
+ * @param[in] limits The array of QoS limits.
+ * @param[in] len The length of the array.
+ * @return A valid ADM_qos_limit_list_t if successful or NULL in case of
+ * failure.
+ */
+ADM_qos_limit_list_t
+ADM_qos_limit_list_create(ADM_qos_limit_t limits[], size_t len);
+
+/**
+ * Destroy a QoS limit list created by ADM_qos_limit_list_create().
+ *
+ * @param[in] list A valid ADM_qos_limit_list_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_qos_limit_list_destroy(ADM_qos_limit_list_t list);
 
 
 /* ----------------------------------------------------- */

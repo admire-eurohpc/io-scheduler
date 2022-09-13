@@ -101,8 +101,8 @@ rpc_registration_cb(scord::network::rpc_client* client) {
     REGISTER_RPC(client, "ADM_in_transit_ops", ADM_in_transit_ops_in_t,
                  ADM_in_transit_ops_out_t, NULL, true);
 
-    REGISTER_RPC(client, "ADM_transfer_dataset", ADM_transfer_dataset_in_t,
-                 ADM_transfer_dataset_out_t, NULL, true);
+    REGISTER_RPC(client, "ADM_transfer_datasets", ADM_transfer_datasets_in_t,
+                 ADM_transfer_datasets_out_t, NULL, true);
 
     REGISTER_RPC(client, "ADM_set_dataset_information",
                  ADM_set_dataset_information_in_t,
@@ -177,8 +177,7 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
 
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{job_requirements: {{{}}}}}", __FUNCTION__,
-                reqs);
+    LOGGER_INFO("RPC (ADM_{}) <= {{job_requirements: {}}}", __FUNCTION__, reqs);
 
     auto rpc_reqs = api::convert(reqs);
 
@@ -188,13 +187,13 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     const auto rpc = endp.call("ADM_register_job", &in, &out);
 
     if(out.retval < 0) {
-        LOGGER_ERROR("RPC (ADM_{}) <= {}", __FUNCTION__, out.retval);
+        LOGGER_ERROR("RPC (ADM_{}) => {}", __FUNCTION__, out.retval);
         return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
     const admire::job job = api::convert(out.job);
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}, job: {{{}}}}}", __FUNCTION__,
+    LOGGER_INFO("RPC (ADM_{}) => {{retval: {}, job: {}}}", __FUNCTION__,
                 ADM_SUCCESS, job.id());
 
     return job;
@@ -207,8 +206,8 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
 
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC ({}): {{job: {{{}}}, job_requirements: {{{}}}}}",
-                "ADM_update_job", job, reqs);
+    LOGGER_INFO("RPC (ADM_{}): {{job: {}, job_requirements: {}}}", __FUNCTION__,
+                job, reqs);
 
     const auto rpc_job = api::convert(job);
     const auto rpc_reqs = api::convert(reqs);
@@ -221,11 +220,11 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
 
     if(out.retval < 0) {
         const auto retval = static_cast<admire::error_code>(out.retval);
-        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, retval);
+        LOGGER_ERROR("RPC (ADM_{}) => {{retval: {}}}", __FUNCTION__, retval);
         return retval;
     }
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
+    LOGGER_INFO("RPC (ADM_{}) => {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
     return ADM_SUCCESS;
 }
 
@@ -236,7 +235,7 @@ remove_job(const server& srv, const job& job) {
 
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{job: {}}}", __FUNCTION__, job);
+    LOGGER_INFO("RPC (ADM_{}) <= {{job: {}}}", __FUNCTION__, job);
 
     const auto rpc_job = api::convert(job);
 
@@ -247,12 +246,54 @@ remove_job(const server& srv, const job& job) {
 
     if(out.retval < 0) {
         const auto retval = static_cast<admire::error_code>(out.retval);
-        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, retval);
+        LOGGER_ERROR("RPC (ADM_{}) => {{retval: {}}}", __FUNCTION__, retval);
         return retval;
     }
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
+    LOGGER_INFO("RPC (ADM_{}) => {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
     return ADM_SUCCESS;
 }
+
+tl::expected<transfer, error_code>
+transfer_datasets(const server& srv, const job& job,
+                  const std::vector<dataset>& sources,
+                  const std::vector<dataset>& targets,
+                  const std::vector<qos::limit>& limits,
+                  transfer::mapping mapping) {
+
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+
+    auto endp = rpc_client.lookup(srv.address());
+
+    LOGGER_INFO("RPC (ADM_{}) <= {{job: {}, sources: {}, targets: {}, "
+                "limits: {}, mapping: {}}}",
+                __FUNCTION__, job, sources, targets, limits, mapping);
+
+    const auto rpc_job = api::convert(job);
+    const auto rpc_sources = api::convert(sources);
+    const auto rpc_targets = api::convert(targets);
+    const auto rpc_qos_limits = api::convert(limits);
+
+    ADM_transfer_datasets_in_t in{rpc_job.get(), rpc_sources.get(),
+                                  rpc_targets.get(), rpc_qos_limits.get(),
+                                  static_cast<ADM_transfer_mapping_t>(mapping)};
+    ADM_transfer_datasets_out_t out;
+
+    [[maybe_unused]] const auto rpc =
+            endp.call("ADM_transfer_datasets", &in, &out);
+
+    if(out.retval < 0) {
+        LOGGER_ERROR("RPC (ADM_{}) => {{retval: {}}}", __FUNCTION__,
+                     out.retval);
+        return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
+    }
+
+    const admire::transfer tx = api::convert(out.tx);
+
+    LOGGER_INFO("RPC (ADM_{}) => {{retval: {}, transfer: {}}}", __FUNCTION__,
+                ADM_SUCCESS, tx);
+    return tx;
+}
+
 
 } // namespace admire::detail

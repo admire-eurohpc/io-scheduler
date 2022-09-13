@@ -28,6 +28,8 @@
 #include <utils/ctype_ptr.hpp>
 #include <cstdarg>
 #include <api/convert.hpp>
+#include <variant>
+#include <optional>
 #include "admire_types.hpp"
 
 /******************************************************************************/
@@ -158,7 +160,7 @@ ADM_dataset_destroy(ADM_dataset_t dataset) {
 }
 
 ADM_qos_entity_t
-ADM_qos_entity_create(ADM_qos_scope_t scope, ...) {
+ADM_qos_entity_create(ADM_qos_scope_t scope, void* data) {
 
     struct adm_qos_entity* adm_qos_entity =
             (struct adm_qos_entity*) malloc(sizeof(struct adm_qos_entity));
@@ -170,21 +172,19 @@ ADM_qos_entity_create(ADM_qos_scope_t scope, ...) {
 
     adm_qos_entity->e_scope = scope;
 
-    va_list ap;
-    va_start(ap, scope);
-
     switch(scope) {
         case ADM_QOS_SCOPE_NODE:
-            adm_qos_entity->e_node = va_arg(ap, ADM_node_t);
+            adm_qos_entity->e_node = (ADM_node_t) data;
             break;
         case ADM_QOS_SCOPE_JOB:
-            adm_qos_entity->e_job = va_arg(ap, ADM_job_t);
+            adm_qos_entity->e_job = (ADM_job_t) data;
             break;
         case ADM_QOS_SCOPE_DATASET:
-            adm_qos_entity->e_dataset = va_arg(ap, ADM_dataset_t);
+            adm_qos_entity->e_dataset = (ADM_dataset_t) data;
             break;
+        case ADM_QOS_SCOPE_TRANSFER:
+            adm_qos_entity->e_transfer = (ADM_transfer_t) data;
     }
-    va_end(ap);
 
     return adm_qos_entity;
 }
@@ -229,6 +229,23 @@ ADM_qos_limit_destroy(ADM_qos_limit_t limit) {
     if(!limit) {
         LOGGER_ERROR("Invalid ADM_qos_limit_t")
         return ADM_EBADARGS;
+    }
+
+    free(limit);
+    return ret;
+}
+
+ADM_return_t
+ADM_qos_limit_destroy_all(ADM_qos_limit_t limit) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!limit) {
+        LOGGER_ERROR("Invalid ADM_qos_limit_t")
+        return ADM_EBADARGS;
+    }
+
+    if(limit->l_entity) {
+        ADM_qos_entity_destroy(limit->l_entity);
     }
 
     free(limit);
@@ -692,6 +709,122 @@ ADM_job_destroy(ADM_job_t job) {
     return ret;
 }
 
+/**
+ * Initialize a transfer handle that can be used by clients to refer to a
+ * transfer.
+ *
+ * @remark This function is not actually part of the public API, but it is
+ * useful to have for internal purposes
+ *
+ * @param [in] id The identifier for this transfer
+ * @return A valid TRANSFER HANDLE or NULL in case of failure.
+ */
+ADM_transfer_t
+ADM_transfer_create(uint64_t id) {
+
+    struct adm_transfer* adm_transfer =
+            (struct adm_transfer*) malloc(sizeof(struct adm_transfer));
+
+    if(!adm_transfer) {
+        LOGGER_ERROR("Could not allocate ADM_transfer_t")
+        return NULL;
+    }
+
+    adm_transfer->t_id = id;
+
+    return adm_transfer;
+}
+
+/**
+ * Destroy a ADM_transfer_t created by ADM_transfer_create().
+ *
+ * @remark This function is not actually part of the public API, but it is
+ * useful to have for internal purposes
+ *
+ * @param[in] tx The ADM_transfer_t to destroy.
+ * @return ADM_SUCCESS or corresponding error code.
+ */
+ADM_return_t
+ADM_transfer_destroy(ADM_transfer_t tx) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!tx) {
+        LOGGER_ERROR("Invalid ADM_transfer_t")
+        return ADM_EBADARGS;
+    }
+
+    free(tx);
+    return ret;
+}
+
+ADM_qos_limit_list_t
+ADM_qos_limit_list_create(ADM_qos_limit_t limits[], size_t length) {
+
+    ADM_qos_limit_list_t p = (ADM_qos_limit_list_t) malloc(sizeof(*p));
+
+    if(!p) {
+        LOGGER_ERROR("Could not allocate ADM_qos_limit_list_t")
+        return NULL;
+    }
+
+    const char* error_msg = NULL;
+
+    p->l_length = length;
+    p->l_limits = (struct adm_qos_limit*) calloc(length, sizeof(adm_qos_limit));
+
+    if(!p->l_limits) {
+        error_msg = "Could not allocate ADM_qos_limit_list_t";
+        goto cleanup_on_error;
+    }
+
+    for(size_t i = 0; i < length; ++i) {
+        memcpy(&p->l_limits[i], limits[i], sizeof(adm_qos_limit));
+    }
+
+    return p;
+
+cleanup_on_error:
+    if(p->l_limits) {
+        free(p->l_limits);
+    }
+    free(p);
+
+    if(error_msg) {
+        LOGGER_ERROR(error_msg);
+    }
+
+    return NULL;
+}
+
+ADM_return_t
+ADM_qos_limit_list_destroy(ADM_qos_limit_list_t list) {
+
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!list) {
+        LOGGER_ERROR("Invalid ADM_qos_limit_list_t")
+        return ADM_EBADARGS;
+    }
+
+    // We cannot call ADM_qos_limit_destroy here because adm_limits
+    // are stored as a consecutive array in memory. Thus, we free
+    // the entities themselves and then the array.
+    if(list->l_limits) {
+        for(size_t i = 0; i < list->l_length; ++i) {
+
+            ADM_qos_entity_t entity = list->l_limits[i].l_entity;
+
+            if(entity) {
+                ADM_qos_entity_destroy(entity);
+            }
+        }
+        free(list->l_limits);
+    }
+
+    free(list);
+    return ret;
+}
+
 
 /******************************************************************************/
 /* C++ Type definitions and related functions                                 */
@@ -744,6 +877,45 @@ server::address() const {
     return m_pimpl->address();
 }
 
+class node::impl {
+
+public:
+    explicit impl(std::string hostname) : m_hostname(std::move(hostname)) {}
+
+    std::string
+    hostname() const {
+        return m_hostname;
+    }
+
+private:
+    std::string m_hostname;
+};
+
+node::node(std::string hostname)
+    : m_pimpl(std::make_unique<node::impl>(std::move(hostname))) {}
+
+node::node(const ADM_node_t& node) : node::node(node->n_hostname) {}
+
+node::node(const node& other) noexcept
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+node::node(node&&) noexcept = default;
+
+node&
+node::operator=(const node& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+node&
+node::operator=(node&&) noexcept = default;
+
+node::~node() = default;
+
+std::string
+node::hostname() const {
+    return m_pimpl->hostname();
+}
 
 class job::impl {
 
@@ -788,6 +960,54 @@ job::~job() = default;
 
 job_id
 job::id() const {
+    return m_pimpl->id();
+}
+
+class transfer::impl {
+
+public:
+    explicit impl(transfer_id id) : m_id(id) {}
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    transfer_id
+    id() const {
+        return m_id;
+    }
+
+private:
+    transfer_id m_id;
+};
+
+transfer::transfer(transfer_id id)
+    : m_pimpl(std::make_unique<transfer::impl>(id)) {}
+
+transfer::transfer(ADM_transfer_t transfer)
+    : transfer::transfer(transfer->t_id) {}
+
+transfer::transfer(transfer&&) noexcept = default;
+
+transfer&
+transfer::operator=(transfer&&) noexcept = default;
+
+transfer::transfer(const transfer& other) noexcept
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+transfer&
+transfer::operator=(const transfer& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+transfer::~transfer() = default;
+
+transfer_id
+transfer::id() const {
     return m_pimpl->id();
 }
 
@@ -1123,5 +1343,195 @@ job_requirements::storage() const {
     return m_pimpl->storage();
 }
 
+namespace qos {
+
+class entity::impl {
+public:
+    template <typename T>
+    impl(const admire::qos::scope& s, T&& data) : m_scope(s), m_data(data) {}
+
+    explicit impl(ADM_qos_entity_t entity)
+        : m_scope(static_cast<qos::scope>(entity->e_scope)),
+          m_data(init_helper(entity)) {}
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    admire::qos::scope
+    scope() const {
+        return m_scope;
+    }
+
+    template <typename T>
+    T
+    data() const {
+        return std::get<T>(m_data);
+    }
+
+private:
+    static std::variant<dataset, node, job, transfer>
+    init_helper(ADM_qos_entity_t entity) {
+        switch(entity->e_scope) {
+            case ADM_QOS_SCOPE_DATASET:
+                return admire::dataset(entity->e_dataset);
+            case ADM_QOS_SCOPE_NODE:
+                return admire::node(entity->e_node);
+            case ADM_QOS_SCOPE_JOB:
+                return admire::job(entity->e_job);
+            case ADM_QOS_SCOPE_TRANSFER:
+                return admire::transfer(entity->e_transfer);
+            default:
+                throw std::runtime_error(fmt::format(
+                        "Unexpected scope value: {}", entity->e_scope));
+        }
+    }
+
+
+private:
+    admire::qos::scope m_scope;
+    std::variant<dataset, node, job, transfer> m_data;
+};
+
+template <typename T>
+entity::entity(admire::qos::scope s, T&& data)
+    : m_pimpl(std::make_unique<entity::impl>(s, std::forward<T>(data))) {}
+
+entity::entity(ADM_qos_entity_t entity)
+    : m_pimpl(std::make_unique<entity::impl>(entity)) {}
+
+entity::entity(const entity& other) noexcept
+    : m_pimpl(std::make_unique<entity::impl>(*other.m_pimpl)) {}
+
+entity::entity(entity&&) noexcept = default;
+
+entity&
+entity::operator=(const entity& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+entity&
+entity::operator=(entity&&) noexcept = default;
+
+entity::~entity() = default;
+
+admire::qos::scope
+entity::scope() const {
+    return m_pimpl->scope();
+}
+
+template <>
+admire::node
+entity::data<admire::node>() const {
+    return m_pimpl->data<admire::node>();
+}
+
+template <>
+admire::job
+entity::data<admire::job>() const {
+    return m_pimpl->data<admire::job>();
+}
+
+template <>
+admire::dataset
+entity::data<admire::dataset>() const {
+    return m_pimpl->data<admire::dataset>();
+}
+
+template <>
+admire::transfer
+entity::data<admire::transfer>() const {
+    return m_pimpl->data<admire::transfer>();
+}
+
+
+class limit::impl {
+
+public:
+    impl(admire::qos::subclass cls, uint64_t value, admire::qos::entity e)
+        : m_subclass(cls), m_value(value), m_entity(std::move(e)) {}
+
+    impl(admire::qos::subclass cls, uint64_t value)
+        : m_subclass(cls), m_value(value) {}
+
+    explicit impl(ADM_qos_limit_t l)
+        : m_subclass(static_cast<qos::subclass>(l->l_class)),
+          m_value(l->l_value),
+          m_entity(l->l_entity ? std::optional(admire::qos::entity(l->l_entity))
+                               : std::nullopt) {}
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    std::optional<admire::qos::entity>
+    entity() const {
+        return m_entity;
+    }
+
+    admire::qos::subclass
+    subclass() const {
+        return m_subclass;
+    }
+
+    uint64_t
+    value() const {
+        return m_value;
+    }
+
+private:
+    admire::qos::subclass m_subclass;
+    uint64_t m_value;
+    std::optional<admire::qos::entity> m_entity;
+};
+
+limit::limit(admire::qos::subclass cls, uint64_t value)
+    : m_pimpl(std::make_unique<limit::impl>(cls, value)) {}
+
+limit::limit(admire::qos::subclass cls, uint64_t value,
+             const admire::qos::entity& e)
+    : m_pimpl(std::make_unique<limit::impl>(cls, value, e)) {}
+
+limit::limit(ADM_qos_limit_t l) : m_pimpl(std::make_unique<limit::impl>(l)) {}
+
+limit::limit(const limit& other) noexcept
+    : m_pimpl(std::make_unique<limit::impl>(*other.m_pimpl)) {}
+
+limit::limit(limit&&) noexcept = default;
+
+limit&
+limit::operator=(const limit& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+limit&
+limit::operator=(limit&&) noexcept = default;
+
+limit::~limit() = default;
+
+std::optional<admire::qos::entity>
+limit::entity() const {
+    return m_pimpl->entity();
+}
+
+admire::qos::subclass
+limit::subclass() const {
+    return m_pimpl->subclass();
+}
+
+uint64_t
+limit::value() const {
+    return m_pimpl->value();
+}
+
+} // namespace qos
 
 } // namespace admire

@@ -44,6 +44,9 @@ typedef struct adm_node {
     const char* n_hostname;
 } adm_node;
 
+hg_return_t
+hg_proc_ADM_node_t(hg_proc_t proc, void* data);
+
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
     adm_node, // NOLINT
@@ -54,6 +57,9 @@ MERCURY_GEN_STRUCT_PROC(
 typedef struct adm_dataset {
     const char* d_id;
 } adm_dataset;
+
+hg_return_t
+hg_proc_ADM_dataset_t(hg_proc_t proc, void* data);
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
@@ -76,7 +82,7 @@ MERCURY_GEN_STRUCT_PROC(
 hg_return_t
 hg_proc_ADM_job_t(hg_proc_t proc, void* data);
 
-struct adm_qos_entity {
+typedef struct adm_qos_entity {
     ADM_qos_scope_t e_scope;
     union {
         ADM_node_t e_node;
@@ -84,27 +90,41 @@ struct adm_qos_entity {
         ADM_dataset_t e_dataset;
         ADM_transfer_t e_transfer;
     };
-};
+} adm_qos_entity;
 
-// TODO: encoder/decoder
+extern hg_return_t (*hg_proc_ADM_qos_scope_t)(hg_proc_t, void*);
 
-struct adm_qos_limit {
+hg_return_t
+hg_proc_ADM_qos_entity_t(hg_proc_t proc, void* data);
+
+typedef struct adm_qos_limit {
     ADM_qos_entity_t l_entity;
     ADM_qos_class_t l_class;
-    uint64_t l_value;
-};
+    hg_uint64_t l_value;
+} adm_qos_limit;
 
-// TODO: encoder/decoder
+extern hg_return_t (*hg_proc_ADM_qos_class_t)(hg_proc_t, void*);
+
+// clang-format off
+MERCURY_GEN_STRUCT_PROC(
+    adm_qos_limit, // NOLINT
+        ((ADM_qos_entity_t) (l_entity))
+        ((ADM_qos_class_t) (l_class))
+        ((hg_uint64_t) (l_value))
+)
+// clang-format on
 
 typedef struct adm_transfer {
-    // TODO: undefined for now
-    int32_t placeholder;
+    uint64_t t_id;
 } adm_transfer;
+
+hg_return_t
+hg_proc_ADM_transfer_t(hg_proc_t proc, void* data);
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
     adm_transfer, // NOLINT
-        ((hg_int32_t) (placeholder))
+        ((hg_uint64_t) (t_id))
 );
 // clang-format on
 
@@ -378,17 +398,32 @@ MERCURY_GEN_PROC(ADM_in_transit_ops_in_t, ((hg_const_string_t) (in_transit)))
 
 MERCURY_GEN_PROC(ADM_in_transit_ops_out_t, ((int32_t) (ret)))
 
+struct adm_qos_limit_list {
+    /** An array of QoS limits */
+    adm_qos_limit* l_limits;
+    /** The length of the array */
+    size_t l_length;
+};
 
-/// ADM_transfer_dataset
+hg_return_t
+hg_proc_ADM_qos_limit_list_t(hg_proc_t proc, void* data);
+
+/// ADM_transfer_datasets
 
 MERCURY_GEN_PROC(
-        ADM_transfer_dataset_in_t,
-        ((hg_const_string_t) (source))((hg_const_string_t) (destination))(
-                (hg_const_string_t) (qos_constraints))(
-                (hg_const_string_t) (distribution))((int32_t) (job_id)))
+    ADM_transfer_datasets_in_t,
+        ((ADM_job_t) (job))
+        ((ADM_dataset_list_t) (sources))
+        ((ADM_dataset_list_t) (targets))
+        ((ADM_qos_limit_list_t) (qos_limits))
+        ((hg_int32_t) (mapping))
+)
 
-MERCURY_GEN_PROC(ADM_transfer_dataset_out_t,
-                 ((int32_t) (ret))((hg_const_string_t) (transfer_handle)))
+MERCURY_GEN_PROC(
+    ADM_transfer_datasets_out_t,
+        ((hg_int32_t) (retval))
+        ((ADM_transfer_t) (tx)))
+
 
 /// ADM_set_dataset_information
 

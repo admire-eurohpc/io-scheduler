@@ -31,6 +31,9 @@
 #include "job_manager.hpp"
 #include "adhoc_storage_manager.hpp"
 
+// Process running
+#include <unistd.h>
+
 struct remote_procedure {
     static std::uint64_t
     new_id() {
@@ -448,17 +451,46 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
 
     /* Look inside adhoc_storage and launch gkfs script */
 
-    if (adhoc_storage->s_type == ADM_STORAGE_GEKKOFS)
-    {
+    if (adhoc_storage->s_type == ADM_STORAGE_GEKKOFS) {
     /* Extract Job ID -> SLURM_JOB_ID */
+        const std::string job_id = "SLURM_JOB_ID=42";
 
     /* Extract paths */
+        const std::string mountpoint = "-m /tmp/mnt";
+        const std::string rootdir = "-r /tmp/root";
 
     /* Launch script */
-
-        out.retval = 0;
+        pid_t pid = fork();
+        switch (pid) {
+            case 0: {
+                std::vector<const char*> args;
+                args.push_back("/usr/bin/echo");
+                args.push_back(mountpoint.c_str());
+                args.push_back(rootdir.c_str());
+                args.push_back(NULL);
+                std::vector<const char*> env;
+                env.push_back(job_id.c_str());
+                env.push_back(NULL);
+                
+                execve("/usr/bin/echo", const_cast<char* const*>(args.data()), 
+                const_cast<char* const*>(env.data())); 
+                LOGGER_INFO("ADM_deploy_adhoc_storage() script didn't execute");
+                exit(0);
+                break;
+            }            
+            case -1: {
+                out.retval = -1;
+                LOGGER_ERROR("ADM_deploy_adhoc_storage() didn't fork");
+                break;
+            }
+            default: {
+                LOGGER_INFO("ADM_deploy_adhoc_storage() executed");
+                out.retval = 0;
+                break;
+            }
+        }
     }
-    
+
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
 

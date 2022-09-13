@@ -728,6 +728,30 @@ struct fmt::formatter<std::optional<admire::qos::entity>>
 };
 
 template <>
+struct fmt::formatter<admire::qos::subclass> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::qos::subclass& sc, FormatContext& ctx) const {
+
+        using subclass = admire::qos::subclass;
+
+        std::string_view name = "unknown";
+
+        switch(sc) {
+            case subclass::bandwidth:
+                name = "ADM_QOS_CLASS_BANDWIDTH";
+                break;
+            case subclass::iops:
+                name = "ADM_QOS_CLASS_IOPS";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
 struct fmt::formatter<admire::qos::limit> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>

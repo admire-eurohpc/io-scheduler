@@ -437,7 +437,7 @@ hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
                     break;
                 case ADM_STORAGE_LUSTRE:
                 case ADM_STORAGE_GPFS:
-                    ret = hg_proc_ADM_pfs_context_t(proc, &tmp->s_adhoc_ctx);
+                    ret = hg_proc_ADM_pfs_context_t(proc, &tmp->s_pfs_ctx);
                     break;
             }
 

@@ -177,8 +177,7 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
 
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{job_requirements: {{{}}}}}", __FUNCTION__,
-                reqs);
+    LOGGER_INFO("RPC (ADM_{}) => {{job_requirements: {}}}", __FUNCTION__, reqs);
 
     auto rpc_reqs = api::convert(reqs);
 
@@ -194,7 +193,7 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
 
     const admire::job job = api::convert(out.job);
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}, job: {{{}}}}}", __FUNCTION__,
+    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}, job: {}}}", __FUNCTION__,
                 ADM_SUCCESS, job.id());
 
     return job;
@@ -207,8 +206,8 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
 
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC ({}): {{job: {{{}}}, job_requirements: {{{}}}}}",
-                "ADM_update_job", job, reqs);
+    LOGGER_INFO("RPC (ADM_{}): {{job: {}, job_requirements: {}}}", __FUNCTION__,
+                job, reqs);
 
     const auto rpc_job = api::convert(job);
     const auto rpc_reqs = api::convert(reqs);
@@ -266,7 +265,7 @@ transfer_dataset(const server& srv, const job& job,
 
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{job: {{{}}}, sources: {}, targets: {}, "
+    LOGGER_INFO("RPC (ADM_{}) => {{job: {}, sources: {}, targets: {}, "
                 "limits: {}, mapping: {}}}",
                 __FUNCTION__, job, sources, targets, limits, mapping);
 
@@ -291,8 +290,8 @@ transfer_dataset(const server& srv, const job& job,
 
     const admire::transfer tx = api::convert(out.tx);
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}, transfer: {{{}}}}}",
-                __FUNCTION__, ADM_SUCCESS, tx);
+    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}, transfer: {}}}", __FUNCTION__,
+                ADM_SUCCESS, tx);
     return tx;
 }
 

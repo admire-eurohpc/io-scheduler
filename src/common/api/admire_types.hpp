@@ -428,7 +428,7 @@ struct fmt::formatter<admire::job> : formatter<std::string_view> {
     auto
     format(const admire::job& j, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
-                fmt::format("id: {}", j.id()), ctx);
+                fmt::format("{{id: {}}}", j.id()), ctx);
     }
 };
 
@@ -438,7 +438,8 @@ struct fmt::formatter<admire::dataset> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const admire::dataset& d, FormatContext& ctx) const {
-        return formatter<std::string_view>::format("\"" + d.id() + "\"", ctx);
+        const auto str = fmt::format("{{id: {}}}", std::quoted(d.id()));
+        return formatter<std::string_view>::format(str, ctx);
     }
 };
 
@@ -448,7 +449,8 @@ struct fmt::formatter<admire::node> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const admire::node& n, FormatContext& ctx) const {
-        const auto str = fmt::format("hostname: {}", std::quoted(n.hostname()));
+        const auto str =
+                fmt::format("{{hostname: {}}}", std::quoted(n.hostname()));
         return formatter<std::string_view>::format(str, ctx);
     }
 };
@@ -655,9 +657,8 @@ struct fmt::formatter<admire::job_requirements> : formatter<std::string_view> {
     auto
     format(const admire::job_requirements& r, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
-                fmt::format("inputs: [{}], outputs: [{}], storage: {}",
-                            fmt::join(r.inputs(), ", "),
-                            fmt::join(r.outputs(), ", "), r.storage()),
+                fmt::format("{{inputs: {}, outputs: {}, storage: {}}}",
+                            r.inputs(), r.outputs(), r.storage()),
                 ctx);
     }
 };
@@ -722,7 +723,8 @@ struct fmt::formatter<std::optional<admire::qos::entity>>
                 break;
         }
 
-        const auto str = fmt::format("scope: {}, data: {}", e->scope(), data);
+        const auto str =
+                fmt::format("{{scope: {}, data: {}}}", e->scope(), data);
         return formatter<std::string_view>::format(str, ctx);
     }
 };
@@ -796,7 +798,7 @@ struct fmt::formatter<admire::transfer> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const admire::transfer& tx, FormatContext& ctx) const {
-        const auto str = fmt::format("id: {}", tx.id());
+        const auto str = fmt::format("{{id: {}}}", tx.id());
         return formatter<std::string_view>::format(str, ctx);
     }
 };

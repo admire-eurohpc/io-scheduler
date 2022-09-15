@@ -458,21 +458,24 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
     /* Extract paths */
         const std::string mountpoint = "-m /tmp/mnt";
         const std::string rootdir = "-r /tmp/root";
+    /* Number of nodes */
+        const std::string nodes = "-n "+std::to_string(adhoc_storage->s_adhoc_ctx->c_nodes);
 
     /* Launch script */
         pid_t pid = fork();
         switch (pid) {
             case 0: {
                 std::vector<const char*> args;
-                args.push_back("/usr/bin/echo");
+                args.push_back("gkfs");
                 args.push_back(mountpoint.c_str());
                 args.push_back(rootdir.c_str());
+                args.push_back(nodes.c_str());
                 args.push_back(NULL);
                 std::vector<const char*> env;
                 env.push_back(job_id.c_str());
                 env.push_back(NULL);
                 
-                execve("/usr/bin/echo", const_cast<char* const*>(args.data()), 
+                execve("gkfs", const_cast<char* const*>(args.data()), 
                 const_cast<char* const*>(env.data())); 
                 LOGGER_INFO("ADM_deploy_adhoc_storage() script didn't execute");
                 exit(0);

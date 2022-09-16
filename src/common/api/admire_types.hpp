@@ -236,7 +236,7 @@ struct storage {
         virtual ~ctx() = default;
     };
 
-    storage(storage::type type, std::string id);
+    storage(storage::type type, std::string id, std::uint64_t server_id);
 
     virtual ~storage() = default;
 
@@ -245,12 +245,14 @@ struct storage {
     type
     type() const;
 
+
     virtual std::shared_ptr<ctx>
     context() const = 0;
 
 protected:
     std::string m_id;
     enum type m_type;
+    std::uint64_t m_server_id;
 };
 
 struct adhoc_storage : public storage {
@@ -293,19 +295,19 @@ struct adhoc_storage : public storage {
         std::uint32_t m_walltime;
         bool m_should_flush;
     };
-
-    adhoc_storage(enum storage::type type, std::string id,
+    
+    adhoc_storage(enum storage::type type, std::string id, std::uint64_t server_id,
                   execution_mode exec_mode, access_type access_type,
                   std::uint32_t nodes, std::uint32_t walltime,
                   bool should_flush);
-    adhoc_storage(enum storage::type type, std::string id,
+    adhoc_storage(enum storage::type type, std::string id, std::uint64_t server_id,
                   ADM_adhoc_context_t ctx);
     adhoc_storage(const adhoc_storage& other) noexcept;
-    /*adhoc_storage(enum storage::type type, std::string id, std::uint64_t server_id,
-                  ADM_adhoc_context_t ctx);
+    adhoc_storage(enum storage::type type, std::string id, std::uint64_t server_id,
+                  const admire::adhoc_storage::ctx& ctx);
     //adhoc_storage(enum storage::type type, std::string id, std::uint64_t server_id,
                   //ADM_adhoc_context_t ctx);
-    adhoc_storage(enum storage::type type, std::string id,
+    /*adhoc_storage(enum storage::type type, std::string id, std::uint64_t server_id,
                   const admire::adhoc_storage::ctx& ctx);*/
                   
     adhoc_storage(adhoc_storage&&) noexcept = default;
@@ -342,9 +344,9 @@ struct pfs_storage : public storage {
         std::filesystem::path m_mount_point;
     };
 
-    pfs_storage(enum storage::type type, std::string id,
+    pfs_storage(enum storage::type type, std::string id, std::uint64_t server_id,
                 std::filesystem::path mount_point);
-    pfs_storage(enum storage::type type, std::string id, ADM_pfs_context_t ctx);
+    pfs_storage(enum storage::type type, std::string id, std::uint64_t server_id, ADM_pfs_context_t ctx);
     pfs_storage(const pfs_storage& other) noexcept;
     pfs_storage(pfs_storage&&) noexcept = default;
     pfs_storage&

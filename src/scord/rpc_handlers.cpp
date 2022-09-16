@@ -219,6 +219,9 @@ ADM_register_adhoc_storage(hg_handle_t h) {
 
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
+    ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
     const admire::job job(in.job);
     const std::string id(in.id);
     const admire::adhoc_storage::ctx ctx(in.ctx);
@@ -232,7 +235,8 @@ ADM_register_adhoc_storage(hg_handle_t h) {
 
     
     uint64_t server_id = adhoc_storage.id();
-    LOGGER_INFO("RPC ID {} ({}) <= {{server_id: {{{}}}}}", rpc_id, __FUNCTION__, server_id); //new
+    LOGGER_WARN("server_id: {}", server_id);
+    // LOGGER_INFO("RPC ID {} ({}) <= {{server_id: {{{}}}}}", rpc_id, __FUNCTION__, server_id); //new
         
     // admire::adhoc_storage::ctx{admire::adhoc_storage::execution_mode::in_job_shared, admire::adhoc_storage::access_type::write_only, 10, 10, false}
 

@@ -66,12 +66,14 @@ main(int argc, char* argv[]) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
                         "successfully\n");
         exit_status = EXIT_FAILURE;
+        goto cleanup;
     }
 
     const char* id = "id";    
 
     ADM_storage_t adhoc_storage;
     ret = ADM_register_adhoc_storage(server, job, id, ctx, &adhoc_storage);
+    //adhoc_storage = ADM_register_adhoc_storage(server, job, id, ctx);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

@@ -92,6 +92,7 @@ ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job, const char* id,
     const auto rv =
             admire::detail::register_adhoc_storage(srv, admire::job{job}, id, admire::adhoc_storage::ctx{ctx});
 
+    
     if(!rv) {
         return rv.error();
     }

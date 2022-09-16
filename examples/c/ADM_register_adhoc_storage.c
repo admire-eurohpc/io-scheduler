@@ -73,6 +73,8 @@ main(int argc, char* argv[]) {
     ADM_storage_t adhoc_storage;
 
     ret = ADM_register_adhoc_storage(server, job, id, ctx, &adhoc_storage);
+    //adhoc_storage = ADM_register_adhoc_storage(server, job, id, ctx);
+
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

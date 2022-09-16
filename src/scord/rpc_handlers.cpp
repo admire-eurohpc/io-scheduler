@@ -228,7 +228,7 @@ ADM_register_adhoc_storage(hg_handle_t h) {
     LOGGER_INFO("RPC ID {} ({}) <= {{job: {{{}}}}}", rpc_id, __FUNCTION__, job);
 
     const auto adhoc_storage = admire::adhoc_storage(
-            admire::adhoc_storage::type::gekkofs, id, ctx); //ctx.get()
+            admire::adhoc_storage::type::gekkofs, id, 64, ctx); //ctx.get()
 
     
     uint64_t server_id = adhoc_storage.id();
@@ -239,10 +239,13 @@ ADM_register_adhoc_storage(hg_handle_t h) {
     admire::error_code rv = ADM_SUCCESS;
 
     out.retval = rv;
+    /*
     out.adhoc_storage = admire::api::convert(adhoc_storage).get();
 
     LOGGER_INFO("RPC ID {} ({}) => {{retval: {}, adhoc_storage: {{{}}}}}", rpc_id,
-                __FUNCTION__, rv, adhoc_storage);
+                __FUNCTION__, rv, adhoc_storage); */
+    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}}}", rpc_id,
+                __FUNCTION__, rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

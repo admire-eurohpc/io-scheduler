@@ -28,7 +28,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <iostream>
 #include "admire_types.h"
 
 #ifdef __cplusplus
@@ -95,7 +94,7 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job);
  * successfully.
  */
 ADM_return_t
-ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job, std::string id,
+ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job, const char* id,
                            ADM_adhoc_context_t ctx,
                            ADM_storage_t* adhoc_storage);
 

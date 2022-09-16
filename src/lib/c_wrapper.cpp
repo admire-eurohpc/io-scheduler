@@ -79,11 +79,15 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job) {
 }
 
 ADM_return_t
-ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job, std::string id,
+ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job, const char* id,
                            ADM_adhoc_context_t ctx,
-                           ADM_storage_t* adhoc_storage) {
+                           ADM_storage_t* adhoc_storage) { 
 
     const admire::server srv{server};
+
+    //return admire::detail::register_adhoc_storage(srv, admire::job{job}, id, admire::adhoc_storage::ctx{ctx});
+
+    
 
     const auto rv =
             admire::detail::register_adhoc_storage(srv, admire::job{job}, id, admire::adhoc_storage::ctx{ctx});

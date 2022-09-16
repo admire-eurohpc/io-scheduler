@@ -325,17 +325,18 @@ register_adhoc_storage(const server& srv, const job& job, const std::string& id,
     ADM_register_adhoc_storage_in_t in{rpc_job.get(), rpc_id, rpc_ctx.get()};
     ADM_register_adhoc_storage_out_t out;
 
-    endp.call("ADM_register_adhoc_storage", &in, &out);
+    const auto rpc = endp.call("ADM_register_adhoc_storage", &in, &out);
 
     if(out.retval < 0) {
-        const auto retval = static_cast<admire::error_code>(out.retval);
-        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, retval);
-        return retval;
+        LOGGER_ERROR("RPC (ADM_{}) <= {}", __FUNCTION__, out.retval);
+        return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
+    const auto rpc_adhoc_storage = admire::adhoc_storage{admire::storage::type::gekkofs, id, 64, ctx};
+
     LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
-    return ADM_SUCCESS;
-                        
+
+    return rpc_adhoc_storage;
 }
 
 tl::expected<transfer, error_code>

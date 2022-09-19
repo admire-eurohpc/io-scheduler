@@ -163,10 +163,10 @@ ping(const server& srv) {
 
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("ADM_ping()");
+    LOGGER_INFO("RPC (ADM_{}) => {{}}", __FUNCTION__);
     const auto rpc = endp.call("ADM_ping");
 
-    LOGGER_INFO("ADM_register_job() = {}", ADM_SUCCESS);
+    LOGGER_INFO("RPC (ADM_{}) <= {{ retval: {}}}", __FUNCTION__, ADM_SUCCESS);
     return ADM_SUCCESS;
 }
 

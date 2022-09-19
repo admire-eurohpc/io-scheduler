@@ -43,7 +43,11 @@ ADM_ping(hg_handle_t h) {
 
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
-    LOGGER_INFO("PING(noargs)");
+    const auto id = remote_procedure::new_id();
+    LOGGER_INFO("RPC ID {} ({}) => {{}}", id, __FUNCTION__);
+
+    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}}}", id, __FUNCTION__,
+                ADM_SUCCESS);
 
     ret = margo_destroy(h);
     assert(ret == HG_SUCCESS);

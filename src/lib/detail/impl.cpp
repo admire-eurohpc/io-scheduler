@@ -166,7 +166,7 @@ ping(const server& srv) {
     LOGGER_INFO("RPC (ADM_{}) => {{}}", __FUNCTION__);
     const auto rpc = endp.call("ADM_ping");
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{ retval: {}}}", __FUNCTION__, ADM_SUCCESS);
+    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
     return ADM_SUCCESS;
 }
 

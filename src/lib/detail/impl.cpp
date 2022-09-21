@@ -154,6 +154,18 @@ rpc_registration_cb(scord::network::rpc_client* client) {
                  ADM_get_statistics_out_t, NULL, true);
 }
 
+namespace admire {
+
+struct remote_procedure {
+    static std::uint64_t
+    new_id() {
+        static std::atomic_uint64_t current_id;
+        return current_id++;
+    }
+};
+
+} // namespace admire
+
 namespace admire::detail {
 
 admire::error_code
@@ -161,12 +173,15 @@ ping(const server& srv) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
+    const auto rpc_id = admire::remote_procedure::new_id();
+
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{}}", __FUNCTION__);
+    LOGGER_INFO("RPC ID {} (ADM_{}) => {{}}", rpc_id, __FUNCTION__);
     const auto rpc = endp.call("ADM_ping");
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
+    LOGGER_INFO("RPC ID {} (ADM_{}) <= {{retval: {}}}", rpc_id, __FUNCTION__,
+                ADM_SUCCESS);
     return ADM_SUCCESS;
 }
 
@@ -175,9 +190,11 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
+    const auto rpc_id = admire::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{job_requirements: {}}}", __FUNCTION__, reqs);
+    LOGGER_INFO("RPC ID {} (ADM_{}) => {{job_requirements: {}}}", rpc_id,
+                __FUNCTION__, reqs);
 
     auto rpc_reqs = api::convert(reqs);
 
@@ -187,14 +204,15 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     const auto rpc = endp.call("ADM_register_job", &in, &out);
 
     if(out.retval < 0) {
-        LOGGER_ERROR("RPC (ADM_{}) <= {}", __FUNCTION__, out.retval);
+        LOGGER_ERROR("RPC ID {} (ADM_{}) <= {}", rpc_id, __FUNCTION__,
+                     out.retval);
         return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
     const admire::job job = api::convert(out.job);
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}, job: {}}}", __FUNCTION__,
-                ADM_SUCCESS, job.id());
+    LOGGER_INFO("RPC ID {} (ADM_{}) <= {{retval: {}, job: {}}}", rpc_id,
+                __FUNCTION__, ADM_SUCCESS, job.id());
 
     return job;
 }
@@ -204,10 +222,11 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
+    const auto rpc_id = admire::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{job: {}, job_requirements: {}}}",
-                __FUNCTION__, job, reqs);
+    LOGGER_INFO("RPC ID {} (ADM_{}) => {{job: {}, job_requirements: {}}}",
+                rpc_id, __FUNCTION__, job, reqs);
 
     const auto rpc_job = api::convert(job);
     const auto rpc_reqs = api::convert(reqs);
@@ -220,11 +239,13 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
 
     if(out.retval < 0) {
         const auto retval = static_cast<admire::error_code>(out.retval);
-        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, retval);
+        LOGGER_ERROR("RPC ID {} (ADM_{}) <= {{retval: {}}}", rpc_id,
+                     __FUNCTION__, retval);
         return retval;
     }
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
+    LOGGER_INFO("RPC ID {} (ADM_{}) <= {{retval: {}}}", rpc_id, __FUNCTION__,
+                ADM_SUCCESS);
     return ADM_SUCCESS;
 }
 
@@ -233,9 +254,10 @@ remove_job(const server& srv, const job& job) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
+    const auto rpc_id = admire::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{job: {}}}", __FUNCTION__, job);
+    LOGGER_INFO("RPC ID {} (ADM_{}) => {{job: {}}}", rpc_id, __FUNCTION__, job);
 
     const auto rpc_job = api::convert(job);
 
@@ -246,11 +268,13 @@ remove_job(const server& srv, const job& job) {
 
     if(out.retval < 0) {
         const auto retval = static_cast<admire::error_code>(out.retval);
-        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, retval);
+        LOGGER_ERROR("RPC ID {} (ADM_{}) <= {{retval: {}}}", rpc_id,
+                     __FUNCTION__, retval);
         return retval;
     }
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
+    LOGGER_INFO("RPC ID {} (ADM_{}) <= {{retval: {}}}", rpc_id, __FUNCTION__,
+                ADM_SUCCESS);
     return ADM_SUCCESS;
 }
 
@@ -263,11 +287,12 @@ transfer_datasets(const server& srv, const job& job,
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
+    const auto rpc_id = admire::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{job: {}, sources: {}, targets: {}, "
+    LOGGER_INFO("RPC ID {} (ADM_{}) => {{job: {}, sources: {}, targets: {}, "
                 "limits: {}, mapping: {}}}",
-                __FUNCTION__, job, sources, targets, limits, mapping);
+                rpc_id, __FUNCTION__, job, sources, targets, limits, mapping);
 
     const auto rpc_job = api::convert(job);
     const auto rpc_sources = api::convert(sources);
@@ -283,15 +308,15 @@ transfer_datasets(const server& srv, const job& job,
             endp.call("ADM_transfer_datasets", &in, &out);
 
     if(out.retval < 0) {
-        LOGGER_ERROR("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__,
-                     out.retval);
+        LOGGER_ERROR("RPC ID {} (ADM_{}) <= {{retval: {}}}", rpc_id,
+                     __FUNCTION__, out.retval);
         return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
     const admire::transfer tx = api::convert(out.tx);
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}, transfer: {}}}", __FUNCTION__,
-                ADM_SUCCESS, tx);
+    LOGGER_INFO("RPC ID {} (ADM_{}) <= {{retval: {}, transfer: {}}}", rpc_id,
+                __FUNCTION__, ADM_SUCCESS, tx);
     return tx;
 }
 

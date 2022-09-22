@@ -1059,9 +1059,9 @@ dataset::id() const {
 }
 
 
-storage::storage(enum storage::type type, std::string id,
-                 std::uint64_t server_id)
-    : m_id(std::move(id)), m_type(type), m_server_id(server_id) {}
+storage::storage(enum storage::type type, std::string id)
+                 //std::uint64_t server_id)
+    : m_id(std::move(id)), m_type(type) {}//, m_server_id(server_id) {}
 
 std::string
 storage::id() const {
@@ -1114,13 +1114,15 @@ adhoc_storage::ctx::should_flush() const {
 
 class adhoc_storage::impl {
 
+    
     static std::uint64_t
     generate_id() {
-        return 42;
+        static std::atomic_uint64_t s_current_server_id = 0;
+        return s_current_server_id++;
     }
 
 public:
-    explicit impl(adhoc_storage::ctx ctx)
+    explicit impl(adhoc_storage::ctx ctx) //, std::uint64_t counter)
         : m_id(generate_id()), m_ctx(std::move(ctx)) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
@@ -1145,17 +1147,17 @@ private:
 };
 
 
-adhoc_storage::adhoc_storage(enum storage::type type, std::string id,
-                             std::uint64_t server_id, execution_mode exec_mode,
+adhoc_storage::adhoc_storage(enum storage::type type, std::string id, //std::uint64_t server_id,
+                             execution_mode exec_mode,
                              access_type access_type, std::uint32_t nodes,
                              std::uint32_t walltime, bool should_flush)
-    : storage(type, std::move(id), server_id),
+    : storage(type, std::move(id)),//, server_id),
       m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{
               exec_mode, access_type, nodes, walltime, should_flush})) {}
 
-adhoc_storage::adhoc_storage(enum storage::type type, std::string id,
-                             std::uint64_t server_id, ADM_adhoc_context_t ctx)
-    : storage(type, std::move(id), server_id),
+adhoc_storage::adhoc_storage(enum storage::type type, std::string id, //std::uint64_t server_id,
+                             ADM_adhoc_context_t ctx)
+    : storage(type, std::move(id)), //, server_id),
       m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{ctx})) {}
 
 /*
@@ -1166,13 +1168,13 @@ adhoc_storage::adhoc_storage(enum storage::type type, std::string id,
       m_pimpl(std::make_unique<impl>(ctx)) {}*/
 
 adhoc_storage::adhoc_storage(enum storage::type type, std::string id,
-                             std::uint64_t server_id,
+                             //std::uint64_t server_id,
                              const adhoc_storage::ctx& ctx)
-    : storage(type, std::move(id), server_id),
+    : storage(type, std::move(id)),//, server_id),
       m_pimpl(std::make_unique<impl>(ctx)) {} // este es el nuevo añadido
 
 adhoc_storage::adhoc_storage(const adhoc_storage& other) noexcept
-    : storage(other.m_type, other.m_id, other.m_server_id),
+    : storage(other.m_type, other.m_id), //other.m_server_id),
       m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
 
 adhoc_storage&
@@ -1200,7 +1202,7 @@ pfs_storage::ctx::ctx(std::filesystem::path mount_point)
 pfs_storage::ctx::ctx(ADM_pfs_context_t ctx) : pfs_storage::ctx(ctx->c_mount) {}
 
 pfs_storage::pfs_storage(const pfs_storage& other) noexcept
-    : storage(other.m_type, other.m_id, other.m_server_id),
+    : storage(other.m_type, other.m_id), //other.m_server_id),
       m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
 
 pfs_storage&
@@ -1234,15 +1236,15 @@ private:
     pfs_storage::ctx m_ctx;
 };
 
-pfs_storage::pfs_storage(enum storage::type type, std::string id, std::uint64_t server_id,
+pfs_storage::pfs_storage(enum storage::type type, std::string id, //std::uint64_t server_id,
                          std::filesystem::path mount_point)
-    : storage(type, std::move(id), server_id),
+    : storage(type, std::move(id)), //server_id),
       m_pimpl(std::make_unique<impl>(
               pfs_storage::ctx{std::move(mount_point)})) {}
 
-pfs_storage::pfs_storage(enum storage::type type, std::string id, std::uint64_t server_id,
+pfs_storage::pfs_storage(enum storage::type type, std::string id, //std::uint64_t server_id,
                          ADM_pfs_context_t ctx)
-    : storage(type, std::move(id), server_id),
+    : storage(type, std::move(id)), //server_id),
       m_pimpl(std::make_unique<impl>(pfs_storage::ctx{ctx})) {}
 
 pfs_storage::~pfs_storage() = default;
@@ -1290,7 +1292,7 @@ public:
                             static_cast<enum storage::type>(
                                     reqs->r_storage->s_type),
                             reqs->r_storage->s_id,
-                            reqs->r_storage->s_server_id,
+                            //reqs->r_storage->s_server_id,
                             reqs->r_storage->s_adhoc_ctx);
                     break;
                 case ADM_STORAGE_LUSTRE:
@@ -1298,7 +1300,9 @@ public:
                     m_storage = std::make_unique<pfs_storage>(
                             static_cast<enum storage::type>(
                                     reqs->r_storage->s_type),
-                            reqs->r_storage->s_id, reqs->r_storage->s_server_id, reqs->r_storage->s_pfs_ctx);
+                            reqs->r_storage->s_id, 
+                            //reqs->r_storage->s_server_id, 
+                            reqs->r_storage->s_pfs_ctx);
                     break;
             }
         }

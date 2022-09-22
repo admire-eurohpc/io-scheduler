@@ -332,7 +332,7 @@ register_adhoc_storage(const server& srv, const job& job, const std::string& id,
         return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
-    const auto rpc_adhoc_storage = admire::adhoc_storage{admire::storage::type::gekkofs, id, 64, ctx};
+    const auto rpc_adhoc_storage = admire::adhoc_storage{admire::storage::type::gekkofs, id, ctx};
 
     LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
 

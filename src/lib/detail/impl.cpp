@@ -321,7 +321,6 @@ register_adhoc_storage(const server& srv, const job& job, const std::string& id,
     const auto rpc_id = id.c_str();
     const auto rpc_ctx = api::convert(ctx);
 
-    //ADM_register_adhoc_storage_in_t in{rpc_job.get()};
     ADM_register_adhoc_storage_in_t in{rpc_job.get(), rpc_id, rpc_ctx.get()};
     ADM_register_adhoc_storage_out_t out;
 
@@ -332,7 +331,8 @@ register_adhoc_storage(const server& srv, const job& job, const std::string& id,
         return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
-    const auto rpc_adhoc_storage = admire::adhoc_storage{admire::storage::type::gekkofs, id, ctx};
+    const auto rpc_adhoc_storage =
+            admire::adhoc_storage{admire::storage::type::gekkofs, id, ctx};
 
     LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
 

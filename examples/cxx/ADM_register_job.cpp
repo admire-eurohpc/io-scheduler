@@ -44,7 +44,7 @@ main(int argc, char* argv[]) {
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
     auto p = std::make_unique<admire::adhoc_storage>(
-            admire::storage::type::gekkofs, "foobar", 
+            admire::storage::type::gekkofs, "foobar",
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write, 42, 100, false);
 

@@ -44,11 +44,9 @@ main(int argc, char* argv[]) {
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
     auto p = std::make_unique<admire::adhoc_storage>(
-            admire::storage::type::gekkofs, "foobar", 
+            admire::storage::type::gekkofs, "foobar",
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write, 42, 100, false);
-
-    //const auto adhoc_storage = admire::register_adhoc_storage(server, job, "foobar", adhoc_storage_ctx);
 
     admire::job_requirements reqs{inputs, outputs, std::move(p)};
 
@@ -58,7 +56,7 @@ main(int argc, char* argv[]) {
             prepare_datasets("output-new-dataset-{}", NOUTPUTS);
 
     auto p2 = std::make_unique<admire::adhoc_storage>(
-            admire::storage::type::gekkofs, "foobar", 
+            admire::storage::type::gekkofs, "foobar",
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write, 42, 100, false);
 

@@ -179,7 +179,7 @@ MERCURY_GEN_STRUCT_PROC(
 typedef struct adm_storage {
     const char* s_id;
     ADM_storage_type_t s_type;
-    uint64_t s_server_id; 
+    uint64_t s_server_id;
     union {
         ADM_adhoc_context_t s_adhoc_ctx;
         ADM_pfs_context_t s_pfs_ctx;
@@ -297,9 +297,18 @@ MERCURY_GEN_PROC(
 );
 
 /// ADM_register_adhoc_storage
-MERCURY_GEN_PROC(ADM_register_adhoc_storage_in_t, ((ADM_job_t) (job))((hg_const_string_t) (id))((ADM_adhoc_context_t)(ctx)));
+MERCURY_GEN_PROC(
+    ADM_register_adhoc_storage_in_t, 
+        ((ADM_job_t) (job))
+        ((hg_const_string_t) (id))
+        ((ADM_adhoc_context_t)(ctx))
+);
 
-MERCURY_GEN_PROC(ADM_register_adhoc_storage_out_t, ((int32_t) (retval)) ((uint64_t)(server_id)));
+MERCURY_GEN_PROC(
+    ADM_register_adhoc_storage_out_t, 
+        ((int32_t) (retval)) 
+        ((uint64_t)(server_id))
+);
 
 /// ADM_update_adhoc_storage
 MERCURY_GEN_PROC(ADM_update_adhoc_storage_in_t, ((int32_t) (reqs)))

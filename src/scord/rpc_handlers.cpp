@@ -225,32 +225,20 @@ ADM_register_adhoc_storage(hg_handle_t h) {
     const admire::job job(in.job);
     const std::string id(in.id);
     const admire::adhoc_storage::ctx ctx(in.ctx);
-    // const admire::job_requirements reqs(&in.reqs);
 
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("RPC ID {} ({}) <= {{job: {{{}}}}}", rpc_id, __FUNCTION__, job);
 
     const auto adhoc_storage = admire::adhoc_storage(
-            admire::adhoc_storage::type::gekkofs, id, ctx); //ctx.get()
-
-    
-    uint64_t server_id = adhoc_storage.id();
-    LOGGER_WARN("server_id: {}", server_id);
-    // LOGGER_INFO("RPC ID {} ({}) <= {{server_id: {{{}}}}}", rpc_id, __FUNCTION__, server_id); //new
-        
-    // admire::adhoc_storage::ctx{admire::adhoc_storage::execution_mode::in_job_shared, admire::adhoc_storage::access_type::write_only, 10, 10, false}
+            admire::adhoc_storage::type::gekkofs, id, ctx);
 
     admire::error_code rv = ADM_SUCCESS;
 
     out.retval = rv;
     out.server_id = adhoc_storage.id();
-    /*
-    out.adhoc_storage = admire::api::convert(adhoc_storage).get();
 
-    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}, adhoc_storage: {{{}}}}}", rpc_id,
-                __FUNCTION__, rv, adhoc_storage); */
-    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}, server_id: {}}}", rpc_id, out.server_id,
-                __FUNCTION__, rv);
+    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}, server_id: {}}}", rpc_id,
+                out.server_id, __FUNCTION__, rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

@@ -179,15 +179,17 @@ ping(const server& srv) {
 
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => body: {{}}", rpc_id,
-                std::quoted("ADM_"s + __FUNCTION__),
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{}}",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
                 std::quoted(rpc_client.self_address()));
 
     const auto rpc = endp.call("ADM_ping");
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= body: {{retval: {}}}", rpc_id,
-                std::quoted("ADM_"s + __FUNCTION__), std::quoted(rpc.origin()),
-                ADM_SUCCESS);
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}}} [op_id: {}]",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc.origin()), ADM_SUCCESS, "n/a");
     return ADM_SUCCESS;
 }
 
@@ -199,8 +201,8 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     const auto rpc_id = ::api::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => body: {{job_requirements: "
-                "{}}}",
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{job_requirements: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
                 std::quoted(rpc_client.self_address()), reqs);
 
@@ -212,20 +214,19 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     const auto rpc = endp.call("ADM_register_job", &in, &out);
 
     if(out.retval < 0) {
-        LOGGER_ERROR("rpc id: {} name: {} from: {} <= body: {}", rpc_id,
-                     std::quoted("ADM_"s + __FUNCTION__),
-                     std::quoted(rpc.origin()), out.retval);
+        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
+                     "body: {} [op_id: {}]",
+                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                     std::quoted(rpc.origin()), out.retval, out.op_id);
         return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
     const admire::job job = api::convert(out.job);
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= body: {{retval: {}, job: "
-                "{}}}",
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}, job: {}}} [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc.origin()), ADM_SUCCESS, job.id()
-
-    );
+                std::quoted(rpc.origin()), ADM_SUCCESS, job.id(), out.op_id);
 
     return job;
 }
@@ -238,9 +239,8 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
     const auto rpc_id = ::api::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => body: {{job: {}, "
-                "job_requirements: "
-                "{}}}",
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{job: {}, job_requirements: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
                 std::quoted(rpc_client.self_address()), job, reqs);
 
@@ -254,15 +254,17 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
 
     if(out.retval < 0) {
         const auto retval = static_cast<admire::error_code>(out.retval);
-        LOGGER_ERROR("rpc id: {} name: {} from: {} <= body: {{retval: {}}}",
+        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
+                     "body: {{retval: {}}} [op_id: {}]",
                      rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                     std::quoted(rpc.origin()), retval);
+                     std::quoted(rpc.origin()), retval, out.op_id);
         return retval;
     }
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= body: {{retval: {}}}", rpc_id,
-                std::quoted("ADM_"s + __FUNCTION__), std::quoted(rpc.origin()),
-                ADM_SUCCESS);
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}}} [op_id: {}]",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc.origin()), ADM_SUCCESS, out.op_id);
     return ADM_SUCCESS;
 }
 
@@ -274,8 +276,9 @@ remove_job(const server& srv, const job& job) {
     const auto rpc_id = ::api::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => body: {{job: {}}}", rpc_id,
-                std::quoted("ADM_"s + __FUNCTION__),
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{job: {}}}",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
                 std::quoted(rpc_client.self_address()), job);
 
     const auto rpc_job = api::convert(job);
@@ -287,15 +290,17 @@ remove_job(const server& srv, const job& job) {
 
     if(out.retval < 0) {
         const auto retval = static_cast<admire::error_code>(out.retval);
-        LOGGER_ERROR("rpc id: {} name: {} from: {} <= body: {{retval: {}}}",
+        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
+                     "body: {{retval: {}}} [op_id: {}]",
                      rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                     std::quoted(rpc.origin()), retval);
+                     std::quoted(rpc.origin()), retval, out.op_id);
         return retval;
     }
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= body: {{retval: {}}}", rpc_id,
-                std::quoted("ADM_"s + __FUNCTION__), std::quoted(rpc.origin()),
-                ADM_SUCCESS);
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}}} [op_id: {}]",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc.origin()), ADM_SUCCESS, out.op_id);
     return ADM_SUCCESS;
 }
 
@@ -311,11 +316,12 @@ transfer_datasets(const server& srv, const job& job,
     const auto rpc_id = ::api::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => body: {{job: {}, sources: {}, "
-                "targets: {}, limits: {}, mapping: {}}}",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), job, sources, targets,
-                limits, mapping);
+    LOGGER_INFO(
+            "rpc id: {} name: {} from: {} => "
+            "body: {{job: {}, sources: {}, targets: {}, limits: {}, mapping: {}}}",
+            rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+            std::quoted(rpc_client.self_address()), job, sources, targets,
+            limits, mapping);
 
     const auto rpc_job = api::convert(job);
     const auto rpc_sources = api::convert(sources);
@@ -331,18 +337,19 @@ transfer_datasets(const server& srv, const job& job,
             endp.call("ADM_transfer_datasets", &in, &out);
 
     if(out.retval < 0) {
-        LOGGER_ERROR("rpc id: {} name: {} from: {} <= body: {{retval: {}}}",
+        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
+                     "body: {{retval: {}}} [op_id: {}]",
                      rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                     std::quoted(rpc.origin()), out.retval);
+                     std::quoted(rpc.origin()), out.retval, out.op_id);
         return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
     }
 
     const admire::transfer tx = api::convert(out.tx);
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= body: {{retval: {}, transfer: "
-                "{}}}",
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}, transfer: {}}} [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc.origin()), ADM_SUCCESS, tx);
+                std::quoted(rpc.origin()), ADM_SUCCESS, tx, out.op_id);
     return tx;
 }
 

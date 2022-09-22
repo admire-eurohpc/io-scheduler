@@ -45,8 +45,10 @@ main(int argc, char* argv[]) {
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
+    //const auto server_id = admire::adhoc_storage::impl::generate_id();
+
     auto p = std::make_unique<admire::adhoc_storage>(
-            admire::storage::type::gekkofs, "foobar", 52,
+            admire::storage::type::gekkofs, "foobar",
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write, 42, 100, false);
 

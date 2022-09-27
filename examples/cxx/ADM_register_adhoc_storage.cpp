@@ -29,7 +29,6 @@
 #define NINPUTS  10
 #define NOUTPUTS 5
 
-
 int
 main(int argc, char* argv[]) {
 
@@ -52,7 +51,7 @@ main(int argc, char* argv[]) {
 
     admire::job_requirements reqs(inputs, outputs, std::move(p));
 
-    std::string id;
+    std::string user_id = "adhoc_storage_42";
     const auto adhoc_storage_ctx = admire::adhoc_storage::ctx{
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write, 42, 100, false};
@@ -61,7 +60,7 @@ main(int argc, char* argv[]) {
     try {
         [[maybe_unused]] const auto job = admire::register_job(server, reqs);
         const auto adhoc_storage = admire::register_adhoc_storage(
-                server, job, id, adhoc_storage_ctx);
+                server, job, user_id, adhoc_storage_ctx);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_register_adhoc_storage() failed: {}\n",
                    e.what());

@@ -69,11 +69,10 @@ main(int argc, char* argv[]) {
         goto cleanup;
     }
 
-    const char* id = "id";    
+    const char* user_id = "adhoc_storage_42";
 
     ADM_storage_t adhoc_storage;
-    ret = ADM_register_adhoc_storage(server, job, id, ctx, &adhoc_storage);
-    //adhoc_storage = ADM_register_adhoc_storage(server, job, id, ctx);
+    ret = ADM_register_adhoc_storage(server, job, user_id, ctx, &adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

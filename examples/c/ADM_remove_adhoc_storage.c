@@ -56,7 +56,7 @@ main(int argc, char* argv[]) {
     ADM_storage_t st = ADM_storage_create("foobar", ADM_STORAGE_GEKKOFS, ctx);
     assert(st);
 
-   ADM_job_requirements_t reqs =
+    ADM_job_requirements_t reqs =
             ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
     assert(reqs);
 
@@ -68,11 +68,10 @@ main(int argc, char* argv[]) {
         exit_status = EXIT_FAILURE;
     }
 
-    const char* id = "id"; 
+    const char* user_id = "adhoc_storage_42";
 
     ADM_storage_t adhoc_storage;
-    ret = ADM_register_adhoc_storage(server, job, id, ctx, &adhoc_storage);
-    //adhoc_storage = ADM_register_adhoc_storage(server, job, id, ctx);
+    ret = ADM_register_adhoc_storage(server, job, user_id, ctx, &adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

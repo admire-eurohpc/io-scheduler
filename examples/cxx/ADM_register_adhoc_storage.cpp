@@ -58,7 +58,7 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        [[maybe_unused]] const auto job = admire::register_job(server, reqs);
+        const auto job = admire::register_job(server, reqs);
         const auto adhoc_storage = admire::register_adhoc_storage(
                 server, job, user_id, adhoc_storage_ctx);
     } catch(const std::exception& e) {

@@ -245,7 +245,6 @@ struct storage {
     type
     type() const;
 
-
     virtual std::shared_ptr<ctx>
     context() const = 0;
 

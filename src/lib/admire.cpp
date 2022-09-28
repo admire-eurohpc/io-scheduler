@@ -71,7 +71,7 @@ init_logger() {
 void
 rpc_registration_cb(scord::network::rpc_client* client) {
 
-    REGISTER_RPC(client, "ADM_ping", void, void, NULL, false);
+    REGISTER_RPC(client, "ADM_ping", void, ADM_ping_out_t, NULL, true);
 
     REGISTER_RPC(client, "ADM_register_job", ADM_register_job_in_t,
                  ADM_register_job_out_t, NULL, true);

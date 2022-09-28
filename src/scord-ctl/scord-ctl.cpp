@@ -180,7 +180,7 @@ main(int argc, char* argv[]) {
         const auto rpc_registration_cb = [](auto&& ctx) {
             LOGGER_INFO(" * Registering RPCs handlers...");
 
-            REGISTER_RPC(ctx, "ADM_ping", void, void, ADM_ping, false);
+            REGISTER_RPC(ctx, "ADM_ping", void, ADM_ping_out_t, ADM_ping, true);
 
             // TODO: add internal RPCs for communication with scord
         };

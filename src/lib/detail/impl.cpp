@@ -34,7 +34,7 @@ using namespace std::literals;
 void
 rpc_registration_cb(scord::network::rpc_client* client) {
 
-    REGISTER_RPC(client, "ADM_ping", void, void, NULL, false);
+    REGISTER_RPC(client, "ADM_ping", void, ADM_ping_out_t, NULL, true);
 
     REGISTER_RPC(client, "ADM_register_job", ADM_register_job_in_t,
                  ADM_register_job_out_t, NULL, true);
@@ -184,12 +184,15 @@ ping(const server& srv) {
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
                 std::quoted(rpc_client.self_address()));
 
-    const auto rpc = endp.call("ADM_ping");
+    ADM_ping_out_t out;
+
+    const auto rpc = endp.call("ADM_ping", nullptr, &out);
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
                 "body: {{retval: {}}} [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc.origin()), ADM_SUCCESS, "n/a");
+                std::quoted(rpc.origin()),
+                static_cast<admire::error_code>(out.retval), out.op_id);
     return ADM_SUCCESS;
 }
 

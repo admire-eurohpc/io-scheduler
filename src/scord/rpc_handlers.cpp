@@ -48,14 +48,21 @@ ADM_ping(hg_handle_t h) {
 
     const auto id = remote_procedure::new_id();
 
-    LOGGER_INFO("rpc id: {} name: {}, from: {} => "
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
                 "body: {{}}",
                 id, std::quoted(__FUNCTION__), std::quoted(get_address(h)));
 
-    LOGGER_INFO("rpc id: {} name: {}, to: {} <= "
+    ADM_ping_out_t out;
+    out.op_id = id;
+    out.retval = ADM_SUCCESS;
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
                 id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 ADM_SUCCESS);
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
 
     ret = margo_destroy(h);
     assert(ret == HG_SUCCESS);

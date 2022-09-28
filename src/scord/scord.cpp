@@ -183,7 +183,7 @@ main(int argc, char* argv[]) {
         const auto rpc_registration_cb = [](auto&& ctx) {
             LOGGER_INFO(" * Registering RPCs handlers...");
 
-            REGISTER_RPC(ctx, "ADM_ping", void, void, ADM_ping, false);
+            REGISTER_RPC(ctx, "ADM_ping", void, ADM_ping_out_t, ADM_ping, true);
 
             REGISTER_RPC(ctx, "ADM_register_job", ADM_register_job_in_t,
                          ADM_register_job_out_t, ADM_register_job, true);

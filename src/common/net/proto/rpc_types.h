@@ -251,6 +251,12 @@ MERCURY_GEN_STRUCT_PROC(
 
 // clang-format off
 
+MERCURY_GEN_PROC(
+    ADM_ping_out_t,
+        ((hg_uint64_t) (op_id))
+        ((int32_t) (retval))
+);
+
 /// ADM_register_job
 MERCURY_GEN_PROC(
     ADM_register_job_in_t,

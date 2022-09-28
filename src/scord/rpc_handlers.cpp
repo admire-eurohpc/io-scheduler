@@ -138,17 +138,18 @@ ADM_update_job(hg_handle_t h) {
     const admire::job_requirements reqs(&in.reqs);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) => "
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
                 "body: {{job: {}, job_requirements: {}}}",
-                id, std::quoted(__FUNCTION__), job, reqs);
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), job,
+                reqs);
 
     admire::error_code rv = ADM_SUCCESS;
     out.op_id = id;
     out.retval = rv;
 
-    LOGGER_INFO("RPC ID {} ({}) <= "
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
-                id, std::quoted(__FUNCTION__), rv);
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -181,17 +182,18 @@ ADM_remove_job(hg_handle_t h) {
     const admire::job job(in.job);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) => "
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
                 "body: {{job: {}}}",
-                id, std::quoted(__FUNCTION__), job);
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                job);
 
     admire::error_code rv = ADM_SUCCESS;
     out.op_id = id;
     out.retval = rv;
 
-    LOGGER_INFO("RPC ID {} ({}) <= "
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
-                id, std::quoted(__FUNCTION__), rv);
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

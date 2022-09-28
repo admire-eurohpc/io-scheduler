@@ -229,7 +229,7 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
                 "body: {{retval: {}, job: {}}} [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc.origin()), ADM_SUCCESS, job.id(), out.op_id);
+                std::quoted(rpc.origin()), ADM_SUCCESS, job, out.op_id);
 
     return job;
 }

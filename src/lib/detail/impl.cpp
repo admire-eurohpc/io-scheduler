@@ -308,7 +308,8 @@ remove_job(const server& srv, const job& job) {
 }
 
 tl::expected<admire::adhoc_storage, admire::error_code>
-register_adhoc_storage(const server& srv, const job& job, const std::string& id,
+register_adhoc_storage(const server& srv, const job& job,
+                       const std::string& user_id,
                        const adhoc_storage::ctx& ctx) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
@@ -318,10 +319,11 @@ register_adhoc_storage(const server& srv, const job& job, const std::string& id,
     LOGGER_INFO("RPC (ADM_{}) => {{job: {}}}", __FUNCTION__, job);
 
     const auto rpc_job = api::convert(job);
-    const auto rpc_id = id.c_str();
+    const auto rpc_user_id = user_id.c_str();
     const auto rpc_ctx = api::convert(ctx);
 
-    ADM_register_adhoc_storage_in_t in{rpc_job.get(), rpc_id, rpc_ctx.get()};
+    ADM_register_adhoc_storage_in_t in{rpc_job.get(), rpc_user_id,
+                                       rpc_ctx.get()};
     ADM_register_adhoc_storage_out_t out;
 
     const auto rpc = endp.call("ADM_register_adhoc_storage", &in, &out);
@@ -332,7 +334,7 @@ register_adhoc_storage(const server& srv, const job& job, const std::string& id,
     }
 
     const auto rpc_adhoc_storage =
-            admire::adhoc_storage{admire::storage::type::gekkofs, id, ctx};
+            admire::adhoc_storage{admire::storage::type::gekkofs, user_id, ctx};
 
     LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
 

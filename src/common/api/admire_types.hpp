@@ -236,12 +236,12 @@ struct storage {
         virtual ~ctx() = default;
     };
 
-    storage(storage::type type, std::string id);
+    storage(storage::type type, std::string user_id);
 
     virtual ~storage() = default;
 
     std::string
-    id() const;
+    user_id() const;
     type
     type() const;
 
@@ -249,7 +249,7 @@ struct storage {
     context() const = 0;
 
 protected:
-    std::string m_id;
+    std::string m_user_id;
     enum type m_type;
 };
 

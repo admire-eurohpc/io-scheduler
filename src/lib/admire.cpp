@@ -233,10 +233,11 @@ remove_job(const server& srv, const job& job) {
 }
 
 admire::adhoc_storage
-register_adhoc_storage(const server& srv, const job& job, const std::string& id,
+register_adhoc_storage(const server& srv, const job& job,
+                       const std::string& user_id,
                        const adhoc_storage::ctx& ctx) {
 
-    const auto rv = detail::register_adhoc_storage(srv, job, id, ctx);
+    const auto rv = detail::register_adhoc_storage(srv, job, user_id, ctx);
 
     if(!rv) {
         throw std::runtime_error(

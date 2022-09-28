@@ -36,6 +36,7 @@
 #include <net/proto/rpc_types.h>
 #include <config/settings.hpp>
 #include "rpc_handlers.hpp"
+#include "env.hpp"
 
 namespace fs = std::filesystem;
 namespace bpo = boost::program_options;
@@ -52,6 +53,20 @@ print_help(const std::string& progname,
     fmt::print("{}", opt_desc);
 }
 
+std::unordered_map<std::string, std::string>
+load_envs() {
+
+    std::unordered_map<std::string, std::string> envs;
+
+    if(const auto p = std::getenv(scord_ctl::env::LOG);
+       p && !std::string{p}.empty() && std::string{p} != "0") {
+        if(const auto log_file = std::getenv(scord_ctl::env::LOG_OUTPUT)) {
+            envs.emplace(scord_ctl::env::LOG_OUTPUT, log_file);
+        }
+    }
+
+    return envs;
+}
 
 int
 main(int argc, char* argv[]) {
@@ -75,6 +90,7 @@ main(int argc, char* argv[]) {
                      ->implicit_value("")
                      ->zero_tokens()
                      ->notifier([&](const std::string&) {
+                         cfg.log_file(fs::path{});
                          cfg.use_console(true);
                      }),
              "override any logging options defined in configuration files and "
@@ -138,6 +154,15 @@ main(int argc, char* argv[]) {
                        "    {}\n",
                        ex.what());
             return EXIT_FAILURE;
+        }
+
+        // override settings from the configuration file with settings
+        // from environment variables
+        const auto env_opts = load_envs();
+
+        if(const auto& it = env_opts.find(scord_ctl::env::LOG_OUTPUT);
+           it != env_opts.end()) {
+            cfg.log_file(it->second);
         }
 
         // calling notify() here basically invokes all define notifiers, thus

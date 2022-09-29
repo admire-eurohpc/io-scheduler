@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <logger/logger.hpp>
+#include <net/engine.hpp>
 #include <net/proto/rpc_types.h>
 #include <admire.hpp>
 #include <api/convert.hpp>
@@ -39,15 +40,29 @@ struct remote_procedure {
 static void
 ADM_ping(hg_handle_t h) {
 
+    using scord::network::utils::get_address;
+
     [[maybe_unused]] hg_return_t ret;
 
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) => {{}}", id, __FUNCTION__);
 
-    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}}}", id, __FUNCTION__,
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)));
+
+    ADM_ping_out_t out;
+    out.op_id = id;
+    out.retval = ADM_SUCCESS;
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 ADM_SUCCESS);
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
 
     ret = margo_destroy(h);
     assert(ret == HG_SUCCESS);
@@ -57,6 +72,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_ping);
 
 static void
 ADM_register_job(hg_handle_t h) {
+
+    using scord::network::utils::get_address;
 
     [[maybe_unused]] hg_return_t ret;
 
@@ -71,18 +88,23 @@ ADM_register_job(hg_handle_t h) {
     const admire::job_requirements reqs(&in.reqs);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) => {{job_requirements: {}}}", id, __FUNCTION__,
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{job_requirements: {}}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 reqs);
 
     const auto job = admire::job{42};
 
     admire::error_code rv = ADM_SUCCESS;
 
+    out.op_id = id;
     out.retval = rv;
     out.job = admire::api::convert(job).release();
 
-    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}, job: {}}}", id, __FUNCTION__,
-                rv, job);
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}, job: {}}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv,
+                job);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -100,6 +122,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_register_job);
 static void
 ADM_update_job(hg_handle_t h) {
 
+    using scord::network::utils::get_address;
+
     [[maybe_unused]] hg_return_t ret;
 
     ADM_update_job_in_t in;
@@ -114,13 +138,18 @@ ADM_update_job(hg_handle_t h) {
     const admire::job_requirements reqs(&in.reqs);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) => {{job: {}, job_requirements: {}}}", id,
-                __FUNCTION__, job, reqs);
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{job: {}, job_requirements: {}}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), job,
+                reqs);
 
     admire::error_code rv = ADM_SUCCESS;
+    out.op_id = id;
     out.retval = rv;
 
-    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}}}", id, __FUNCTION__, rv);
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -138,6 +167,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_update_job);
 static void
 ADM_remove_job(hg_handle_t h) {
 
+    using scord::network::utils::get_address;
+
     [[maybe_unused]] hg_return_t ret;
 
     ADM_remove_job_in_t in;
@@ -151,12 +182,18 @@ ADM_remove_job(hg_handle_t h) {
     const admire::job job(in.job);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) => {{job: {}}}", id, __FUNCTION__, job);
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{job: {}}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                job);
 
     admire::error_code rv = ADM_SUCCESS;
+    out.op_id = id;
     out.retval = rv;
 
-    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}}}", id, __FUNCTION__, rv);
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -172,6 +209,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_remove_job);
 
 static void
 ADM_register_adhoc_storage(hg_handle_t h) {
+
+    using scord::network::utils::get_address;
 
     [[maybe_unused]] hg_return_t ret;
 
@@ -204,6 +243,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_register_adhoc_storage);
 static void
 ADM_update_adhoc_storage(hg_handle_t h) {
 
+    using scord::network::utils::get_address;
+
     [[maybe_unused]] hg_return_t ret;
 
     ADM_update_adhoc_storage_in_t in;
@@ -234,6 +275,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_update_adhoc_storage);
 
 static void
 ADM_remove_adhoc_storage(hg_handle_t h) {
+
+    using scord::network::utils::get_address;
 
     [[maybe_unused]] hg_return_t ret;
 
@@ -266,6 +309,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_remove_adhoc_storage);
 static void
 ADM_deploy_adhoc_storage(hg_handle_t h) {
 
+    using scord::network::utils::get_address;
+
     [[maybe_unused]] hg_return_t ret;
 
     ADM_deploy_adhoc_storage_in_t in;
@@ -296,6 +341,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_deploy_adhoc_storage);
 
 static void
 ADM_register_pfs_storage(hg_handle_t h) {
+
+    using scord::network::utils::get_address;
 
     [[maybe_unused]] hg_return_t ret;
 
@@ -328,6 +375,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_register_pfs_storage);
 static void
 ADM_update_pfs_storage(hg_handle_t h) {
 
+    using scord::network::utils::get_address;
+
     [[maybe_unused]] hg_return_t ret;
 
     ADM_update_pfs_storage_in_t in;
@@ -358,6 +407,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_update_pfs_storage);
 
 static void
 ADM_remove_pfs_storage(hg_handle_t h) {
+
+    using scord::network::utils::get_address;
 
     [[maybe_unused]] hg_return_t ret;
 
@@ -974,6 +1025,8 @@ DEFINE_MARGO_RPC_HANDLER(ADM_in_transit_ops)
 static void
 ADM_transfer_datasets(hg_handle_t h) {
 
+    using scord::network::utils::get_address;
+
     [[maybe_unused]] hg_return_t ret;
 
     ADM_transfer_datasets_in_t in;
@@ -994,19 +1047,24 @@ ADM_transfer_datasets(hg_handle_t h) {
     const auto mapping = static_cast<admire::transfer::mapping>(in.mapping);
 
     const auto id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) => {{job: {}, sources: {}, targets: {}, "
-                "limits: {}, mapping: {}}}",
-                id, __FUNCTION__, job, sources, targets, limits, mapping);
+    LOGGER_INFO(
+            "rpc id: {} name: {} from: {} => "
+            "body: {{job: {}, sources: {}, targets: {}, limits: {}, mapping: {}}}",
+            id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), job,
+            sources, targets, limits, mapping);
 
     admire::error_code rv = ADM_SUCCESS;
 
     const auto transfer = admire::transfer{42};
 
+    out.op_id = id;
     out.retval = rv;
     out.tx = admire::api::convert(transfer).release();
 
-    LOGGER_INFO("RPC ID {} ({}) <= {{retval: {}, transfer: {}}}", id,
-                __FUNCTION__, rv, transfer);
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}, transfer: {}}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv,
+                transfer);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

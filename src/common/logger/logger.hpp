@@ -66,7 +66,7 @@ public:
             } else if(type == "file") {
                 m_internal_logger =
                         spdlog::basic_logger_mt<spdlog::async_factory>(
-                                ident, log_file.string());
+                                ident, log_file.string(), true);
 
             }
 #ifdef SPDLOG_ENABLE_SYSLOG

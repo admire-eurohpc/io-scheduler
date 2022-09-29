@@ -25,7 +25,7 @@
 # scord daemon
 add_executable(scord)
 
-target_sources(scord PRIVATE scord.cpp rpc_handlers.hpp rpc_handlers.cpp)
+target_sources(scord PRIVATE scord.cpp rpc_handlers.hpp rpc_handlers.cpp env.hpp)
 
 target_include_directories(
   scord

@@ -27,18 +27,20 @@
 #include <net/proto/rpc_types.h>
 #include <logger/logger.hpp>
 #include <utils/ctype_ptr.hpp>
+#include <env.hpp>
+#include <iostream>
 #include "detail/impl.hpp"
 
 
 namespace {
 
-void
+[[maybe_unused]] void
 init_library() __attribute__((constructor));
 
 void
 init_logger();
 
-void
+[[maybe_unused]] void
 init_library() {
     init_logger();
 }
@@ -46,14 +48,30 @@ init_library() {
 /** Logging for the library */
 void
 init_logger() {
-    // for now, just create a simple console logger
-    scord::logger::create_global_logger("libadm_iosched", "console color");
+
+    try {
+
+
+        if(const auto p = std::getenv(admire::env::LOG);
+           p && !std::string{p}.empty() && std::string{p} != "0") {
+            if(const auto log_file = std::getenv(admire::env::LOG_OUTPUT)) {
+                scord::logger::create_global_logger("libadm_iosched", "file",
+                                                    log_file);
+            } else {
+                scord::logger::create_global_logger("libadm_iosched",
+                                                    "console color");
+            }
+        }
+    } catch(const std::exception& ex) {
+        std::cerr << fmt::format("WARNING: Error initializing logger: {}",
+                                 ex.what());
+    }
 }
 
 void
 rpc_registration_cb(scord::network::rpc_client* client) {
 
-    REGISTER_RPC(client, "ADM_ping", void, void, NULL, false);
+    REGISTER_RPC(client, "ADM_ping", void, ADM_ping_out_t, NULL, true);
 
     REGISTER_RPC(client, "ADM_register_job", ADM_register_job_in_t,
                  ADM_register_job_out_t, NULL, true);

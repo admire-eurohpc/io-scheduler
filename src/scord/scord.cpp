@@ -36,6 +36,7 @@
 #include <net/proto/rpc_types.h>
 #include <config/settings.hpp>
 #include "rpc_handlers.hpp"
+#include "env.hpp"
 
 #include <agios.h>
 
@@ -54,6 +55,20 @@ print_help(const std::string& progname,
     fmt::print("{}", opt_desc);
 }
 
+std::unordered_map<std::string, std::string>
+load_envs() {
+
+    std::unordered_map<std::string, std::string> envs;
+
+    if(const auto p = std::getenv(scord::env::LOG);
+       p && !std::string{p}.empty() && std::string{p} != "0") {
+        if(const auto log_file = std::getenv(scord::env::LOG_OUTPUT)) {
+            envs.emplace(scord::env::LOG_OUTPUT, log_file);
+        }
+    }
+
+    return envs;
+}
 
 int
 main(int argc, char* argv[]) {
@@ -77,6 +92,7 @@ main(int argc, char* argv[]) {
                      ->implicit_value("")
                      ->zero_tokens()
                      ->notifier([&](const std::string&) {
+                         cfg.log_file(fs::path{});
                          cfg.use_console(true);
                      }),
              "override any logging options defined in configuration files and "
@@ -142,6 +158,15 @@ main(int argc, char* argv[]) {
             return EXIT_FAILURE;
         }
 
+        // override settings from the configuration file with settings
+        // from environment variables
+        const auto env_opts = load_envs();
+
+        if(const auto& it = env_opts.find(scord::env::LOG_OUTPUT);
+           it != env_opts.end()) {
+            cfg.log_file(it->second);
+        }
+
         // calling notify() here basically invokes all define notifiers, thus
         // overriding any configuration loaded from the global configuration
         // file with its command-line counterparts if provided (for those
@@ -158,7 +183,7 @@ main(int argc, char* argv[]) {
         const auto rpc_registration_cb = [](auto&& ctx) {
             LOGGER_INFO(" * Registering RPCs handlers...");
 
-            REGISTER_RPC(ctx, "ADM_ping", void, void, ADM_ping, false);
+            REGISTER_RPC(ctx, "ADM_ping", void, ADM_ping_out_t, ADM_ping, true);
 
             REGISTER_RPC(ctx, "ADM_register_job", ADM_register_job_in_t,
                          ADM_register_job_out_t, ADM_register_job, true);

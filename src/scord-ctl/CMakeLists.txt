@@ -25,7 +25,7 @@
 # scord-ctl daemon
 add_executable(scord-ctl)
 
-target_sources(scord-ctl PRIVATE scord-ctl.cpp rpc_handlers.hpp rpc_handlers.cpp)
+target_sources(scord-ctl PRIVATE scord-ctl.cpp rpc_handlers.hpp rpc_handlers.cpp env.hpp)
 
 target_include_directories(
   scord-ctl

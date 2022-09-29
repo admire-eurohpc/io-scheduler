@@ -33,6 +33,10 @@
 #include <system_error>
 #include <fmt/format.h>
 
+#ifdef SCORD_DEBUG_BUILD
+#include <sys/prctl.h>
+#endif
+
 #include <config/settings.hpp>
 #include <logger/logger.hpp>
 #include <utils/signal_listener.hpp>
@@ -348,7 +352,7 @@ server::run() {
     // validate settings
     check_configuration();
 
-#ifdef __LOGGER_ENABLE_DEBUG__
+#ifdef SCORD_DEBUG_BUILD
     if(::prctl(PR_SET_DUMPABLE, 1) != 0) {
         LOGGER_WARN("Failed to set PR_SET_DUMPABLE flag for process. "
                     "Daemon will not produce core dumps.");

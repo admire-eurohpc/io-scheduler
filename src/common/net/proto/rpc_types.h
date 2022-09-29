@@ -251,6 +251,12 @@ MERCURY_GEN_STRUCT_PROC(
 
 // clang-format off
 
+MERCURY_GEN_PROC(
+    ADM_ping_out_t,
+        ((hg_uint64_t) (op_id))
+        ((int32_t) (retval))
+);
+
 /// ADM_register_job
 MERCURY_GEN_PROC(
     ADM_register_job_in_t,
@@ -259,6 +265,7 @@ MERCURY_GEN_PROC(
 
 MERCURY_GEN_PROC(
     ADM_register_job_out_t,
+        ((hg_uint64_t) (op_id))
         ((int32_t) (retval))
         ((ADM_job_t) (job))
 );
@@ -272,6 +279,7 @@ MERCURY_GEN_PROC(
 
 MERCURY_GEN_PROC(
     ADM_update_job_out_t,
+        ((hg_uint64_t) (op_id))
         ((int32_t) (retval))
 );
 
@@ -283,6 +291,7 @@ MERCURY_GEN_PROC(
 
 MERCURY_GEN_PROC(
     ADM_remove_job_out_t,
+        ((hg_uint64_t) (op_id))
         ((int32_t) (retval))
 );
 
@@ -421,6 +430,7 @@ MERCURY_GEN_PROC(
 
 MERCURY_GEN_PROC(
     ADM_transfer_datasets_out_t,
+        ((hg_uint64_t) (op_id))
         ((hg_int32_t) (retval))
         ((ADM_transfer_t) (tx)))
 

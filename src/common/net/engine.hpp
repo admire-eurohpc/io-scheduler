@@ -73,6 +73,13 @@ struct margo_context {
 // forward declarations
 struct endpoint;
 
+namespace utils {
+
+std::string
+get_address(hg_handle_t h);
+
+} // namespace utils
+
 struct engine {
 
     enum class execution_mode : bool {
@@ -123,6 +130,74 @@ struct engine {
     endpoint
     lookup(const std::string& address) const;
 
+    std::string
+    self_address() const {
+
+        struct addr_handle {
+            addr_handle(margo_instance_id mid, hg_addr_t addr)
+                : m_mid(mid), m_addr(addr) {}
+
+            ~addr_handle() {
+                if(m_addr) {
+                    margo_addr_free(m_mid, m_addr);
+                }
+            }
+
+            hg_addr_t
+            native() const {
+                return m_addr;
+            }
+
+            margo_instance_id m_mid;
+            hg_addr_t m_addr;
+        };
+
+        const auto self_addr = addr_handle{
+                m_context->m_mid, [mid = m_context->m_mid]() -> hg_addr_t {
+                    hg_addr_t tmp;
+
+                    hg_return_t ret = margo_addr_self(mid, &tmp);
+
+                    if(ret != HG_SUCCESS) {
+                        LOGGER_WARN(fmt::format(
+                                "Error finding out self address: {}",
+                                HG_Error_to_string(ret)));
+                        return nullptr;
+                    }
+
+                    return tmp;
+                }()};
+
+        if(!self_addr.native()) {
+            return "unknown";
+        }
+
+        hg_size_t expected_length;
+        hg_return_t ret =
+                margo_addr_to_string(m_context->m_mid, nullptr,
+                                     &expected_length, self_addr.native());
+
+        if(ret != HG_SUCCESS) {
+            LOGGER_WARN(fmt::format("Error finding out self address: {}",
+                                    HG_Error_to_string(ret)));
+            return "unknown";
+        }
+
+        std::vector<char> tmp;
+        tmp.reserve(expected_length);
+
+        ret = margo_addr_to_string(m_context->m_mid, tmp.data(),
+                                   &expected_length, self_addr.native());
+
+        if(ret != HG_SUCCESS) {
+            LOGGER_WARN(fmt::format("Error finding out self address: {}",
+                                    HG_Error_to_string(ret)));
+            return "unknown";
+        }
+
+        return {tmp.data()};
+    }
+
     std::shared_ptr<detail::margo_context> m_context;
 };
 
@@ -147,6 +222,11 @@ public:
     hg_handle_t
     native() {
         return m_handle;
+    }
+
+    std::string
+    origin() const {
+        return utils::get_address(m_handle);
     }
 
 private:
@@ -299,6 +379,45 @@ struct rpc_acceptor : engine {
         : engine(format_address(protocol, bind_address, port)) {}
 };
 
+namespace utils {
+
+inline std::string
+get_address(hg_handle_t h) {
+
+    const hg_info* hgi = margo_get_info(h);
+
+    if(!hgi) {
+        LOGGER_WARN("Unable to get information from hg_handle");
+        return "unknown";
+    }
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    hg_size_t expected_length;
+    hg_return_t ret =
+            margo_addr_to_string(mid, nullptr, &expected_length, hgi->addr);
+
+    if(ret != HG_SUCCESS) {
+        LOGGER_WARN("Error finding out client address: {}",
+                    HG_Error_to_string(ret));
+        return "unknown";
+    }
+
+    std::vector<char> tmp;
+    tmp.reserve(expected_length);
+
+    ret = margo_addr_to_string(mid, tmp.data(), &expected_length, hgi->addr);
+
+    if(ret != HG_SUCCESS) {
+        LOGGER_WARN("Error finding out client address: {}",
+                    HG_Error_to_string(ret));
+        return "unknown";
+    }
+
+    return {tmp.data()};
+}
+
+} // namespace utils
 
 } // namespace scord::network
 

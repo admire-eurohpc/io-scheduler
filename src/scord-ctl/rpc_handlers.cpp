@@ -24,16 +24,43 @@
 
 #include <logger/logger.hpp>
 #include <net/proto/rpc_types.h>
+#include <net/engine.hpp>
 #include "rpc_handlers.hpp"
+
+struct remote_procedure {
+    static std::uint64_t
+    new_id() {
+        static std::atomic_uint64_t current_id;
+        return current_id++;
+    }
+};
 
 static void
 ADM_ping(hg_handle_t h) {
+
+    using scord::network::utils::get_address;
 
     [[maybe_unused]] hg_return_t ret;
 
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
-    LOGGER_INFO("PING(noargs)");
+    const auto id = remote_procedure::new_id();
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)));
+
+    ADM_ping_out_t out;
+    out.op_id = id;
+    out.retval = ADM_SUCCESS;
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ADM_SUCCESS);
+
+    ret = margo_respond(h, &out);
+    assert(ret == HG_SUCCESS);
 
     ret = margo_destroy(h);
     assert(ret == HG_SUCCESS);

@@ -26,7 +26,7 @@ add_library(adm_iosched SHARED)
 
 target_sources(adm_iosched
   PUBLIC admire.h admire.hpp
-  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp errors.c)
+  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp errors.c env.hpp)
 
 set_target_properties(adm_iosched PROPERTIES PUBLIC_HEADER "admire.h;admire.hpp")
 

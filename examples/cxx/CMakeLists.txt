@@ -57,10 +57,35 @@ foreach(example IN LISTS examples_cxx)
   set_target_properties(${example}_cxx PROPERTIES OUTPUT_NAME ${example})
 endforeach()
 
+set(CXX_TEST_ID 0)
+
 if(SCORD_BUILD_TESTS)
   foreach(example IN LISTS examples_cxx)
-    add_test(${example}_cxx_test ${example} ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
-    set_tests_properties(${example}_cxx_test
-      PROPERTIES FIXTURES_REQUIRED scord_daemon)
+
+    # prepare environment for the RPC test itself and its validation test
+    set(TEST_NAME "${example}_cxx_test")
+    set(TEST_DIRECTORY "${SCORD_TESTS_DIRECTORY}/${TEST_NAME}")
+    file(MAKE_DIRECTORY ${TEST_DIRECTORY})
+
+    set(TEST_ENV)
+    list(APPEND TEST_ENV LIBSCORD_LOG=1)
+    list(APPEND TEST_ENV LIBSCORD_LOG_OUTPUT=${TEST_DIRECTORY}/libscord.log)
+
+    add_test(run_${TEST_NAME} ${example}
+      ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
+    set_tests_properties(run_${TEST_NAME}
+      PROPERTIES FIXTURES_REQUIRED scord_daemon
+      ENVIRONMENT "${TEST_ENV}"
+      )
+
+    add_test(validate_${TEST_NAME}
+      ${CMAKE_SOURCE_DIR}/ci/check_rpcs.py
+      ${TEST_DIRECTORY}/libscord.log
+      ${SCORD_TESTS_DIRECTORY}/scord_daemon/scord_daemon.log
+      ${example}
+      )
+    set_tests_properties(validate_${TEST_NAME}
+      PROPERTIES DEPENDS stop_scord_daemon
+      )
   endforeach()
 endif()

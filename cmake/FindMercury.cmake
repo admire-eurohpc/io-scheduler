@@ -115,6 +115,11 @@ macro(_mercury_find_component _component_name)
     PATHS ${PC_MERCURY_LIBRARY_DIRS}
   )
 
+  if(NOT ${_upper_component}_LIBRARY_RELEASE AND
+     NOT ${_upper_component}_LIBRARY_DEBUG)
+    return()
+  endif ()
+
   # initialize ${_upper_component}_LIBRARY (e.g. NA_LIBRARY)
   # with the appropriate library for this build configuration
   select_library_configurations(${_upper_component})

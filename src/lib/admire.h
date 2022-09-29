@@ -87,6 +87,8 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job);
  * Register an adhoc storage system.
  *
  * @param[in] server The server to which the request is directed
+ * @param[in] job An ADM_JOB identifying the originating job.
+ * @param[in] user_id The desired user id for the adhoc storage system.
  * @param[in] ctx The EXECUTION_CONTEXT for the adhoc storage system.
  * @param[out] adhoc_storage An ADM_STORAGE referring to the newly-created
  * adhoc storage instance.
@@ -94,8 +96,8 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job);
  * successfully.
  */
 ADM_return_t
-ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job, const char* id,
-                           ADM_adhoc_context_t ctx,
+ADM_register_adhoc_storage(ADM_server_t server, ADM_job_t job,
+                           const char* user_id, ADM_adhoc_context_t ctx,
                            ADM_storage_t* adhoc_storage);
 
 /**

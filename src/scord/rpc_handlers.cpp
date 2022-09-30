@@ -227,18 +227,24 @@ ADM_register_adhoc_storage(hg_handle_t h) {
     const admire::adhoc_storage::ctx ctx(in.ctx);
 
     const auto rpc_id = remote_procedure::new_id();
-    LOGGER_INFO("RPC ID {} ({}) <= {{job: {{{}}}}}", rpc_id, __FUNCTION__, job);
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{job: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                job);
 
     const auto adhoc_storage = admire::adhoc_storage(
             admire::adhoc_storage::type::gekkofs, id, ctx);
 
     admire::error_code rv = ADM_SUCCESS;
 
+    out.op_id = rpc_id;
     out.retval = rv;
     out.server_id = adhoc_storage.id();
 
-    LOGGER_INFO("RPC ID {} ({}) => {{retval: {}, server_id: {}}}", rpc_id,
-                out.server_id, __FUNCTION__, rv);
+    LOGGER_INFO("rpc id: {} name: {} to: {} => "
+                "body: {{retval: {}, server_id: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                rv, out.server_id);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

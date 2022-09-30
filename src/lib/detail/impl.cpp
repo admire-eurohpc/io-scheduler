@@ -314,9 +314,13 @@ register_adhoc_storage(const server& srv, const job& job,
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
+    const auto rpc_id = ::api::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("RPC (ADM_{}) => {{job: {}}}", __FUNCTION__, job);
+    LOGGER_INFO("rpc id: name: {} from: {} => "
+                "body: {{job: {}}}",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc_client.self_address()), job);
 
     const auto rpc_job = api::convert(job);
     const auto rpc_user_id = user_id.c_str();
@@ -329,14 +333,21 @@ register_adhoc_storage(const server& srv, const job& job,
     const auto rpc = endp.call("ADM_register_adhoc_storage", &in, &out);
 
     if(out.retval < 0) {
-        LOGGER_ERROR("RPC (ADM_{}) <= {}", __FUNCTION__, out.retval);
-        return tl::make_unexpected(static_cast<admire::error_code>(out.retval));
+        const auto retval = static_cast<admire::error_code>(out.retval);
+        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
+                     "body: {{retval: {}}} [op_id: {}]",
+                     rpc_id, std::quoted("ADM_"s + __FUNCTION__), retval,
+                     out.op_id);
+        return tl::make_unexpected(retval);
     }
 
     const auto rpc_adhoc_storage =
             admire::adhoc_storage{admire::storage::type::gekkofs, user_id, ctx};
 
-    LOGGER_INFO("RPC (ADM_{}) <= {{retval: {}}}", __FUNCTION__, ADM_SUCCESS);
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}}} [op_id: {}]",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__), ADM_SUCCESS,
+                out.op_id);
 
     return rpc_adhoc_storage;
 }

@@ -298,15 +298,16 @@ MERCURY_GEN_PROC(
 
 /// ADM_register_adhoc_storage
 MERCURY_GEN_PROC(
-    ADM_register_adhoc_storage_in_t, 
+    ADM_register_adhoc_storage_in_t,
         ((ADM_job_t) (job))
         ((hg_const_string_t) (id))
         ((ADM_adhoc_context_t)(ctx))
 );
 
 MERCURY_GEN_PROC(
-    ADM_register_adhoc_storage_out_t, 
-        ((int32_t) (retval)) 
+    ADM_register_adhoc_storage_out_t,
+        ((hg_uint64_t) (op_id))
+        ((int32_t) (retval))
         ((uint64_t)(server_id))
 );
 

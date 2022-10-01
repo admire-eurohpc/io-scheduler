@@ -1058,13 +1058,12 @@ dataset::id() const {
     return m_pimpl->id();
 }
 
-
-storage::storage(enum storage::type type, std::string id)
-    : m_id(std::move(id)), m_type(type) {}
+storage::storage(enum storage::type type, std::string user_id)
+    : m_user_id(std::move(user_id)), m_type(type) {}
 
 std::string
-storage::id() const {
-    return m_id;
+storage::user_id() const {
+    return m_user_id;
 }
 
 enum storage::type
@@ -1113,13 +1112,24 @@ adhoc_storage::ctx::should_flush() const {
 class adhoc_storage::impl {
 
 public:
-    explicit impl(adhoc_storage::ctx ctx) : m_ctx(std::move(ctx)) {}
+    explicit impl(adhoc_storage::ctx ctx) : m_id(), m_ctx(std::move(ctx)) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
     operator=(const impl& other) noexcept = default;
     impl&
     operator=(impl&&) noexcept = default;
+    ~impl() = default;
+
+    const std::optional<std::uint64_t>&
+    id() const {
+        return m_id;
+    }
+
+    std::optional<std::uint64_t>&
+    id() {
+        return m_id;
+    }
 
     adhoc_storage::ctx
     context() const {
@@ -1127,26 +1137,33 @@ public:
     }
 
 private:
+    std::optional<std::uint64_t> m_id;
     adhoc_storage::ctx m_ctx;
 };
 
 
-adhoc_storage::adhoc_storage(enum storage::type type, std::string id,
+adhoc_storage::adhoc_storage(enum storage::type type, std::string user_id,
                              execution_mode exec_mode, access_type access_type,
                              std::uint32_t nodes, std::uint32_t walltime,
                              bool should_flush)
-    : storage(type, std::move(id)),
+    : storage(type, std::move(user_id)),
       m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{
               exec_mode, access_type, nodes, walltime, should_flush})) {}
 
-adhoc_storage::adhoc_storage(enum storage::type type, std::string id,
+adhoc_storage::adhoc_storage(enum storage::type type, std::string user_id,
                              ADM_adhoc_context_t ctx)
-    : storage(type, std::move(id)),
+    : storage(type, std::move(user_id)),
       m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{ctx})) {}
 
+adhoc_storage::adhoc_storage(enum storage::type type, std::string user_id,
+                             const adhoc_storage::ctx& ctx)
+    : storage(type, std::move(user_id)), m_pimpl(std::make_unique<impl>(ctx)) {}
+
 adhoc_storage::adhoc_storage(const adhoc_storage& other) noexcept
-    : storage(other.m_type, other.m_id),
+    : storage(other.m_type, other.m_user_id),
       m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+adhoc_storage::adhoc_storage(adhoc_storage&&) noexcept = default;
 
 adhoc_storage&
 adhoc_storage::operator=(const adhoc_storage& other) noexcept {
@@ -1154,11 +1171,23 @@ adhoc_storage::operator=(const adhoc_storage& other) noexcept {
     return *this;
 }
 
+adhoc_storage&
+adhoc_storage::operator=(adhoc_storage&&) noexcept = default;
+
+const std::optional<std::uint64_t>&
+adhoc_storage::id() const {
+    return m_pimpl->id();
+}
+
+std::optional<std::uint64_t>&
+adhoc_storage::id() {
+    return m_pimpl->id();
+}
+
 std::shared_ptr<storage::ctx>
 adhoc_storage::context() const {
     return std::make_shared<adhoc_storage::ctx>(m_pimpl->context());
 }
-
 adhoc_storage::~adhoc_storage() = default;
 
 pfs_storage::ctx::ctx(std::filesystem::path mount_point)
@@ -1167,7 +1196,7 @@ pfs_storage::ctx::ctx(std::filesystem::path mount_point)
 pfs_storage::ctx::ctx(ADM_pfs_context_t ctx) : pfs_storage::ctx(ctx->c_mount) {}
 
 pfs_storage::pfs_storage(const pfs_storage& other) noexcept
-    : storage(other.m_type, other.m_id),
+    : storage(other.m_type, other.m_user_id),
       m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
 
 pfs_storage&

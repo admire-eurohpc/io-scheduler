@@ -24,7 +24,10 @@
 
 #include <fmt/format.h>
 #include <admire.hpp>
+#include "common.hpp"
 
+#define NINPUTS  10
+#define NOUTPUTS 5
 
 int
 main(int argc, char* argv[]) {
@@ -38,12 +41,26 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_adhoc_context_t ctx{};
-    ADM_storage_t adhoc_storage{};
+    const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
+    const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
+
+    auto p = std::make_unique<admire::adhoc_storage>(
+            admire::storage::type::gekkofs, "foobar",
+            admire::adhoc_storage::execution_mode::separate_new,
+            admire::adhoc_storage::access_type::read_write, 42, 100, false);
+
+    admire::job_requirements reqs(inputs, outputs, std::move(p));
+
+    std::string user_id = "adhoc_storage_42";
+    const auto adhoc_storage_ctx = admire::adhoc_storage::ctx{
+            admire::adhoc_storage::execution_mode::separate_new,
+            admire::adhoc_storage::access_type::read_write, 42, 100, false};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::register_adhoc_storage(server, ctx, &adhoc_storage);
+        const auto job = admire::register_job(server, reqs);
+        const auto adhoc_storage = admire::register_adhoc_storage(
+                server, job, user_id, adhoc_storage_ctx);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_register_adhoc_storage() failed: {}\n",
                    e.what());

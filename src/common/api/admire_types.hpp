@@ -294,26 +294,28 @@ struct adhoc_storage : public storage {
         bool m_should_flush;
     };
 
-    adhoc_storage(enum storage::type type, std::string id,
+    adhoc_storage(enum storage::type type, std::string user_id,
                   execution_mode exec_mode, access_type access_type,
                   std::uint32_t nodes, std::uint32_t walltime,
                   bool should_flush);
-    adhoc_storage(enum storage::type type, std::string id,
+    adhoc_storage(enum storage::type type, std::string user_id,
                   ADM_adhoc_context_t ctx);
-    adhoc_storage(const adhoc_storage& other) noexcept;
-    adhoc_storage(enum storage::type type, std::string id,
+    adhoc_storage(enum storage::type type, std::string user_id,
                   const admire::adhoc_storage::ctx& ctx);
 
-    adhoc_storage(adhoc_storage&&) noexcept = default;
+    adhoc_storage(const adhoc_storage& other) noexcept;
+    adhoc_storage(adhoc_storage&&) noexcept;
     adhoc_storage&
     operator=(const adhoc_storage&) noexcept;
     adhoc_storage&
-    operator=(adhoc_storage&&) noexcept = default;
+    operator=(adhoc_storage&&) noexcept;
     ~adhoc_storage() override;
 
-
-    std::uint64_t
+    const std::optional<std::uint64_t>&
     id() const;
+
+    std::optional<std::uint64_t>&
+    id();
 
     std::shared_ptr<storage::ctx>
     context() const final;
@@ -595,6 +597,19 @@ struct fmt::formatter<std::shared_ptr<admire::storage>>
 };
 
 template <>
+struct fmt::formatter<std::optional<std::uint64_t>>
+    : formatter<std::string_view> {
+
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::optional<std::uint64_t>& v, FormatContext& ctx) const {
+        return formatter<std::string_view>::format(
+                v ? std::to_string(v.value()) : "none", ctx);
+    }
+};
+
+template <>
 struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
@@ -605,8 +620,8 @@ struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
                 s.context());
 
         const auto str =
-                fmt::format("{{type: {}, id: {}, context: {}}}", s.type(),
-                            std::quoted(std::to_string(s.id())),
+                fmt::format("{{type: {}, id: {}, user_id: {}, context: {}}}",
+                            s.type(), s.id(), std::quoted(s.user_id()),
                             (pctx ? fmt::format("{}", *pctx) : "NULL"));
         return formatter<std::string_view>::format(str, ctx);
     }

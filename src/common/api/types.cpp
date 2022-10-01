@@ -1111,24 +1111,23 @@ adhoc_storage::ctx::should_flush() const {
 
 class adhoc_storage::impl {
 
-    static std::uint64_t
-    generate_id() {
-        static std::atomic_uint64_t s_current_server_id = 0;
-        return s_current_server_id++;
-    }
-
 public:
-    explicit impl(adhoc_storage::ctx ctx)
-        : m_id(generate_id()), m_ctx(std::move(ctx)) {}
+    explicit impl(adhoc_storage::ctx ctx) : m_id(), m_ctx(std::move(ctx)) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
     operator=(const impl& other) noexcept = default;
     impl&
     operator=(impl&&) noexcept = default;
+    ~impl() = default;
 
-    std::uint64_t
+    const std::optional<std::uint64_t>&
     id() const {
+        return m_id;
+    }
+
+    std::optional<std::uint64_t>&
+    id() {
         return m_id;
     }
 
@@ -1138,7 +1137,7 @@ public:
     }
 
 private:
-    std::uint64_t m_id;
+    std::optional<std::uint64_t> m_id;
     adhoc_storage::ctx m_ctx;
 };
 
@@ -1164,14 +1163,24 @@ adhoc_storage::adhoc_storage(const adhoc_storage& other) noexcept
     : storage(other.m_type, other.m_user_id),
       m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
 
+adhoc_storage::adhoc_storage(adhoc_storage&&) noexcept = default;
+
 adhoc_storage&
 adhoc_storage::operator=(const adhoc_storage& other) noexcept {
     this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
     return *this;
 }
 
-std::uint64_t
+adhoc_storage&
+adhoc_storage::operator=(adhoc_storage&&) noexcept = default;
+
+const std::optional<std::uint64_t>&
 adhoc_storage::id() const {
+    return m_pimpl->id();
+}
+
+std::optional<std::uint64_t>&
+adhoc_storage::id() {
     return m_pimpl->id();
 }
 
@@ -1179,7 +1188,6 @@ std::shared_ptr<storage::ctx>
 adhoc_storage::context() const {
     return std::make_shared<adhoc_storage::ctx>(m_pimpl->context());
 }
-
 adhoc_storage::~adhoc_storage() = default;
 
 pfs_storage::ctx::ctx(std::filesystem::path mount_point)

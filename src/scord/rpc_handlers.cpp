@@ -37,6 +37,18 @@ struct remote_procedure {
     }
 };
 
+struct adhoc_storage_manager {
+
+    template <typename... Args>
+    static admire::adhoc_storage
+    create(Args&&... args) {
+        static std::atomic_uint64_t current_id;
+        auto adhoc_storage = admire::adhoc_storage(std::forward<Args>(args)...);
+        adhoc_storage.id() = current_id++;
+        return adhoc_storage;
+    }
+};
+
 static void
 ADM_ping(hg_handle_t h) {
 
@@ -232,14 +244,14 @@ ADM_register_adhoc_storage(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 job);
 
-    const auto adhoc_storage = admire::adhoc_storage(
+    const auto adhoc_storage = adhoc_storage_manager::create(
             admire::adhoc_storage::type::gekkofs, id, ctx);
 
     admire::error_code rv = ADM_SUCCESS;
 
     out.op_id = rpc_id;
     out.retval = rv;
-    out.server_id = adhoc_storage.id();
+    out.server_id = *adhoc_storage.id();
 
     LOGGER_INFO("rpc id: {} name: {} to: {} => "
                 "body: {{retval: {}, server_id: {}}}",

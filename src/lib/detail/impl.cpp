@@ -341,8 +341,10 @@ register_adhoc_storage(const server& srv, const job& job,
         return tl::make_unexpected(retval);
     }
 
-    const auto rpc_adhoc_storage =
+    auto rpc_adhoc_storage =
             admire::adhoc_storage{admire::storage::type::gekkofs, user_id, ctx};
+
+    rpc_adhoc_storage.id() = out.server_id;
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
                 "body: {{retval: {}}} [op_id: {}]",

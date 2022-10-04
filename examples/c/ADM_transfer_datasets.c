@@ -28,11 +28,12 @@
 #include <assert.h>
 #include "common.h"
 
-#define NINPUTS  10
-#define NOUTPUTS 5
-#define NSOURCES 5
-#define NTARGETS 5
-#define NLIMITS  3
+#define NADHOC_NODES 25
+#define NINPUTS      10
+#define NOUTPUTS     5
+#define NSOURCES     5
+#define NTARGETS     5
+#define NLIMITS      3
 
 int
 main(int argc, char* argv[]) {
@@ -47,13 +48,20 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
+    ADM_node_t* adhoc_nodes = prepare_nodes(NADHOC_NODES);
+    assert(adhoc_nodes);
     ADM_dataset_t* inputs = prepare_datasets("input-dataset-%d", NINPUTS);
     assert(inputs);
     ADM_dataset_t* outputs = prepare_datasets("output-dataset-%d", NOUTPUTS);
     assert(outputs);
 
+    ADM_adhoc_resources_t adhoc_resources =
+            ADM_adhoc_resources_create(adhoc_nodes, NADHOC_NODES);
+    assert(adhoc_resources);
+
     ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
-            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 42, 100, false);
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, adhoc_resources,
+            100, false);
     assert(ctx);
 
     ADM_storage_t st = ADM_storage_create("foobar", ADM_STORAGE_GEKKOFS, ctx);

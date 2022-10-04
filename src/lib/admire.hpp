@@ -95,7 +95,7 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
 
 ADM_return_t
 set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
-                 ADM_storage_resources_t resources);
+                 ADM_adhoc_resources_t resources);
 
 ADM_return_t
 get_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,

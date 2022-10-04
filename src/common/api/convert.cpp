@@ -35,6 +35,19 @@ ADM_transfer_create(uint64_t id);
 
 namespace {
 
+admire::api::managed_ctype_array<ADM_node_t>
+as_ctype_array(const std::vector<admire::node>& nodes) {
+
+    std::vector<ADM_node_t> tmp;
+
+    std::transform(nodes.cbegin(), nodes.cend(), std::back_inserter(tmp),
+                   [](const admire::node& n) {
+                       return ADM_node_create(n.hostname().c_str());
+                   });
+
+    return admire::api::managed_ctype_array<ADM_node_t>{std::move(tmp)};
+}
+
 admire::api::managed_ctype_array<ADM_dataset_t>
 as_ctype_array(const std::vector<admire::dataset>& datasets) {
 
@@ -57,12 +70,30 @@ convert(const node& node) {
     return managed_ctype<ADM_node_t>(ADM_node_create(node.hostname().c_str()));
 }
 
+managed_ctype<ADM_adhoc_resources_t>
+convert(const adhoc_storage::resources& res) {
+
+    auto managed_nodes = as_ctype_array(res.nodes());
+
+    ADM_adhoc_resources_t c_res = ADM_adhoc_resources_create(
+            managed_nodes.data(), managed_nodes.size());
+
+    return managed_ctype<ADM_adhoc_resources_t>{c_res,
+                                                std::move(managed_nodes)};
+}
+
 managed_ctype<ADM_adhoc_context_t>
 convert(const adhoc_storage::ctx& ctx) {
-    return managed_ctype<ADM_adhoc_context_t>{ADM_adhoc_context_create(
-            static_cast<ADM_adhoc_mode_t>(ctx.exec_mode()),
-            static_cast<ADM_adhoc_access_t>(ctx.access_type()), ctx.nodes(),
-            ctx.walltime(), ctx.should_flush())};
+
+    auto managed_adhoc_resources = convert(ctx.resources());
+
+    return managed_ctype<ADM_adhoc_context_t>{
+            ADM_adhoc_context_create(
+                    static_cast<ADM_adhoc_mode_t>(ctx.exec_mode()),
+                    static_cast<ADM_adhoc_access_t>(ctx.access_type()),
+                    managed_adhoc_resources.get(), ctx.walltime(),
+                    ctx.should_flush()),
+            std::move(managed_adhoc_resources)};
 }
 
 managed_ctype<ADM_storage_t>

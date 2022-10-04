@@ -1,5 +1,16 @@
 #include "common.hpp"
 
+std::vector<admire::node>
+prepare_nodes(size_t n) {
+    std::vector<admire::node> nodes;
+    nodes.reserve(n);
+    for(size_t i = 0; i < n; ++i) {
+        nodes.emplace_back(fmt::format("node-{:02d}", i));
+    }
+
+    return nodes;
+}
+
 std::vector<admire::dataset>
 prepare_datasets(const std::string& pattern, size_t n) {
     std::vector<admire::dataset> datasets;

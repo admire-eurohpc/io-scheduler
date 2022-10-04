@@ -4,6 +4,9 @@
 #include <vector>
 #include <admire_types.hpp>
 
+std::vector<admire::node>
+prepare_nodes(size_t n);
+
 std::vector<admire::dataset>
 prepare_datasets(const std::string& pattern, size_t n);
 

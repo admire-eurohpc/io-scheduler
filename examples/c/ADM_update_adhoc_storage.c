@@ -78,7 +78,11 @@ main(int argc, char* argv[]) {
     fprintf(stdout, "ADM_register_adhoc_storage() remote procedure completed "
                     "successfully\n");
 
-    ret = ADM_update_adhoc_storage(server, ctx, adhoc_storage);
+    ADM_adhoc_context_t ctx_updated = ADM_adhoc_context_create(
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 42, 200, false);
+    assert(ctx_updated);
+
+    ret = ADM_update_adhoc_storage(server, ctx_updated, adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stderr,

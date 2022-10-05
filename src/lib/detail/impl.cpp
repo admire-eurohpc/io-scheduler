@@ -407,4 +407,55 @@ transfer_datasets(const server& srv, const job& job,
     return tx;
 }
 
+tl::expected<admire::adhoc_storage, admire::error_code>
+update_adhoc_storage(const server& srv,
+                     const adhoc_storage::ctx& adhoc_storage_ctx,
+                     const adhoc_storage& adhoc_storage) {
+
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+
+    const auto rpc_id = ::api::remote_procedure::new_id();
+    auto endp = rpc_client.lookup(srv.address());
+
+    LOGGER_INFO("rpc id: name: {} from: {} => "
+                "body: {{job: {}}}",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc_client.self_address()), job);
+
+    // const auto rpc_job = api::convert(job);
+    // const auto rpc_user_id = user_id.c_str();
+    const auto rpc_ctx = api::convert(adhoc_storage_ctx);
+    const auto rpc_adhoc_storage = api::convert(adhoc_storage);
+    // const auto rpc_adhoc_storage = adhoc_storage;
+
+
+    ADM_update_adhoc_storage_in_t in{
+            rpc_ctx.get(),
+            rpc_adhoc_storage.get()}; // rpc_job.get(), rpc_user_id,
+    ADM_update_adhoc_storage_out_t out;
+
+    const auto rpc = endp.call("ADM_update_adhoc_storage", &in, &out);
+
+    if(out.retval < 0) {
+        const auto retval = static_cast<admire::error_code>(out.retval);
+        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
+                     "body: {{retval: {}}} [op_id: {}]",
+                     rpc_id, std::quoted("ADM_"s + __FUNCTION__), retval,
+                     out.op_id);
+        return tl::make_unexpected(retval);
+    }
+
+    // auto rpc_adhoc_storage =
+    // admire::adhoc_storage{admire::storage::type::gekkofs, user_id, ctx};
+
+    rpc_adhoc_storage.id() = out.server_id;
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}}} [op_id: {}]",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__), ADM_SUCCESS,
+                out.op_id);
+
+    return rpc_adhoc_storage;
+}
+
 } // namespace admire::detail

@@ -236,15 +236,14 @@ ADM_register_adhoc_storage(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    const admire::job job(in.job);
     const std::string id(in.id);
     const admire::adhoc_storage::ctx ctx(in.ctx);
 
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job: {}}}",
+                "body: {{user_id: {}, adhoc_ctx: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                job);
+                id, ctx);
 
     const auto adhoc_storage = adhoc_storage_manager::create(
             admire::adhoc_storage::type::gekkofs, id, ctx);

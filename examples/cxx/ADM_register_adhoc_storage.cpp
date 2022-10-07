@@ -61,28 +61,19 @@ main(int argc, char* argv[]) {
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write,
             admire::adhoc_storage::resources{adhoc_nodes}, 100, false};
-    ADM_return_t ret = ADM_SUCCESS;
 
     try {
         const auto job = admire::register_job(
                 server, admire::job::resources{job_nodes}, reqs);
         const auto adhoc_storage = admire::register_adhoc_storage(
-                server, job, user_id, adhoc_storage_ctx);
+                server, user_id, adhoc_storage_ctx);
+
+        fmt::print(stdout,
+                   "ADM_register_adhoc_storage() remote procedure completed "
+                   "successfully\n");
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_register_adhoc_storage() failed: {}\n",
                    e.what());
         exit(EXIT_FAILURE);
     }
-
-    if(ret != ADM_SUCCESS) {
-        fmt::print(
-                stdout,
-                "ADM_register_adhoc_storage() remote procedure not completed "
-                "successfully\n");
-        exit(EXIT_FAILURE);
-    }
-
-    fmt::print(stdout,
-               "ADM_register_adhoc_storage() remote procedure completed "
-               "successfully\n");
 }

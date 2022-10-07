@@ -53,7 +53,7 @@ transfer_datasets(const server& srv, const job& job,
                   transfer::mapping mapping);
 
 tl::expected<admire::adhoc_storage, admire::error_code>
-register_adhoc_storage(const server& srv, const job& job, const std::string& id,
+register_adhoc_storage(const server& srv, const std::string& id,
                        const adhoc_storage::ctx& ctx);
 
 } // namespace admire::detail

@@ -324,7 +324,7 @@ register_adhoc_storage(const server& srv, const job& job,
     const auto rpc_id = ::api::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: name: {} from: {} => "
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
                 "body: {{job: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
                 std::quoted(rpc_client.self_address()), job);
@@ -343,8 +343,8 @@ register_adhoc_storage(const server& srv, const job& job,
         const auto retval = static_cast<admire::error_code>(out.retval);
         LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
                      "body: {{retval: {}}} [op_id: {}]",
-                     rpc_id, std::quoted("ADM_"s + __FUNCTION__), retval,
-                     out.op_id);
+                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                     std::quoted(rpc_client.self_address()), retval, out.op_id);
         return tl::make_unexpected(retval);
     }
 
@@ -354,9 +354,10 @@ register_adhoc_storage(const server& srv, const job& job,
     rpc_adhoc_storage.id() = out.server_id;
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
-                "body: {{retval: {}}} [op_id: {}]",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__), ADM_SUCCESS,
-                out.op_id);
+                "body: {{retval: {}, server_id: {}}} [op_id: {}]",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc_client.self_address()), ADM_SUCCESS,
+                out.server_id, out.op_id);
 
     return rpc_adhoc_storage;
 }

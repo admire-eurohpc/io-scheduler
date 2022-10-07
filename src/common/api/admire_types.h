@@ -61,6 +61,9 @@ typedef struct adm_server* ADM_server_t;
 /** A node */
 typedef struct adm_node* ADM_node_t;
 
+/** A list of nodes */
+typedef struct adm_node_list* ADM_node_list_t;
+
 /** A job */
 typedef struct adm_job* ADM_job_t;
 
@@ -68,6 +71,9 @@ typedef struct adm_job* ADM_job_t;
 /* ----------------------------------------------------- */
 /*              Jobs                                     */
 /* ----------------------------------------------------- */
+
+/** Information about resources assigned to a job */
+typedef struct adm_job_resources* ADM_job_resources_t;
 
 /** I/O stats from a job */
 typedef struct {
@@ -113,7 +119,7 @@ typedef enum {
 typedef struct adm_storage* ADM_storage_t;
 
 /** Information about resources assigned to a storage tier */
-typedef struct adm_storage_resources* ADM_storage_resources_t;
+typedef struct adm_adhoc_resources* ADM_adhoc_resources_t;
 
 /** Execution modes for an adhoc storage system */
 typedef enum {
@@ -242,9 +248,56 @@ ADM_node_create(const char* hostname);
 ADM_return_t
 ADM_node_destroy(ADM_node_t node);
 
+/**
+ * Create a node list from an array of ADM_NODEs and its
+ * length.
+ *
+ * @remark node lists need to be freed by calling ADM_node_list_destroy().
+ *
+ * @param[in] datasets The array of nodes.
+ * @param[in] len The length of the array.
+ * @return A valid ADM_node_list_t if successful or NULL in case of
+ * failure.
+ */
+ADM_node_list_t
+ADM_node_list_create(ADM_node_t nodes[], size_t len);
+
+/**
+ * Destroy a node list created by ADM_node_list_create().
+ *
+ * @param[in] list A valid ADM_node_list_t
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_node_list_destroy(ADM_node_list_t list);
+
 /* ----------------------------------------------------- */
 /*              Jobs                                     */
 /* ----------------------------------------------------- */
+
+/**
+ * Create an ADM_JOB_RESOURCES from information about storage resources.
+ *
+ * @remark ADM_JOB_RESOURCES need to be freed by calling
+ * ADM_job_resources_destroy().
+ *
+ * @param[in] nodes An array of ADM_NODES describing the nodes assigned
+ * by the job_storage.
+ * @param[in] nodes_len The number of ADM_NODES stored in nodes.
+ *
+ * @return A valid ADM_JOB_RESOURCES, or NULL in case of failure
+ */
+ADM_job_resources_t
+ADM_job_resources_create(ADM_node_t nodes[], size_t nodes_len);
+
+/**
+ * Destroy a ADM_JOB_RESOURCES created by ADM_job_resources_create().
+ *
+ * @param[in] res A valid ADM_JOB_RESOURCES
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_job_resources_destroy(ADM_job_resources_t res);
 
 /**
  * Create a JOB_REQUIREMENTS from user-provided information.
@@ -379,24 +432,28 @@ ADM_return_t
 ADM_storage_destroy(ADM_storage_t storage);
 
 /**
- * Create an ADM_STORAGE_RESOURCES from information about storage resources.
+ * Create an ADM_ADHOC_RESOURCES from information about storage resources.
  *
- * @remark ADM_STORAGE_RESOURCES need to be freed by calling
- * ADM_storage_resources_destroy().
+ * @remark ADM_ADHOC_RESOURCES need to be freed by calling
+ * ADM_adhoc_resources_destroy().
  *
- * @return A valid ADM_STORAGE_RESOURCES, or NULL in case of failure
+ * @param[in] nodes An array of ADM_NODES describing the nodes assigned
+ * by the adhoc_storage.
+ * @param[in] nodes_len The number of ADM_NODES stored in nodes.
+ *
+ * @return A valid ADM_ADHOC_RESOURCES, or NULL in case of failure
  */
-ADM_storage_resources_t
-ADM_storage_resources_create();
+ADM_adhoc_resources_t
+ADM_adhoc_resources_create(ADM_node_t nodes[], size_t nodes_len);
 
 /**
- * Destroy a ADM_STORAGE_RESOURCES created by ADM_storage_resources_create().
+ * Destroy a ADM_ADHOC_RESOURCES created by ADM_adhoc_resources_create().
  *
- * @param[in] res A valid ADM_STORAGE
+ * @param[in] res A valid ADM_ADHOC_RESOURCES
  * @return ADM_SUCCESS or corresponding ADM error code
  */
 ADM_return_t
-ADM_storage_resources_destroy(ADM_storage_resources_t res);
+ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res);
 
 /**
  * Create an ADM_ADHOC_CONTEXT from information about how an adhoc storage
@@ -407,7 +464,7 @@ ADM_storage_resources_destroy(ADM_storage_resources_t res);
  *
  * @param[in] exec_mode The adhoc storage system execution mode
  * @param[in] access_type The adhoc storage system execution type
- * @param[in] nodes The number of nodes for the adhoc storage system
+ * @param[in] adhoc_resources The resources assigned for the storage system
  * @param[in] walltime The adhoc storage system walltime
  * @param[in] should_flush Whether the adhoc storage system should flush data in
  * the background
@@ -415,7 +472,8 @@ ADM_storage_resources_destroy(ADM_storage_resources_t res);
  */
 ADM_adhoc_context_t
 ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,
-                         ADM_adhoc_access_t access_type, uint32_t nodes,
+                         ADM_adhoc_access_t access_type,
+                         ADM_adhoc_resources_t adhoc_resources,
                          uint32_t walltime, bool should_flush);
 
 /**
@@ -533,7 +591,7 @@ ADM_qos_limit_list_destroy(ADM_qos_limit_list_t list);
  * Create an ADM_DATA_OPERATION from information about storage resources.
  *
  * @remark ADM_DATA_OPERATION need to be freed by calling
- * ADM_storage_resources_destroy().
+ * ADM_adhoc_resources_destroy().
  *
  * @return A valid ADM_DATA_OPERATION, or NULL in case of failure
  */

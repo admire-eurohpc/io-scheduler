@@ -26,8 +26,10 @@
 #include <admire.hpp>
 #include "common.hpp"
 
-#define NINPUTS  10
-#define NOUTPUTS 5
+#define NJOB_NODES   50
+#define NADHOC_NODES 25
+#define NINPUTS      10
+#define NOUTPUTS     5
 
 int
 main(int argc, char* argv[]) {
@@ -40,13 +42,16 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
+    const auto job_nodes = prepare_nodes(NJOB_NODES);
+    const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
     auto p = std::make_unique<admire::adhoc_storage>(
             admire::storage::type::gekkofs, "foobar",
             admire::adhoc_storage::execution_mode::separate_new,
-            admire::adhoc_storage::access_type::read_write, 42, 100, false);
+            admire::adhoc_storage::access_type::read_write,
+            admire::adhoc_storage::resources{adhoc_nodes}, 100, false);
 
     admire::job_requirements reqs{inputs, outputs, std::move(p)};
 
@@ -58,15 +63,17 @@ main(int argc, char* argv[]) {
     auto p2 = std::make_unique<admire::adhoc_storage>(
             admire::storage::type::gekkofs, "foobar",
             admire::adhoc_storage::execution_mode::separate_new,
-            admire::adhoc_storage::access_type::read_write, 42, 100, false);
+            admire::adhoc_storage::access_type::read_write,
+            admire::adhoc_storage::resources{adhoc_nodes}, 100, false);
 
     admire::job_requirements new_reqs{new_inputs, new_outputs, std::move(p2)};
 
     try {
-        [[maybe_unused]] const auto job = admire::register_job(server, reqs);
+        [[maybe_unused]] const auto job = admire::register_job(
+                server, admire::job::resources{job_nodes}, reqs);
 
-        [[maybe_unused]] ADM_return_t ret =
-                admire::update_job(server, job, new_reqs);
+        [[maybe_unused]] ADM_return_t ret = admire::update_job(
+                server, job, admire::job::resources{job_nodes}, new_reqs);
 
         fmt::print(
                 stdout,

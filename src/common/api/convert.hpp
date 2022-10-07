@@ -42,6 +42,9 @@ struct managed_ctype_array;
 managed_ctype<ADM_node_t>
 convert(const node& node);
 
+managed_ctype<ADM_adhoc_resources_t>
+convert(const adhoc_storage::resources& res);
+
 managed_ctype<ADM_adhoc_context_t>
 convert(const adhoc_storage::ctx& ctx);
 
@@ -59,6 +62,9 @@ convert(ADM_dataset_t datasets[], size_t datasets_len);
 
 std::vector<admire::dataset>
 convert(ADM_dataset_list_t list);
+
+managed_ctype<ADM_job_resources_t>
+convert(const job::resources& res);
 
 managed_ctype<ADM_job_requirements_t>
 convert(const admire::job_requirements& reqs);
@@ -110,9 +116,65 @@ struct admire::api::managed_ctype<ADM_node_t> {
 };
 
 template <>
+struct admire::api::managed_ctype_array<ADM_node_t> {
+
+    explicit managed_ctype_array(ADM_node_t* data, size_t size)
+        : m_nodes(data, size) {}
+
+    explicit managed_ctype_array(std::vector<ADM_node_t>&& v)
+        : m_nodes(v.data(), v.size()) {}
+
+    constexpr size_t
+    size() const {
+        return m_nodes.size();
+    }
+
+    constexpr const ADM_node_t*
+    data() const noexcept {
+        return m_nodes.data();
+    }
+
+    constexpr ADM_node_t*
+    data() noexcept {
+        return m_nodes.data();
+    }
+
+    constexpr ADM_node_t*
+    release() noexcept {
+        return m_nodes.release();
+    }
+
+    scord::utils::ctype_ptr_vector<ADM_node_t, ADM_node_destroy> m_nodes;
+};
+
+template <>
+struct admire::api::managed_ctype<ADM_adhoc_resources_t> {
+
+    explicit managed_ctype(ADM_adhoc_resources_t res,
+                           managed_ctype_array<ADM_node_t>&& nodes)
+        : m_adhoc_resources(res), m_nodes(std::move(nodes)) {}
+
+    ADM_adhoc_resources_t
+    get() const {
+        return m_adhoc_resources.get();
+    }
+
+    ADM_adhoc_resources_t
+    release() {
+        return m_adhoc_resources.release();
+    }
+
+    scord::utils::ctype_ptr<ADM_adhoc_resources_t, ADM_adhoc_resources_destroy>
+            m_adhoc_resources;
+    managed_ctype_array<ADM_node_t> m_nodes;
+};
+
+template <>
 struct admire::api::managed_ctype<ADM_adhoc_context_t> {
 
-    explicit managed_ctype(ADM_adhoc_context_t ctx) : m_adhoc_context(ctx) {}
+    explicit managed_ctype(ADM_adhoc_context_t ctx,
+                           managed_ctype<ADM_adhoc_resources_t>&& resources)
+        : m_adhoc_context(ctx), m_adhoc_resources(std::move(resources)) {}
 
     ADM_adhoc_context_t
     get() const {
@@ -126,6 +188,7 @@ struct admire::api::managed_ctype<ADM_adhoc_context_t> {
 
     scord::utils::ctype_ptr<ADM_adhoc_context_t, ADM_adhoc_context_destroy>
             m_adhoc_context;
+    managed_ctype<ADM_adhoc_resources_t> m_adhoc_resources;
 };
 
 template <>
@@ -217,6 +280,28 @@ struct admire::api::managed_ctype<ADM_dataset_list_t> {
 
     scord::utils::ctype_ptr<ADM_dataset_list_t, ADM_dataset_list_destroy>
             m_list;
+};
+
+template <>
+struct admire::api::managed_ctype<ADM_job_resources_t> {
+
+    explicit managed_ctype(ADM_job_resources_t res,
+                           managed_ctype_array<ADM_node_t>&& nodes)
+        : m_adhoc_resources(res), m_nodes(std::move(nodes)) {}
+
+    ADM_job_resources_t
+    get() const {
+        return m_adhoc_resources.get();
+    }
+
+    ADM_job_resources_t
+    release() {
+        return m_adhoc_resources.release();
+    }
+
+    scord::utils::ctype_ptr<ADM_job_resources_t, ADM_job_resources_destroy>
+            m_adhoc_resources;
+    managed_ctype_array<ADM_node_t> m_nodes;
 };
 
 template <>

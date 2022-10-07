@@ -145,22 +145,25 @@ typedef struct adm_adhoc_context {
     ADM_adhoc_mode_t c_mode;
     /** The adhoc storage system access type */
     ADM_adhoc_access_t c_access;
-    /** The number of nodes for the adhoc storage system */
-    uint32_t c_nodes;
+    /** The resources assigned for the adhoc storage system */
+    ADM_adhoc_resources_t c_resources;
     /** The adhoc storage system walltime */
     uint32_t c_walltime;
     /** Whether the adhoc storage system should flush data in the background */
     bool c_should_bg_flush;
 } adm_adhoc_context;
 
+hg_return_t
+hg_proc_ADM_adhoc_resources_t(hg_proc_t proc, void* data);
+
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
     adm_adhoc_context, // NOLINT
-        ((hg_int32_t)  (c_mode))
-        ((hg_int32_t)  (c_access))
-        ((hg_uint32_t) (c_nodes))
-        ((hg_uint32_t) (c_walltime))
-        ((hg_bool_t)   (c_should_bg_flush))
+        ((hg_int32_t)            (c_mode))
+        ((hg_int32_t)            (c_access))
+        ((ADM_adhoc_resources_t) (c_resources))
+        ((hg_uint32_t)           (c_walltime))
+        ((hg_bool_t)             (c_should_bg_flush))
 )
 // clang-format on
 
@@ -189,15 +192,25 @@ typedef struct adm_storage {
 hg_return_t
 hg_proc_ADM_storage_t(hg_proc_t proc, void* data);
 
-typedef struct adm_storage_resources {
-    // TODO: undefined for now
-    int32_t placeholder;
-} adm_storage_resources;
+
+struct adm_node_list {
+    /** An array of nodes */
+    adm_node* l_nodes;
+    /** The length of the array */
+    size_t l_length;
+};
+
+hg_return_t
+hg_proc_ADM_node_list_t(hg_proc_t proc, void* data);
+
+typedef struct adm_adhoc_resources {
+    ADM_node_list_t r_nodes;
+} adm_adhoc_resources;
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
-    adm_storage_resources, // NOLINT
-        ((hg_int32_t) (placeholder))
+    adm_adhoc_resources, // NOLINT
+        ((ADM_node_list_t) (r_nodes))
 );
 // clang-format on
 
@@ -250,6 +263,18 @@ MERCURY_GEN_STRUCT_PROC(
 );
 // clang-format on
 
+/** The resources assigned to a job */
+typedef struct adm_job_resources {
+    ADM_node_list_t r_nodes;
+} adm_job_resources;
+
+// clang-format off
+MERCURY_GEN_STRUCT_PROC(
+    adm_job_resources, // NOLINT
+        ((ADM_node_list_t) (r_nodes))
+);
+// clang-format on
+
 // clang-format off
 
 MERCURY_GEN_PROC(
@@ -258,9 +283,13 @@ MERCURY_GEN_PROC(
         ((int32_t) (retval))
 );
 
+hg_return_t
+hg_proc_ADM_job_resources_t(hg_proc_t proc, void* data);
+
 /// ADM_register_job
 MERCURY_GEN_PROC(
     ADM_register_job_in_t,
+        ((ADM_job_resources_t) (job_resources))
         ((adm_job_requirements) (reqs))
 );
 
@@ -275,6 +304,7 @@ MERCURY_GEN_PROC(
 MERCURY_GEN_PROC(
     ADM_update_job_in_t,
         ((ADM_job_t) (job))
+        ((ADM_job_resources_t) (job_resources))
         ((adm_job_requirements) (reqs))
 );
 

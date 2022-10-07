@@ -48,10 +48,12 @@ void
 ping(const server& srv);
 
 admire::job
-register_job(const server& srv, const job_requirements& reqs);
+register_job(const server& srv, const job::resources& job_resources,
+             const job_requirements& reqs);
 
 ADM_return_t
-update_job(const server& srv, const job&, const job_requirements& reqs);
+update_job(const server& srv, const job&, const job::resources& job_resources,
+           const job_requirements& reqs);
 
 ADM_return_t
 remove_job(const server& srv, const job& job);
@@ -95,7 +97,7 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
 
 ADM_return_t
 set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
-                 ADM_storage_resources_t resources);
+                 ADM_adhoc_resources_t resources);
 
 ADM_return_t
 get_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,

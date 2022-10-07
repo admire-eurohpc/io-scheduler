@@ -35,10 +35,12 @@ admire::error_code
 ping(const server& srv);
 
 tl::expected<admire::job, admire::error_code>
-register_job(const server& srv, const job_requirements& reqs);
+register_job(const server& srv, const job::resources& job_resources,
+             const job_requirements& reqs);
 
 admire::error_code
-update_job(const server& srv, const job& job, const job_requirements& reqs);
+update_job(const server& srv, const job& job,
+           const job::resources& job_resources, const job_requirements& reqs);
 
 admire::error_code
 remove_job(const server& srv, const job& job);

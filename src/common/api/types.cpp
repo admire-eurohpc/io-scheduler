@@ -83,9 +83,33 @@ ADM_node_create(const char* hostname) {
         return NULL;
     }
 
-    adm_node->n_hostname = hostname;
+    if(hostname) {
+        size_t n = strlen(hostname);
+        adm_node->n_hostname = (const char*) calloc(n + 1, sizeof(char));
+        strcpy((char*) adm_node->n_hostname, hostname);
+    }
 
     return adm_node;
+}
+
+ADM_node_t
+ADM_node_copy(ADM_node_t dst, const ADM_node_t src) {
+
+    if(!src || !dst) {
+        return NULL;
+    }
+
+    // copy all primitive types
+    *dst = *src;
+
+    // duplicate copy any pointer types
+    if(src->n_hostname) {
+        size_t n = strlen(src->n_hostname);
+        dst->n_hostname = (const char*) calloc(n + 1, sizeof(char));
+        strncpy((char*) dst->n_hostname, src->n_hostname, n);
+    }
+
+    return dst;
 }
 
 ADM_return_t
@@ -97,7 +121,77 @@ ADM_node_destroy(ADM_node_t node) {
         return ADM_EBADARGS;
     }
 
+    if(node->n_hostname) {
+        free((void*) node->n_hostname);
+    }
+
     free(node);
+    return ret;
+}
+
+ADM_node_list_t
+ADM_node_list_create(ADM_node_t nodes[], size_t length) {
+
+    ADM_node_list_t p = (ADM_node_list_t) malloc(sizeof(*p));
+
+    if(!p) {
+        LOGGER_ERROR("Could not allocate ADM_node_list_t")
+        return NULL;
+    }
+
+    const char* error_msg = NULL;
+
+    p->l_length = length;
+    p->l_nodes = (struct adm_node*) calloc(length, sizeof(adm_node));
+
+    if(!p->l_nodes) {
+        error_msg = "Could not allocate ADM_node_list_t";
+        goto cleanup_on_error;
+    }
+
+    for(size_t i = 0; i < length; ++i) {
+
+        if(!ADM_node_copy(&p->l_nodes[i], nodes[i])) {
+            error_msg = "Could not allocate ADM_node_list_t";
+            goto cleanup_on_error;
+        };
+    }
+
+    return p;
+
+cleanup_on_error:
+    if(p->l_nodes) {
+        free(p->l_nodes);
+    }
+    free(p);
+
+    if(error_msg) {
+        LOGGER_ERROR(error_msg);
+    }
+
+    return NULL;
+}
+
+ADM_return_t
+ADM_node_list_destroy(ADM_node_list_t list) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!list) {
+        LOGGER_ERROR("Invalid ADM_node_list_t")
+        return ADM_EBADARGS;
+    }
+
+    // We cannot call ADM_node_destroy here because adm_nodes
+    // are stored as a consecutive array in memory. Thus, we free
+    // the node ids themselves and then the array.
+    if(list->l_nodes) {
+        for(size_t i = 0; i < list->l_length; ++i) {
+            free((void*) list->l_nodes[i].n_hostname);
+        }
+        free(list->l_nodes);
+    }
+
+    free(list);
     return ret;
 }
 
@@ -449,29 +543,55 @@ ADM_storage_destroy(ADM_storage_t storage) {
     return ret;
 }
 
-ADM_storage_resources_t
-ADM_storage_resources_create() {
+ADM_adhoc_resources_t
+ADM_adhoc_resources_create(ADM_node_t nodes[], size_t nodes_len) {
 
-    struct adm_storage_resources* adm_storage_resources =
-            (struct adm_storage_resources*) malloc(
-                    sizeof(*adm_storage_resources));
+    struct adm_adhoc_resources* adm_adhoc_resources =
+            (struct adm_adhoc_resources*) malloc(sizeof(*adm_adhoc_resources));
 
-    if(!adm_storage_resources) {
-        LOGGER_ERROR("Could not allocate ADM_storage_resources_t");
-        return NULL;
+    const char* error_msg = NULL;
+    ADM_node_list_t nodes_list = NULL;
+
+    if(!adm_adhoc_resources) {
+        error_msg = "Could not allocate ADM_adhoc_resources_t";
+        goto cleanup_on_error;
     }
 
-    return adm_storage_resources;
+    nodes_list = ADM_node_list_create(nodes, nodes_len);
+
+    if(!nodes_list) {
+        error_msg = "Could not allocate ADM_adhoc_resources_t";
+        goto cleanup_on_error;
+    }
+
+    adm_adhoc_resources->r_nodes = nodes_list;
+
+    return adm_adhoc_resources;
+
+cleanup_on_error:
+    if(error_msg) {
+        LOGGER_ERROR(error_msg);
+    }
+
+    if(adm_adhoc_resources) {
+        ADM_adhoc_resources_destroy(adm_adhoc_resources);
+    }
+
+    return NULL;
 }
 
 ADM_return_t
-ADM_storage_resources_destroy(ADM_storage_resources_t res) {
+ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res) {
 
     ADM_return_t ret = ADM_SUCCESS;
 
     if(!res) {
         LOGGER_ERROR("Invalid ADM_storage_resources_t")
         return ADM_EBADARGS;
+    }
+
+    if(res->r_nodes) {
+        ADM_node_list_destroy(res->r_nodes);
     }
 
     free(res);
@@ -509,7 +629,8 @@ ADM_data_operation_destroy(ADM_data_operation_t op) {
 
 ADM_adhoc_context_t
 ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,
-                         ADM_adhoc_access_t access_type, uint32_t nodes,
+                         ADM_adhoc_access_t access_type,
+                         ADM_adhoc_resources_t adhoc_resources,
                          uint32_t walltime, bool should_flush) {
 
     struct adm_adhoc_context* adm_adhoc_context =
@@ -522,7 +643,7 @@ ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,
 
     adm_adhoc_context->c_mode = exec_mode;
     adm_adhoc_context->c_access = access_type;
-    adm_adhoc_context->c_nodes = nodes;
+    adm_adhoc_context->c_resources = adhoc_resources;
     adm_adhoc_context->c_walltime = walltime;
     adm_adhoc_context->c_should_bg_flush = should_flush;
 
@@ -572,6 +693,62 @@ ADM_pfs_context_destroy(ADM_pfs_context_t ctx) {
     free(ctx);
     return ret;
 }
+
+ADM_job_resources_t
+ADM_job_resources_create(ADM_node_t nodes[], size_t nodes_len) {
+
+    struct adm_job_resources* adm_job_resources =
+            (struct adm_job_resources*) malloc(sizeof(*adm_job_resources));
+
+    const char* error_msg = NULL;
+    ADM_node_list_t nodes_list = NULL;
+
+    if(!adm_job_resources) {
+        error_msg = "Could not allocate ADM_job_resources_t";
+        goto cleanup_on_error;
+    }
+
+    nodes_list = ADM_node_list_create(nodes, nodes_len);
+
+    if(!nodes_list) {
+        error_msg = "Could not allocate ADM_job_resources_t";
+        goto cleanup_on_error;
+    }
+
+    adm_job_resources->r_nodes = nodes_list;
+
+    return adm_job_resources;
+
+cleanup_on_error:
+    if(error_msg) {
+        LOGGER_ERROR(error_msg);
+    }
+
+    if(adm_job_resources) {
+        ADM_job_resources_destroy(adm_job_resources);
+    }
+
+    return NULL;
+}
+
+ADM_return_t
+ADM_job_resources_destroy(ADM_job_resources_t res) {
+
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!res) {
+        LOGGER_ERROR("Invalid ADM_job_resources_t")
+        return ADM_EBADARGS;
+    }
+
+    if(res->r_nodes) {
+        ADM_node_list_destroy(res->r_nodes);
+    }
+
+    free(res);
+    return ret;
+}
+
 
 ADM_job_requirements_t
 ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
@@ -938,6 +1115,23 @@ private:
     job_id m_id;
 };
 
+job::resources::resources(std::vector<admire::node> nodes)
+    : m_nodes(std::move(nodes)) {}
+
+job::resources::resources(ADM_job_resources_t res) {
+    assert(res->r_nodes);
+    m_nodes.reserve(res->r_nodes->l_length);
+
+    for(size_t i = 0; i < res->r_nodes->l_length; ++i) {
+        m_nodes.emplace_back(res->r_nodes->l_nodes[i].n_hostname);
+    }
+}
+
+std::vector<admire::node>
+job::resources::nodes() const {
+    return m_nodes;
+}
+
 job::job(job_id id) : m_pimpl(std::make_unique<job::impl>(id)) {}
 
 job::job(ADM_job_t job) : job::job(job->j_id) {}
@@ -1071,18 +1265,36 @@ storage::type() const {
     return m_type;
 }
 
+adhoc_storage::resources::resources(std::vector<admire::node> nodes)
+    : m_nodes(std::move(nodes)) {}
+
+adhoc_storage::resources::resources(ADM_adhoc_resources_t res) {
+    assert(res->r_nodes);
+    m_nodes.reserve(res->r_nodes->l_length);
+
+    for(size_t i = 0; i < res->r_nodes->l_length; ++i) {
+        m_nodes.emplace_back(res->r_nodes->l_nodes[i].n_hostname);
+    }
+}
+
+std::vector<admire::node>
+adhoc_storage::resources::nodes() const {
+    return m_nodes;
+}
+
 adhoc_storage::ctx::ctx(adhoc_storage::execution_mode exec_mode,
                         adhoc_storage::access_type access_type,
-                        std::uint32_t nodes, std::uint32_t walltime,
-                        bool should_flush)
-    : m_exec_mode(exec_mode), m_access_type(access_type), m_nodes(nodes),
-      m_walltime(walltime), m_should_flush(should_flush) {}
+                        adhoc_storage::resources resources,
+                        std::uint32_t walltime, bool should_flush)
+    : m_exec_mode(exec_mode), m_access_type(access_type),
+      m_resources(std::move(resources)), m_walltime(walltime),
+      m_should_flush(should_flush) {}
 
 adhoc_storage::ctx::ctx(ADM_adhoc_context_t ctx)
     : adhoc_storage::ctx(static_cast<execution_mode>(ctx->c_mode),
                          static_cast<enum access_type>(ctx->c_access),
-                         ctx->c_nodes, ctx->c_walltime,
-                         ctx->c_should_bg_flush) {}
+                         adhoc_storage::resources{ctx->c_resources},
+                         ctx->c_walltime, ctx->c_should_bg_flush) {}
 
 adhoc_storage::execution_mode
 adhoc_storage::ctx::exec_mode() const {
@@ -1094,9 +1306,9 @@ adhoc_storage::ctx::access_type() const {
     return m_access_type;
 }
 
-std::uint32_t
-adhoc_storage::ctx::nodes() const {
-    return m_nodes;
+adhoc_storage::resources
+adhoc_storage::ctx::resources() const {
+    return m_resources;
 }
 
 std::uint32_t
@@ -1144,11 +1356,11 @@ private:
 
 adhoc_storage::adhoc_storage(enum storage::type type, std::string user_id,
                              execution_mode exec_mode, access_type access_type,
-                             std::uint32_t nodes, std::uint32_t walltime,
-                             bool should_flush)
+                             adhoc_storage::resources res,
+                             std::uint32_t walltime, bool should_flush)
     : storage(type, std::move(user_id)),
       m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{
-              exec_mode, access_type, nodes, walltime, should_flush})) {}
+              exec_mode, access_type, res, walltime, should_flush})) {}
 
 adhoc_storage::adhoc_storage(enum storage::type type, std::string user_id,
                              ADM_adhoc_context_t ctx)

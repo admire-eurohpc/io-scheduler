@@ -5,6 +5,28 @@
 #include "common.h"
 #include "admire_types.h"
 
+ADM_node_t*
+prepare_nodes(size_t n) {
+
+    ADM_node_t* nodes = calloc(n, sizeof(ADM_node_t));
+
+    if(!nodes) {
+        return NULL;
+    }
+
+    for(size_t i = 0; i < n; ++i) {
+        size_t len = snprintf(NULL, 0, "node-%02zu", i);
+        char* id = (char*) alloca(len + 1);
+        snprintf(id, len + 1, "node-%02zu", i);
+        nodes[i] = ADM_node_create(id);
+        if(!nodes[i]) {
+            return NULL;
+        }
+    }
+
+    return nodes;
+}
+
 ADM_dataset_t*
 prepare_datasets(const char* pattern, size_t n) {
 

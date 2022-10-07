@@ -39,7 +39,7 @@ main(int argc, char* argv[]) {
 
     ADM_job_t job{};
     ADM_storage_t tier{};
-    ADM_storage_resources_t resources{};
+    ADM_adhoc_resources_t resources{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {

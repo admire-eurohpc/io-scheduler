@@ -110,7 +110,7 @@ hg_proc_ADM_dataset_t(hg_proc_t proc, void* data) {
 
         case HG_ENCODE:
             // find out the length of the adm_dataset object we need to send
-            dataset_length = *dataset ? sizeof(adm_node) : 0;
+            dataset_length = *dataset ? sizeof(adm_dataset) : 0;
             ret = hg_proc_hg_size_t(proc, &dataset_length);
 
             if(ret != HG_SUCCESS) {
@@ -815,6 +815,220 @@ hg_proc_ADM_qos_entity_t(hg_proc_t proc, void* data) {
 
         case HG_FREE:
             tmp = *qos_entity;
+            free(tmp);
+            break;
+    }
+
+    return ret;
+}
+
+hg_return_t
+hg_proc_ADM_node_list_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_node_list_t* list = (ADM_node_list_t*) data;
+    ADM_node_list_t tmp = NULL;
+
+    hg_size_t length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            tmp = *list;
+            // write the length of the list
+            length = tmp->l_length;
+            ret = hg_proc_hg_size_t(proc, &tmp->l_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // write the list
+            for(size_t i = 0; i < length; ++i) {
+                ret = hg_proc_adm_node(proc, &tmp->l_nodes[i]);
+
+                if(ret != HG_SUCCESS) {
+                    break;
+                }
+            }
+            break;
+
+        case HG_DECODE: {
+
+            // find out the length of the list
+            ret = hg_proc_hg_size_t(proc, &length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // loop and create list elements
+            tmp = (ADM_node_list_t) calloc(1, sizeof(struct adm_node_list));
+            tmp->l_length = length;
+            tmp->l_nodes = (adm_node*) calloc(length, sizeof(adm_node));
+
+            for(size_t i = 0; i < length; ++i) {
+                ret = hg_proc_adm_node(proc, &tmp->l_nodes[i]);
+
+                if(ret != HG_SUCCESS) {
+                    break;
+                }
+            }
+
+            // return the newly-created list
+            *list = tmp;
+
+            break;
+        }
+
+        case HG_FREE:
+            tmp = *list;
+            free(tmp->l_nodes);
+            free(tmp);
+            ret = HG_SUCCESS;
+            break;
+    }
+
+    return ret;
+}
+
+hg_return_t
+hg_proc_ADM_adhoc_resources_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_adhoc_resources_t* res = (ADM_adhoc_resources_t*) data;
+    ADM_adhoc_resources_t tmp = NULL;
+    hg_size_t res_length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            // find out the length of the adm_adhoc_resources object we need to
+            // send
+            res_length = *res ? sizeof(adm_adhoc_resources) : 0;
+            ret = hg_proc_hg_size_t(proc, &res_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!res_length) {
+                return HG_SUCCESS;
+            }
+
+            // if we actually need to send an adm_transfer object,
+            // write it to the mercury buffer
+            tmp = *res;
+
+            ret = hg_proc_adm_adhoc_resources(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            break;
+
+        case HG_DECODE:
+            // find out the length of the adm_transfer object
+            ret = hg_proc_hg_size_t(proc, &res_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!res_length) {
+                *res = NULL;
+                break;
+            }
+
+            // if the received adm_adhoc_resources object was not NULL, read
+            // each of its fields from the mercury buffer
+            tmp = (adm_adhoc_resources*) calloc(1, sizeof(adm_adhoc_resources));
+
+            ret = hg_proc_adm_adhoc_resources(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // return the newly-created ctx
+            *res = tmp;
+            break;
+
+        case HG_FREE:
+            tmp = *res;
+            free(tmp);
+            break;
+    }
+
+    return ret;
+}
+
+hg_return_t
+hg_proc_ADM_job_resources_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_job_resources_t* res = (ADM_job_resources_t*) data;
+    ADM_job_resources_t tmp = NULL;
+    hg_size_t res_length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            // find out the length of the adm_job_resources object we need to
+            // send
+            res_length = *res ? sizeof(adm_job_resources) : 0;
+            ret = hg_proc_hg_size_t(proc, &res_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!res_length) {
+                return HG_SUCCESS;
+            }
+
+            // if we actually need to send an adm_transfer object,
+            // write it to the mercury buffer
+            tmp = *res;
+
+            ret = hg_proc_adm_job_resources(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            break;
+
+        case HG_DECODE:
+            // find out the length of the adm_transfer object
+            ret = hg_proc_hg_size_t(proc, &res_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!res_length) {
+                *res = NULL;
+                break;
+            }
+
+            // if the received adm_job_resources object was not NULL, read
+            // each of its fields from the mercury buffer
+            tmp = (adm_job_resources*) calloc(1, sizeof(adm_job_resources));
+
+            ret = hg_proc_adm_job_resources(proc, tmp);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // return the newly-created ctx
+            *res = tmp;
+            break;
+
+        case HG_FREE:
+            tmp = *res;
             free(tmp);
             break;
     }

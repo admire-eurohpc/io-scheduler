@@ -43,13 +43,14 @@ ADM_ping(ADM_server_t server) {
 }
 
 ADM_return_t
-ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
-                 ADM_job_t* job) {
+ADM_register_job(ADM_server_t server, ADM_job_resources_t resources,
+                 ADM_job_requirements_t reqs, ADM_job_t* job) {
 
     const admire::server srv{server};
 
     const auto rv =
-            admire::detail::register_job(srv, admire::job_requirements{reqs});
+            admire::detail::register_job(srv, admire::job::resources{resources},
+                                         admire::job_requirements{reqs});
 
     if(!rv) {
         return rv.error();
@@ -62,11 +63,12 @@ ADM_register_job(ADM_server_t server, ADM_job_requirements_t reqs,
 
 ADM_return_t
 ADM_update_job(ADM_server_t server, ADM_job_t job,
-               ADM_job_requirements_t reqs) {
+               ADM_job_resources_t job_resources, ADM_job_requirements_t reqs) {
 
     const admire::server srv{server};
 
     return admire::update_job(srv, admire::job{job},
+                              admire::job::resources{job_resources},
                               admire::job_requirements{reqs});
 }
 
@@ -184,7 +186,7 @@ ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
 
 ADM_return_t
 ADM_set_io_resources(ADM_server_t server, ADM_job_t job, ADM_storage_t tier,
-                     ADM_storage_resources_t resources) {
+                     ADM_adhoc_resources_t resources) {
 
     const admire::server srv{server};
 

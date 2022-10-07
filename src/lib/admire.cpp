@@ -209,9 +209,10 @@ ping(const server& srv) {
 
 
 admire::job
-register_job(const server& srv, const job_requirements& reqs) {
+register_job(const server& srv, const job::resources& resources,
+             const job_requirements& reqs) {
 
-    const auto rv = detail::register_job(srv, reqs);
+    const auto rv = detail::register_job(srv, resources, reqs);
 
     if(!rv) {
         throw std::runtime_error(fmt::format("ADM_register_job() error: {}",
@@ -219,12 +220,12 @@ register_job(const server& srv, const job_requirements& reqs) {
     }
 
     return rv.value();
-    
 }
 
 ADM_return_t
-update_job(const server& srv, const job& job, const job_requirements& reqs) {
-    return detail::update_job(srv, job, reqs);
+update_job(const server& srv, const job& job,
+           const job::resources& job_resources, const job_requirements& reqs) {
+    return detail::update_job(srv, job, job_resources, reqs);
 }
 
 ADM_return_t
@@ -457,7 +458,7 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
 
 ADM_return_t
 set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
-                 ADM_storage_resources_t resources) {
+                 ADM_adhoc_resources_t resources) {
     (void) srv;
     (void) job;
     (void) tier;

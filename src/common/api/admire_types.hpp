@@ -82,6 +82,17 @@ private:
 
 struct job {
 
+    struct resources {
+        explicit resources(std::vector<admire::node> nodes);
+        explicit resources(ADM_job_resources_t res);
+
+        std::vector<admire::node>
+        nodes() const;
+
+    private:
+        std::vector<admire::node> m_nodes;
+    };
+
     explicit job(job_id id);
     explicit job(ADM_job_t job);
     job(const job&) noexcept;
@@ -268,10 +279,22 @@ struct adhoc_storage : public storage {
         read_write = ADM_ADHOC_ACCESS_RDWR,
     };
 
+    struct resources {
+        explicit resources(std::vector<admire::node> nodes);
+        explicit resources(ADM_adhoc_resources_t res);
+
+        std::vector<admire::node>
+        nodes() const;
+
+    private:
+        std::vector<admire::node> m_nodes;
+    };
+
     struct ctx : storage::ctx {
 
         ctx(execution_mode exec_mode, access_type access_type,
-            std::uint32_t nodes, std::uint32_t walltime, bool should_flush);
+            adhoc_storage::resources resources, std::uint32_t walltime,
+            bool should_flush);
 
         explicit ctx(ADM_adhoc_context_t ctx);
 
@@ -279,8 +302,8 @@ struct adhoc_storage : public storage {
         exec_mode() const;
         enum access_type
         access_type() const;
-        std::uint32_t
-        nodes() const;
+        adhoc_storage::resources
+        resources() const;
         std::uint32_t
         walltime() const;
         bool
@@ -289,14 +312,14 @@ struct adhoc_storage : public storage {
     private:
         execution_mode m_exec_mode;
         enum access_type m_access_type;
-        std::uint32_t m_nodes;
+        adhoc_storage::resources m_resources;
         std::uint32_t m_walltime;
         bool m_should_flush;
     };
 
     adhoc_storage(enum storage::type type, std::string user_id,
                   execution_mode exec_mode, access_type access_type,
-                  std::uint32_t nodes, std::uint32_t walltime,
+                  adhoc_storage::resources res, std::uint32_t walltime,
                   bool should_flush);
     adhoc_storage(enum storage::type type, std::string user_id,
                   ADM_adhoc_context_t ctx);
@@ -628,6 +651,22 @@ struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
 };
 
 template <>
+struct fmt::formatter<admire::adhoc_storage::resources>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::adhoc_storage::resources& r,
+           FormatContext& ctx) const {
+
+        const auto str = fmt::format("{{nodes: {}}}", r.nodes());
+
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+
+template <>
 struct fmt::formatter<admire::adhoc_storage::ctx>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
@@ -637,8 +676,8 @@ struct fmt::formatter<admire::adhoc_storage::ctx>
 
         const auto str =
                 fmt::format("{{execution_mode: {}, access_type: {}, "
-                            "nodes: {}, walltime: {}, should_flush: {}}}",
-                            c.exec_mode(), c.access_type(), c.nodes(),
+                            "resources: {}, walltime: {}, should_flush: {}}}",
+                            c.exec_mode(), c.access_type(), c.resources(),
                             c.walltime(), c.should_flush());
 
         return formatter<std::string_view>::format(str, ctx);
@@ -668,6 +707,17 @@ struct fmt::formatter<admire::pfs_storage::ctx> : formatter<std::string_view> {
     auto
     format(const admire::pfs_storage::ctx& c, FormatContext& ctx) const {
         const auto str = fmt::format("{{mount_point: {}}}", c.mount_point());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::job::resources> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::job::resources& r, FormatContext& ctx) const {
+        const auto str = fmt::format("{{nodes: {}}}", r.nodes());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
@@ -821,6 +871,17 @@ struct fmt::formatter<admire::transfer> : formatter<std::string_view> {
     auto
     format(const admire::transfer& tx, FormatContext& ctx) const {
         const auto str = fmt::format("{{id: {}}}", tx.id());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<std::vector<admire::node>> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::vector<admire::node>& v, FormatContext& ctx) const {
+        const auto str = fmt::format("[{}]", fmt::join(v, ", "));
         return formatter<std::string_view>::format(str, ctx);
     }
 };

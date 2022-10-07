@@ -55,15 +55,18 @@ main(int argc, char* argv[]) {
     const auto qos_limits = prepare_qos_limits(NLIMITS);
     const auto mapping = admire::transfer::mapping::n_to_n;
 
-    auto p = std::make_unique<admire::adhoc_storage>(
-            admire::storage::type::gekkofs, "foobar",
+    std::string user_id = "adhoc_storage_42";
+    const auto adhoc_storage_ctx = admire::adhoc_storage::ctx{
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write,
-            admire::adhoc_storage::resources{adhoc_nodes}, 100, false);
-
-    admire::job_requirements reqs(inputs, outputs, std::move(p));
+            admire::adhoc_storage::resources{adhoc_nodes}, 100, false};
 
     try {
+        const auto adhoc_storage = admire::register_adhoc_storage(
+                server, user_id, adhoc_storage_ctx);
+
+        admire::job_requirements reqs(inputs, outputs, adhoc_storage);
+
         const auto job = admire::register_job(
                 server, admire::job::resources{job_nodes}, reqs);
         const auto transfer = admire::transfer_datasets(

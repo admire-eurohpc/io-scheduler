@@ -98,12 +98,13 @@ ADM_register_job(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 
     const admire::job_requirements reqs(&in.reqs);
+    const admire::job::resources job_resources(in.job_resources);
 
     const auto id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job_requirements: {}}}",
+                "body: {{job_resources: {}, job_requirements: {}}}",
                 id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                reqs);
+                job_resources, reqs);
 
     const auto job = admire::job{42};
 
@@ -147,13 +148,14 @@ ADM_update_job(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 
     const admire::job job(in.job);
+    const admire::job::resources job_resources(in.job_resources);
     const admire::job_requirements reqs(&in.reqs);
 
     const auto id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job: {}, job_requirements: {}}}",
+                "body: {{job: {}, job_resources: {}, job_requirements: {}}}",
                 id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), job,
-                reqs);
+                job_resources, reqs);
 
     admire::error_code rv = ADM_SUCCESS;
     out.op_id = id;

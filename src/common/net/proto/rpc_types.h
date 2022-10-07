@@ -263,6 +263,18 @@ MERCURY_GEN_STRUCT_PROC(
 );
 // clang-format on
 
+/** The resources assigned to a job */
+typedef struct adm_job_resources {
+    ADM_node_list_t r_nodes;
+} adm_job_resources;
+
+// clang-format off
+MERCURY_GEN_STRUCT_PROC(
+    adm_job_resources, // NOLINT
+        ((ADM_node_list_t) (r_nodes))
+);
+// clang-format on
+
 // clang-format off
 
 MERCURY_GEN_PROC(
@@ -271,9 +283,13 @@ MERCURY_GEN_PROC(
         ((int32_t) (retval))
 );
 
+hg_return_t
+hg_proc_ADM_job_resources_t(hg_proc_t proc, void* data);
+
 /// ADM_register_job
 MERCURY_GEN_PROC(
     ADM_register_job_in_t,
+        ((ADM_job_resources_t) (job_resources))
         ((adm_job_requirements) (reqs))
 );
 
@@ -288,6 +304,7 @@ MERCURY_GEN_PROC(
 MERCURY_GEN_PROC(
     ADM_update_job_in_t,
         ((ADM_job_t) (job))
+        ((ADM_job_resources_t) (job_resources))
         ((adm_job_requirements) (reqs))
 );
 

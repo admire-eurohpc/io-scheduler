@@ -82,6 +82,17 @@ private:
 
 struct job {
 
+    struct resources {
+        explicit resources(std::vector<admire::node> nodes);
+        explicit resources(ADM_job_resources_t res);
+
+        std::vector<admire::node>
+        nodes() const;
+
+    private:
+        std::vector<admire::node> m_nodes;
+    };
+
     explicit job(job_id id);
     explicit job(ADM_job_t job);
     job(const job&) noexcept;
@@ -696,6 +707,17 @@ struct fmt::formatter<admire::pfs_storage::ctx> : formatter<std::string_view> {
     auto
     format(const admire::pfs_storage::ctx& c, FormatContext& ctx) const {
         const auto str = fmt::format("{{mount_point: {}}}", c.mount_point());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<admire::job::resources> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const admire::job::resources& r, FormatContext& ctx) const {
+        const auto str = fmt::format("{{nodes: {}}}", r.nodes());
         return formatter<std::string_view>::format(str, ctx);
     }
 };

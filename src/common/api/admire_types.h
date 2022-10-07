@@ -72,6 +72,9 @@ typedef struct adm_job* ADM_job_t;
 /*              Jobs                                     */
 /* ----------------------------------------------------- */
 
+/** Information about resources assigned to a job */
+typedef struct adm_job_resources* ADM_job_resources_t;
+
 /** I/O stats from a job */
 typedef struct {
     // TODO: empty for now
@@ -271,6 +274,30 @@ ADM_node_list_destroy(ADM_node_list_t list);
 /* ----------------------------------------------------- */
 /*              Jobs                                     */
 /* ----------------------------------------------------- */
+
+/**
+ * Create an ADM_JOB_RESOURCES from information about storage resources.
+ *
+ * @remark ADM_JOB_RESOURCES need to be freed by calling
+ * ADM_job_resources_destroy().
+ *
+ * @param[in] nodes An array of ADM_NODES describing the nodes assigned
+ * by the job_storage.
+ * @param[in] nodes_len The number of ADM_NODES stored in nodes.
+ *
+ * @return A valid ADM_JOB_RESOURCES, or NULL in case of failure
+ */
+ADM_job_resources_t
+ADM_job_resources_create(ADM_node_t nodes[], size_t nodes_len);
+
+/**
+ * Destroy a ADM_JOB_RESOURCES created by ADM_job_resources_create().
+ *
+ * @param[in] res A valid ADM_JOB_RESOURCES
+ * @return ADM_SUCCESS or corresponding ADM error code
+ */
+ADM_return_t
+ADM_job_resources_destroy(ADM_job_resources_t res);
 
 /**
  * Create a JOB_REQUIREMENTS from user-provided information.

@@ -28,6 +28,7 @@
 #include <assert.h>
 #include "common.h"
 
+#define NJOB_NODES   50
 #define NADHOC_NODES 25
 #define NINPUTS      10
 #define NOUTPUTS     5
@@ -45,6 +46,8 @@ main(int argc, char* argv[]) {
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
     ADM_job_t job;
+    ADM_node_t* job_nodes = prepare_nodes(NJOB_NODES);
+    assert(job_nodes);
     ADM_node_t* adhoc_nodes = prepare_nodes(NADHOC_NODES);
     assert(adhoc_nodes);
     ADM_dataset_t* inputs = prepare_datasets("input-dataset-%d", NINPUTS);
@@ -64,11 +67,15 @@ main(int argc, char* argv[]) {
     ADM_storage_t st = ADM_storage_create("foobar", ADM_STORAGE_GEKKOFS, ctx);
     assert(st);
 
+    ADM_job_resources_t job_resources =
+            ADM_job_resources_create(job_nodes, NJOB_NODES);
+    assert(job_resources);
+
     ADM_job_requirements_t reqs =
             ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
     assert(reqs);
 
-    ADM_return_t ret = ADM_register_job(server, reqs, &job);
+    ADM_return_t ret = ADM_register_job(server, job_resources, reqs, &job);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "

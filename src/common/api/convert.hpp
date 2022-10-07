@@ -63,6 +63,9 @@ convert(ADM_dataset_t datasets[], size_t datasets_len);
 std::vector<admire::dataset>
 convert(ADM_dataset_list_t list);
 
+managed_ctype<ADM_job_resources_t>
+convert(const job::resources& res);
+
 managed_ctype<ADM_job_requirements_t>
 convert(const admire::job_requirements& reqs);
 
@@ -277,6 +280,28 @@ struct admire::api::managed_ctype<ADM_dataset_list_t> {
 
     scord::utils::ctype_ptr<ADM_dataset_list_t, ADM_dataset_list_destroy>
             m_list;
+};
+
+template <>
+struct admire::api::managed_ctype<ADM_job_resources_t> {
+
+    explicit managed_ctype(ADM_job_resources_t res,
+                           managed_ctype_array<ADM_node_t>&& nodes)
+        : m_adhoc_resources(res), m_nodes(std::move(nodes)) {}
+
+    ADM_job_resources_t
+    get() const {
+        return m_adhoc_resources.get();
+    }
+
+    ADM_job_resources_t
+    release() {
+        return m_adhoc_resources.release();
+    }
+
+    scord::utils::ctype_ptr<ADM_job_resources_t, ADM_job_resources_destroy>
+            m_adhoc_resources;
+    managed_ctype_array<ADM_node_t> m_nodes;
 };
 
 template <>

@@ -160,6 +160,17 @@ convert(ADM_dataset_list_t list) {
     return rv;
 }
 
+managed_ctype<ADM_job_resources_t>
+convert(const job::resources& res) {
+
+    auto managed_nodes = as_ctype_array(res.nodes());
+
+    ADM_job_resources_t c_res = ADM_job_resources_create(managed_nodes.data(),
+                                                         managed_nodes.size());
+
+    return managed_ctype<ADM_job_resources_t>{c_res, std::move(managed_nodes)};
+}
+
 managed_ctype<ADM_job_requirements_t>
 convert(const admire::job_requirements& reqs) {
 

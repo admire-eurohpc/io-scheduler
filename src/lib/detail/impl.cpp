@@ -197,7 +197,9 @@ ping(const server& srv) {
 }
 
 tl::expected<admire::job, admire::error_code>
-register_job(const admire::server& srv, const admire::job_requirements& reqs) {
+register_job(const admire::server& srv,
+             const admire::job::resources& job_resources,
+             const admire::job_requirements& reqs) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
@@ -205,13 +207,14 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job_requirements: {}}}",
+                "body: {{job_resources: {}, job_requirements: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), reqs);
+                std::quoted(rpc_client.self_address()), job_resources, reqs);
 
+    auto rpc_job_resources = api::convert(job_resources);
     auto rpc_reqs = api::convert(reqs);
 
-    ADM_register_job_in_t in{*rpc_reqs.get()};
+    ADM_register_job_in_t in{rpc_job_resources.get(), *rpc_reqs.get()};
     ADM_register_job_out_t out;
 
     const auto rpc = endp.call("ADM_register_job", &in, &out);
@@ -235,7 +238,8 @@ register_job(const admire::server& srv, const admire::job_requirements& reqs) {
 }
 
 admire::error_code
-update_job(const server& srv, const job& job, const job_requirements& reqs) {
+update_job(const server& srv, const job& job,
+           const job::resources& job_resources, const job_requirements& reqs) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
@@ -243,14 +247,17 @@ update_job(const server& srv, const job& job, const job_requirements& reqs) {
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job: {}, job_requirements: {}}}",
+                "body: {{job: {}, job_resources: {}, job_requirements: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), job, reqs);
+                std::quoted(rpc_client.self_address()), job, job_resources,
+                reqs);
 
     const auto rpc_job = api::convert(job);
+    const auto rpc_job_resources = api::convert(job_resources);
     const auto rpc_reqs = api::convert(reqs);
 
-    ADM_update_job_in_t in{rpc_job.get(), *rpc_reqs.get()};
+    ADM_update_job_in_t in{rpc_job.get(), rpc_job_resources.get(),
+                           *rpc_reqs.get()};
     ADM_update_job_out_t out;
 
     const auto rpc = endp.call("ADM_update_job", &in, &out);

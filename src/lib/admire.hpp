@@ -48,10 +48,12 @@ void
 ping(const server& srv);
 
 admire::job
-register_job(const server& srv, const job_requirements& reqs);
+register_job(const server& srv, const job::resources& job_resources,
+             const job_requirements& reqs);
 
 ADM_return_t
-update_job(const server& srv, const job&, const job_requirements& reqs);
+update_job(const server& srv, const job&, const job::resources& job_resources,
+           const job_requirements& reqs);
 
 ADM_return_t
 remove_job(const server& srv, const job& job);

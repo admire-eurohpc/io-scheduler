@@ -694,6 +694,62 @@ ADM_pfs_context_destroy(ADM_pfs_context_t ctx) {
     return ret;
 }
 
+ADM_job_resources_t
+ADM_job_resources_create(ADM_node_t nodes[], size_t nodes_len) {
+
+    struct adm_job_resources* adm_job_resources =
+            (struct adm_job_resources*) malloc(sizeof(*adm_job_resources));
+
+    const char* error_msg = NULL;
+    ADM_node_list_t nodes_list = NULL;
+
+    if(!adm_job_resources) {
+        error_msg = "Could not allocate ADM_job_resources_t";
+        goto cleanup_on_error;
+    }
+
+    nodes_list = ADM_node_list_create(nodes, nodes_len);
+
+    if(!nodes_list) {
+        error_msg = "Could not allocate ADM_job_resources_t";
+        goto cleanup_on_error;
+    }
+
+    adm_job_resources->r_nodes = nodes_list;
+
+    return adm_job_resources;
+
+cleanup_on_error:
+    if(error_msg) {
+        LOGGER_ERROR(error_msg);
+    }
+
+    if(adm_job_resources) {
+        ADM_job_resources_destroy(adm_job_resources);
+    }
+
+    return NULL;
+}
+
+ADM_return_t
+ADM_job_resources_destroy(ADM_job_resources_t res) {
+
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!res) {
+        LOGGER_ERROR("Invalid ADM_job_resources_t")
+        return ADM_EBADARGS;
+    }
+
+    if(res->r_nodes) {
+        ADM_node_list_destroy(res->r_nodes);
+    }
+
+    free(res);
+    return ret;
+}
+
+
 ADM_job_requirements_t
 ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
                             ADM_dataset_t outputs[], size_t outputs_len,
@@ -1058,6 +1114,23 @@ public:
 private:
     job_id m_id;
 };
+
+job::resources::resources(std::vector<admire::node> nodes)
+    : m_nodes(std::move(nodes)) {}
+
+job::resources::resources(ADM_job_resources_t res) {
+    assert(res->r_nodes);
+    m_nodes.reserve(res->r_nodes->l_length);
+
+    for(size_t i = 0; i < res->r_nodes->l_length; ++i) {
+        m_nodes.emplace_back(res->r_nodes->l_nodes[i].n_hostname);
+    }
+}
+
+std::vector<admire::node>
+job::resources::nodes() const {
+    return m_nodes;
+}
 
 job::job(job_id id) : m_pimpl(std::make_unique<job::impl>(id)) {}
 

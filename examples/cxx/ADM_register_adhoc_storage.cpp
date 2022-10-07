@@ -26,6 +26,7 @@
 #include <admire.hpp>
 #include "common.hpp"
 
+#define NJOB_NODES   50
 #define NADHOC_NODES 25
 #define NINPUTS      10
 #define NOUTPUTS     5
@@ -42,6 +43,7 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
+    const auto job_nodes = prepare_nodes(NJOB_NODES);
     const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
@@ -62,7 +64,8 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        const auto job = admire::register_job(server, reqs);
+        const auto job = admire::register_job(
+                server, admire::job::resources{job_nodes}, reqs);
         const auto adhoc_storage = admire::register_adhoc_storage(
                 server, job, user_id, adhoc_storage_ctx);
     } catch(const std::exception& e) {

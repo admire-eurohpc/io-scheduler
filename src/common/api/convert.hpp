@@ -118,6 +118,8 @@ struct admire::api::managed_ctype<ADM_node_t> {
 template <>
 struct admire::api::managed_ctype_array<ADM_node_t> {
 
+    managed_ctype_array() = default;
+
     explicit managed_ctype_array(ADM_node_t* data, size_t size)
         : m_nodes(data, size) {}
 
@@ -150,6 +152,8 @@ struct admire::api::managed_ctype_array<ADM_node_t> {
 template <>
 struct admire::api::managed_ctype<ADM_adhoc_resources_t> {
 
+    managed_ctype() = default;
+
     explicit managed_ctype(ADM_adhoc_resources_t res,
                            managed_ctype_array<ADM_node_t>&& nodes)
         : m_adhoc_resources(res), m_nodes(std::move(nodes)) {}
@@ -172,6 +176,8 @@ struct admire::api::managed_ctype<ADM_adhoc_resources_t> {
 template <>
 struct admire::api::managed_ctype<ADM_adhoc_context_t> {
 
+    managed_ctype() = default;
+
     explicit managed_ctype(ADM_adhoc_context_t ctx,
                            managed_ctype<ADM_adhoc_resources_t>&& resources)
         : m_adhoc_context(ctx), m_adhoc_resources(std::move(resources)) {}
@@ -193,6 +199,8 @@ struct admire::api::managed_ctype<ADM_adhoc_context_t> {
 
 template <>
 struct admire::api::managed_ctype<ADM_storage_t> {
+
+    managed_ctype() = default;
 
     explicit managed_ctype(ADM_storage_t st,
                            managed_ctype<ADM_adhoc_context_t>&& ctx)

@@ -389,7 +389,7 @@ struct job_requirements {
 
     job_requirements(std::vector<admire::dataset> inputs,
                      std::vector<admire::dataset> outputs,
-                     std::unique_ptr<storage> storage);
+                     admire::adhoc_storage adhoc_storage);
 
     explicit job_requirements(ADM_job_requirements_t reqs);
 
@@ -406,8 +406,8 @@ struct job_requirements {
     inputs() const;
     std::vector<admire::dataset>
     outputs() const;
-    std::shared_ptr<admire::storage>
-    storage() const;
+    std::optional<admire::adhoc_storage>
+    adhoc_storage() const;
 
 private:
     class impl;
@@ -633,6 +633,20 @@ struct fmt::formatter<std::optional<std::uint64_t>>
 };
 
 template <>
+struct fmt::formatter<std::optional<admire::adhoc_storage>>
+    : formatter<std::string_view> {
+
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::optional<admire::adhoc_storage>& v,
+           FormatContext& ctx) const {
+        return formatter<std::string_view>::format(
+                v ? fmt::format("{}", v.value()) : "none", ctx);
+    }
+};
+
+template <>
 struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
@@ -729,8 +743,8 @@ struct fmt::formatter<admire::job_requirements> : formatter<std::string_view> {
     auto
     format(const admire::job_requirements& r, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
-                fmt::format("{{inputs: {}, outputs: {}, storage: {}}}",
-                            r.inputs(), r.outputs(), r.storage()),
+                fmt::format("{{inputs: {}, outputs: {}, adhoc_storage: {}}}",
+                            r.inputs(), r.outputs(), r.adhoc_storage()),
                 ctx);
     }
 };

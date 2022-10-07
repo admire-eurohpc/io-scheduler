@@ -1469,9 +1469,10 @@ public:
 
     impl(std::vector<admire::dataset> inputs,
          std::vector<admire::dataset> outputs,
-         std::unique_ptr<admire::storage> storage)
+         admire::adhoc_storage adhoc_storage)
         : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)),
-          m_storage(std::move(storage)) {}
+          m_adhoc_storage(std::move(adhoc_storage)) {}
+
 
     explicit impl(ADM_job_requirements_t reqs) {
         m_inputs.reserve(reqs->r_inputs->l_length);
@@ -1487,27 +1488,9 @@ public:
         }
 
         if(reqs->r_storage) {
-
-            switch(reqs->r_storage->s_type) {
-
-                case ADM_STORAGE_GEKKOFS:
-                case ADM_STORAGE_DATACLAY:
-                case ADM_STORAGE_EXPAND:
-                case ADM_STORAGE_HERCULES:
-                    m_storage = std::make_unique<adhoc_storage>(
-                            static_cast<enum storage::type>(
-                                    reqs->r_storage->s_type),
-                            reqs->r_storage->s_id,
-                            reqs->r_storage->s_adhoc_ctx);
-                    break;
-                case ADM_STORAGE_LUSTRE:
-                case ADM_STORAGE_GPFS:
-                    m_storage = std::make_unique<pfs_storage>(
-                            static_cast<enum storage::type>(
-                                    reqs->r_storage->s_type),
-                            reqs->r_storage->s_id, reqs->r_storage->s_pfs_ctx);
-                    break;
-            }
+            m_adhoc_storage = admire::adhoc_storage(
+                    static_cast<enum storage::type>(reqs->r_storage->s_type),
+                    reqs->r_storage->s_id, reqs->r_storage->s_adhoc_ctx);
         }
     }
 
@@ -1528,15 +1511,15 @@ public:
         return m_outputs;
     }
 
-    std::shared_ptr<admire::storage>
-    storage() const {
-        return m_storage;
+    std::optional<admire::adhoc_storage>
+    adhoc_storage() const {
+        return m_adhoc_storage;
     }
 
 private:
     std::vector<admire::dataset> m_inputs;
     std::vector<admire::dataset> m_outputs;
-    std::shared_ptr<admire::storage> m_storage;
+    std::optional<admire::adhoc_storage> m_adhoc_storage;
 };
 
 
@@ -1546,9 +1529,9 @@ job_requirements::job_requirements(std::vector<admire::dataset> inputs,
 
 job_requirements::job_requirements(std::vector<admire::dataset> inputs,
                                    std::vector<admire::dataset> outputs,
-                                   std::unique_ptr<admire::storage> storage)
+                                   admire::adhoc_storage adhoc_storage)
     : m_pimpl(std::make_unique<impl>(std::move(inputs), std::move(outputs),
-                                     std::move(storage))) {}
+                                     std::move(adhoc_storage))) {}
 
 job_requirements::job_requirements(ADM_job_requirements_t reqs)
     : m_pimpl(std::make_unique<impl>(reqs)) {}
@@ -1579,9 +1562,9 @@ job_requirements::outputs() const {
     return m_pimpl->outputs();
 }
 
-std::shared_ptr<admire::storage>
-job_requirements::storage() const {
-    return m_pimpl->storage();
+std::optional<admire::adhoc_storage>
+job_requirements::adhoc_storage() const {
+    return m_pimpl->adhoc_storage();
 }
 
 namespace qos {

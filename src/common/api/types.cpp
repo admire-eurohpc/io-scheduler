@@ -463,6 +463,7 @@ ADM_storage_create(const char* id, ADM_storage_type_t type, void* ctx) {
     adm_storage->s_id = (const char*) calloc(strlen(id) + 1, sizeof(char));
     strcpy((char*) adm_storage->s_id, id);
     adm_storage->s_type = type;
+    adm_storage->s_server_id = -1;
 
     switch(adm_storage->s_type) {
         case ADM_STORAGE_GEKKOFS:
@@ -799,6 +800,7 @@ ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
 
     adm_job_reqs->r_storage = ADM_storage_create(storage->s_id, storage->s_type,
                                                  storage->s_adhoc_ctx);
+    adm_job_reqs->r_storage->s_server_id = storage->s_server_id;
 
     return adm_job_reqs;
 
@@ -1488,9 +1490,15 @@ public:
         }
 
         if(reqs->r_storage) {
+            // TODO add a conversion constructor
             m_adhoc_storage = admire::adhoc_storage(
                     static_cast<enum storage::type>(reqs->r_storage->s_type),
                     reqs->r_storage->s_id, reqs->r_storage->s_adhoc_ctx);
+
+            if(const auto server_id = reqs->r_storage->s_server_id;
+               server_id != -1) {
+                m_adhoc_storage->id() = server_id;
+            }
         }
     }
 

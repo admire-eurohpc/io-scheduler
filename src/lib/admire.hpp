@@ -59,7 +59,7 @@ ADM_return_t
 remove_job(const server& srv, const job& job);
 
 admire::adhoc_storage
-register_adhoc_storage(const server& srv, const std::string& user_id,
+register_adhoc_storage(const server& srv, const std::string& name,
                        const adhoc_storage::ctx& ctx);
 
 ADM_return_t

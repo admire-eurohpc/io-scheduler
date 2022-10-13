@@ -247,12 +247,12 @@ struct storage {
         virtual ~ctx() = default;
     };
 
-    storage(storage::type type, std::string user_id);
+    storage(storage::type type, std::string name);
 
     virtual ~storage() = default;
 
     std::string
-    user_id() const;
+    name() const;
     type
     type() const;
 
@@ -260,7 +260,7 @@ struct storage {
     context() const = 0;
 
 protected:
-    std::string m_user_id;
+    std::string m_name;
     enum type m_type;
 };
 
@@ -317,13 +317,13 @@ struct adhoc_storage : public storage {
         bool m_should_flush;
     };
 
-    adhoc_storage(enum storage::type type, std::string user_id,
+    adhoc_storage(enum storage::type type, std::string name,
                   execution_mode exec_mode, access_type access_type,
                   adhoc_storage::resources res, std::uint32_t walltime,
                   bool should_flush);
-    adhoc_storage(enum storage::type type, std::string user_id,
+    adhoc_storage(enum storage::type type, std::string name,
                   ADM_adhoc_context_t ctx);
-    adhoc_storage(enum storage::type type, std::string user_id,
+    adhoc_storage(enum storage::type type, std::string name,
                   const admire::adhoc_storage::ctx& ctx);
 
     adhoc_storage(const adhoc_storage& other) noexcept;
@@ -334,10 +334,10 @@ struct adhoc_storage : public storage {
     operator=(adhoc_storage&&) noexcept;
     ~adhoc_storage() override;
 
-    const std::optional<std::uint64_t>&
+    const std::uint64_t&
     id() const;
 
-    std::optional<std::uint64_t>&
+    std::uint64_t&
     id();
 
     std::shared_ptr<storage::ctx>
@@ -657,8 +657,8 @@ struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
                 s.context());
 
         const auto str =
-                fmt::format("{{type: {}, id: {}, user_id: {}, context: {}}}",
-                            s.type(), s.id(), std::quoted(s.user_id()),
+                fmt::format("{{type: {}, id: {}, name: {}, context: {}}}",
+                            s.type(), s.id(), std::quoted(s.name()),
                             (pctx ? fmt::format("{}", *pctx) : "NULL"));
         return formatter<std::string_view>::format(str, ctx);
     }

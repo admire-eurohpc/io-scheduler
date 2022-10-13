@@ -412,7 +412,7 @@ ADM_dataset_list_destroy(ADM_dataset_list_t list);
  *
  * @remark ADM_STORAGEs need to be freed by calling ADM_storage_destroy().
  *
- * @param[in] id An identifier for the storage tier
+ * @param[in] name A name for the storage tier
  * @param[in] type The type for the storage tier being created.
  * @param[in] ctx Some specific context information for the storage tier or
  * NULL if none is required. For instance, an adhoc storage system may find it
@@ -420,7 +420,7 @@ ADM_dataset_list_destroy(ADM_dataset_list_t list);
  * @return A valid ADM_STORAGE if successful, or NULL in case of failure.
  */
 ADM_storage_t
-ADM_storage_create(const char* id, ADM_storage_type_t type, void* ctx);
+ADM_storage_create(const char* name, ADM_storage_type_t type, void* ctx);
 
 /**
  * Destroy a ADM_STORAGE created by ADM_storage_destroy().

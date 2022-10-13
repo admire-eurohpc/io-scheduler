@@ -82,7 +82,9 @@ main(int argc, char* argv[]) {
             ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 42, 200, false);
     assert(ctx_updated);
 
-    ret = ADM_update_adhoc_storage(server, ctx_updated, adhoc_storage);
+    const auto adhoc_storage_id = "id";
+
+    ret = ADM_update_adhoc_storage(server, ctx_updated, adhoc_storage_id);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stderr,

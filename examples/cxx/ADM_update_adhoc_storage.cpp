@@ -67,8 +67,8 @@ main(int argc, char* argv[]) {
         const auto adhoc_storage = admire::register_adhoc_storage(
                 server, job, user_id, adhoc_storage_ctx);
 
-        const auto adhoc_storage_updated = admire::update_adhoc_storage(
-                server, adhoc_storage_ctx_updated, adhoc_storage);
+        /*const auto adhoc_storage_updated = admire::update_adhoc_storage(
+                server, adhoc_storage_ctx_updated, adhoc_storage);*/
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_update_adhoc_storage() failed: {}\n",
                    e.what());

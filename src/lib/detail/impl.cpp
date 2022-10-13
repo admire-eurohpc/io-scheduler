@@ -407,7 +407,7 @@ transfer_datasets(const server& srv, const job& job,
     return tx;
 }
 
-tl::expected<admire::adhoc_storage, admire::error_code>
+admire::error_code
 update_adhoc_storage(const server& srv,
                      const adhoc_storage::ctx& adhoc_storage_ctx,
                      const adhoc_storage& adhoc_storage) {
@@ -418,20 +418,20 @@ update_adhoc_storage(const server& srv,
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: name: {} from: {} => "
-                "body: {{job: {}}}",
+                "body: {{adhoc_storage_id: {}, adhoc_storage_ctx{}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), job);
+                std::quoted(rpc_client.self_address()), adhoc_storage_id,
+                adhoc_storage_ctx);
 
     // const auto rpc_job = api::convert(job);
     // const auto rpc_user_id = user_id.c_str();
     const auto rpc_ctx = api::convert(adhoc_storage_ctx);
-    const auto rpc_adhoc_storage = api::convert(adhoc_storage);
+    // const auto rpc_adhoc_storage = api::convert(adhoc_storage);
     // const auto rpc_adhoc_storage = adhoc_storage;
 
 
-    ADM_update_adhoc_storage_in_t in{
-            rpc_ctx.get(),
-            rpc_adhoc_storage.get()}; // rpc_job.get(), rpc_user_id,
+    ADM_update_adhoc_storage_in_t in{rpc_ctx.get(), adhoc_storage_id};
+    // rpc_adhoc_storage.get()}; // rpc_job.get(), rpc_user_id,
     ADM_update_adhoc_storage_out_t out;
 
     const auto rpc = endp.call("ADM_update_adhoc_storage", &in, &out);
@@ -442,20 +442,20 @@ update_adhoc_storage(const server& srv,
                      "body: {{retval: {}}} [op_id: {}]",
                      rpc_id, std::quoted("ADM_"s + __FUNCTION__), retval,
                      out.op_id);
-        return tl::make_unexpected(retval);
+        return retval;
     }
 
     // auto rpc_adhoc_storage =
     // admire::adhoc_storage{admire::storage::type::gekkofs, user_id, ctx};
 
-    rpc_adhoc_storage.id() = out.server_id;
+    // rpc_adhoc_storage.id() = out.server_id;
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
                 "body: {{retval: {}}} [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__), ADM_SUCCESS,
                 out.op_id);
 
-    return rpc_adhoc_storage;
+    return ADM_SUCCESS;
 }
 
 } // namespace admire::detail

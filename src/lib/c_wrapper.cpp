@@ -107,17 +107,18 @@ ADM_update_adhoc_storage(ADM_server_t server,
 
     const admire::server srv{server};
 
-    const auto rv = admire::detail::update_adhoc_storage(
+    return admire::detail::update_adhoc_storage(
             srv, admire::adhoc_storage::ctx{adhoc_storage_ctx},
             admire::adhoc_storage{adhoc_storage});
 
+    /*
     if(!rv) {
         return rv.error();
     }
 
-    *adhoc_storage = admire::api::convert(*rv).release();
+    *adhoc_storage = admire::api::convert(*rv).release(); */
 
-    return ADM_SUCCESS;
+    // return ADM_SUCCESS;
 }
 
 ADM_return_t

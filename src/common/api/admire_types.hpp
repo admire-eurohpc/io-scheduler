@@ -402,6 +402,7 @@ struct adhoc_storage : public storage {
                   execution_mode exec_mode, access_type access_type,
                   adhoc_storage::resources res, std::uint32_t walltime,
                   bool should_flush);
+    explicit adhoc_storage(ADM_storage_t storage);
     adhoc_storage(enum storage::type type, std::string name, std::uint64_t id,
                   ADM_adhoc_context_t ctx);
     adhoc_storage(enum storage::type type, std::string name, std::uint64_t id,

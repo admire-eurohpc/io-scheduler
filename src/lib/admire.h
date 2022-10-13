@@ -128,7 +128,7 @@ ADM_register_adhoc_storage(ADM_server_t server, const char* name,
  */
 ADM_return_t
 ADM_update_adhoc_storage(ADM_server_t server, ADM_adhoc_context_t ctx,
-                         ADM_storage_t adhoc_storage);
+                         const char* adhoc_storage_id);
 
 /**
  * Remove an already-registered adhoc storage system.

@@ -1380,6 +1380,21 @@ private:
     adhoc_storage::ctx m_ctx;
 };
 
+void
+foo(ADM_storage_t storage) { // donde se coloca? como ayuda eso a c_wrapper?
+    switch(storage->s_type) {
+        case ADM_STORAGE_GEKKOFS:
+        case ADM_STORAGE_DATACLAY:
+        case ADM_STORAGE_EXPAND:
+        case ADM_STORAGE_HERCULES:
+            break;
+
+        case ADM_STORAGE_LUSTRE:
+        case ADM_STORAGE_GPFS:
+            // lanzar excepcion
+            break;
+    }
+}
 
 adhoc_storage::adhoc_storage(enum storage::type type, std::string name,
                              std::uint64_t id, execution_mode exec_mode,
@@ -1390,6 +1405,7 @@ adhoc_storage::adhoc_storage(enum storage::type type, std::string name,
       m_pimpl(std::make_unique<impl>(
               adhoc_storage::ctx{exec_mode, access_type, std::move(res),
                                  walltime, should_flush})) {}
+adhoc_storage::adhoc_storage(ADM_storage_t storage) : m_pimpl(storage) {}
 
 adhoc_storage::adhoc_storage(enum storage::type type, std::string name,
                              std::uint64_t id, ADM_adhoc_context_t ctx)

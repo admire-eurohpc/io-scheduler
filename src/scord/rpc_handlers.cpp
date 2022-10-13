@@ -338,15 +338,15 @@ ADM_update_adhoc_storage(hg_handle_t h) {
 
     const admire::adhoc_storage::ctx adhoc_storage_ctx(in.adhoc_storage_ctx);
     // const admire::adhoc_storage adhoc_storage(in.adhoc_storage);
-    const auto adhoc_storage = adhoc_storage_manager::create(
-            admire::adhoc_storage::type::gekkofs, adhoc_storage.id(),
-            adhoc_storage_ctx);
+    /* const auto adhoc_storage = adhoc_storage_manager::create(
+            admire::adhoc_storage::type::gekkofs, adhoc_storage_id,
+            adhoc_storage_ctx); */
 
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_storage: {}}}",
+                "body: {{adhoc_storage_id: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                adhoc_storage);
+                in.adhoc_storage_id);
 
     // const auto adhoc_storage = adhoc_storage_manager::create(
     // admire::adhoc_storage::type::gekkofs, id, ctx);
@@ -355,7 +355,7 @@ ADM_update_adhoc_storage(hg_handle_t h) {
 
     out.op_id = rpc_id;
     out.retval = rv;
-    out.server_id = *adhoc_storage.id();
+    // out.server_id = *adhoc_storage.id();
 
     LOGGER_INFO("rpc id: {} name: {} to: {} => "
                 "body: {{retval: {}, server_id: {}}}",

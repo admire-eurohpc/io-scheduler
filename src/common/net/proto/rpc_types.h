@@ -349,7 +349,7 @@ MERCURY_GEN_PROC(
 MERCURY_GEN_PROC(
     ADM_update_adhoc_storage_in_t,
         ((ADM_adhoc_context_t)(adhoc_storage_ctx))
-        ((ADM_storage_t)(adhoc_storage))
+        ((hg_string_t)(adhoc_storage_id))
 );
 
 MERCURY_GEN_PROC(

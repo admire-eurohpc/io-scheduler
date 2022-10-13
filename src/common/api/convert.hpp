@@ -165,6 +165,7 @@ struct admire::api::managed_ctype<ADM_adhoc_resources_t> {
 
     ADM_adhoc_resources_t
     release() {
+        std::ignore = m_nodes.release();
         return m_adhoc_resources.release();
     }
 
@@ -189,6 +190,7 @@ struct admire::api::managed_ctype<ADM_adhoc_context_t> {
 
     ADM_adhoc_context_t
     release() {
+        std::ignore = m_adhoc_resources.release();
         return m_adhoc_context.release();
     }
 
@@ -213,6 +215,7 @@ struct admire::api::managed_ctype<ADM_storage_t> {
 
     ADM_storage_t
     release() {
+        std::ignore = m_ctx.release();
         return m_storage.release();
     }
 

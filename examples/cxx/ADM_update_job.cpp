@@ -47,26 +47,22 @@ main(int argc, char* argv[]) {
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
-    auto p = std::make_unique<admire::adhoc_storage>(
-            admire::storage::type::gekkofs, "foobar",
+    const auto gkfs_storage = admire::adhoc_storage{
+            admire::storage::type::gekkofs,
+            "foobar",
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write,
-            admire::adhoc_storage::resources{adhoc_nodes}, 100, false);
+            admire::adhoc_storage::resources{adhoc_nodes},
+            100,
+            false};
 
-    admire::job_requirements reqs{inputs, outputs, std::move(p)};
-
+    admire::job_requirements reqs{inputs, outputs, gkfs_storage};
 
     const auto new_inputs = prepare_datasets("input-new-dataset-{}", NINPUTS);
     const auto new_outputs =
             prepare_datasets("output-new-dataset-{}", NOUTPUTS);
 
-    auto p2 = std::make_unique<admire::adhoc_storage>(
-            admire::storage::type::gekkofs, "foobar",
-            admire::adhoc_storage::execution_mode::separate_new,
-            admire::adhoc_storage::access_type::read_write,
-            admire::adhoc_storage::resources{adhoc_nodes}, 100, false);
-
-    admire::job_requirements new_reqs{new_inputs, new_outputs, std::move(p2)};
+    admire::job_requirements new_reqs{new_inputs, new_outputs, gkfs_storage};
 
     try {
         [[maybe_unused]] const auto job = admire::register_job(

@@ -68,14 +68,25 @@ main(int argc, char* argv[]) {
             100, false);
     assert(ctx);
 
-    ADM_storage_t st = ADM_storage_create("foobar", ADM_STORAGE_GEKKOFS, ctx);
-    assert(st);
+    const char* user_id = "adhoc_storage_42";
 
-    ADM_job_requirements_t reqs =
-            ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
+    ADM_storage_t adhoc_storage;
+    ADM_return_t ret =
+            ADM_register_adhoc_storage(server, user_id, ctx, &adhoc_storage);
+
+    if(ret != ADM_SUCCESS) {
+        fprintf(stdout,
+                "ADM_register_adhoc_storage() remote procedure not completed "
+                "successfully\n");
+        exit_status = EXIT_FAILURE;
+        goto cleanup;
+    }
+
+    ADM_job_requirements_t reqs = ADM_job_requirements_create(
+            inputs, NINPUTS, outputs, NOUTPUTS, adhoc_storage);
     assert(reqs);
 
-    ADM_return_t ret = ADM_register_job(server, job_resources, reqs, &job);
+    ret = ADM_register_job(server, job_resources, reqs, &job);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "
@@ -104,7 +115,7 @@ main(int argc, char* argv[]) {
     }
 
     ADM_job_requirements_t new_reqs = ADM_job_requirements_create(
-            new_inputs, NINPUTS, new_outputs, NOUTPUTS, st);
+            new_inputs, NINPUTS, new_outputs, NOUTPUTS, adhoc_storage);
 
     ret = ADM_update_job(server, job, job_resources, new_reqs);
 

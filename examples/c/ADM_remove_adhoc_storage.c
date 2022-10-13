@@ -60,13 +60,6 @@ main(int argc, char* argv[]) {
             100, false);
     assert(ctx);
 
-    ADM_storage_t st = ADM_storage_create("foobar", ADM_STORAGE_GEKKOFS, ctx);
-    assert(st);
-
-    ADM_job_requirements_t reqs =
-            ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS, st);
-    assert(reqs);
-
     const char* user_id = "adhoc_storage_42";
 
     ADM_storage_t adhoc_storage;

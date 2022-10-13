@@ -57,9 +57,6 @@ main(int argc, char* argv[]) {
     ADM_pfs_context_t ctx = ADM_pfs_context_create("/gpfs");
     assert(ctx);
 
-    ADM_storage_t st = ADM_storage_create("barbaz", ADM_STORAGE_GPFS, ctx);
-    assert(st);
-
     ADM_return_t ret = ADM_register_pfs_storage(server, ctx, &pfs_storage);
 
     if(ret != ADM_SUCCESS) {

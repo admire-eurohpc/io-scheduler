@@ -182,7 +182,7 @@ MERCURY_GEN_STRUCT_PROC(
 typedef struct adm_storage {
     const char* s_id;
     ADM_storage_type_t s_type;
-    uint64_t s_server_id;
+    int64_t s_server_id;
     union {
         ADM_adhoc_context_t s_adhoc_ctx;
         ADM_pfs_context_t s_pfs_ctx;

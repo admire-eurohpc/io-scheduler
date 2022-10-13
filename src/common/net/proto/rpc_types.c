@@ -427,7 +427,14 @@ hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
                 break;
             }
 
-            // 3. the appropriate storage context
+            // 3. the server_id
+            ret = hg_proc_hg_int64_t(proc, &tmp->s_server_id);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 4. the appropriate storage context
             switch(tmp->s_type) {
                 case ADM_STORAGE_GEKKOFS:
                 case ADM_STORAGE_DATACLAY:
@@ -474,7 +481,14 @@ hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
                 break;
             }
 
-            // 3. the appropriate storage context
+            // 3. the server_id
+            ret = hg_proc_hg_int64_t(proc, &tmp->s_server_id);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 4. the appropriate storage context
             switch(tmp->s_type) {
                 case ADM_STORAGE_GEKKOFS:
                 case ADM_STORAGE_DATACLAY:

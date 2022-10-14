@@ -439,7 +439,8 @@ ADM_dataset_list_destroy(ADM_dataset_list_t list) {
 }
 
 ADM_storage_t
-ADM_storage_create(const char* name, ADM_storage_type_t type, void* ctx) {
+ADM_storage_create(const char* name, ADM_storage_type_t type, uint64_t id,
+                   void* ctx) {
 
     struct adm_storage* adm_storage =
             (struct adm_storage*) malloc(sizeof(*adm_storage));
@@ -451,7 +452,7 @@ ADM_storage_create(const char* name, ADM_storage_type_t type, void* ctx) {
     }
 
     if(!name) {
-        LOGGER_ERROR("Null storage id")
+        LOGGER_ERROR("Null storage name")
         return NULL;
     }
 
@@ -463,7 +464,7 @@ ADM_storage_create(const char* name, ADM_storage_type_t type, void* ctx) {
     adm_storage->s_name = (const char*) calloc(strlen(name) + 1, sizeof(char));
     strcpy((char*) adm_storage->s_name, name);
     adm_storage->s_type = type;
-    adm_storage->s_server_id = -1;
+    adm_storage->s_id = id;
 
     switch(adm_storage->s_type) {
         case ADM_STORAGE_GEKKOFS:
@@ -798,9 +799,9 @@ ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
         goto cleanup_on_error;
     }
 
-    adm_job_reqs->r_storage = ADM_storage_create(
-            storage->s_name, storage->s_type, storage->s_adhoc_ctx);
-    adm_job_reqs->r_storage->s_server_id = storage->s_server_id;
+    adm_job_reqs->r_storage =
+            ADM_storage_create(storage->s_name, storage->s_type, storage->s_id,
+                               storage->s_adhoc_ctx);
 
     return adm_job_reqs;
 
@@ -1254,8 +1255,8 @@ dataset::id() const {
     return m_pimpl->id();
 }
 
-storage::storage(enum storage::type type, std::string name)
-    : m_name(std::move(name)), m_type(type) {}
+storage::storage(enum storage::type type, std::string name, std::uint64_t id)
+    : m_name(std::move(name)), m_type(type), m_id(id) {}
 
 std::string
 storage::name() const {
@@ -1265,6 +1266,11 @@ storage::name() const {
 enum storage::type
 storage::type() const {
     return m_type;
+}
+
+std::uint64_t
+storage::id() const {
+    return m_id;
 }
 
 adhoc_storage::resources::resources(std::vector<admire::node> nodes)
@@ -1357,24 +1363,27 @@ private:
 
 
 adhoc_storage::adhoc_storage(enum storage::type type, std::string name,
-                             execution_mode exec_mode, access_type access_type,
+                             std::uint64_t id, execution_mode exec_mode,
+                             access_type access_type,
                              adhoc_storage::resources res,
                              std::uint32_t walltime, bool should_flush)
-    : storage(type, std::move(name)),
-      m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{
-              exec_mode, access_type, res, walltime, should_flush})) {}
+    : storage(type, std::move(name), id),
+      m_pimpl(std::make_unique<impl>(
+              adhoc_storage::ctx{exec_mode, access_type, std::move(res),
+                                 walltime, should_flush})) {}
 
 adhoc_storage::adhoc_storage(enum storage::type type, std::string name,
-                             ADM_adhoc_context_t ctx)
-    : storage(type, std::move(name)),
+                             std::uint64_t id, ADM_adhoc_context_t ctx)
+    : storage(type, std::move(name), id),
       m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{ctx})) {}
 
 adhoc_storage::adhoc_storage(enum storage::type type, std::string name,
-                             const adhoc_storage::ctx& ctx)
-    : storage(type, std::move(name)), m_pimpl(std::make_unique<impl>(ctx)) {}
+                             std::uint64_t id, const adhoc_storage::ctx& ctx)
+    : storage(type, std::move(name), id), m_pimpl(std::make_unique<impl>(ctx)) {
+}
 
 adhoc_storage::adhoc_storage(const adhoc_storage& other) noexcept
-    : storage(other.m_type, other.m_name),
+    : storage(other.m_type, other.m_name, other.m_id),
       m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
 
 adhoc_storage::adhoc_storage(adhoc_storage&&) noexcept = default;
@@ -1410,7 +1419,7 @@ pfs_storage::ctx::ctx(std::filesystem::path mount_point)
 pfs_storage::ctx::ctx(ADM_pfs_context_t ctx) : pfs_storage::ctx(ctx->c_mount) {}
 
 pfs_storage::pfs_storage(const pfs_storage& other) noexcept
-    : storage(other.m_type, other.m_name),
+    : storage(other.m_type, other.m_name, other.m_id),
       m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
 
 pfs_storage&
@@ -1444,15 +1453,15 @@ private:
     pfs_storage::ctx m_ctx;
 };
 
-pfs_storage::pfs_storage(enum storage::type type, std::string id,
-                         std::filesystem::path mount_point)
-    : storage(type, std::move(id)),
+pfs_storage::pfs_storage(enum storage::type type, std::string name,
+                         std::uint64_t id, std::filesystem::path mount_point)
+    : storage(type, std::move(name), id),
       m_pimpl(std::make_unique<impl>(
               pfs_storage::ctx{std::move(mount_point)})) {}
 
-pfs_storage::pfs_storage(enum storage::type type, std::string id,
-                         ADM_pfs_context_t ctx)
-    : storage(type, std::move(id)),
+pfs_storage::pfs_storage(enum storage::type type, std::string name,
+                         std::uint64_t id, ADM_pfs_context_t ctx)
+    : storage(type, std::move(name), id),
       m_pimpl(std::make_unique<impl>(pfs_storage::ctx{ctx})) {}
 
 pfs_storage::~pfs_storage() = default;
@@ -1493,12 +1502,8 @@ public:
             // TODO add a conversion constructor
             m_adhoc_storage = admire::adhoc_storage(
                     static_cast<enum storage::type>(reqs->r_storage->s_type),
-                    reqs->r_storage->s_name, reqs->r_storage->s_adhoc_ctx);
-
-            if(const auto server_id = reqs->r_storage->s_server_id;
-               server_id != -1) {
-                m_adhoc_storage->id() = server_id;
-            }
+                    reqs->r_storage->s_name, reqs->r_storage->s_id,
+                    reqs->r_storage->s_adhoc_ctx);
         }
     }
 

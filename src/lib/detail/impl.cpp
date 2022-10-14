@@ -345,16 +345,14 @@ register_adhoc_storage(const server& srv, const std::string& name,
         return tl::make_unexpected(retval);
     }
 
-    auto rpc_adhoc_storage =
-            admire::adhoc_storage{admire::storage::type::gekkofs, name, ctx};
-
-    rpc_adhoc_storage.id() = out.server_id;
+    auto rpc_adhoc_storage = admire::adhoc_storage{
+            admire::storage::type::gekkofs, name, out.id, ctx};
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
-                "body: {{retval: {}, server_id: {}}} [op_id: {}]",
+                "body: {{retval: {}, id: {}}} [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), ADM_SUCCESS,
-                out.server_id, out.op_id);
+                std::quoted(rpc_client.self_address()), ADM_SUCCESS, out.id,
+                out.op_id);
 
     return rpc_adhoc_storage;
 }

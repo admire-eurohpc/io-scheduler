@@ -235,9 +235,10 @@ remove_job(const server& srv, const job& job) {
 
 admire::adhoc_storage
 register_adhoc_storage(const server& srv, const std::string& name,
+                       enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx) {
 
-    const auto rv = detail::register_adhoc_storage(srv, name, ctx);
+    const auto rv = detail::register_adhoc_storage(srv, name, type, ctx);
 
     if(!rv) {
         throw std::runtime_error(

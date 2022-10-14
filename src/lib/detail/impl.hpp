@@ -54,6 +54,7 @@ transfer_datasets(const server& srv, const job& job,
 
 tl::expected<admire::adhoc_storage, admire::error_code>
 register_adhoc_storage(const server& srv, const std::string& name,
+                       enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx);
 
 } // namespace admire::detail

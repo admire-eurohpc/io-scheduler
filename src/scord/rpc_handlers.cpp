@@ -459,7 +459,7 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
         const std::string mountpoint = "-m /tmp/mnt";
         const std::string rootdir = "-r /tmp/root";
     /* Number of nodes */
-        const std::string nodes = "-n "+std::to_string(adhoc_storage->s_adhoc_ctx->c_nodes);
+        const std::string nodes = "-n "+std::to_string(adhoc_storage->s_adhoc_ctx->c_resources->r_nodes->l_length);
 
     /* Launch script */
         pid_t pid = fork();

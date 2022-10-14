@@ -316,6 +316,7 @@ remove_job(const server& srv, const job& job) {
 
 tl::expected<admire::adhoc_storage, admire::error_code>
 register_adhoc_storage(const server& srv, const std::string& name,
+                       enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
@@ -324,14 +325,15 @@ register_adhoc_storage(const server& srv, const std::string& name,
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{name: {}, adhoc_ctx: {}}}",
+                "body: {{name: {}, type: {}, adhoc_ctx: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), name, ctx);
+                std::quoted(rpc_client.self_address()), name, type, ctx);
 
     const auto rpc_name = name.c_str();
+    const auto rpc_type = static_cast<ADM_storage_type_t>(type);
     const auto rpc_ctx = api::convert(ctx);
 
-    ADM_register_adhoc_storage_in_t in{rpc_name, rpc_ctx.get()};
+    ADM_register_adhoc_storage_in_t in{rpc_name, rpc_type, rpc_ctx.get()};
     ADM_register_adhoc_storage_out_t out;
 
     const auto rpc = endp.call("ADM_register_adhoc_storage", &in, &out);
@@ -345,8 +347,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
         return tl::make_unexpected(retval);
     }
 
-    auto rpc_adhoc_storage = admire::adhoc_storage{
-            admire::storage::type::gekkofs, name, out.id, ctx};
+    auto rpc_adhoc_storage = admire::adhoc_storage{type, name, out.id, ctx};
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
                 "body: {{retval: {}, id: {}}} [op_id: {}]",

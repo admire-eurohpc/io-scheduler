@@ -24,6 +24,8 @@
 
 #include "rpc_types.h"
 
+hg_return_t (*hg_proc_ADM_storage_type_t)(hg_proc_t,
+                                          void*) = hg_proc_hg_uint32_t;
 hg_return_t (*hg_proc_ADM_qos_scope_t)(hg_proc_t, void*) = hg_proc_hg_uint32_t;
 hg_return_t (*hg_proc_ADM_qos_class_t)(hg_proc_t, void*) = hg_proc_hg_uint32_t;
 

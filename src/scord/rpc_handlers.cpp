@@ -236,16 +236,16 @@ ADM_register_adhoc_storage(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 
     const std::string name(in.name);
+    const auto type = static_cast<enum admire::adhoc_storage::type>(in.type);
     const admire::adhoc_storage::ctx ctx(in.ctx);
 
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{name: {}, adhoc_ctx: {}}}",
+                "body: {{name: {}, type: {}, adhoc_ctx: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                name, ctx);
+                name, type, ctx);
 
-    const auto adhoc_storage = adhoc_storage_manager::create(
-            admire::adhoc_storage::type::gekkofs, name, ctx);
+    const auto adhoc_storage = adhoc_storage_manager::create(type, name, ctx);
 
     admire::error_code rv = ADM_SUCCESS;
 

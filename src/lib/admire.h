@@ -90,6 +90,7 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job);
  *
  * @param[in] server The server to which the request is directed
  * @param[in] name The desired name for the adhoc storage system.
+ * @param[in] type The desired type for the adhoc storage system.
  * @param[in] ctx The EXECUTION_CONTEXT for the adhoc storage system.
  * @param[out] adhoc_storage An ADM_STORAGE referring to the newly-created
  * adhoc storage instance.
@@ -98,7 +99,7 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job);
  */
 ADM_return_t
 ADM_register_adhoc_storage(ADM_server_t server, const char* name,
-                           ADM_adhoc_context_t ctx,
+                           ADM_storage_type_t type, ADM_adhoc_context_t ctx,
                            ADM_storage_t* adhoc_storage);
 
 /**

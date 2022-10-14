@@ -179,6 +179,8 @@ MERCURY_GEN_STRUCT_PROC(
 );
 // clang-format on
 
+extern hg_return_t (*hg_proc_ADM_storage_type_t)(hg_proc_t, void*);
+
 typedef struct adm_storage {
     const char* s_name;
     ADM_storage_type_t s_type;
@@ -330,6 +332,7 @@ MERCURY_GEN_PROC(
 MERCURY_GEN_PROC(
     ADM_register_adhoc_storage_in_t,
         ((hg_const_string_t)   (name))
+        ((ADM_storage_type_t)  (type))
         ((ADM_adhoc_context_t) (ctx))
 );
 

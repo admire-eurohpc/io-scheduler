@@ -47,15 +47,15 @@ main(int argc, char* argv[]) {
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
-    std::string user_id = "adhoc_storage_42";
+    std::string name = "adhoc_storage_42";
     const auto adhoc_storage_ctx = admire::adhoc_storage::ctx{
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write,
             admire::adhoc_storage::resources{adhoc_nodes}, 100, false};
 
     try {
-        const auto adhoc_storage = admire::register_adhoc_storage(
-                server, user_id, adhoc_storage_ctx);
+        const auto adhoc_storage =
+                admire::register_adhoc_storage(server, name, adhoc_storage_ctx);
 
         fmt::print(stdout,
                    "ADM_register_adhoc_storage() remote procedure completed "

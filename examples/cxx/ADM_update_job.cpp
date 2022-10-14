@@ -47,14 +47,12 @@ main(int argc, char* argv[]) {
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
-    const auto gkfs_storage = admire::adhoc_storage{
-            admire::storage::type::gekkofs,
-            "foobar",
-            admire::adhoc_storage::execution_mode::separate_new,
-            admire::adhoc_storage::access_type::read_write,
-            admire::adhoc_storage::resources{adhoc_nodes},
-            100,
-            false};
+    const auto gkfs_storage = admire::register_adhoc_storage(
+            server, "foobar",
+            admire::adhoc_storage::ctx{
+                    admire::adhoc_storage::execution_mode::separate_new,
+                    admire::adhoc_storage::access_type::read_write,
+                    admire::adhoc_storage::resources{adhoc_nodes}, 100, false});
 
     admire::job_requirements reqs{inputs, outputs, gkfs_storage};
 

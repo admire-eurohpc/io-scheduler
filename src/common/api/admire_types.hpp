@@ -247,21 +247,24 @@ struct storage {
         virtual ~ctx() = default;
     };
 
-    storage(storage::type type, std::string user_id);
+    storage(storage::type type, std::string name, std::uint64_t id);
 
     virtual ~storage() = default;
 
     std::string
-    user_id() const;
+    name() const;
     type
     type() const;
+    std::uint64_t
+    id() const;
 
     virtual std::shared_ptr<ctx>
     context() const = 0;
 
 protected:
-    std::string m_user_id;
+    std::string m_name;
     enum type m_type;
+    std::uint64_t m_id;
 };
 
 struct adhoc_storage : public storage {
@@ -317,13 +320,13 @@ struct adhoc_storage : public storage {
         bool m_should_flush;
     };
 
-    adhoc_storage(enum storage::type type, std::string user_id,
+    adhoc_storage(enum storage::type type, std::string name, std::uint64_t id,
                   execution_mode exec_mode, access_type access_type,
                   adhoc_storage::resources res, std::uint32_t walltime,
                   bool should_flush);
-    adhoc_storage(enum storage::type type, std::string user_id,
+    adhoc_storage(enum storage::type type, std::string name, std::uint64_t id,
                   ADM_adhoc_context_t ctx);
-    adhoc_storage(enum storage::type type, std::string user_id,
+    adhoc_storage(enum storage::type type, std::string name, std::uint64_t id,
                   const admire::adhoc_storage::ctx& ctx);
 
     adhoc_storage(const adhoc_storage& other) noexcept;
@@ -334,10 +337,10 @@ struct adhoc_storage : public storage {
     operator=(adhoc_storage&&) noexcept;
     ~adhoc_storage() override;
 
-    const std::optional<std::uint64_t>&
+    const std::uint64_t&
     id() const;
 
-    std::optional<std::uint64_t>&
+    std::uint64_t&
     id();
 
     std::shared_ptr<storage::ctx>
@@ -363,9 +366,10 @@ struct pfs_storage : public storage {
         std::filesystem::path m_mount_point;
     };
 
-    pfs_storage(enum storage::type type, std::string id,
+    pfs_storage(enum storage::type type, std::string name, std::uint64_t id,
                 std::filesystem::path mount_point);
-    pfs_storage(enum storage::type type, std::string id, ADM_pfs_context_t ctx);
+    pfs_storage(enum storage::type type, std::string name, std::uint64_t id,
+                ADM_pfs_context_t ctx);
     pfs_storage(const pfs_storage& other) noexcept;
     pfs_storage(pfs_storage&&) noexcept = default;
     pfs_storage&
@@ -657,8 +661,8 @@ struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
                 s.context());
 
         const auto str =
-                fmt::format("{{type: {}, id: {}, user_id: {}, context: {}}}",
-                            s.type(), s.id(), std::quoted(s.user_id()),
+                fmt::format("{{type: {}, id: {}, name: {}, context: {}}}",
+                            s.type(), s.id(), std::quoted(s.name()),
                             (pctx ? fmt::format("{}", *pctx) : "NULL"));
         return formatter<std::string_view>::format(str, ctx);
     }

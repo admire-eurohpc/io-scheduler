@@ -55,15 +55,15 @@ main(int argc, char* argv[]) {
     const auto qos_limits = prepare_qos_limits(NLIMITS);
     const auto mapping = admire::transfer::mapping::n_to_n;
 
-    std::string user_id = "adhoc_storage_42";
+    std::string name = "adhoc_storage_42";
     const auto adhoc_storage_ctx = admire::adhoc_storage::ctx{
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write,
             admire::adhoc_storage::resources{adhoc_nodes}, 100, false};
 
     try {
-        const auto adhoc_storage = admire::register_adhoc_storage(
-                server, user_id, adhoc_storage_ctx);
+        const auto adhoc_storage =
+                admire::register_adhoc_storage(server, name, adhoc_storage_ctx);
 
         admire::job_requirements reqs(inputs, outputs, adhoc_storage);
 

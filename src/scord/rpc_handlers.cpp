@@ -41,11 +41,10 @@ struct adhoc_storage_manager {
 
     template <typename... Args>
     static admire::adhoc_storage
-    create(Args&&... args) {
+    create(enum admire::adhoc_storage::type type, const std::string& name,
+           const admire::adhoc_storage::ctx& ctx) {
         static std::atomic_uint64_t current_id;
-        auto adhoc_storage = admire::adhoc_storage(std::forward<Args>(args)...);
-        adhoc_storage.id() = current_id++;
-        return adhoc_storage;
+        return admire::adhoc_storage(type, name, current_id++, ctx);
     }
 };
 
@@ -236,28 +235,28 @@ ADM_register_adhoc_storage(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    const std::string id(in.id);
+    const std::string name(in.name);
     const admire::adhoc_storage::ctx ctx(in.ctx);
 
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{user_id: {}, adhoc_ctx: {}}}",
+                "body: {{name: {}, adhoc_ctx: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                id, ctx);
+                name, ctx);
 
     const auto adhoc_storage = adhoc_storage_manager::create(
-            admire::adhoc_storage::type::gekkofs, id, ctx);
+            admire::adhoc_storage::type::gekkofs, name, ctx);
 
     admire::error_code rv = ADM_SUCCESS;
 
     out.op_id = rpc_id;
     out.retval = rv;
-    out.server_id = *adhoc_storage.id();
+    out.id = adhoc_storage.id();
 
     LOGGER_INFO("rpc id: {} name: {} to: {} => "
-                "body: {{retval: {}, server_id: {}}}",
+                "body: {{retval: {}, id: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                rv, out.server_id);
+                rv, out.id);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

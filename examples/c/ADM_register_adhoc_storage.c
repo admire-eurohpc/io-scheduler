@@ -60,11 +60,11 @@ main(int argc, char* argv[]) {
             100, false);
     assert(ctx);
 
-    const char* user_id = "adhoc_storage_42";
+    const char* name = "adhoc_storage_42";
 
     ADM_storage_t adhoc_storage;
     ADM_return_t ret =
-            ADM_register_adhoc_storage(server, user_id, ctx, &adhoc_storage);
+            ADM_register_adhoc_storage(server, name, ctx, &adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout,

@@ -315,7 +315,7 @@ remove_job(const server& srv, const job& job) {
 }
 
 tl::expected<admire::adhoc_storage, admire::error_code>
-register_adhoc_storage(const server& srv, const std::string& user_id,
+register_adhoc_storage(const server& srv, const std::string& name,
                        const adhoc_storage::ctx& ctx) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
@@ -324,14 +324,14 @@ register_adhoc_storage(const server& srv, const std::string& user_id,
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{user_id: {}, adhoc_ctx: {}}}",
+                "body: {{name: {}, adhoc_ctx: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), user_id, ctx);
+                std::quoted(rpc_client.self_address()), name, ctx);
 
-    const auto rpc_user_id = user_id.c_str();
+    const auto rpc_name = name.c_str();
     const auto rpc_ctx = api::convert(ctx);
 
-    ADM_register_adhoc_storage_in_t in{rpc_user_id, rpc_ctx.get()};
+    ADM_register_adhoc_storage_in_t in{rpc_name, rpc_ctx.get()};
     ADM_register_adhoc_storage_out_t out;
 
     const auto rpc = endp.call("ADM_register_adhoc_storage", &in, &out);
@@ -345,16 +345,14 @@ register_adhoc_storage(const server& srv, const std::string& user_id,
         return tl::make_unexpected(retval);
     }
 
-    auto rpc_adhoc_storage =
-            admire::adhoc_storage{admire::storage::type::gekkofs, user_id, ctx};
-
-    rpc_adhoc_storage.id() = out.server_id;
+    auto rpc_adhoc_storage = admire::adhoc_storage{
+            admire::storage::type::gekkofs, name, out.id, ctx};
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
-                "body: {{retval: {}, server_id: {}}} [op_id: {}]",
+                "body: {{retval: {}, id: {}}} [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), ADM_SUCCESS,
-                out.server_id, out.op_id);
+                std::quoted(rpc_client.self_address()), ADM_SUCCESS, out.id,
+                out.op_id);
 
     return rpc_adhoc_storage;
 }

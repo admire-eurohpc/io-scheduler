@@ -421,14 +421,14 @@ hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
             }
 
             // 2. the storage id
-            ret = hg_proc_hg_const_string_t(proc, &tmp->s_id);
+            ret = hg_proc_hg_const_string_t(proc, &tmp->s_name);
 
             if(ret != HG_SUCCESS) {
                 break;
             }
 
-            // 3. the server_id
-            ret = hg_proc_hg_int64_t(proc, &tmp->s_server_id);
+            // 3. the server-assigned id
+            ret = hg_proc_hg_int64_t(proc, &tmp->s_id);
 
             if(ret != HG_SUCCESS) {
                 break;
@@ -475,14 +475,14 @@ hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
             }
 
             // 2. the storage id
-            ret = hg_proc_hg_const_string_t(proc, &tmp->s_id);
+            ret = hg_proc_hg_const_string_t(proc, &tmp->s_name);
 
             if(ret != HG_SUCCESS) {
                 break;
             }
 
-            // 3. the server_id
-            ret = hg_proc_hg_int64_t(proc, &tmp->s_server_id);
+            // 3. the server-assigned id
+            ret = hg_proc_hg_int64_t(proc, &tmp->s_id);
 
             if(ret != HG_SUCCESS) {
                 break;

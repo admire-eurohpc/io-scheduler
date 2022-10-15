@@ -219,7 +219,7 @@ register_job(const admire::server& srv,
 
     const auto rpc = endp.call("ADM_register_job", &in, &out);
 
-    if(out.retval < 0) {
+    if(out.retval != ADM_SUCCESS) {
         LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
                      "body: {} [op_id: {}]",
                      rpc_id, std::quoted("ADM_"s + __FUNCTION__),
@@ -262,7 +262,7 @@ update_job(const server& srv, const job& job,
 
     const auto rpc = endp.call("ADM_update_job", &in, &out);
 
-    if(out.retval < 0) {
+    if(out.retval != ADM_SUCCESS) {
         const auto retval = static_cast<admire::error_code>(out.retval);
         LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
                      "body: {{retval: {}}} [op_id: {}]",
@@ -298,7 +298,7 @@ remove_job(const server& srv, const job& job) {
 
     const auto rpc = endp.call("ADM_remove_job", &in, &out);
 
-    if(out.retval < 0) {
+    if(out.retval != ADM_SUCCESS) {
         const auto retval = static_cast<admire::error_code>(out.retval);
         LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
                      "body: {{retval: {}}} [op_id: {}]",
@@ -338,7 +338,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
 
     const auto rpc = endp.call("ADM_register_adhoc_storage", &in, &out);
 
-    if(out.retval < 0) {
+    if(out.retval != ADM_SUCCESS) {
         const auto retval = static_cast<admire::error_code>(out.retval);
         LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
                      "body: {{retval: {}}} [op_id: {}]",

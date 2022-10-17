@@ -29,23 +29,13 @@
 #include <api/convert.hpp>
 #include "rpc_handlers.hpp"
 #include "job_manager.hpp"
+#include "adhoc_storage_manager.hpp"
 
 struct remote_procedure {
     static std::uint64_t
     new_id() {
         static std::atomic_uint64_t current_id;
         return current_id++;
-    }
-};
-
-struct adhoc_storage_manager {
-
-    template <typename... Args>
-    static admire::adhoc_storage
-    create(enum admire::adhoc_storage::type type, const std::string& name,
-           const admire::adhoc_storage::ctx& ctx) {
-        static std::atomic_uint64_t current_id;
-        return admire::adhoc_storage(type, name, current_id++, ctx);
     }
 };
 
@@ -274,18 +264,29 @@ ADM_register_adhoc_storage(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 name, type, ctx);
 
-    const auto adhoc_storage = adhoc_storage_manager::create(type, name, ctx);
+    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
+    const auto rv = adhoc_manager.create(type, name, ctx);
 
-    admire::error_code rv = ADM_SUCCESS;
+    admire::error_code ec = ADM_SUCCESS;
 
-    out.op_id = rpc_id;
-    out.retval = rv;
-    out.id = adhoc_storage.id();
+    if(rv) {
+        const auto& adhoc_storage = rv.value();
+        out.op_id = rpc_id;
+        out.retval = ec;
+        out.id = adhoc_storage.id();
+    } else {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating adhoc_storage: "
+                     "{}\"",
+                     rpc_id, rv.error());
+        out.op_id = rpc_id;
+        out.retval = ec;
+        out.id = 0;
+    }
 
     LOGGER_INFO("rpc id: {} name: {} to: {} => "
                 "body: {{retval: {}, id: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                rv, out.id);
+                ec, out.id);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

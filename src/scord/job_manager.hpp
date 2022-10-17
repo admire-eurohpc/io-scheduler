@@ -30,8 +30,6 @@
 #include <utility>
 #include <utils/utils.hpp>
 #include <unordered_map>
-#include <mutex>
-#include <shared_mutex>
 #include <tl/expected.hpp>
 #include <logger/logger.hpp>
 #include <abt_cxx/shared_mutex.hpp>
@@ -72,10 +70,10 @@ struct job_manager : scord::utils::singleton<job_manager> {
     create(admire::slurm_job_id slurm_id, admire::job::resources job_resources,
            admire::job_requirements job_requirements) {
 
-        abt::unique_lock lock(m_jobs_mutex);
-
         static std::atomic_uint64_t current_id;
         admire::job_id id = current_id++;
+
+        abt::unique_lock lock(m_jobs_mutex);
 
         if(const auto it = m_jobs.find(id); it == m_jobs.end()) {
             const auto& [it_job, inserted] =
@@ -146,7 +144,7 @@ private:
     friend class scord::utils::singleton<job_manager>;
     job_manager() = default;
 
-    mutable std::shared_mutex m_jobs_mutex;
+    mutable abt::shared_mutex m_jobs_mutex;
     std::unordered_map<admire::job_id, job_info> m_jobs;
 };
 

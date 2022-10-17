@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
+# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,40 +22,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(common INTERFACE)
-target_include_directories(common INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(_abt_cxx STATIC)
+target_sources(
+  _abt_cxx
+  INTERFACE shared_mutex.hpp
+)
 
-add_subdirectory(utils)
-target_include_directories(_utils INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::utils ALIAS _utils)
-
-add_subdirectory(config)
-target_include_directories(_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::config ALIAS _config)
-
-add_subdirectory(logger)
-target_include_directories(_logger INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::logger ALIAS _logger)
-
-add_subdirectory(net)
-target_include_directories(_network_engine INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::network::engine ALIAS _network_engine)
-target_include_directories(_rpc_server INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::network::rpc_server ALIAS _rpc_server)
-
-
-target_include_directories(_rpc_types INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::network::rpc_types ALIAS _rpc_types)
-
-add_subdirectory(api)
-target_include_directories(_api_types INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::api::types ALIAS _api_types)
-
-add_subdirectory(abt_cxx)
-target_include_directories(_abt_cxx INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::abt_cxx ALIAS _abt_cxx)
+target_link_libraries(
+  _abt_cxx PUBLIC common::logger Argobots::Argobots
+)
+set_property(TARGET _abt_cxx PROPERTY POSITION_INDEPENDENT_CODE ON)

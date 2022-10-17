@@ -80,6 +80,8 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
+struct job_requirements;
+
 struct job {
 
     struct resources {
@@ -448,6 +450,12 @@ struct fmt::formatter<admire::error_code> : formatter<std::string_view> {
                 break;
             case ADM_EOTHER:
                 name = "ADM_EOTHER";
+                break;
+            case ADM_EEXISTS:
+                name = "ADM_EEXISTS";
+                break;
+            case ADM_ENOENT:
+                name = "ADM_ENOENT";
                 break;
             default:
                 break;

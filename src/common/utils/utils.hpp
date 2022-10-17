@@ -33,6 +33,28 @@
 
 namespace scord::utils {
 
+template <typename T>
+class singleton {
+public:
+    static T&
+    instance() {
+        static T s_instance;
+        return s_instance;
+    };
+
+    singleton(const singleton&) = delete;
+    singleton(singleton&&) = delete;
+    singleton&
+    operator=(const singleton&) = delete;
+    singleton&
+    operator=(singleton&&) = delete;
+
+protected:
+    struct token {};
+    singleton() = default;
+    ~singleton() = default;
+};
+
 uint64_t
 parse_size(const std::string& str);
 

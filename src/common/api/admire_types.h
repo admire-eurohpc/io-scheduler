@@ -47,6 +47,8 @@ typedef enum {
     ADM_EBADARGS,
     ADM_ENOMEM,
     ADM_EOTHER,
+    ADM_EEXISTS,
+    ADM_ENOENT,
     ADM_ERR_MAX = 512
 } ADM_return_t;
 

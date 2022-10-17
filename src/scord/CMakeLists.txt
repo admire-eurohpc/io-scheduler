@@ -25,7 +25,8 @@
 # scord daemon
 add_executable(scord)
 
-target_sources(scord PRIVATE scord.cpp rpc_handlers.hpp rpc_handlers.cpp env.hpp)
+target_sources(scord PRIVATE scord.cpp rpc_handlers.hpp rpc_handlers.cpp
+  env.hpp job_manager.hpp)
 
 target_include_directories(
   scord
@@ -40,6 +41,9 @@ target_link_libraries(
           common::network::rpc_server
           common::network::rpc_types
           common::api::types
+          common::utils
+          common::abt_cxx
+          tl::expected
           fmt::fmt
           Boost::program_options
           RedisPlusPlus::RedisPlusPlus

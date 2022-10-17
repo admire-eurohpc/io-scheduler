@@ -1101,7 +1101,6 @@ class job::impl {
 
 public:
     explicit impl(job_id id) : m_id(id) {}
-
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&

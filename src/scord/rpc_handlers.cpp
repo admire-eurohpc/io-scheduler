@@ -28,6 +28,7 @@
 #include <admire.hpp>
 #include <api/convert.hpp>
 #include "rpc_handlers.hpp"
+#include "job_manager.hpp"
 
 struct remote_procedure {
     static std::uint64_t
@@ -99,24 +100,34 @@ ADM_register_job(hg_handle_t h) {
     const admire::job_requirements reqs(&in.reqs);
     const admire::job::resources job_resources(in.job_resources);
 
-    const auto id = remote_procedure::new_id();
+    const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
                 "body: {{job_resources: {}, job_requirements: {}}}",
-                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 job_resources, reqs);
 
-    const auto job = admire::job{42};
+    admire::error_code ec = ADM_SUCCESS;
 
-    admire::error_code rv = ADM_SUCCESS;
+    auto& jm = scord::job_manager::instance();
+    const auto rv = jm.create(job_resources, reqs);
 
-    out.op_id = id;
-    out.retval = rv;
-    out.job = admire::api::convert(job).release();
+    if(rv) {
+        const auto& job = rv->job();
+        out.op_id = rpc_id;
+        out.retval = ec;
+        out.job = admire::api::convert(job).release();
+    } else {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating job: {}\"", rpc_id,
+                     rv.error());
+        out.op_id = rpc_id;
+        out.retval = rv.error();
+        out.job = nullptr;
+    }
 
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}, job: {}}}",
-                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv,
-                job);
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ec, rv ? fmt::format("{}", rv->job()) : "none");
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -150,19 +161,27 @@ ADM_update_job(hg_handle_t h) {
     const admire::job::resources job_resources(in.job_resources);
     const admire::job_requirements reqs(&in.reqs);
 
-    const auto id = remote_procedure::new_id();
+    const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
                 "body: {{job: {}, job_resources: {}, job_requirements: {}}}",
-                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), job,
-                job_resources, reqs);
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                job, job_resources, reqs);
 
-    admire::error_code rv = ADM_SUCCESS;
-    out.op_id = id;
-    out.retval = rv;
+    auto& jm = scord::job_manager::instance();
+    const auto ec = jm.update(job.id(), job_resources, reqs);
+
+    if(ec != ADM_SUCCESS) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error updating job: {}\"", rpc_id,
+                     ec);
+    }
+
+    out.op_id = rpc_id;
+    out.retval = ec;
 
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
-                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv);
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ec);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -194,19 +213,27 @@ ADM_remove_job(hg_handle_t h) {
 
     const admire::job job(in.job);
 
-    const auto id = remote_procedure::new_id();
+    const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
                 "body: {{job: {}}}",
-                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 job);
 
-    admire::error_code rv = ADM_SUCCESS;
-    out.op_id = id;
-    out.retval = rv;
+    auto& jm = scord::job_manager::instance();
+    const auto ec = jm.remove(job.id());
+
+    if(ec != ADM_SUCCESS) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"", rpc_id,
+                     ec);
+    }
+
+    out.op_id = rpc_id;
+    out.retval = ec;
 
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
-                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv);
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ec);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

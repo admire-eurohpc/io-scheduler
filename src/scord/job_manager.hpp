@@ -69,7 +69,7 @@ struct job_manager : scord::utils::singleton<job_manager> {
 
 
     tl::expected<job_info, admire::error_code>
-    create(admire::job::resources job_resources,
+    create(admire::slurm_job_id slurm_id, admire::job::resources job_resources,
            admire::job_requirements job_requirements) {
 
         abt::unique_lock lock(m_jobs_mutex);
@@ -78,9 +78,10 @@ struct job_manager : scord::utils::singleton<job_manager> {
         admire::job_id id = current_id++;
 
         if(const auto it = m_jobs.find(id); it == m_jobs.end()) {
-            const auto& [it_job, inserted] = m_jobs.emplace(
-                    id, job_info{admire::job{id}, std::move(job_resources),
-                                 std::move(job_requirements)});
+            const auto& [it_job, inserted] =
+                    m_jobs.emplace(id, job_info{admire::job{id, slurm_id},
+                                                std::move(job_resources),
+                                                std::move(job_requirements)});
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
@@ -101,8 +102,11 @@ struct job_manager : scord::utils::singleton<job_manager> {
         abt::unique_lock lock(m_jobs_mutex);
 
         if(const auto it = m_jobs.find(id); it != m_jobs.end()) {
-            it->second = job_info{admire::job{id}, std::move(job_resources),
-                                  std::move(job_requirements)};
+            const auto& current_job_info = it->second;
+
+            it->second =
+                    job_info{current_job_info.job(), std::move(job_resources),
+                             std::move(job_requirements)};
             return ADM_SUCCESS;
         }
 

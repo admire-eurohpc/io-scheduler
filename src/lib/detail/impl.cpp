@@ -197,9 +197,8 @@ ping(const server& srv) {
 }
 
 tl::expected<admire::job, admire::error_code>
-register_job(const admire::server& srv,
-             const admire::job::resources& job_resources,
-             const admire::job_requirements& reqs) {
+register_job(const server& srv, const job::resources& job_resources,
+             const job_requirements& reqs, admire::slurm_job_id slurm_id) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
@@ -207,14 +206,17 @@ register_job(const admire::server& srv,
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job_resources: {}, job_requirements: {}}}",
+                "body: {{job_resources: {}, job_requirements: {}, slurm_id: "
+                "{}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), job_resources, reqs);
+                std::quoted(rpc_client.self_address()), job_resources, reqs,
+                slurm_id);
 
     auto rpc_job_resources = api::convert(job_resources);
     auto rpc_reqs = api::convert(reqs);
 
-    ADM_register_job_in_t in{rpc_job_resources.get(), *rpc_reqs.get()};
+    ADM_register_job_in_t in{rpc_job_resources.get(), *rpc_reqs.get(),
+                             slurm_id};
     ADM_register_job_out_t out;
 
     const auto rpc = endp.call("ADM_register_job", &in, &out);

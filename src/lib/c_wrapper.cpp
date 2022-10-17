@@ -43,14 +43,15 @@ ADM_ping(ADM_server_t server) {
 }
 
 ADM_return_t
-ADM_register_job(ADM_server_t server, ADM_job_resources_t resources,
-                 ADM_job_requirements_t reqs, ADM_job_t* job) {
+ADM_register_job(ADM_server_t server, ADM_job_resources_t res,
+                 ADM_job_requirements_t reqs, uint64_t slurm_id,
+                 ADM_job_t* job) {
 
     const admire::server srv{server};
 
-    const auto rv =
-            admire::detail::register_job(srv, admire::job::resources{resources},
-                                         admire::job_requirements{reqs});
+    const auto rv = admire::detail::register_job(
+            srv, admire::job::resources{res}, admire::job_requirements{reqs},
+            slurm_id);
 
     if(!rv) {
         return rv.error();

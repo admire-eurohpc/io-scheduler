@@ -36,7 +36,7 @@ ping(const server& srv);
 
 tl::expected<admire::job, admire::error_code>
 register_job(const server& srv, const job::resources& job_resources,
-             const job_requirements& reqs);
+             const job_requirements& reqs, admire::slurm_job_id slurm_id);
 
 admire::error_code
 update_job(const server& srv, const job& job,

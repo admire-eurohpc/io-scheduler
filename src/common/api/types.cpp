@@ -850,10 +850,11 @@ ADM_job_requirements_destroy(ADM_job_requirements_t reqs) {
  * useful to have for internal purposes
  *
  * @param [in] id The identifier for this job
+ * @param [in] slurm_id The SLURM_JOB_ID for this job
  * @return A valid JOB HANDLE or NULL in case of failure.
  */
 ADM_job_t
-ADM_job_create(uint64_t id) {
+ADM_job_create(uint64_t id, uint64_t slurm_id) {
 
     struct adm_job* adm_job = (struct adm_job*) malloc(sizeof(struct adm_job));
 
@@ -863,6 +864,7 @@ ADM_job_create(uint64_t id) {
     }
 
     adm_job->j_id = id;
+    adm_job->j_slurm_id = slurm_id;
 
     return adm_job;
 }
@@ -1100,7 +1102,8 @@ node::hostname() const {
 class job::impl {
 
 public:
-    explicit impl(job_id id) : m_id(id) {}
+    impl(job_id id, slurm_job_id slurm_job_id)
+        : m_id(id), m_slurm_job_id(slurm_job_id) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -1113,8 +1116,14 @@ public:
         return m_id;
     }
 
+    slurm_job_id
+    slurm_id() const {
+        return m_slurm_job_id;
+    }
+
 private:
     job_id m_id;
+    slurm_job_id m_slurm_job_id;
 };
 
 job::resources::resources(std::vector<admire::node> nodes)
@@ -1134,9 +1143,10 @@ job::resources::nodes() const {
     return m_nodes;
 }
 
-job::job(job_id id) : m_pimpl(std::make_unique<job::impl>(id)) {}
+job::job(job_id id, slurm_job_id slurm_job_id)
+    : m_pimpl(std::make_unique<job::impl>(id, slurm_job_id)) {}
 
-job::job(ADM_job_t job) : job::job(job->j_id) {}
+job::job(ADM_job_t job) : job::job(job->j_id, job->j_slurm_id) {}
 
 job::job(job&&) noexcept = default;
 
@@ -1157,6 +1167,11 @@ job::~job() = default;
 job_id
 job::id() const {
     return m_pimpl->id();
+}
+
+job_id
+job::slurm_id() const {
+    return m_pimpl->slurm_id();
 }
 
 class transfer::impl {

@@ -40,7 +40,8 @@ namespace scord {
 
 struct job_manager : scord::utils::singleton<job_manager> {
 
-    tl::expected<admire::internal::job_info, admire::error_code>
+    tl::expected<std::shared_ptr<admire::internal::job_info>,
+                 admire::error_code>
     create(admire::slurm_job_id slurm_id, admire::job::resources job_resources,
            admire::job_requirements job_requirements) {
 
@@ -52,9 +53,9 @@ struct job_manager : scord::utils::singleton<job_manager> {
         if(const auto it = m_jobs.find(id); it == m_jobs.end()) {
             const auto& [it_job, inserted] = m_jobs.emplace(
                     id,
-                    admire::internal::job_info{admire::job{id, slurm_id},
-                                               std::move(job_resources),
-                                               std::move(job_requirements)});
+                    std::make_shared<admire::internal::job_info>(
+                            admire::job{id, slurm_id}, std::move(job_resources),
+                            std::move(job_requirements)));
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
@@ -77,9 +78,11 @@ struct job_manager : scord::utils::singleton<job_manager> {
         if(const auto it = m_jobs.find(id); it != m_jobs.end()) {
             const auto& current_job_info = it->second;
 
-            it->second = admire::internal::job_info{
-                    current_job_info.job(), std::move(job_resources),
+            const auto new_job_info = admire::internal::job_info{
+                    current_job_info->job(), std::move(job_resources),
                     std::move(job_requirements)};
+
+            *it->second = new_job_info;
             return ADM_SUCCESS;
         }
 
@@ -87,7 +90,8 @@ struct job_manager : scord::utils::singleton<job_manager> {
         return ADM_ENOENT;
     }
 
-    tl::expected<admire::internal::job_info, admire::error_code>
+    tl::expected<std::shared_ptr<admire::internal::job_info>,
+                 admire::error_code>
     find(admire::job_id id) {
 
         abt::shared_lock lock(m_jobs_mutex);
@@ -120,7 +124,9 @@ private:
     job_manager() = default;
 
     mutable abt::shared_mutex m_jobs_mutex;
-    std::unordered_map<admire::job_id, admire::internal::job_info> m_jobs;
+    std::unordered_map<admire::job_id,
+                       std::shared_ptr<admire::internal::job_info>>
+            m_jobs;
 };
 
 } // namespace scord

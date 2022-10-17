@@ -104,7 +104,7 @@ ADM_register_job(hg_handle_t h) {
     const auto rv = jm.create(slurm_id, job_resources, reqs);
 
     if(rv) {
-        const auto& job = rv->job();
+        const auto& job = rv.value()->job();
         out.op_id = rpc_id;
         out.retval = ec;
         out.job = admire::api::convert(job).release();
@@ -119,7 +119,7 @@ ADM_register_job(hg_handle_t h) {
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}, job: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec, rv ? fmt::format("{}", rv->job()) : "none");
+                ec, rv ? fmt::format("{}", rv.value()->job()) : "none");
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

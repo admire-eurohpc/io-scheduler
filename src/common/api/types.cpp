@@ -31,6 +31,7 @@
 #include <variant>
 #include <optional>
 #include "admire_types.hpp"
+#include "internal_types.hpp"
 
 /******************************************************************************/
 /* C Type definitions and related functions                                   */

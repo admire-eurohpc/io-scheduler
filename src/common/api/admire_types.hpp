@@ -42,6 +42,10 @@ using job_id = std::uint64_t;
 using slurm_job_id = std::uint64_t;
 using transfer_id = std::uint64_t;
 
+namespace internal {
+struct job_info;
+} // namespace internal
+
 struct server {
 
     server(std::string protocol, std::string address);

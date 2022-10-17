@@ -99,17 +99,19 @@ ADM_register_job(hg_handle_t h) {
 
     const admire::job_requirements reqs(&in.reqs);
     const admire::job::resources job_resources(in.job_resources);
+    const admire::slurm_job_id slurm_id = in.slurm_job_id;
 
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job_resources: {}, job_requirements: {}}}",
+                "body: {{job_resources: {}, job_requirements: {}, slurm_id: "
+                "{}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                job_resources, reqs);
+                job_resources, reqs, slurm_id);
 
     admire::error_code ec = ADM_SUCCESS;
 
     auto& jm = scord::job_manager::instance();
-    const auto rv = jm.create(job_resources, reqs);
+    const auto rv = jm.create(slurm_id, job_resources, reqs);
 
     if(rv) {
         const auto& job = rv->job();

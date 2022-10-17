@@ -70,13 +70,15 @@ ADM_ping(ADM_server_t server);
  * @param[in] server The server to which the request is directed
  * @param[in] res The resources for the job.
  * @param[in] reqs The requirements for the job.
+ * @param[in] slurm_id The SLURM_JOB_ID for the newly-registered job.
  * @param[out] job An ADM_JOB referring to the newly-registered job.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  * successfully.
  */
 ADM_return_t
 ADM_register_job(ADM_server_t server, ADM_job_resources_t res,
-                 ADM_job_requirements_t reqs, ADM_job_t* job);
+                 ADM_job_requirements_t reqs, uint64_t slurm_id,
+                 ADM_job_t* job);
 
 ADM_return_t
 ADM_update_job(ADM_server_t server, ADM_job_t job,

@@ -62,7 +62,7 @@ main(int argc, char* argv[]) {
         admire::job_requirements reqs(inputs, outputs, adhoc_storage);
 
         [[maybe_unused]] const auto job = admire::register_job(
-                server, admire::job::resources{job_nodes}, reqs);
+                server, admire::job::resources{job_nodes}, reqs, 0);
 
         // do something with job
 

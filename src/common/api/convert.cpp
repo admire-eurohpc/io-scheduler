@@ -28,7 +28,7 @@
 
 // forward declarations
 ADM_job_t
-ADM_job_create(uint64_t id);
+ADM_job_create(uint64_t id, uint64_t slurm_id);
 
 ADM_transfer_t
 ADM_transfer_create(uint64_t id);
@@ -203,7 +203,7 @@ convert(const admire::job_requirements& reqs) {
 
 managed_ctype<ADM_job_t>
 convert(const job& j) {
-    return managed_ctype<ADM_job_t>(ADM_job_create(j.id()));
+    return managed_ctype<ADM_job_t>(ADM_job_create(j.id(), j.slurm_id()));
 }
 
 job

@@ -69,7 +69,7 @@ main(int argc, char* argv[]) {
         admire::job_requirements reqs(inputs, outputs, adhoc_storage);
 
         const auto job = admire::register_job(
-                server, admire::job::resources{job_nodes}, reqs);
+                server, admire::job::resources{job_nodes}, reqs, 0);
         const auto transfer = admire::transfer_datasets(
                 server, job, sources, targets, qos_limits, mapping);
 

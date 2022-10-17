@@ -210,9 +210,9 @@ ping(const server& srv) {
 
 admire::job
 register_job(const server& srv, const job::resources& resources,
-             const job_requirements& reqs) {
+             const job_requirements& reqs, admire::slurm_job_id slurm_job_id) {
 
-    const auto rv = detail::register_job(srv, resources, reqs);
+    const auto rv = detail::register_job(srv, resources, reqs, slurm_job_id);
 
     if(!rv) {
         throw std::runtime_error(fmt::format("ADM_register_job() error: {}",

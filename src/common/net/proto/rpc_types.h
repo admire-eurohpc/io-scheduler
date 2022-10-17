@@ -70,12 +70,14 @@ MERCURY_GEN_STRUCT_PROC(
 
 typedef struct adm_job {
     uint64_t j_id;
+    uint64_t j_slurm_id;
 } adm_job;
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
     adm_job, // NOLINT
         ((hg_uint64_t) (j_id))
+        ((hg_uint64_t) (j_slurm_id))
 );
 // clang-format on
 
@@ -291,8 +293,9 @@ hg_proc_ADM_job_resources_t(hg_proc_t proc, void* data);
 /// ADM_register_job
 MERCURY_GEN_PROC(
     ADM_register_job_in_t,
-        ((ADM_job_resources_t) (job_resources))
+        ((ADM_job_resources_t)  (job_resources))
         ((adm_job_requirements) (reqs))
+        ((hg_uint64_t)          (slurm_job_id))
 );
 
 MERCURY_GEN_PROC(

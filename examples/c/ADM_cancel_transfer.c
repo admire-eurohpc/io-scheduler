@@ -85,7 +85,8 @@ main(int argc, char* argv[]) {
             inputs, NINPUTS, outputs, NOUTPUTS, adhoc_storage);
     assert(reqs);
 
-    ret = ADM_register_job(server, job_resources, reqs, &job);
+    uint64_t slurm_job_id = 42;
+    ret = ADM_register_job(server, job_resources, reqs, slurm_job_id, &job);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stdout, "ADM_register_job() remote procedure not completed "

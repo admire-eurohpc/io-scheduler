@@ -39,6 +39,7 @@ namespace admire {
 using error_code = ADM_return_t;
 
 using job_id = std::uint64_t;
+using slurm_job_id = std::uint64_t;
 using transfer_id = std::uint64_t;
 
 struct server {
@@ -95,7 +96,7 @@ struct job {
         std::vector<admire::node> m_nodes;
     };
 
-    explicit job(job_id id);
+    job(job_id id, slurm_job_id slurm_id);
     explicit job(ADM_job_t job);
     job(const job&) noexcept;
     job(job&&) noexcept;
@@ -107,6 +108,9 @@ struct job {
 
     job_id
     id() const;
+
+    slurm_job_id
+    slurm_id() const;
 
 private:
     class impl;
@@ -472,7 +476,8 @@ struct fmt::formatter<admire::job> : formatter<std::string_view> {
     auto
     format(const admire::job& j, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
-                fmt::format("{{id: {}}}", j.id()), ctx);
+                fmt::format("{{id: {}, slurm_id: {}}}", j.id(), j.slurm_id()),
+                ctx);
     }
 };
 

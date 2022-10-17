@@ -37,7 +37,7 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    admire::job job{42};
+    admire::job job{42, 42};
 
     try {
         [[maybe_unused]] const auto ret = admire::remove_job(server, job);

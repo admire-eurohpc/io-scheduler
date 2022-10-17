@@ -270,7 +270,7 @@ ADM_register_adhoc_storage(hg_handle_t h) {
     admire::error_code ec = ADM_SUCCESS;
 
     if(rv) {
-        const auto& adhoc_storage = rv.value();
+        const auto& adhoc_storage = *rv.value();
         out.op_id = rpc_id;
         out.retval = ec;
         out.id = adhoc_storage.id();

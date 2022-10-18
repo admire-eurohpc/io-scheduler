@@ -46,9 +46,10 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_register_pfs_storage(server, ctx, &pfs_storage);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout,
+        fprintf(stderr,
                 "ADM_register_pfs_storage() remote procedure not completed "
-                "successfully\n");
+                "successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }
@@ -59,9 +60,10 @@ main(int argc, char* argv[]) {
     ret = ADM_remove_pfs_storage(server, pfs_storage);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout,
+        fprintf(stderr,
                 "ADM_remove_pfs_storage() remote procedure not completed "
-                "successfully\n");
+                "successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }

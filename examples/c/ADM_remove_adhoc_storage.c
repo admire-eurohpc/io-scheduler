@@ -67,9 +67,10 @@ main(int argc, char* argv[]) {
             server, name, ADM_STORAGE_GEKKOFS, ctx, &adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout,
+        fprintf(stderr,
                 "ADM_register_adhoc_storage() remote procedure not completed "
-                "successfully\n");
+                "successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }
@@ -80,9 +81,10 @@ main(int argc, char* argv[]) {
     ret = ADM_remove_adhoc_storage(server, adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout,
+        fprintf(stderr,
                 "ADM_remove_adhoc_storage() remote procedure not completed "
-                "successfully\n");
+                "successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }

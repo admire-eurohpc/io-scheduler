@@ -48,7 +48,7 @@ main(int argc, char* argv[]) {
     int exit_status = EXIT_SUCCESS;
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
-    ADM_job_t job;
+    ADM_job_t job = NULL;
     ADM_node_t* job_nodes = prepare_nodes(NJOB_NODES);
     assert(job_nodes);
     ADM_node_t* adhoc_nodes = prepare_nodes(NADHOC_NODES);
@@ -78,9 +78,10 @@ main(int argc, char* argv[]) {
             server, name, ADM_STORAGE_GEKKOFS, ctx, &adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout,
+        fprintf(stderr,
                 "ADM_register_adhoc_storage() remote procedure not completed "
-                "successfully\n");
+                "successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }
@@ -93,9 +94,12 @@ main(int argc, char* argv[]) {
     ret = ADM_register_job(server, job_resources, reqs, slurm_job_id, &job);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_register_job() remote procedure not completed "
-                        "successfully\n");
+        fprintf(stderr,
+                "ADM_register_job() remote procedure not completed "
+                "successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
+        goto cleanup;
     }
 
     ADM_dataset_t* sources = prepare_datasets("source-dataset-%d", NSOURCES);
@@ -111,8 +115,10 @@ main(int argc, char* argv[]) {
                                 NTARGETS, limits, NLIMITS, mapping, &tx);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_transfer_datasets() remote procedure not "
-                        "completed successfully\n");
+        fprintf(stderr,
+                "ADM_transfer_datasets() remote procedure not "
+                "completed successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }
@@ -121,7 +127,7 @@ main(int argc, char* argv[]) {
                     "successfully\n");
 
 cleanup:
-
+    ADM_remove_job(server, job);
     ADM_server_destroy(server);
     exit(exit_status);
 }

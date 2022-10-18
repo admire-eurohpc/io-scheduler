@@ -442,6 +442,7 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
     ret = margo_get_input(h, &in);
 
     auto adhoc_storage = in.adhoc_storage;
+    const admire::adhoc_storage::ctx ctx(adhoc_storage->s_adhoc_ctx);
 
     assert(ret == HG_SUCCESS);
 
@@ -456,11 +457,11 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
         const std::string job_id = "SLURM_JOB_ID=42";
 
     /* Number of nodes */
-        int nnodes = adhoc_storage->s_adhoc_ctx->c_resources->r_nodes->l_length;
+        int nnodes = ctx.resources().nodes().size();
         const std::string nodes = "-n "+std::to_string(nnodes);
 
     /* Walltime */
-        int twalltime = adhoc_storage->s_adhoc_ctx->c_walltime;
+        int twalltime = ctx.walltime();
         const std::string walltime = std::to_string(twalltime);
 
     /* Launch script */

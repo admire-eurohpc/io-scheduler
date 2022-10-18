@@ -99,27 +99,37 @@ ADM_register_job(hg_handle_t h) {
                 job_resources, reqs, slurm_id);
 
     admire::error_code ec = ADM_SUCCESS;
-
+    std::optional<admire::job> out_job;
     auto& jm = scord::job_manager::instance();
-    const auto rv = jm.create(slurm_id, job_resources, reqs);
 
-    if(rv) {
-        const auto& job = rv.value()->job();
-        out.op_id = rpc_id;
-        out.retval = ec;
-        out.job = admire::api::convert(job).release();
+    if(const auto jm_result = jm.create(slurm_id, job_resources, reqs);
+       jm_result.has_value()) {
+
+        const auto& job_info = jm_result.value();
+
+        // if the job requires an adhoc storage instance, inform the appropriate
+        // adhoc_storage instance (if registered)
+        if(reqs.adhoc_storage()) {
+            const auto adhoc_id = reqs.adhoc_storage()->id();
+            auto& adhoc_manager = scord::adhoc_storage_manager::instance();
+            ec = adhoc_manager.add_client_info(adhoc_id, job_info);
+        }
+
+        out_job = job_info->job();
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error creating job: {}\"", rpc_id,
-                     rv.error());
-        out.op_id = rpc_id;
-        out.retval = rv.error();
-        out.job = nullptr;
+                     jm_result.error());
+        ec = jm_result.error();
     }
+
+    out.op_id = rpc_id;
+    out.retval = ec;
+    out.job = out_job ? admire::api::convert(*out_job).release() : nullptr;
 
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}, job: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec, rv ? fmt::format("{}", rv.value()->job()) : "none");
+                ec, out_job);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -211,12 +221,24 @@ ADM_remove_job(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 job);
 
+    admire::error_code ec = ADM_SUCCESS;
     auto& jm = scord::job_manager::instance();
-    const auto ec = jm.remove(job.id());
+    const auto jm_result = jm.remove(job.id());
 
-    if(ec != ADM_SUCCESS) {
+    if(jm_result) {
+        // if the job was using an adhoc storage instance, inform the
+        // appropriate adhoc_storage that the job is no longer its client
+        const auto& job_info = jm_result.value();
+
+        if(const auto adhoc_storage = job_info->requirements()->adhoc_storage();
+           adhoc_storage.has_value()) {
+            auto& adhoc_manager = scord::adhoc_storage_manager::instance();
+            ec = adhoc_manager.remove_client_info(adhoc_storage->id());
+        }
+    } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"", rpc_id,
-                     ec);
+                     job.id());
+        ec = jm_result.error();
     }
 
     out.op_id = rpc_id;
@@ -264,24 +286,24 @@ ADM_register_adhoc_storage(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 name, type, ctx);
 
-    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-    const auto rv = adhoc_manager.create(type, name, ctx);
-
     admire::error_code ec = ADM_SUCCESS;
+    std::uint64_t out_adhoc_id = 0;
+    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
 
-    if(rv) {
-        const auto& adhoc_storage = *rv.value();
-        out.op_id = rpc_id;
-        out.retval = ec;
-        out.id = adhoc_storage.id();
+    if(const auto am_result = adhoc_manager.create(type, name, ctx);
+       am_result.has_value()) {
+        const auto& adhoc_storage_info = am_result.value();
+        out_adhoc_id = adhoc_storage_info->adhoc_storage().id();
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error creating adhoc_storage: "
                      "{}\"",
-                     rpc_id, rv.error());
-        out.op_id = rpc_id;
-        out.retval = ec;
-        out.id = 0;
+                     rpc_id, am_result.error());
+        ec = am_result.error();
     }
+
+    out.op_id = rpc_id;
+    out.retval = ec;
+    out.id = out_adhoc_id;
 
     LOGGER_INFO("rpc id: {} name: {} to: {} => "
                 "body: {{retval: {}, id: {}}}",

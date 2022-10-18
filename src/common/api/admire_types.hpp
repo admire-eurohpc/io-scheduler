@@ -44,6 +44,7 @@ using transfer_id = std::uint64_t;
 
 namespace internal {
 struct job_info;
+struct adhoc_storage_info;
 } // namespace internal
 
 struct server {
@@ -356,6 +357,9 @@ struct adhoc_storage : public storage {
     std::shared_ptr<storage::ctx>
     context() const final;
 
+    void
+    update(admire::adhoc_storage::ctx new_ctx);
+
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
@@ -456,14 +460,17 @@ struct fmt::formatter<admire::error_code> : formatter<std::string_view> {
             case ADM_ENOMEM:
                 name = "ADM_ENOMEM";
                 break;
-            case ADM_EOTHER:
-                name = "ADM_EOTHER";
-                break;
             case ADM_EEXISTS:
                 name = "ADM_EEXISTS";
                 break;
             case ADM_ENOENT:
                 name = "ADM_ENOENT";
+                break;
+            case ADM_EADHOC_BUSY:
+                name = "ADM_EADHOC_BUSY";
+                break;
+            case ADM_EOTHER:
+                name = "ADM_EOTHER";
                 break;
             default:
                 break;
@@ -640,28 +647,13 @@ struct fmt::formatter<std::shared_ptr<admire::storage>>
     }
 };
 
-template <>
-struct fmt::formatter<std::optional<std::uint64_t>>
-    : formatter<std::string_view> {
+template <typename T>
+struct fmt::formatter<std::optional<T>> : formatter<std::string_view> {
 
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::optional<std::uint64_t>& v, FormatContext& ctx) const {
-        return formatter<std::string_view>::format(
-                v ? std::to_string(v.value()) : "none", ctx);
-    }
-};
-
-template <>
-struct fmt::formatter<std::optional<admire::adhoc_storage>>
-    : formatter<std::string_view> {
-
-    // parse is inherited from formatter<string_view>.
-    template <typename FormatContext>
-    auto
-    format(const std::optional<admire::adhoc_storage>& v,
-           FormatContext& ctx) const {
+    format(const std::optional<T>& v, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
                 v ? fmt::format("{}", v.value()) : "none", ctx);
     }

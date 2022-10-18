@@ -28,6 +28,7 @@
 
 #include <admire_types.hpp>
 #include <internal_types.hpp>
+#include <utility>
 #include <utils/utils.hpp>
 #include <unordered_map>
 #include <abt_cxx/shared_mutex.hpp>
@@ -39,7 +40,8 @@ namespace scord {
 
 struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
 
-    tl::expected<std::shared_ptr<admire::adhoc_storage>, admire::error_code>
+    tl::expected<std::shared_ptr<admire::internal::adhoc_storage_info>,
+                 admire::error_code>
     create(enum admire::adhoc_storage::type type, const std::string& name,
            const admire::adhoc_storage::ctx& ctx) {
 
@@ -51,8 +53,9 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
         if(const auto it = m_adhoc_storages.find(id);
            it == m_adhoc_storages.end()) {
             const auto& [it_adhoc, inserted] = m_adhoc_storages.emplace(
-                    id, std::make_shared<admire::adhoc_storage>(
-                                type, name, current_id++, ctx));
+                    id, std::make_shared<admire::internal::adhoc_storage_info>(
+                                admire::adhoc_storage{type, name, current_id++,
+                                                      ctx}));
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
@@ -67,19 +70,18 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
     }
 
     admire::error_code
-    update(std::uint64_t id, admire::adhoc_storage::ctx ctx) {
+    update(std::uint64_t id, admire::adhoc_storage::ctx new_ctx) {
 
         abt::unique_lock lock(m_adhoc_storages_mutex);
 
         if(const auto it = m_adhoc_storages.find(id);
            it != m_adhoc_storages.end()) {
 
-            const auto& current_adhoc_ptr = it->second;
+            const auto current_adhoc_info = it->second;
+            auto tmp_adhoc = current_adhoc_info->adhoc_storage();
+            tmp_adhoc.update(std::move(new_ctx));
 
-            const auto new_adhoc = admire::adhoc_storage{
-                    current_adhoc_ptr->type(), current_adhoc_ptr->name(),
-                    current_adhoc_ptr->id(), std::move(ctx)};
-            *it->second = new_adhoc;
+            *it->second = admire::internal::adhoc_storage_info{tmp_adhoc};
             return ADM_SUCCESS;
         }
 
@@ -87,7 +89,8 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
         return ADM_ENOENT;
     }
 
-    tl::expected<std::shared_ptr<admire::adhoc_storage>, admire::error_code>
+    tl::expected<std::shared_ptr<admire::internal::adhoc_storage_info>,
+                 admire::error_code>
     find(std::uint64_t id) {
 
         abt::shared_lock lock(m_adhoc_storages_mutex);
@@ -119,12 +122,37 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
         return ADM_ENOENT;
     }
 
+    admire::error_code
+    add_client_info(std::uint64_t adhoc_id,
+                    std::shared_ptr<admire::internal::job_info> job_info) {
+
+        if(auto am_result = find(adhoc_id); am_result.has_value()) {
+            const auto adhoc_storage_info = am_result.value();
+            return adhoc_storage_info->add_client_info(std::move(job_info));
+        }
+
+        return ADM_ENOENT;
+    }
+
+    admire::error_code
+    remove_client_info(std::uint64_t adhoc_id) {
+        if(auto am_result = find(adhoc_id); am_result.has_value()) {
+            const auto adhoc_storage_info = *am_result;
+            adhoc_storage_info->remove_client_info();
+            return ADM_SUCCESS;
+        }
+
+        return ADM_ENOENT;
+    }
+
+
 private:
     friend class scord::utils::singleton<adhoc_storage_manager>;
     adhoc_storage_manager() = default;
 
     mutable abt::shared_mutex m_adhoc_storages_mutex;
-    std::unordered_map<std::uint64_t, std::shared_ptr<admire::adhoc_storage>>
+    std::unordered_map<std::uint64_t,
+                       std::shared_ptr<admire::internal::adhoc_storage_info>>
             m_adhoc_storages;
 };
 

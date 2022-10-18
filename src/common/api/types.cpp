@@ -1371,6 +1371,11 @@ public:
         return m_ctx;
     }
 
+    void
+    update(adhoc_storage::ctx new_ctx) {
+        m_ctx = std::move(new_ctx);
+    }
+
 private:
     std::uint64_t m_id;
     adhoc_storage::ctx m_ctx;
@@ -1426,6 +1431,12 @@ std::shared_ptr<storage::ctx>
 adhoc_storage::context() const {
     return std::make_shared<adhoc_storage::ctx>(m_pimpl->context());
 }
+
+void
+adhoc_storage::update(admire::adhoc_storage::ctx new_ctx) {
+    return m_pimpl->update(std::move(new_ctx));
+}
+
 adhoc_storage::~adhoc_storage() = default;
 
 pfs_storage::ctx::ctx(std::filesystem::path mount_point)

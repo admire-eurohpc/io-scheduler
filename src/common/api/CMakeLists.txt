@@ -30,7 +30,7 @@ target_sources(_api_types PUBLIC admire_types.h admire_types.hpp PRIVATE
 target_include_directories(_api_types PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(_api_types PRIVATE
-  Margo::Margo common::logger PUBLIC fmt::fmt)
+  Margo::Margo common::logger PUBLIC fmt::fmt common::abt_cxx)
 
 set_property(TARGET _api_types PROPERTY POSITION_INDEPENDENT_CODE ON)
 

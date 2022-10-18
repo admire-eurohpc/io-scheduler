@@ -104,19 +104,20 @@ struct job_manager : scord::utils::singleton<job_manager> {
         return tl::make_unexpected(ADM_ENOENT);
     }
 
-    admire::error_code
+    tl::expected<std::shared_ptr<admire::internal::job_info>,
+                 admire::error_code>
     remove(admire::job_id id) {
 
         abt::unique_lock lock(m_jobs_mutex);
 
-        if(m_jobs.count(id) != 0) {
-            m_jobs.erase(id);
-            return ADM_SUCCESS;
+        if(const auto it = m_jobs.find(id); it != m_jobs.end()) {
+            auto nh = m_jobs.extract(it);
+            return nh.mapped();
         }
 
         LOGGER_ERROR("Job '{}' was not registered or was already deleted", id);
 
-        return ADM_ENOENT;
+        return tl::make_unexpected(ADM_ENOENT);
     }
 
 private:

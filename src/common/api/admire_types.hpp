@@ -348,12 +348,6 @@ struct adhoc_storage : public storage {
     operator=(adhoc_storage&&) noexcept;
     ~adhoc_storage() override;
 
-    const std::uint64_t&
-    id() const;
-
-    std::uint64_t&
-    id();
-
     std::shared_ptr<storage::ctx>
     context() const final;
 

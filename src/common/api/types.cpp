@@ -1347,7 +1347,7 @@ adhoc_storage::ctx::should_flush() const {
 class adhoc_storage::impl {
 
 public:
-    explicit impl(adhoc_storage::ctx ctx) : m_id(), m_ctx(std::move(ctx)) {}
+    explicit impl(adhoc_storage::ctx ctx) : m_ctx(std::move(ctx)) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -1355,16 +1355,6 @@ public:
     impl&
     operator=(impl&&) noexcept = default;
     ~impl() = default;
-
-    const std::uint64_t&
-    id() const {
-        return m_id;
-    }
-
-    std::uint64_t&
-    id() {
-        return m_id;
-    }
 
     adhoc_storage::ctx
     context() const {
@@ -1377,7 +1367,6 @@ public:
     }
 
 private:
-    std::uint64_t m_id;
     adhoc_storage::ctx m_ctx;
 };
 
@@ -1416,16 +1405,6 @@ adhoc_storage::operator=(const adhoc_storage& other) noexcept {
 
 adhoc_storage&
 adhoc_storage::operator=(adhoc_storage&&) noexcept = default;
-
-const std::uint64_t&
-adhoc_storage::id() const {
-    return m_pimpl->id();
-}
-
-std::uint64_t&
-adhoc_storage::id() {
-    return m_pimpl->id();
-}
 
 std::shared_ptr<storage::ctx>
 adhoc_storage::context() const {

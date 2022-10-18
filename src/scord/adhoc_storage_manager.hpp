@@ -54,8 +54,7 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
            it == m_adhoc_storages.end()) {
             const auto& [it_adhoc, inserted] = m_adhoc_storages.emplace(
                     id, std::make_shared<admire::internal::adhoc_storage_info>(
-                                admire::adhoc_storage{type, name, current_id++,
-                                                      ctx}));
+                                admire::adhoc_storage{type, name, id, ctx}));
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);

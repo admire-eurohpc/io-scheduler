@@ -252,17 +252,7 @@ ADM_return_t
 update_adhoc_storage(const server& srv,
                      const adhoc_storage::ctx& adhoc_storage_ctx,
                      const adhoc_storage& adhoc_storage) {
-
     return detail::update_adhoc_storage(srv, adhoc_storage_ctx, adhoc_storage);
-
-    /*
-    if(!rv) {
-        throw std::runtime_error(
-                fmt::format("ADM_update_adhoc_storage() error: {}",
-                            ADM_strerror(rv.error())));
-    }
-
-    return rv.value(); */
 }
 
 ADM_return_t

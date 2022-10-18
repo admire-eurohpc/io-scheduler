@@ -24,9 +24,11 @@
 
 #include <fmt/format.h>
 #include <admire.hpp>
+#include "common.hpp"
 
-#define NINPUTS  10
-#define NOUTPUTS 5
+#define NADHOC_NODES 25
+#define NINPUTS      10
+#define NOUTPUTS     5
 
 int
 main(int argc, char* argv[]) {
@@ -40,35 +42,32 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
+    const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
-    auto p = std::make_unique<admire::adhoc_storage>(
-            admire::storage::type::gekkofs, "foobar",
-            admire::adhoc_storage::execution_mode::separate_new,
-            admire::adhoc_storage::access_type::read_write, 42, 100, false);
-
-    admire::job_requirements reqs(inputs, outputs, std::move(p));
-
-    std::string user_id = "adhoc_storage_42";
-
+    std::string name = "adhoc_storage_42";
     const auto adhoc_storage_ctx = admire::adhoc_storage::ctx{
             admire::adhoc_storage::execution_mode::separate_new,
-            admire::adhoc_storage::access_type::read_write, 42, 100, false};
+            admire::adhoc_storage::access_type::read_write,
+            admire::adhoc_storage::resources{adhoc_nodes}, 100, false};
 
     const auto adhoc_storage_ctx_updated = admire::adhoc_storage::ctx{
             admire::adhoc_storage::execution_mode::separate_new,
-            admire::adhoc_storage::access_type::read_write, 42, 200, false};
+            admire::adhoc_storage::access_type::read_write,
+            admire::adhoc_storage::resources{adhoc_nodes}, 200, false};
+
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        const auto job = admire::register_job(server, reqs);
-
         const auto adhoc_storage = admire::register_adhoc_storage(
-                server, job, user_id, adhoc_storage_ctx);
-
-        /*const auto adhoc_storage_updated = admire::update_adhoc_storage(
-                server, adhoc_storage_ctx_updated, adhoc_storage);*/
+                server, name, admire::storage::type::gekkofs,
+                adhoc_storage_ctx);
+        ret = admire::update_adhoc_storage(server, adhoc_storage_ctx_updated,
+                                           adhoc_storage);
+        fmt::print(stdout,
+                   "ADM_update_adhoc_storage() remote procedure completed "
+                   "successfully\n");
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_update_adhoc_storage() failed: {}\n",
                    e.what());
@@ -81,7 +80,4 @@ main(int argc, char* argv[]) {
                    "successfully\n");
         exit(EXIT_FAILURE);
     }
-
-    fmt::print(stdout, "ADM_update_adhoc_storage() remote procedure completed "
-                       "successfully\n");
 }

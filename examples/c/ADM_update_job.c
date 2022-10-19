@@ -75,9 +75,10 @@ main(int argc, char* argv[]) {
             server, name, ADM_STORAGE_GEKKOFS, ctx, &adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout,
+        fprintf(stderr,
                 "ADM_register_adhoc_storage() remote procedure not completed "
-                "successfully\n");
+                "successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }
@@ -90,9 +91,12 @@ main(int argc, char* argv[]) {
     ret = ADM_register_job(server, job_resources, reqs, slurm_job_id, &job);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_register_job() remote procedure not completed "
-                        "successfully\n");
+        fprintf(stderr,
+                "ADM_register_job() remote procedure not completed "
+                "successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
+        goto cleanup;
     }
 
     ADM_dataset_t new_inputs[NINPUTS];
@@ -121,8 +125,10 @@ main(int argc, char* argv[]) {
     ret = ADM_update_job(server, job, job_resources, new_reqs);
 
     if(ret != ADM_SUCCESS) {
-        fprintf(stdout, "ADM_update_job() remote procedure not completed "
-                        "successfully\n");
+        fprintf(stderr,
+                "ADM_update_job() remote procedure not completed "
+                "successfully: %s\n",
+                ADM_strerror(ret));
         exit_status = EXIT_FAILURE;
         goto cleanup;
     }
@@ -140,6 +146,7 @@ cleanup:
         ADM_dataset_destroy(outputs[i]);
     }
 
+    ADM_remove_job(server, job);
     ADM_server_destroy(server);
     exit(exit_status);
 }

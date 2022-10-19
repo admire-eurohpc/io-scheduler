@@ -200,6 +200,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(fmt)
+set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 ### spdlog: required for logging
 message(STATUS "[${PROJECT_NAME}] Downloading and building spdlog")

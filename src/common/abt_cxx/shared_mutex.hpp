@@ -22,6 +22,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
+#include <cassert>
 #include <abt.h>
 #include <fmt/format.h>
 #include <bits/functexcept.h>
@@ -59,8 +60,29 @@ public:
     // copy constructor and copy assignment operator are disabled
     shared_mutex(const shared_mutex&) = delete;
 
+    shared_mutex(shared_mutex&& rhs) noexcept {
+        m_lock = rhs.m_lock;
+        rhs.m_lock = ABT_RWLOCK_NULL;
+    }
+
     shared_mutex&
     operator=(const shared_mutex&) = delete;
+
+    shared_mutex&
+    operator=(shared_mutex&& other) noexcept {
+
+        if(this == &other) {
+            return *this;
+        }
+
+        [[maybe_unused]] const auto ret = ABT_rwlock_free(&m_lock);
+        assert(ret == ABT_SUCCESS);
+        m_lock = other.m_lock;
+        other.m_lock = ABT_RWLOCK_NULL;
+
+        return *this;
+    }
+
 
     // Exclusive ownership
 

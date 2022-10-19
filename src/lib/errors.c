@@ -29,8 +29,12 @@ const char* const adm_errlist[ADM_ERR_MAX + 1] = {
         [ADM_ESNAFU] = "Internal error",
         [ADM_EBADARGS] = "Bad arguments",
         [ADM_ENOMEM] = "Cannot allocate memory",
+        [ADM_EEXISTS] = "Entity already exists",
+        [ADM_ENOENT] = "Entity does not exist",
+        [ADM_EADHOC_BUSY] = "Adhoc storage already in use",
 
         [ADM_EOTHER] = "Undetermined error",
+
 
         /* fallback */
         [ADM_ERR_MAX] = "Unknown error",

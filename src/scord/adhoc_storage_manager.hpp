@@ -27,6 +27,8 @@
 #define SCORD_ADHOC_STORAGE_MANAGER_HPP
 
 #include <admire_types.hpp>
+#include <internal_types.hpp>
+#include <utility>
 #include <utils/utils.hpp>
 #include <unordered_map>
 #include <abt_cxx/shared_mutex.hpp>
@@ -38,19 +40,21 @@ namespace scord {
 
 struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
 
-    tl::expected<admire::adhoc_storage, admire::error_code>
+    tl::expected<std::shared_ptr<admire::internal::adhoc_storage_info>,
+                 admire::error_code>
     create(enum admire::adhoc_storage::type type, const std::string& name,
            const admire::adhoc_storage::ctx& ctx) {
 
         static std::atomic_uint64_t current_id;
-        admire::job_id id = current_id++;
+        std::uint64_t id = current_id++;
 
         abt::unique_lock lock(m_adhoc_storages_mutex);
 
         if(const auto it = m_adhoc_storages.find(id);
            it == m_adhoc_storages.end()) {
             const auto& [it_adhoc, inserted] = m_adhoc_storages.emplace(
-                    id, admire::adhoc_storage{type, name, current_id++, ctx});
+                    id, std::make_shared<admire::internal::adhoc_storage_info>(
+                                admire::adhoc_storage{type, name, id, ctx}));
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
@@ -65,18 +69,18 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
     }
 
     admire::error_code
-    update(std::uint64_t id, admire::adhoc_storage::ctx ctx) {
+    update(std::uint64_t id, admire::adhoc_storage::ctx new_ctx) {
 
         abt::unique_lock lock(m_adhoc_storages_mutex);
 
         if(const auto it = m_adhoc_storages.find(id);
            it != m_adhoc_storages.end()) {
 
-            const auto& current_adhoc = it->second;
+            const auto current_adhoc_info = it->second;
+            auto tmp_adhoc = current_adhoc_info->adhoc_storage();
+            tmp_adhoc.update(std::move(new_ctx));
 
-            it->second = admire::adhoc_storage{
-                    current_adhoc.type(), current_adhoc.name(),
-                    current_adhoc.id(), std::move(ctx)};
+            *it->second = admire::internal::adhoc_storage_info{tmp_adhoc};
             return ADM_SUCCESS;
         }
 
@@ -84,8 +88,9 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
         return ADM_ENOENT;
     }
 
-    tl::expected<admire::adhoc_storage, admire::error_code>
-    find(admire::job_id id) {
+    tl::expected<std::shared_ptr<admire::internal::adhoc_storage_info>,
+                 admire::error_code>
+    find(std::uint64_t id) {
 
         abt::shared_lock lock(m_adhoc_storages_mutex);
 
@@ -100,7 +105,7 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
     }
 
     admire::error_code
-    remove(admire::job_id id) {
+    remove(std::uint64_t id) {
 
         abt::unique_lock lock(m_adhoc_storages_mutex);
 
@@ -116,12 +121,38 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
         return ADM_ENOENT;
     }
 
+    admire::error_code
+    add_client_info(std::uint64_t adhoc_id,
+                    std::shared_ptr<admire::internal::job_info> job_info) {
+
+        if(auto am_result = find(adhoc_id); am_result.has_value()) {
+            const auto adhoc_storage_info = am_result.value();
+            return adhoc_storage_info->add_client_info(std::move(job_info));
+        }
+
+        return ADM_ENOENT;
+    }
+
+    admire::error_code
+    remove_client_info(std::uint64_t adhoc_id) {
+        if(auto am_result = find(adhoc_id); am_result.has_value()) {
+            const auto adhoc_storage_info = *am_result;
+            adhoc_storage_info->remove_client_info();
+            return ADM_SUCCESS;
+        }
+
+        return ADM_ENOENT;
+    }
+
+
 private:
     friend class scord::utils::singleton<adhoc_storage_manager>;
     adhoc_storage_manager() = default;
 
     mutable abt::shared_mutex m_adhoc_storages_mutex;
-    std::unordered_map<std::uint64_t, admire::adhoc_storage> m_adhoc_storages;
+    std::unordered_map<std::uint64_t,
+                       std::shared_ptr<admire::internal::adhoc_storage_info>>
+            m_adhoc_storages;
 };
 
 } // namespace scord

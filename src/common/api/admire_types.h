@@ -46,9 +46,10 @@ typedef enum {
     ADM_ESNAFU,
     ADM_EBADARGS,
     ADM_ENOMEM,
-    ADM_EOTHER,
     ADM_EEXISTS,
     ADM_ENOENT,
+    ADM_EADHOC_BUSY,
+    ADM_EOTHER,
     ADM_ERR_MAX = 512
 } ADM_return_t;
 

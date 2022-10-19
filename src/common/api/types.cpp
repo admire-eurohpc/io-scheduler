@@ -31,6 +31,7 @@
 #include <variant>
 #include <optional>
 #include "admire_types.hpp"
+#include "internal_types.hpp"
 
 /******************************************************************************/
 /* C Type definitions and related functions                                   */
@@ -1346,7 +1347,7 @@ adhoc_storage::ctx::should_flush() const {
 class adhoc_storage::impl {
 
 public:
-    explicit impl(adhoc_storage::ctx ctx) : m_id(), m_ctx(std::move(ctx)) {}
+    explicit impl(adhoc_storage::ctx ctx) : m_ctx(std::move(ctx)) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -1355,23 +1356,17 @@ public:
     operator=(impl&&) noexcept = default;
     ~impl() = default;
 
-    const std::uint64_t&
-    id() const {
-        return m_id;
-    }
-
-    std::uint64_t&
-    id() {
-        return m_id;
-    }
-
     adhoc_storage::ctx
     context() const {
         return m_ctx;
     }
 
+    void
+    update(adhoc_storage::ctx new_ctx) {
+        m_ctx = std::move(new_ctx);
+    }
+
 private:
-    std::uint64_t m_id;
     adhoc_storage::ctx m_ctx;
 };
 
@@ -1411,20 +1406,16 @@ adhoc_storage::operator=(const adhoc_storage& other) noexcept {
 adhoc_storage&
 adhoc_storage::operator=(adhoc_storage&&) noexcept = default;
 
-const std::uint64_t&
-adhoc_storage::id() const {
-    return m_pimpl->id();
-}
-
-std::uint64_t&
-adhoc_storage::id() {
-    return m_pimpl->id();
-}
-
 std::shared_ptr<storage::ctx>
 adhoc_storage::context() const {
     return std::make_shared<adhoc_storage::ctx>(m_pimpl->context());
 }
+
+void
+adhoc_storage::update(admire::adhoc_storage::ctx new_ctx) {
+    return m_pimpl->update(std::move(new_ctx));
+}
+
 adhoc_storage::~adhoc_storage() = default;
 
 pfs_storage::ctx::ctx(std::filesystem::path mount_point)

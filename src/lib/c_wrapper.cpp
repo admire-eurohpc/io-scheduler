@@ -64,13 +64,12 @@ ADM_register_job(ADM_server_t server, ADM_job_resources_t res,
 
 ADM_return_t
 ADM_update_job(ADM_server_t server, ADM_job_t job,
-               ADM_job_resources_t job_resources, ADM_job_requirements_t reqs) {
+               ADM_job_resources_t job_resources) {
 
     const admire::server srv{server};
 
     return admire::update_job(srv, admire::job{job},
-                              admire::job::resources{job_resources},
-                              admire::job_requirements{reqs});
+                              admire::job::resources{job_resources});
 }
 
 ADM_return_t

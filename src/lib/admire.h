@@ -80,9 +80,21 @@ ADM_register_job(ADM_server_t server, ADM_job_resources_t res,
                  ADM_job_requirements_t reqs, uint64_t slurm_id,
                  ADM_job_t* job);
 
+/**
+ * Update a registered job resources.
+ *
+ * @remark The returned ADM_JOB will be freed when passed to
+ * ADM_remove_job().
+ *
+ * @param[in] server The server to which the request is directed
+ * @param[in] job An ADM_JOB identifying the target job to update.
+ * @param[in] job_resources The new resources for the job.
+ * @return Returns ADM_SUCCESS if the remote procedure has completed
+ * successfully.
+ */
 ADM_return_t
 ADM_update_job(ADM_server_t server, ADM_job_t job,
-               ADM_job_resources_t job_resources, ADM_job_requirements_t reqs);
+               ADM_job_resources_t job_resources);
 
 ADM_return_t
 ADM_remove_job(ADM_server_t server, ADM_job_t job);

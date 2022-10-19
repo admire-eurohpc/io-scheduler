@@ -53,6 +53,11 @@ struct job_info {
         return m_requirements;
     }
 
+    void
+    update(admire::job::resources resources) {
+        m_resources = std::move(resources);
+    }
+
     admire::job m_job;
     std::optional<admire::job::resources> m_resources;
     std::optional<admire::job_requirements> m_requirements;

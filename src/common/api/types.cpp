@@ -1013,7 +1013,17 @@ ADM_qos_limit_list_destroy(ADM_qos_limit_list_t list) {
 /* C++ Type definitions and related functions                                 */
 /******************************************************************************/
 
+extern "C" {
+const char*
+ADM_strerror(ADM_return_t errnum);
+};
+
 namespace admire {
+
+std::string_view
+error_code::message() const {
+    return ::ADM_strerror(m_value);
+}
 
 class server::impl {
 

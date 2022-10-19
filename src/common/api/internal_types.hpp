@@ -86,12 +86,12 @@ struct adhoc_storage_info {
         if(m_client_info) {
             LOGGER_ERROR("adhoc storage {} already has a client",
                          m_adhoc_storage.id());
-            return ADM_EADHOC_BUSY;
+            return error_code::adhoc_in_use;
         }
 
         m_client_info = std::move(job_info);
 
-        return ADM_SUCCESS;
+        return error_code::success;
     }
 
     void

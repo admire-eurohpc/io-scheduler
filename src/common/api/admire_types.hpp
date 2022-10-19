@@ -36,7 +36,74 @@
 
 namespace admire {
 
-using error_code = ADM_return_t;
+struct error_code {
+
+    static const error_code success;
+    static const error_code snafu;
+    static const error_code bad_args;
+    static const error_code out_of_memory;
+    static const error_code entity_exists;
+    static const error_code no_such_entity;
+    static const error_code adhoc_in_use;
+    static const error_code other;
+
+    constexpr error_code() : m_value(ADM_SUCCESS) {}
+    constexpr explicit error_code(ADM_return_t ec) : m_value(ec) {}
+    constexpr explicit error_code(int32_t ec)
+        : m_value(static_cast<ADM_return_t>(ec)) {}
+
+    constexpr operator ADM_return_t() const { // NOLINT
+        return m_value;
+    }
+
+    constexpr explicit operator bool() const {
+        return m_value == ADM_SUCCESS;
+    }
+
+    ADM_return_t
+    value() const {
+        return m_value;
+    }
+
+    constexpr std::string_view
+    name() const {
+        switch(m_value) {
+            case ADM_SUCCESS:
+                return "ADM_SUCCESS";
+            case ADM_ESNAFU:
+                return "ADM_ESNAFU";
+            case ADM_EBADARGS:
+                return "ADM_EBADARGS";
+            case ADM_ENOMEM:
+                return "ADM_ENOMEM";
+            case ADM_EEXISTS:
+                return "ADM_EEXISTS";
+            case ADM_ENOENT:
+                return "ADM_ENOENT";
+            case ADM_EADHOC_BUSY:
+                return "ADM_EADHOC_BUSY";
+            case ADM_EOTHER:
+                return "ADM_EOTHER";
+            default:
+                return "INVALID_ERROR_VALUE";
+        }
+    }
+
+    std::string_view
+    message() const;
+
+private:
+    ADM_return_t m_value;
+};
+
+constexpr error_code error_code::success = error_code{ADM_SUCCESS};
+constexpr error_code error_code::snafu = error_code{ADM_ESNAFU};
+constexpr error_code error_code::bad_args = error_code{ADM_EBADARGS};
+constexpr error_code error_code::out_of_memory = error_code{ADM_ENOMEM};
+constexpr error_code error_code::entity_exists = error_code{ADM_EEXISTS};
+constexpr error_code error_code::no_such_entity = error_code{ADM_ENOENT};
+constexpr error_code error_code::adhoc_in_use = error_code{ADM_EADHOC_BUSY};
+constexpr error_code error_code::other = error_code{ADM_EOTHER};
 
 using job_id = std::uint64_t;
 using slurm_job_id = std::uint64_t;
@@ -439,38 +506,7 @@ struct fmt::formatter<admire::error_code> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const admire::error_code& ec, FormatContext& ctx) const {
-        std::string_view name = "unknown";
-
-        switch(ec) {
-            case ADM_SUCCESS:
-                name = "ADM_SUCCESS";
-                break;
-            case ADM_ESNAFU:
-                name = "ADM_ESNAFU";
-                break;
-            case ADM_EBADARGS:
-                name = "ADM_EBADARGS";
-                break;
-            case ADM_ENOMEM:
-                name = "ADM_ENOMEM";
-                break;
-            case ADM_EEXISTS:
-                name = "ADM_EEXISTS";
-                break;
-            case ADM_ENOENT:
-                name = "ADM_ENOENT";
-                break;
-            case ADM_EADHOC_BUSY:
-                name = "ADM_EADHOC_BUSY";
-                break;
-            case ADM_EOTHER:
-                name = "ADM_EOTHER";
-                break;
-            default:
-                break;
-        }
-
-        return formatter<std::string_view>::format(name, ctx);
+        return formatter<std::string_view>::format(ec.name(), ctx);
     }
 };
 

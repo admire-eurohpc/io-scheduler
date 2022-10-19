@@ -59,14 +59,14 @@ struct job_manager : scord::utils::singleton<job_manager> {
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
-                return tl::make_unexpected(ADM_ESNAFU);
+                return tl::make_unexpected(admire::error_code::snafu);
             }
 
             return it_job->second;
         }
 
         LOGGER_ERROR("{}: Job '{}' already exists", __FUNCTION__, id);
-        return tl::make_unexpected(ADM_EEXISTS);
+        return tl::make_unexpected(admire::error_code::entity_exists);
     }
 
     admire::error_code
@@ -77,11 +77,11 @@ struct job_manager : scord::utils::singleton<job_manager> {
         if(const auto it = m_jobs.find(id); it != m_jobs.end()) {
             const auto& current_job_info = it->second;
             current_job_info->update(std::move(job_resources));
-            return ADM_SUCCESS;
+            return admire::error_code::success;
         }
 
         LOGGER_ERROR("{}: Job '{}' does not exist", __FUNCTION__, id);
-        return ADM_ENOENT;
+        return admire::error_code::no_such_entity;
     }
 
     tl::expected<std::shared_ptr<admire::internal::job_info>,
@@ -95,7 +95,7 @@ struct job_manager : scord::utils::singleton<job_manager> {
         }
 
         LOGGER_ERROR("Job '{}' was not registered or was already deleted", id);
-        return tl::make_unexpected(ADM_ENOENT);
+        return tl::make_unexpected(admire::error_code::no_such_entity);
     }
 
     tl::expected<std::shared_ptr<admire::internal::job_info>,
@@ -111,7 +111,7 @@ struct job_manager : scord::utils::singleton<job_manager> {
 
         LOGGER_ERROR("Job '{}' was not registered or was already deleted", id);
 
-        return tl::make_unexpected(ADM_ENOENT);
+        return tl::make_unexpected(admire::error_code::no_such_entity);
     }
 
 private:

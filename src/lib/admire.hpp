@@ -51,10 +51,10 @@ admire::job
 register_job(const server& srv, const job::resources& job_resources,
              const job_requirements& reqs, admire::slurm_job_id slurm_id);
 
-ADM_return_t
+admire::error_code
 update_job(const server& srv, const job&, const job::resources& job_resources);
 
-ADM_return_t
+admire::error_code
 remove_job(const server& srv, const job& job);
 
 admire::adhoc_storage

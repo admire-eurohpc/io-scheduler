@@ -73,6 +73,11 @@ struct adhoc_storage_info {
         return m_adhoc_storage;
     }
 
+    void
+    update(admire::adhoc_storage::ctx adhoc_context) {
+        m_adhoc_storage.update(std::move(adhoc_context));
+    }
+
     admire::error_code
     add_client_info(std::shared_ptr<admire::internal::job_info> job_info) {
 

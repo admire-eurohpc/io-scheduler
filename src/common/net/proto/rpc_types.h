@@ -310,7 +310,6 @@ MERCURY_GEN_PROC(
     ADM_update_job_in_t,
         ((ADM_job_t) (job))
         ((ADM_job_resources_t) (job_resources))
-        ((adm_job_requirements) (reqs))
 );
 
 MERCURY_GEN_PROC(

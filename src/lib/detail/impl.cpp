@@ -241,7 +241,7 @@ register_job(const server& srv, const job::resources& job_resources,
 
 admire::error_code
 update_job(const server& srv, const job& job,
-           const job::resources& job_resources, const job_requirements& reqs) {
+           const job::resources& job_resources) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
@@ -249,17 +249,14 @@ update_job(const server& srv, const job& job,
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job: {}, job_resources: {}, job_requirements: {}}}",
+                "body: {{job: {}, job_resources: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), job, job_resources,
-                reqs);
+                std::quoted(rpc_client.self_address()), job, job_resources);
 
     const auto rpc_job = api::convert(job);
     const auto rpc_job_resources = api::convert(job_resources);
-    const auto rpc_reqs = api::convert(reqs);
 
-    ADM_update_job_in_t in{rpc_job.get(), rpc_job_resources.get(),
-                           *rpc_reqs.get()};
+    ADM_update_job_in_t in{rpc_job.get(), rpc_job_resources.get()};
     ADM_update_job_out_t out;
 
     const auto rpc = endp.call("ADM_update_job", &in, &out);

@@ -99,30 +99,14 @@ main(int argc, char* argv[]) {
         goto cleanup;
     }
 
-    ADM_dataset_t new_inputs[NINPUTS];
+    ADM_node_t* new_job_nodes = prepare_nodes(NJOB_NODES * 2);
+    assert(new_job_nodes);
 
-    for(int i = 0; i < NINPUTS; ++i) {
-        const char* pattern = "input-new-dataset-%d";
-        size_t n = snprintf(NULL, 0, pattern, i);
-        char* id = (char*) alloca(n + 1);
-        snprintf(id, n + 1, pattern, i);
-        new_inputs[i] = ADM_dataset_create(id);
-    }
+    ADM_job_resources_t new_job_resources =
+            ADM_job_resources_create(new_job_nodes, NJOB_NODES * 2);
+    assert(job_resources);
 
-    ADM_dataset_t new_outputs[NOUTPUTS];
-
-    for(int i = 0; i < NOUTPUTS; ++i) {
-        const char* pattern = "output-new-dataset-%d";
-        size_t n = snprintf(NULL, 0, pattern, i);
-        char* id = (char*) alloca(n + 1);
-        snprintf(id, n + 1, pattern, i);
-        new_outputs[i] = ADM_dataset_create(id);
-    }
-
-    ADM_job_requirements_t new_reqs = ADM_job_requirements_create(
-            new_inputs, NINPUTS, new_outputs, NOUTPUTS, adhoc_storage);
-
-    ret = ADM_update_job(server, job, job_resources, new_reqs);
+    ret = ADM_update_job(server, job, new_job_resources);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stderr,

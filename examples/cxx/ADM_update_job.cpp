@@ -43,6 +43,7 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     const auto job_nodes = prepare_nodes(NJOB_NODES);
+    const auto new_job_nodes = prepare_nodes(NJOB_NODES * 2);
     const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
@@ -60,14 +61,12 @@ main(int argc, char* argv[]) {
     const auto new_outputs =
             prepare_datasets("output-new-dataset-{}", NOUTPUTS);
 
-    admire::job_requirements new_reqs{new_inputs, new_outputs, gkfs_storage};
-
     try {
         [[maybe_unused]] const auto job = admire::register_job(
                 server, admire::job::resources{job_nodes}, reqs, 0);
 
         [[maybe_unused]] ADM_return_t ret = admire::update_job(
-                server, job, admire::job::resources{job_nodes}, new_reqs);
+                server, job, admire::job::resources{new_job_nodes});
 
         fmt::print(
                 stdout,

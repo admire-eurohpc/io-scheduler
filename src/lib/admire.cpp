@@ -224,8 +224,8 @@ register_job(const server& srv, const job::resources& resources,
 
 ADM_return_t
 update_job(const server& srv, const job& job,
-           const job::resources& job_resources, const job_requirements& reqs) {
-    return detail::update_job(srv, job, job_resources, reqs);
+           const job::resources& job_resources) {
+    return detail::update_job(srv, job, job_resources);
 }
 
 ADM_return_t

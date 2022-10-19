@@ -70,19 +70,13 @@ struct job_manager : scord::utils::singleton<job_manager> {
     }
 
     admire::error_code
-    update(admire::job_id id, admire::job::resources job_resources,
-           admire::job_requirements job_requirements) {
+    update(admire::job_id id, admire::job::resources job_resources) {
 
         abt::unique_lock lock(m_jobs_mutex);
 
         if(const auto it = m_jobs.find(id); it != m_jobs.end()) {
             const auto& current_job_info = it->second;
-
-            const auto new_job_info = admire::internal::job_info{
-                    current_job_info->job(), std::move(job_resources),
-                    std::move(job_requirements)};
-
-            *it->second = new_job_info;
+            current_job_info->update(std::move(job_resources));
             return ADM_SUCCESS;
         }
 

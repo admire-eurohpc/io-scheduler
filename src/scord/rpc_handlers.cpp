@@ -161,16 +161,15 @@ ADM_update_job(hg_handle_t h) {
 
     const admire::job job(in.job);
     const admire::job::resources job_resources(in.job_resources);
-    const admire::job_requirements reqs(&in.reqs);
 
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job: {}, job_resources: {}, job_requirements: {}}}",
+                "body: {{job: {}, job_resources: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                job, job_resources, reqs);
+                job, job_resources);
 
     auto& jm = scord::job_manager::instance();
-    const auto ec = jm.update(job.id(), job_resources, reqs);
+    const auto ec = jm.update(job.id(), job_resources);
 
     if(ec != ADM_SUCCESS) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error updating job: {}\"", rpc_id,

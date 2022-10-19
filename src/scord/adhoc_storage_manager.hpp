@@ -75,12 +75,8 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
 
         if(const auto it = m_adhoc_storages.find(id);
            it != m_adhoc_storages.end()) {
-
             const auto current_adhoc_info = it->second;
-            auto tmp_adhoc = current_adhoc_info->adhoc_storage();
-            tmp_adhoc.update(std::move(new_ctx));
-
-            *it->second = admire::internal::adhoc_storage_info{tmp_adhoc};
+            current_adhoc_info->update(std::move(new_ctx));
             return ADM_SUCCESS;
         }
 

@@ -453,9 +453,6 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
     /* Look inside adhoc_storage and launch gkfs script */
 
     if (adhoc_storage->s_type == ADM_STORAGE_GEKKOFS) {
-    /* Extract Job ID -> SLURM_JOB_ID */
-        const std::string job_id = "SLURM_JOB_ID=42";
-
     /* Number of nodes */
         int nnodes = ctx.resources().nodes().size();
         const std::string nodes = "-n "+std::to_string(nnodes);
@@ -470,12 +467,12 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
             case 0: {
                 std::vector<const char*> args;
                 args.push_back("gkfs");
-                args.push_back("-c");
-                args.push_back("gkfs.conf");
+                // args.push_back("-c");
+                // args.push_back("gkfs.conf");
                 args.push_back("-n");
                 args.push_back(nodes.c_str());
-                //args.push_back("-w");
-                //args.push_back(walltime.c_str());
+                // args.push_back("-w");
+                // args.push_back(walltime.c_str());
                 args.push_back("--srun");
                 args.push_back("start");
                 args.push_back(NULL);
@@ -483,7 +480,7 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
                 env.push_back(job_id.c_str());
                 env.push_back(NULL);
                 
-                execve("gkfs", const_cast<char* const*>(args.data()), 
+                execvpe("gkfs", const_cast<char* const*>(args.data()), 
                 const_cast<char* const*>(env.data())); 
                 LOGGER_INFO("ADM_deploy_adhoc_storage() script didn't execute");
                 exit(0);

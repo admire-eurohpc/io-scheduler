@@ -477,7 +477,6 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
                 args.push_back("start");
                 args.push_back(NULL);
                 std::vector<const char*> env;
-                env.push_back(job_id.c_str());
                 env.push_back(NULL);
                 
                 execvpe("gkfs", const_cast<char* const*>(args.data()), 

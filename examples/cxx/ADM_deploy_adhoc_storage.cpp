@@ -37,9 +37,7 @@ main(int argc, char* argv[]) {
     }
 
     admire::server server{"tcp", argv[1]};
-    admire::node n1{"node1"};
-    admire::node n2("node2");
-    std::vector<admire::node> nodes{n1,n2};
+    std::vector<admire::node> nodes{admire::node{"node1"},admire::node{"node2"}};
     admire::adhoc_storage::resources res(nodes);
 
     admire::adhoc_storage adhoc_storage(

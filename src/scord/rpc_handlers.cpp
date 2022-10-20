@@ -61,7 +61,7 @@ ADM_ping(hg_handle_t h) {
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
                 id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ADM_SUCCESS);
+                admire::error_code::success);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
@@ -98,7 +98,7 @@ ADM_register_job(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 job_resources, reqs, slurm_id);
 
-    admire::error_code ec = ADM_SUCCESS;
+    admire::error_code ec = admire::error_code::success;
     std::optional<admire::job> out_job;
     auto& jm = scord::job_manager::instance();
 
@@ -220,7 +220,7 @@ ADM_remove_job(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 job);
 
-    admire::error_code ec = ADM_SUCCESS;
+    admire::error_code ec;
     auto& jm = scord::job_manager::instance();
     const auto jm_result = jm.remove(job.id());
 
@@ -285,7 +285,7 @@ ADM_register_adhoc_storage(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 name, type, ctx);
 
-    admire::error_code ec = ADM_SUCCESS;
+    admire::error_code ec;
     std::uint64_t out_adhoc_id = 0;
     auto& adhoc_manager = scord::adhoc_storage_manager::instance();
 
@@ -1134,17 +1134,17 @@ ADM_transfer_datasets(hg_handle_t h) {
             id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), job,
             sources, targets, limits, mapping);
 
-    admire::error_code rv = ADM_SUCCESS;
+    admire::error_code ec;
 
     const auto transfer = admire::transfer{42};
 
     out.op_id = id;
-    out.retval = rv;
+    out.retval = ec;
     out.tx = admire::api::convert(transfer).release();
 
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}, transfer: {}}}",
-                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), rv,
+                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), ec,
                 transfer);
 
     ret = margo_respond(h, &out);

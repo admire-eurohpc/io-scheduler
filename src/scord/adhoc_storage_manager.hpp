@@ -58,14 +58,14 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
-                return tl::make_unexpected(ADM_ESNAFU);
+                return tl::make_unexpected(admire::error_code::snafu);
             }
 
             return it_adhoc->second;
         }
 
         LOGGER_ERROR("{}: Adhoc storage '{}' already exists", __FUNCTION__, id);
-        return tl::make_unexpected(ADM_EEXISTS);
+        return tl::make_unexpected(admire::error_code::entity_exists);
     }
 
     admire::error_code
@@ -77,11 +77,11 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
            it != m_adhoc_storages.end()) {
             const auto current_adhoc_info = it->second;
             current_adhoc_info->update(std::move(new_ctx));
-            return ADM_SUCCESS;
+            return admire::error_code::success;
         }
 
         LOGGER_ERROR("{}: Adhoc storage '{}' does not exist", __FUNCTION__, id);
-        return ADM_ENOENT;
+        return admire::error_code::no_such_entity;
     }
 
     tl::expected<std::shared_ptr<admire::internal::adhoc_storage_info>,
@@ -97,7 +97,7 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
         LOGGER_ERROR("Adhoc storage '{}' was not registered or was already "
                      "deleted",
                      id);
-        return tl::make_unexpected(ADM_ENOENT);
+        return tl::make_unexpected(admire::error_code::no_such_entity);
     }
 
     admire::error_code
@@ -107,14 +107,14 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
 
         if(m_adhoc_storages.count(id) != 0) {
             m_adhoc_storages.erase(id);
-            return ADM_SUCCESS;
+            return admire::error_code::success;
         }
 
         LOGGER_ERROR("Adhoc storage '{}' was not registered or was already "
                      "deleted",
                      id);
 
-        return ADM_ENOENT;
+        return admire::error_code::no_such_entity;
     }
 
     admire::error_code
@@ -126,7 +126,7 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
             return adhoc_storage_info->add_client_info(std::move(job_info));
         }
 
-        return ADM_ENOENT;
+        return admire::error_code::no_such_entity;
     }
 
     admire::error_code
@@ -134,10 +134,10 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
         if(auto am_result = find(adhoc_id); am_result.has_value()) {
             const auto adhoc_storage_info = *am_result;
             adhoc_storage_info->remove_client_info();
-            return ADM_SUCCESS;
+            return admire::error_code::success;
         }
 
-        return ADM_ENOENT;
+        return admire::error_code::no_such_entity;
     }
 
 

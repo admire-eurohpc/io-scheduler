@@ -200,10 +200,9 @@ namespace admire {
 
 void
 ping(const server& srv) {
-
-    if(const auto ec = detail::ping(srv)) {
+    if(const auto rv = detail::ping(srv); !rv) {
         throw std::runtime_error(
-                fmt::format("ADM_register_job() error: {}", ADM_strerror(ec)));
+                fmt::format("ADM_ping() error: {}", rv.message()));
     }
 }
 
@@ -216,19 +215,19 @@ register_job(const server& srv, const job::resources& resources,
 
     if(!rv) {
         throw std::runtime_error(fmt::format("ADM_register_job() error: {}",
-                                             ADM_strerror(rv.error())));
+                                             rv.error().message()));
     }
 
     return rv.value();
 }
 
-ADM_return_t
+admire::error_code
 update_job(const server& srv, const job& job,
            const job::resources& job_resources) {
     return detail::update_job(srv, job, job_resources);
 }
 
-ADM_return_t
+admire::error_code
 remove_job(const server& srv, const job& job) {
     return detail::remove_job(srv, job);
 }
@@ -243,7 +242,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
     if(!rv) {
         throw std::runtime_error(
                 fmt::format("ADM_register_adhoc_storage() error: {}",
-                            ADM_strerror(rv.error())));
+                            rv.error().message()));
     }
 
     return rv.value();

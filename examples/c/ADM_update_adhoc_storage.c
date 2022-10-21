@@ -78,12 +78,12 @@ main(int argc, char* argv[]) {
     fprintf(stdout, "ADM_register_adhoc_storage() remote procedure completed "
                     "successfully\n");
 
-    ADM_adhoc_context_t ctx_updated = ADM_adhoc_context_create(
+    ADM_adhoc_context_t new_ctx = ADM_adhoc_context_create(
             ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, adhoc_resources,
             200, false);
-    assert(ctx_updated);
+    assert(new_ctx);
 
-    ret = ADM_update_adhoc_storage(server, ctx_updated, adhoc_storage);
+    ret = ADM_update_adhoc_storage(server, new_ctx, adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stderr,
@@ -98,6 +98,20 @@ main(int argc, char* argv[]) {
                     "successfully\n");
 
 cleanup:
+    for(int i = 0; i < NINPUTS; ++i) {
+        ADM_dataset_destroy(inputs[i]);
+    }
+
+    for(int i = 0; i < NOUTPUTS; ++i) {
+        ADM_dataset_destroy(outputs[i]);
+    }
+
+    ADM_storage_destroy(adhoc_storage);
+
+    ADM_adhoc_context_destroy(ctx);
+
+    ADM_adhoc_context_destroy(new_ctx);
+
     ADM_server_destroy(server);
     exit(exit_status);
 }

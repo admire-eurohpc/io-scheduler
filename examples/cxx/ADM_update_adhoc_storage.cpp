@@ -43,6 +43,7 @@ main(int argc, char* argv[]) {
     admire::server server{"tcp", argv[1]};
 
     const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
+    const auto new_adhoc_nodes = prepare_nodes(NADHOC_NODES * 2);
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
@@ -52,32 +53,32 @@ main(int argc, char* argv[]) {
             admire::adhoc_storage::access_type::read_write,
             admire::adhoc_storage::resources{adhoc_nodes}, 100, false};
 
-    const auto adhoc_storage_ctx_updated = admire::adhoc_storage::ctx{
+    const auto new_adhoc_storage_ctx = admire::adhoc_storage::ctx{
             admire::adhoc_storage::execution_mode::separate_new,
             admire::adhoc_storage::access_type::read_write,
-            admire::adhoc_storage::resources{adhoc_nodes}, 200, false};
-
-    ADM_return_t ret = ADM_SUCCESS;
+            admire::adhoc_storage::resources{new_adhoc_nodes}, 200, false};
 
     try {
         const auto adhoc_storage = admire::register_adhoc_storage(
                 server, name, admire::storage::type::gekkofs,
                 adhoc_storage_ctx);
-        ret = admire::update_adhoc_storage(server, adhoc_storage_ctx_updated,
-                                           adhoc_storage);
+
+        const auto ret = admire::update_adhoc_storage(
+                server, new_adhoc_storage_ctx, adhoc_storage);
+
+        if(!ret) {
+            fmt::print(stderr, "FATAL: ADM_update_adhoc_storage() failed: {}\n",
+                       ret.message());
+            exit(EXIT_FAILURE);
+        }
+
         fmt::print(stdout,
                    "ADM_update_adhoc_storage() remote procedure completed "
                    "successfully\n");
+        exit(EXIT_SUCCESS);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_update_adhoc_storage() failed: {}\n",
+        fmt::print(stderr, "FATAL: ADM_register_adhoc_storage() failed: {}\n",
                    e.what());
-        exit(EXIT_FAILURE);
-    }
-
-    if(ret != ADM_SUCCESS) {
-        fmt::print(stdout,
-                   "ADM_update_adhoc_storage() remote procedure not completed "
-                   "successfully\n");
         exit(EXIT_FAILURE);
     }
 }

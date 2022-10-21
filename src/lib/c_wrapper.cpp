@@ -101,14 +101,13 @@ ADM_register_adhoc_storage(ADM_server_t server, const char* name,
 }
 
 ADM_return_t
-ADM_update_adhoc_storage(ADM_server_t server,
-                         ADM_adhoc_context_t adhoc_storage_ctx,
+ADM_update_adhoc_storage(ADM_server_t server, ADM_adhoc_context_t ctx,
                          ADM_storage_t adhoc_storage) {
 
     const admire::server srv{server};
 
     return admire::detail::update_adhoc_storage(
-            srv, admire::adhoc_storage::ctx{adhoc_storage_ctx},
+            srv, admire::adhoc_storage::ctx{ctx},
             admire::adhoc_storage{adhoc_storage});
 }
 

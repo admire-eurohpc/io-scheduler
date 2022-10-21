@@ -344,15 +344,15 @@ ADM_update_adhoc_storage(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 in.adhoc_storage->s_id);
 
-    admire::error_code rv = ADM_SUCCESS;
+    admire::error_code ec;
 
     out.op_id = rpc_id;
-    out.retval = rv;
+    out.retval = ec;
 
     LOGGER_INFO("rpc id: {} name: {} to: {} => "
                 "body: {{retval: {}, server_id: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                rv, out.server_id);
+                ec, out.server_id);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

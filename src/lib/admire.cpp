@@ -248,7 +248,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
     return rv.value();
 }
 
-ADM_return_t
+admire::error_code
 update_adhoc_storage(const server& srv,
                      const adhoc_storage::ctx& adhoc_storage_ctx,
                      const adhoc_storage& adhoc_storage) {

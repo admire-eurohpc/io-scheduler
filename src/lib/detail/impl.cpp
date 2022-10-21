@@ -431,21 +431,20 @@ update_adhoc_storage(const server& srv,
 
     const auto rpc = endp.call("ADM_update_adhoc_storage", &in, &out);
 
-    if(out.retval < 0) {
-        const auto retval = static_cast<admire::error_code>(out.retval);
+    if(const auto rv = admire::error_code{out.retval}; !rv) {
         LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
                      "body: {{retval: {}}} [op_id: {}]",
-                     rpc_id, std::quoted("ADM_"s + __FUNCTION__), retval,
+                     rpc_id, std::quoted("ADM_"s + __FUNCTION__), rv,
                      out.op_id);
-        return retval;
+        return rv;
     }
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
                 "body: {{retval: {}}} [op_id: {}]",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__), ADM_SUCCESS,
-                out.op_id);
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                admire::error_code::success, out.op_id);
 
-    return ADM_SUCCESS;
+    return admire::error_code::success;
 }
 
 } // namespace admire::detail

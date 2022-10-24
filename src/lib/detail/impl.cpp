@@ -418,7 +418,7 @@ update_adhoc_storage(const server& srv,
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: name: {} from: {} => "
-                "body: {{adhoc_storage_id: {}, adhoc_storage_ctx{}}}",
+                "body: {{id: {}, adhoc_ctx{}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
                 std::quoted(rpc_client.self_address()), adhoc_storage.id(),
                 adhoc_storage_ctx);

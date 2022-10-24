@@ -337,12 +337,13 @@ ADM_update_adhoc_storage(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 
     const admire::adhoc_storage::ctx adhoc_storage_ctx(in.adhoc_storage_ctx);
+    const std::uint64_t server_id(in.server_id);
 
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
                 "body: {{adhoc_storage_id: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                in.adhoc_storage->s_id);
+                server_id);
 
     admire::error_code ec;
 
@@ -350,9 +351,9 @@ ADM_update_adhoc_storage(hg_handle_t h) {
     out.retval = ec;
 
     LOGGER_INFO("rpc id: {} name: {} to: {} => "
-                "body: {{retval: {}, server_id: {}}}",
+                "body: {{retval: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec, out.server_id);
+                ec);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

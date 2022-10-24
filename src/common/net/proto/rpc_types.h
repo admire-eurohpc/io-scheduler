@@ -349,14 +349,13 @@ MERCURY_GEN_PROC(
 MERCURY_GEN_PROC(
     ADM_update_adhoc_storage_in_t,
         ((ADM_adhoc_context_t)(adhoc_storage_ctx))
-        ((ADM_storage_t)(adhoc_storage))
+        ((hg_uint64_t)(server_id))
 );
 
 MERCURY_GEN_PROC(
     ADM_update_adhoc_storage_out_t,
         ((hg_uint64_t) (op_id))
-        ((int32_t) (retval))
-        ((uint64_t)(server_id))
+        ((hg_int32_t) (retval))
 );
 
 /// ADM_remove_adhoc_storage

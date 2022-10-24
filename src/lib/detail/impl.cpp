@@ -424,9 +424,8 @@ update_adhoc_storage(const server& srv,
                 adhoc_storage_ctx);
 
     const auto rpc_ctx = api::convert(adhoc_storage_ctx);
-    const auto rpc_adhoc_storage = api::convert(adhoc_storage);
 
-    ADM_update_adhoc_storage_in_t in{rpc_ctx.get(), rpc_adhoc_storage.get()};
+    ADM_update_adhoc_storage_in_t in{rpc_ctx.get(), adhoc_storage.id()};
     ADM_update_adhoc_storage_out_t out;
 
     const auto rpc = endp.call("ADM_update_adhoc_storage", &in, &out);

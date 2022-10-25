@@ -345,7 +345,14 @@ ADM_update_adhoc_storage(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 server_id);
 
-    admire::error_code ec;
+    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
+    const auto ec = adhoc_manager.update(server_id, adhoc_storage_ctx);
+
+    if(!ec) {
+        LOGGER_ERROR(
+                "rpc id: {} error_msg: \"Error updating adhoc_storage: {}\"",
+                rpc_id, ec);
+    }
 
     out.op_id = rpc_id;
     out.retval = ec;

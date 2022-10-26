@@ -346,9 +346,17 @@ MERCURY_GEN_PROC(
 );
 
 /// ADM_update_adhoc_storage
-MERCURY_GEN_PROC(ADM_update_adhoc_storage_in_t, ((int32_t) (reqs)))
+MERCURY_GEN_PROC(
+    ADM_update_adhoc_storage_in_t,
+        ((ADM_adhoc_context_t)(adhoc_storage_ctx))
+        ((hg_uint64_t)(server_id))
+);
 
-MERCURY_GEN_PROC(ADM_update_adhoc_storage_out_t, ((int32_t) (ret)))
+MERCURY_GEN_PROC(
+    ADM_update_adhoc_storage_out_t,
+        ((hg_uint64_t) (op_id))
+        ((hg_int32_t) (retval))
+);
 
 /// ADM_remove_adhoc_storage
 MERCURY_GEN_PROC(ADM_remove_adhoc_storage_in_t, ((int32_t) (reqs)))

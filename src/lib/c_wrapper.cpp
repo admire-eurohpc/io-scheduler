@@ -106,7 +106,9 @@ ADM_update_adhoc_storage(ADM_server_t server, ADM_adhoc_context_t ctx,
 
     const admire::server srv{server};
 
-    return admire::update_adhoc_storage(srv, ctx, adhoc_storage);
+    return admire::detail::update_adhoc_storage(
+            srv, admire::adhoc_storage::ctx{ctx},
+            admire::adhoc_storage{adhoc_storage});
 }
 
 ADM_return_t

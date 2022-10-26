@@ -407,4 +407,43 @@ transfer_datasets(const server& srv, const job& job,
     return tx;
 }
 
+admire::error_code
+update_adhoc_storage(const server& srv,
+                     const adhoc_storage::ctx& adhoc_storage_ctx,
+                     const adhoc_storage& adhoc_storage) {
+
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+
+    const auto rpc_id = ::api::remote_procedure::new_id();
+    auto endp = rpc_client.lookup(srv.address());
+
+    LOGGER_INFO("rpc id: name: {} from: {} => "
+                "body: {{id: {}, adhoc_ctx{}}}",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc_client.self_address()), adhoc_storage.id(),
+                adhoc_storage_ctx);
+
+    const auto rpc_ctx = api::convert(adhoc_storage_ctx);
+
+    ADM_update_adhoc_storage_in_t in{rpc_ctx.get(), adhoc_storage.id()};
+    ADM_update_adhoc_storage_out_t out;
+
+    const auto rpc = endp.call("ADM_update_adhoc_storage", &in, &out);
+
+    if(const auto rv = admire::error_code{out.retval}; !rv) {
+        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
+                     "body: {{retval: {}}} [op_id: {}]",
+                     rpc_id, std::quoted("ADM_"s + __FUNCTION__), rv,
+                     out.op_id);
+        return rv;
+    }
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}}} [op_id: {}]",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                admire::error_code::success, out.op_id);
+
+    return admire::error_code::success;
+}
+
 } // namespace admire::detail

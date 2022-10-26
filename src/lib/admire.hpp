@@ -62,9 +62,10 @@ register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx);
 
-ADM_return_t
-update_adhoc_storage(const server& srv, ADM_adhoc_context_t ctx,
-                     ADM_storage_t adhoc_storage);
+admire::error_code
+update_adhoc_storage(const server& srv,
+                     const adhoc_storage::ctx& adhoc_storage_ctx,
+                     const adhoc_storage& adhoc_storage);
 
 ADM_return_t
 remove_adhoc_storage(const server& srv, ADM_storage_t adhoc_storage);

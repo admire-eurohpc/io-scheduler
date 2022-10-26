@@ -224,7 +224,6 @@ main(int argc, char* argv[]) {
             REGISTER_RPC(ctx, "ADM_input", ADM_input_in_t, ADM_input_out_t,
                          ADM_input, true);
 
-
             REGISTER_RPC(ctx, "ADM_output", ADM_output_in_t, ADM_output_out_t,
                          ADM_output, true);
 

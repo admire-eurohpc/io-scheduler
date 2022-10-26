@@ -336,11 +336,31 @@ ADM_update_adhoc_storage(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
+    const admire::adhoc_storage::ctx adhoc_storage_ctx(in.adhoc_storage_ctx);
+    const std::uint64_t server_id(in.server_id);
 
-    LOGGER_INFO("ADM_update_adhoc_storage()");
+    const auto rpc_id = remote_procedure::new_id();
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{adhoc_storage_id: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                server_id);
 
-    out.ret = 0;
+    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
+    const auto ec = adhoc_manager.update(server_id, adhoc_storage_ctx);
+
+    if(!ec) {
+        LOGGER_ERROR(
+                "rpc id: {} error_msg: \"Error updating adhoc_storage: {}\"",
+                rpc_id, ec);
+    }
+
+    out.op_id = rpc_id;
+    out.retval = ec;
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} => "
+                "body: {{retval: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ec);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <admire.h>
-#include <assert.h>
 #include "common.h"
 
 #define NADHOC_NODES 25
@@ -41,77 +40,109 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    int exit_status = EXIT_SUCCESS;
-    ADM_server_t server = ADM_server_create("tcp", argv[1]);
+    int exit_status = EXIT_FAILURE;
+    ADM_return_t ret = ADM_SUCCESS;
+    ADM_server_t server = NULL;
 
-    ADM_node_t* adhoc_nodes = prepare_nodes(NADHOC_NODES);
-    assert(adhoc_nodes);
-    ADM_dataset_t* inputs = prepare_datasets("input-dataset-%d", NINPUTS);
-    assert(inputs);
-    ADM_dataset_t* outputs = prepare_datasets("output-dataset-%d", NOUTPUTS);
-    assert(outputs);
+    // adhoc information
+    const char* adhoc_name = "adhoc_storage_42";
 
-    ADM_adhoc_resources_t adhoc_resources =
-            ADM_adhoc_resources_create(adhoc_nodes, NADHOC_NODES);
-    assert(adhoc_resources);
+    ADM_node_t* adhoc_nodes = NULL;
+    ADM_adhoc_resources_t adhoc_resources = NULL;
+    ADM_adhoc_context_t adhoc_ctx = NULL;
+    ADM_adhoc_context_t new_adhoc_ctx = NULL;
+    ADM_storage_t adhoc_storage = NULL;
 
-    ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
-            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, adhoc_resources,
-            100, false);
-    assert(ctx);
 
-    const char* name = "adhoc_storage_42";
+    // Let's prepare all the information required by the API calls.
+    // ADM_update_adhoc_storage() obviously requires an adhoc storage to have
+    // been registered onto the system, so let's prepare first the data required
+    // to call ADM_register_adhoc_storage():
 
-    ADM_storage_t adhoc_storage;
-    ADM_return_t ret = ADM_register_adhoc_storage(
-            server, name, ADM_STORAGE_GEKKOFS, ctx, &adhoc_storage);
+    // 1. the jobs required by the associated adhoc storage
+    adhoc_nodes = prepare_nodes(NADHOC_NODES);
 
-    if(ret != ADM_SUCCESS) {
-        fprintf(stderr,
-                "ADM_register_adhoc_storage() remote procedure not completed "
-                "successfully: %s\n",
-                ADM_strerror(ret));
-        exit_status = EXIT_FAILURE;
+    if(adhoc_nodes == NULL) {
+        fprintf(stderr, "Fatal error preparing adhoc nodes\n");
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_register_adhoc_storage() remote procedure completed "
-                    "successfully\n");
+    // 2. the adhoc storage resources
+    adhoc_resources = ADM_adhoc_resources_create(adhoc_nodes, NADHOC_NODES);
 
-    ADM_adhoc_context_t new_ctx = ADM_adhoc_context_create(
-            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, adhoc_resources,
-            200, false);
-    assert(new_ctx);
-
-    ret = ADM_update_adhoc_storage(server, new_ctx, adhoc_storage);
-
-    if(ret != ADM_SUCCESS) {
-        fprintf(stderr,
-                "ADM_update_adhoc_storage() remote procedure not completed "
-                "successfully: %s\n",
-                ADM_strerror(ret));
-        exit_status = EXIT_FAILURE;
+    if(adhoc_resources == NULL) {
+        fprintf(stderr, "Fatal error preparing adhoc resources\n");
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_update_adhoc_storage() remote procedure completed "
-                    "successfully\n");
+    // 3. the adhoc storage execution context
+    adhoc_ctx = ADM_adhoc_context_create(ADM_ADHOC_MODE_SEPARATE_NEW,
+                                         ADM_ADHOC_ACCESS_RDWR, adhoc_resources,
+                                         100, false);
+
+    if(adhoc_ctx == NULL) {
+        fprintf(stderr, "Fatal error preparing adhoc context\n");
+        goto cleanup;
+    }
+
+
+    // All the information required by the ADM_register_adhoc_storage() API is
+    // now ready. Let's actually contact the server:
+
+    // 1. Find the server endpoint
+    if((server = ADM_server_create("tcp", argv[1])) == NULL) {
+        fprintf(stderr, "Fatal error creating server\n");
+        goto cleanup;
+    }
+
+    // 2. Register the adhoc storage
+    if(ADM_register_adhoc_storage(server, adhoc_name, ADM_STORAGE_GEKKOFS,
+                                  adhoc_ctx, &adhoc_storage) != ADM_SUCCESS) {
+        fprintf(stderr, "ADM_register_adhoc_storage() failed: %s\n",
+                ADM_strerror(ret));
+        goto cleanup;
+    }
+
+
+    // Now that we have an existing adhoc storage registered into the
+    // system, let's prepare a new execution context for the adhoc
+    // storage system
+
+    new_adhoc_ctx = ADM_adhoc_context_create(ADM_ADHOC_MODE_SEPARATE_NEW,
+                                             ADM_ADHOC_ACCESS_RDWR,
+                                             adhoc_resources, 200, false);
+
+    if(new_adhoc_ctx == NULL) {
+        fprintf(stderr, "Fatal error preparing new adhoc context\n");
+        goto cleanup;
+    }
+
+    // We can now request the update to the server
+    if((ret = ADM_update_adhoc_storage(server, new_adhoc_ctx, adhoc_storage)) !=
+       ADM_SUCCESS) {
+        fprintf(stderr, "ADM_update_adhoc_storage() failed: %s\n",
+                ADM_strerror(ret));
+        goto cleanup;
+    }
+
+    // At this point, the adhoc storage has been updated...
+    exit_status = EXIT_SUCCESS;
+
+    // Once the adhoc storage is no longer required we need to notify the server
+    if((ret = ADM_remove_adhoc_storage(server, adhoc_storage)) != ADM_SUCCESS) {
+        fprintf(stderr, "ADM_remove_adhoc_storage() failed: %s\n",
+                ADM_strerror(ret));
+        adhoc_storage = NULL;
+        exit_status = EXIT_FAILURE;
+        // intentionally fall through...
+    }
+
 
 cleanup:
-    for(int i = 0; i < NINPUTS; ++i) {
-        ADM_dataset_destroy(inputs[i]);
-    }
-
-    for(int i = 0; i < NOUTPUTS; ++i) {
-        ADM_dataset_destroy(outputs[i]);
-    }
-
-    ADM_storage_destroy(adhoc_storage);
-
-    ADM_adhoc_context_destroy(ctx);
-
-    ADM_adhoc_context_destroy(new_ctx);
-
     ADM_server_destroy(server);
+    ADM_adhoc_context_destroy(new_adhoc_ctx);
+    ADM_adhoc_context_destroy(adhoc_ctx);
+    ADM_adhoc_resources_destroy(adhoc_resources);
+    destroy_nodes(adhoc_nodes, NADHOC_NODES);
     exit(exit_status);
 }

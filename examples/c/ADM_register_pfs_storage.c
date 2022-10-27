@@ -43,15 +43,6 @@ main(int argc, char* argv[]) {
     int exit_status = EXIT_SUCCESS;
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
-    ADM_dataset_t* inputs = prepare_datasets("input-dataset-%d", NINPUTS);
-    assert(inputs);
-    ADM_dataset_t* outputs = prepare_datasets("output-dataset-%d", NOUTPUTS);
-    assert(outputs);
-
-    ADM_job_requirements_t reqs = ADM_job_requirements_create(
-            inputs, NINPUTS, outputs, NOUTPUTS, NULL);
-    assert(reqs);
-
     ADM_storage_t pfs_storage;
 
     ADM_pfs_context_t ctx = ADM_pfs_context_create("/gpfs");

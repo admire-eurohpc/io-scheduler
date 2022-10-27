@@ -27,6 +27,22 @@ prepare_nodes(size_t n) {
     return nodes;
 }
 
+void
+destroy_nodes(ADM_node_t nodes[], size_t n) {
+
+    if(!nodes) {
+        return;
+    }
+
+    for(size_t i = 0; i < n; ++i) {
+        if(nodes[i]) {
+            ADM_node_destroy(nodes[i]);
+        }
+    }
+
+    free(nodes);
+}
+
 ADM_dataset_t*
 prepare_datasets(const char* pattern, size_t n) {
 
@@ -51,6 +67,10 @@ prepare_datasets(const char* pattern, size_t n) {
 
 void
 destroy_datasets(ADM_dataset_t datasets[], size_t n) {
+
+    if(!datasets) {
+        return;
+    }
 
     for(size_t i = 0; i < n; ++i) {
         if(datasets[i]) {
@@ -82,6 +102,10 @@ prepare_qos_limits(size_t n) {
 
 void
 destroy_qos_limits(ADM_qos_limit_t* limits, size_t n) {
+
+    if(!limits) {
+        return;
+    }
 
     for(size_t i = 0; i < n; ++i) {
         if(limits[i]) {

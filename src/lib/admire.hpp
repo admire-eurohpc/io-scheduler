@@ -67,8 +67,8 @@ update_adhoc_storage(const server& srv,
                      const adhoc_storage::ctx& adhoc_storage_ctx,
                      const adhoc_storage& adhoc_storage);
 
-ADM_return_t
-remove_adhoc_storage(const server& srv, ADM_storage_t adhoc_storage);
+admire::error_code
+remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 ADM_return_t
 deploy_adhoc_storage(const server& srv, ADM_storage_t adhoc_storage);

@@ -440,15 +440,22 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
     [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
 
     ret = margo_get_input(h, &in);
+    assert(ret == HG_SUCCESS);
+
 
     auto adhoc_storage = in.adhoc_storage;
     const admire::adhoc_storage::ctx ctx(adhoc_storage->s_adhoc_ctx);
+ 
+    const auto rpc_id = remote_procedure::new_id();
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{adhoc_ctx: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ctx);
 
-    assert(ret == HG_SUCCESS);
+    admire::error_code ec;
+    ec = admire::error_code::other;
 
-    out.retval = -1;
-
-    LOGGER_INFO("ADM_deploy_adhoc_storage()");
+    out.retval = ec;
 
     /* Look inside adhoc_storage and launch gkfs script */
 
@@ -486,17 +493,25 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
                 break;
             }            
             case -1: {
-                out.retval = -1;
-                LOGGER_ERROR("ADM_deploy_adhoc_storage() didn't fork");
+                ec = ec.other;
+                LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ec);
                 break;
             }
             default: {
-                LOGGER_INFO("ADM_deploy_adhoc_storage() executed");
-                out.retval = 0;
+                ec = ec.success;
+                LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ec);
+               
                 break;
             }
         }
     }
+    out.retval = ec;
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

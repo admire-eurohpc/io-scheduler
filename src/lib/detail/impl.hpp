@@ -65,6 +65,10 @@ update_adhoc_storage(const server& srv,
 admire::error_code
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
+admire::error_code
+deploy_adhoc_storage(const server& srv,
+                     const adhoc_storage& adhoc_storage);
+
 } // namespace admire::detail
 
 #endif // SCORD_ADMIRE_IMPL_HPP

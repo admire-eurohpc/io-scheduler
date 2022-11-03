@@ -96,7 +96,7 @@ main(int argc, char* argv[]) {
     }
 
     // 2. Register the adhoc storage
-    if(ADM_register_adhoc_storage(server, adhoc_name, ADM_STORAGE_GEKKOFS,
+    if(ADM_register_adhoc_storage(server, adhoc_name, ADM_STORAGE_DATACLAY,
                                   adhoc_ctx, &adhoc_storage) != ADM_SUCCESS) {
         fprintf(stderr, "ADM_register_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));

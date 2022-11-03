@@ -448,12 +448,12 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
  
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_ctx: {}}}",
+                "body: {{adhoc_storage: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ctx);
+                admire::adhoc_storage(adhoc_storage));
 
     admire::error_code ec;
-    ec = admire::error_code::other;
+    ec = admire::error_code::success;
 
     out.retval = ec;
 
@@ -502,17 +502,17 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
             }
             default: {
                 ec = ec.success;
-                LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec);
-               
                 break;
             }
         }
     }
+    
     out.retval = ec;
-
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+        "body: {{retval: {}}}",
+        rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+        ec);
+        
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
 

@@ -55,7 +55,7 @@ main(int argc, char* argv[]) {
 
     try {
         const auto adhoc_storage = admire::register_adhoc_storage(
-                server, name, admire::storage::type::gekkofs,
+                server, name, admire::storage::type::dataclay,
                 adhoc_storage_ctx);
 
         fmt::print(stdout,

@@ -41,7 +41,7 @@ main(int argc, char* argv[]) {
     admire::adhoc_storage::resources res(nodes);
 
     admire::adhoc_storage adhoc_storage(
-        admire::storage::type::gekkofs, "foobar", 1,
+        admire::storage::type::dataclay, "foobar", 1,
         admire::adhoc_storage::execution_mode::separate_new,
         admire::adhoc_storage::access_type::read_write, 
         res, 100, false);

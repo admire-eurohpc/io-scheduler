@@ -233,9 +233,15 @@ update_job(const server& srv, const job& job,
     }
 }
 
-admire::error_code
+void
 remove_job(const server& srv, const job& job) {
-    return detail::remove_job(srv, job);
+
+    const auto ec = detail::remove_job(srv, job);
+
+    if(!ec) {
+        throw std::runtime_error(
+                fmt::format("ADM_remove_job() error: {}", ec.message()));
+    }
 }
 
 admire::adhoc_storage

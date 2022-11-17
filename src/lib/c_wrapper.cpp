@@ -77,7 +77,7 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job) {
 
     const admire::server srv{server};
 
-    return admire::remove_job(srv, admire::job{job});
+    return admire::detail::remove_job(srv, admire::job{job});
 }
 
 ADM_return_t

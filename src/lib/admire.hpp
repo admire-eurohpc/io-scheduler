@@ -54,7 +54,7 @@ register_job(const server& srv, const job::resources& job_resources,
 void
 update_job(const server& srv, const job&, const job::resources& job_resources);
 
-admire::error_code
+void
 remove_job(const server& srv, const job& job);
 
 admire::adhoc_storage

@@ -260,10 +260,16 @@ register_adhoc_storage(const server& srv, const std::string& name,
     return rv.value();
 }
 
-admire::error_code
+void
 update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
                      const adhoc_storage::ctx& adhoc_storage_ctx) {
-    return detail::update_adhoc_storage(srv, adhoc_storage_ctx, adhoc_storage);
+    const auto ec =
+            detail::update_adhoc_storage(srv, adhoc_storage_ctx, adhoc_storage);
+
+    if(!ec) {
+        throw std::runtime_error(fmt::format(
+                "ADM_update_adhoc_storage() error: {}", ec.message()));
+    }
 }
 
 admire::error_code

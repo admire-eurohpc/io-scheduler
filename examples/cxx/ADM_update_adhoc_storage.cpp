@@ -63,22 +63,15 @@ main(int argc, char* argv[]) {
                 server, name, admire::storage::type::gekkofs,
                 adhoc_storage_ctx);
 
-        const auto ret = admire::update_adhoc_storage(server, adhoc_storage,
-                                                      new_adhoc_storage_ctx);
-
-        if(!ret) {
-            fmt::print(stderr, "FATAL: ADM_update_adhoc_storage() failed: {}\n",
-                       ret.message());
-            exit(EXIT_FAILURE);
-        }
+        admire::update_adhoc_storage(server, adhoc_storage,
+                                     new_adhoc_storage_ctx);
 
         fmt::print(stdout,
                    "ADM_update_adhoc_storage() remote procedure completed "
                    "successfully\n");
         exit(EXIT_SUCCESS);
     } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_register_adhoc_storage() failed: {}\n",
-                   e.what());
+        fmt::print(stderr, "FATAL: example failed: {}\n", e.what());
         exit(EXIT_FAILURE);
     }
 }

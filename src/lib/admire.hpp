@@ -62,7 +62,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx);
 
-admire::error_code
+void
 update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
                      const adhoc_storage::ctx& adhoc_storage_ctx);
 

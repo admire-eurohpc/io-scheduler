@@ -66,7 +66,7 @@ void
 update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
                      const adhoc_storage::ctx& adhoc_storage_ctx);
 
-admire::error_code
+void
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 ADM_return_t

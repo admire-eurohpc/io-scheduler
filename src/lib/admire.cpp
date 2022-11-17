@@ -272,9 +272,15 @@ update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
     }
 }
 
-admire::error_code
+void
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
-    return detail::remove_adhoc_storage(srv, adhoc_storage);
+
+    const auto ec = detail::remove_adhoc_storage(srv, adhoc_storage);
+
+    if(!ec) {
+        throw std::runtime_error(fmt::format(
+                "ADM_remove_adhoc_storage() error: {}", ec.message()));
+    }
 }
 
 ADM_return_t

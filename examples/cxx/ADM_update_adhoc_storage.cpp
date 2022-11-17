@@ -63,8 +63,8 @@ main(int argc, char* argv[]) {
                 server, name, admire::storage::type::gekkofs,
                 adhoc_storage_ctx);
 
-        const auto ret = admire::update_adhoc_storage(
-                server, new_adhoc_storage_ctx, adhoc_storage);
+        const auto ret = admire::update_adhoc_storage(server, adhoc_storage,
+                                                      new_adhoc_storage_ctx);
 
         if(!ret) {
             fmt::print(stderr, "FATAL: ADM_update_adhoc_storage() failed: {}\n",

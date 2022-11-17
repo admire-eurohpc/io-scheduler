@@ -417,11 +417,10 @@ update_adhoc_storage(const server& srv,
     const auto rpc_id = ::api::remote_procedure::new_id();
     auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: name: {} from: {} => "
-                "body: {{id: {}, adhoc_ctx{}}}",
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{adhoc_storage_id: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), adhoc_storage.id(),
-                adhoc_storage_ctx);
+                std::quoted(rpc_client.self_address()), adhoc_storage.id());
 
     const auto rpc_ctx = api::convert(adhoc_storage_ctx);
 
@@ -433,15 +432,16 @@ update_adhoc_storage(const server& srv,
     if(const auto rv = admire::error_code{out.retval}; !rv) {
         LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
                      "body: {{retval: {}}} [op_id: {}]",
-                     rpc_id, std::quoted("ADM_"s + __FUNCTION__), rv,
-                     out.op_id);
+                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                     std::quoted(rpc.origin()), rv, out.op_id);
         return rv;
     }
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
                 "body: {{retval: {}}} [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                admire::error_code::success, out.op_id);
+                std::quoted(rpc.origin()), admire::error_code::success,
+                out.op_id);
 
     return admire::error_code::success;
 }

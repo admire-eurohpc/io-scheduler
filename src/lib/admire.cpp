@@ -249,9 +249,8 @@ register_adhoc_storage(const server& srv, const std::string& name,
 }
 
 admire::error_code
-update_adhoc_storage(const server& srv,
-                     const adhoc_storage::ctx& adhoc_storage_ctx,
-                     const adhoc_storage& adhoc_storage) {
+update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
+                     const adhoc_storage::ctx& adhoc_storage_ctx) {
     return detail::update_adhoc_storage(srv, adhoc_storage_ctx, adhoc_storage);
 }
 

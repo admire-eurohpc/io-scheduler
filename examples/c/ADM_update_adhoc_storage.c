@@ -118,7 +118,7 @@ main(int argc, char* argv[]) {
     }
 
     // We can now request the update to the server
-    if((ret = ADM_update_adhoc_storage(server, new_adhoc_ctx, adhoc_storage)) !=
+    if((ret = ADM_update_adhoc_storage(server, adhoc_storage, new_adhoc_ctx)) !=
        ADM_SUCCESS) {
         fprintf(stderr, "ADM_update_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));

@@ -68,8 +68,8 @@ ADM_update_job(ADM_server_t server, ADM_job_t job,
 
     const admire::server srv{server};
 
-    return admire::update_job(srv, admire::job{job},
-                              admire::job::resources{job_resources});
+    return admire::detail::update_job(srv, admire::job{job},
+                                      admire::job::resources{job_resources});
 }
 
 ADM_return_t

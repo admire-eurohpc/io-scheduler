@@ -51,7 +51,7 @@ admire::job
 register_job(const server& srv, const job::resources& job_resources,
              const job_requirements& reqs, admire::slurm_job_id slurm_id);
 
-admire::error_code
+void
 update_job(const server& srv, const job&, const job::resources& job_resources);
 
 admire::error_code

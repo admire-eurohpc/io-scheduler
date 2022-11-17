@@ -221,10 +221,16 @@ register_job(const server& srv, const job::resources& resources,
     return rv.value();
 }
 
-admire::error_code
+void
 update_job(const server& srv, const job& job,
            const job::resources& job_resources) {
-    return detail::update_job(srv, job, job_resources);
+
+    const auto ec = detail::update_job(srv, job, job_resources);
+
+    if(!ec) {
+        throw std::runtime_error(
+                fmt::format("ADM_update_job() error: {}", ec.message()));
+    }
 }
 
 admire::error_code

@@ -221,15 +221,27 @@ register_job(const server& srv, const job::resources& resources,
     return rv.value();
 }
 
-admire::error_code
+void
 update_job(const server& srv, const job& job,
            const job::resources& job_resources) {
-    return detail::update_job(srv, job, job_resources);
+
+    const auto ec = detail::update_job(srv, job, job_resources);
+
+    if(!ec) {
+        throw std::runtime_error(
+                fmt::format("ADM_update_job() error: {}", ec.message()));
+    }
 }
 
-admire::error_code
+void
 remove_job(const server& srv, const job& job) {
-    return detail::remove_job(srv, job);
+
+    const auto ec = detail::remove_job(srv, job);
+
+    if(!ec) {
+        throw std::runtime_error(
+                fmt::format("ADM_remove_job() error: {}", ec.message()));
+    }
 }
 
 admire::adhoc_storage
@@ -248,15 +260,27 @@ register_adhoc_storage(const server& srv, const std::string& name,
     return rv.value();
 }
 
-admire::error_code
+void
 update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
                      const adhoc_storage::ctx& adhoc_storage_ctx) {
-    return detail::update_adhoc_storage(srv, adhoc_storage_ctx, adhoc_storage);
+    const auto ec =
+            detail::update_adhoc_storage(srv, adhoc_storage_ctx, adhoc_storage);
+
+    if(!ec) {
+        throw std::runtime_error(fmt::format(
+                "ADM_update_adhoc_storage() error: {}", ec.message()));
+    }
 }
 
-admire::error_code
+void
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
-    return detail::remove_adhoc_storage(srv, adhoc_storage);
+
+    const auto ec = detail::remove_adhoc_storage(srv, adhoc_storage);
+
+    if(!ec) {
+        throw std::runtime_error(fmt::format(
+                "ADM_remove_adhoc_storage() error: {}", ec.message()));
+    }
 }
 
 ADM_return_t

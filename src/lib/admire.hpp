@@ -51,10 +51,10 @@ admire::job
 register_job(const server& srv, const job::resources& job_resources,
              const job_requirements& reqs, admire::slurm_job_id slurm_id);
 
-admire::error_code
+void
 update_job(const server& srv, const job&, const job::resources& job_resources);
 
-admire::error_code
+void
 remove_job(const server& srv, const job& job);
 
 admire::adhoc_storage
@@ -62,11 +62,11 @@ register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx);
 
-admire::error_code
+void
 update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
                      const adhoc_storage::ctx& adhoc_storage_ctx);
 
-admire::error_code
+void
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 ADM_return_t

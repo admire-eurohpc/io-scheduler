@@ -65,8 +65,7 @@ main(int argc, char* argv[]) {
         [[maybe_unused]] const auto job = admire::register_job(
                 server, admire::job::resources{job_nodes}, reqs, 0);
 
-        [[maybe_unused]] ADM_return_t ret = admire::update_job(
-                server, job, admire::job::resources{new_job_nodes});
+        admire::update_job(server, job, admire::job::resources{new_job_nodes});
 
         fmt::print(
                 stdout,

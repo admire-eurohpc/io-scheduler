@@ -72,9 +72,10 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 void
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
-ADM_return_t
-register_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
-                     ADM_pfs_storage_t* pfs_storage);
+admire::pfs_storage
+register_pfs_storage(const server& srv, const std::string& name,
+                     enum admire::pfs_storage::type type,
+                     const admire::pfs_storage::ctx& ctx);
 
 ADM_return_t
 update_pfs_storage(const server& srv, ADM_pfs_context_t ctx,

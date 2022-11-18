@@ -111,6 +111,25 @@ struct adhoc_storage_info {
     mutable scord::abt::shared_mutex m_info_mutex;
 };
 
+struct pfs_storage_info {
+
+    explicit pfs_storage_info(admire::pfs_storage pfs_storage)
+        : m_pfs_storage(std::move(pfs_storage)) {}
+
+    admire::pfs_storage
+    pfs_storage() const {
+        return m_pfs_storage;
+    }
+
+    void
+    update(admire::pfs_storage::ctx pfs_context) {
+        m_pfs_storage.update(std::move(pfs_context));
+    }
+
+    admire::pfs_storage m_pfs_storage;
+    std::shared_ptr<admire::internal::job_info> m_client_info;
+};
+
 } // namespace admire::internal
 
 #endif // SCORD_INTERNAL_TYPES_HPP

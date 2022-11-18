@@ -719,7 +719,11 @@ ADM_pfs_context_create(const char* mountpoint) {
         return NULL;
     }
 
-    adm_pfs_context->c_mount = mountpoint;
+    if(mountpoint) {
+        size_t n = strlen(mountpoint);
+        adm_pfs_context->c_mount = (const char*) calloc(n + 1, sizeof(char));
+        strcpy((char*) adm_pfs_context->c_mount, mountpoint);
+    }
 
     return adm_pfs_context;
 }
@@ -1488,21 +1492,13 @@ pfs_storage::ctx::ctx(std::filesystem::path mount_point)
 
 pfs_storage::ctx::ctx(ADM_pfs_context_t ctx) : pfs_storage::ctx(ctx->c_mount) {}
 
-pfs_storage::pfs_storage(const pfs_storage& other) noexcept
-    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
-
-pfs_storage&
-pfs_storage::operator=(const pfs_storage& other) noexcept {
-    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
-    return *this;
-}
-
 std::filesystem::path
 pfs_storage::ctx::mount_point() const {
     return m_mount_point;
 }
 
 class pfs_storage::impl {
+
 public:
     explicit impl(enum pfs_storage::type type, std::string name,
                   std::uint64_t id, pfs_storage::ctx ctx)
@@ -1514,6 +1510,7 @@ public:
     operator=(const impl& other) noexcept = default;
     impl&
     operator=(impl&&) noexcept = default;
+    ~impl() = default;
 
     enum type
     type() const {
@@ -1535,6 +1532,11 @@ public:
         return m_ctx;
     }
 
+    void
+    update(pfs_storage::ctx new_ctx) {
+        m_ctx = std::move(new_ctx);
+    }
+
 private:
     enum type m_type;
     std::string m_name;
@@ -1547,6 +1549,29 @@ pfs_storage::pfs_storage(enum pfs_storage::type type, std::string name,
     : m_pimpl(std::make_unique<impl>(
               type, std::move(name), id,
               pfs_storage::ctx{std::move(mount_point)})) {}
+
+pfs_storage::pfs_storage(enum pfs_storage::type type, std::string name,
+                         std::uint64_t id, const pfs_storage::ctx& pfs_ctx)
+    : m_pimpl(std::make_unique<impl>(type, std::move(name), id, pfs_ctx)) {}
+
+pfs_storage::pfs_storage(ADM_pfs_storage_t st)
+    : m_pimpl(std::make_unique<impl>(
+              static_cast<enum pfs_storage::type>(st->s_type), st->s_name,
+              st->s_id, pfs_storage::ctx{st->s_pfs_ctx})) {}
+
+pfs_storage::pfs_storage(const pfs_storage& other) noexcept
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+pfs_storage::pfs_storage(pfs_storage&&) noexcept = default;
+
+pfs_storage&
+pfs_storage::operator=(const pfs_storage& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+pfs_storage&
+pfs_storage::operator=(pfs_storage&&) noexcept = default;
 
 pfs_storage::~pfs_storage() = default;
 
@@ -1570,7 +1595,13 @@ pfs_storage::context() const {
     return m_pimpl->context();
 }
 
+void
+pfs_storage::update(admire::pfs_storage::ctx new_ctx) {
+    return m_pimpl->update(std::move(new_ctx));
+}
+
 class job_requirements::impl {
+
 public:
     impl(std::vector<admire::dataset> inputs,
          std::vector<admire::dataset> outputs)
@@ -1675,6 +1706,7 @@ job_requirements::adhoc_storage() const {
 }
 
 namespace qos {
+
 class entity::impl {
 public:
     template <typename T>

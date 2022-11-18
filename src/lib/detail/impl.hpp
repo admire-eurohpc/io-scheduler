@@ -69,6 +69,10 @@ admire::error_code
 deploy_adhoc_storage(const server& srv,
                      const adhoc_storage& adhoc_storage);
 
+tl::expected<admire::pfs_storage, admire::error_code>
+register_pfs_storage(const server& srv, const std::string& name,
+                     enum pfs_storage::type type, const pfs_storage::ctx& ctx);
+
 } // namespace admire::detail
 
 #endif // SCORD_ADMIRE_IMPL_HPP

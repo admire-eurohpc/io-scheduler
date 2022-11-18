@@ -38,22 +38,16 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_pfs_context_t ctx{};
-    ADM_pfs_storage_t pfs_storage{};
-    ADM_return_t ret = ADM_SUCCESS;
+    std::string pfs_name = "gpfs_scratch";
+    std::string pfs_mount = "/gpfs/scratch";
 
     try {
-        ret = admire::register_pfs_storage(server, ctx, &pfs_storage);
+        admire::register_pfs_storage(server, pfs_name,
+                                     admire::pfs_storage::type::gpfs,
+                                     admire::pfs_storage::ctx{pfs_mount});
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_register_pfs_storage() failed: {}\n",
                    e.what());
-        exit(EXIT_FAILURE);
-    }
-
-    if(ret != ADM_SUCCESS) {
-        fmt::print(stdout,
-                   "ADM_register_pfs_storage() remote procedure not completed "
-                   "successfully\n");
         exit(EXIT_FAILURE);
     }
 

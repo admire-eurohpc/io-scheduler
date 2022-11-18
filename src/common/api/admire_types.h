@@ -510,11 +510,11 @@ ADM_adhoc_context_destroy(ADM_adhoc_context_t ctx);
  * @param[in] pfs_ctx Some specific context information for the storage
  * tier or NULL if none is required. For instance, an adhoc storage system may
  * find it useful to provide an ADM_adhoc_context_t describing the instance.
- * @return A valid ADM_ADHOC_STORAGE if successful, or NULL in case of failure.
+ * @return A valid ADM_PFS_STORAGE if successful, or NULL in case of failure.
  */
-ADM_adhoc_storage_t
-ADM_pfs_storage_create(const char* name, ADM_adhoc_storage_type_t type,
-                       uint64_t id, ADM_adhoc_context_t adhoc_ctx);
+ADM_pfs_storage_t
+ADM_pfs_storage_create(const char* name, ADM_pfs_storage_type_t type,
+                       uint64_t id, ADM_pfs_context_t pfs_ctx);
 
 /**
  * Destroy an ADM_ADHOC_STORAGE created by ADM_adhoc_storage_destroy().

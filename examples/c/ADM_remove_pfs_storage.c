@@ -37,41 +37,60 @@ main(int argc, char* argv[]) {
     }
 
     int exit_status = EXIT_SUCCESS;
-    ADM_server_t server = ADM_server_create("tcp", argv[1]);
+    ADM_return_t ret = ADM_SUCCESS;
+    ADM_server_t server = NULL;
 
-    ADM_pfs_context_t ctx = ADM_pfs_context_create("/gpfs");
-    assert(ctx);
+    // pfs information
+    const char* pfs_name = "gpfs_scratch";
+    const char* pfs_mount = "/gpfs/scratch";
+    ADM_pfs_context_t pfs_ctx = NULL;
+    ADM_pfs_storage_t pfs_storage = NULL;
 
-    ADM_pfs_storage_t pfs_storage;
-    ADM_return_t ret = ADM_register_pfs_storage(server, ctx, &pfs_storage);
+    // Let's prepare all the information required by the API calls.
+    // ADM_remove_pfs_storage() obviously requires a PFS storage to have
+    // been registered onto the system, so let's prepare first the data required
+    // to call ADM_register_pfs_storage():
 
-    if(ret != ADM_SUCCESS) {
-        fprintf(stderr,
-                "ADM_register_pfs_storage() remote procedure not completed "
-                "successfully: %s\n",
-                ADM_strerror(ret));
-        exit_status = EXIT_FAILURE;
+    // 1. define the PFS execution context
+    pfs_ctx = ADM_pfs_context_create(pfs_mount);
+
+    if(pfs_ctx == NULL) {
+        fprintf(stderr, "Fatal error preparing PFS context\n");
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_register_pfs_storage() remote procedure completed "
-                    "successfully\n");
+    // All the information required by the ADM_register_pfs_storage() API is
+    // now ready. Let's actually contact the server:
 
-    ret = ADM_remove_pfs_storage(server, pfs_storage);
-
-    if(ret != ADM_SUCCESS) {
-        fprintf(stderr,
-                "ADM_remove_pfs_storage() remote procedure not completed "
-                "successfully: %s\n",
-                ADM_strerror(ret));
-        exit_status = EXIT_FAILURE;
+    // 1. Find the server endpoint
+    if((server = ADM_server_create("tcp", argv[1])) == NULL) {
+        fprintf(stderr, "Fatal error creating server\n");
         goto cleanup;
     }
 
-    fprintf(stdout, "ADM_remove_pfs_storage() remote procedure completed "
-                    "successfully\n");
+    // 2. Register the adhoc storage
+    if(ADM_register_pfs_storage(server, pfs_name, ADM_PFS_STORAGE_GPFS, pfs_ctx,
+                                &pfs_storage) != ADM_SUCCESS) {
+        fprintf(stderr, "ADM_register_pfs_storage() failed: %s\n",
+                ADM_strerror(ret));
+        goto cleanup;
+    }
+
+    // Now that we have an existing PFS storage registered into the system
+    // we can try to remove it...
+
+    if((ret = ADM_remove_pfs_storage(server, pfs_storage)) != ADM_SUCCESS) {
+        fprintf(stderr, "ADM_remove_pfs_storage() failed: %s\n",
+                ADM_strerror(ret));
+        goto cleanup;
+    }
+
+    // Everything is fine now...
+    exit_status = EXIT_SUCCESS;
 
 cleanup:
     ADM_server_destroy(server);
+    ADM_pfs_context_destroy(pfs_ctx);
+
     exit(exit_status);
 }

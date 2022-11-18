@@ -425,12 +425,18 @@ struct pfs_storage {
 
     pfs_storage(enum pfs_storage::type type, std::string name, std::uint64_t id,
                 std::filesystem::path mount_point);
+
+    pfs_storage(enum pfs_storage::type type, std::string name, std::uint64_t id,
+                const pfs_storage::ctx& pfs_ctx);
+
+    explicit pfs_storage(ADM_pfs_storage_t storage);
+
     pfs_storage(const pfs_storage& other) noexcept;
-    pfs_storage(pfs_storage&&) noexcept = default;
+    pfs_storage(pfs_storage&&) noexcept;
     pfs_storage&
     operator=(const pfs_storage& other) noexcept;
     pfs_storage&
-    operator=(pfs_storage&&) noexcept = default;
+    operator=(pfs_storage&&) noexcept;
     ~pfs_storage();
 
     std::string
@@ -441,6 +447,9 @@ struct pfs_storage {
     id() const;
     pfs_storage::ctx
     context() const;
+
+    void
+    update(admire::pfs_storage::ctx new_ctx);
 
 private:
     class impl;

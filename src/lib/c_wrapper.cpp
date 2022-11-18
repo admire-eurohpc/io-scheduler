@@ -133,12 +133,22 @@ ADM_deploy_adhoc_storage(ADM_server_t server,
 }
 
 ADM_return_t
-ADM_register_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
+ADM_register_pfs_storage(ADM_server_t server, const char* name, 
+                         ADM_pfs_storage_type_t type, ADM_pfs_context_t ctx,
                          ADM_pfs_storage_t* pfs_storage) {
 
-    const admire::server srv{server};
+    const auto rv = admire::detail::register_pfs_storage(
+            admire::server{server}, name,
+            static_cast<enum admire::pfs_storage::type>(type),
+            admire::pfs_storage::ctx{ctx});
 
-    return admire::register_pfs_storage(srv, ctx, pfs_storage);
+    if(!rv) {
+        return rv.error();
+    }
+
+    *pfs_storage = admire::api::convert(rv.value()).release();
+
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

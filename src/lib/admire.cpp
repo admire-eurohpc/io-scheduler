@@ -283,9 +283,16 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     }
 }
 
-ADM_return_t
+void
 deploy_adhoc_storage(const server& srv, const admire::adhoc_storage& adhoc_storage) {
-    return detail::deploy_adhoc_storage(srv, adhoc_storage);
+   
+    const auto ec = detail::deploy_adhoc_storage(srv, adhoc_storage);
+
+    if(!ec) {
+        throw std::runtime_error(fmt::format(
+                "ADM_deploy_adhoc_storage() error: {}", ec.message()));
+    }
+  
 }
 
 ADM_return_t

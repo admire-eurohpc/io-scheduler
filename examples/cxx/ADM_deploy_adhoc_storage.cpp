@@ -24,7 +24,7 @@
 
 #include <fmt/format.h>
 #include <admire.hpp>
-
+#include "common.hpp"
 
 int
 main(int argc, char* argv[]) {
@@ -37,19 +37,19 @@ main(int argc, char* argv[]) {
     }
 
     admire::server server{"tcp", argv[1]};
-    std::vector<admire::node> nodes{admire::node{"node1"},admire::node{"node2"}};
+
+    std::vector<admire::node> nodes = prepare_nodes(10);
     admire::adhoc_storage::resources res(nodes);
 
     admire::adhoc_storage adhoc_storage(
-        admire::storage::type::dataclay, "foobar", 1,
-        admire::adhoc_storage::execution_mode::separate_new,
-        admire::adhoc_storage::access_type::read_write, 
-        res, 100, false);
+            admire::storage::type::dataclay, "foobar", 1,
+            admire::adhoc_storage::execution_mode::separate_new,
+            admire::adhoc_storage::access_type::read_write, res, 100, false);
 
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::deploy_adhoc_storage(server, adhoc_storage);
+        admire::deploy_adhoc_storage(server, adhoc_storage);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_deploy_adhoc_storage() failed: {}\n",
                    e.what());

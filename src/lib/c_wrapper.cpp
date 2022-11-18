@@ -129,7 +129,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage) {
             adhoc_storage->s_name,
             adhoc_storage->s_id, adhoc_storage->s_adhoc_ctx};
 
-    return admire::deploy_adhoc_storage(srv, storage);
+    return admire::detail::deploy_adhoc_storage(srv, storage);
 }
 
 ADM_return_t

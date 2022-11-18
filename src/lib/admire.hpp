@@ -69,7 +69,7 @@ update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
 void
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
-ADM_return_t
+void
 deploy_adhoc_storage(const server& srv, const adhoc_storage& reqs);
 
 ADM_return_t

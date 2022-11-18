@@ -48,7 +48,7 @@ convert(const adhoc_storage::resources& res);
 managed_ctype<ADM_adhoc_context_t>
 convert(const adhoc_storage::ctx& ctx);
 
-managed_ctype<ADM_storage_t>
+managed_ctype<ADM_adhoc_storage_t>
 convert(const admire::adhoc_storage& st);
 
 managed_ctype<ADM_dataset_t>
@@ -200,26 +200,27 @@ struct admire::api::managed_ctype<ADM_adhoc_context_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_storage_t> {
+struct admire::api::managed_ctype<ADM_adhoc_storage_t> {
 
     managed_ctype() = default;
 
-    explicit managed_ctype(ADM_storage_t st,
+    explicit managed_ctype(ADM_adhoc_storage_t st,
                            managed_ctype<ADM_adhoc_context_t>&& ctx)
         : m_storage(st), m_ctx(std::move(ctx)) {}
 
-    ADM_storage_t
+    ADM_adhoc_storage_t
     get() const {
         return m_storage.get();
     }
 
-    ADM_storage_t
+    ADM_adhoc_storage_t
     release() {
         std::ignore = m_ctx.release();
         return m_storage.release();
     }
 
-    scord::utils::ctype_ptr<ADM_storage_t, ADM_storage_destroy> m_storage;
+    scord::utils::ctype_ptr<ADM_adhoc_storage_t, ADM_adhoc_storage_destroy>
+            m_storage;
     managed_ctype<ADM_adhoc_context_t> m_ctx;
 };
 
@@ -321,9 +322,10 @@ struct admire::api::managed_ctype<ADM_job_requirements_t> {
     explicit managed_ctype(ADM_job_requirements_t reqs,
                            managed_ctype_array<ADM_dataset_t>&& inputs,
                            managed_ctype_array<ADM_dataset_t>&& outputs,
-                           managed_ctype<ADM_storage_t>&& storage)
+                           managed_ctype<ADM_adhoc_storage_t>&& adhoc_storage)
         : m_reqs(reqs), m_inputs(std::move(inputs)),
-          m_outputs(std::move(outputs)), m_storage(std::move(storage)) {}
+          m_outputs(std::move(outputs)),
+          m_adhoc_storage(std::move(adhoc_storage)) {}
 
     ADM_job_requirements_t
     get() const {
@@ -341,7 +343,7 @@ struct admire::api::managed_ctype<ADM_job_requirements_t> {
             m_reqs;
     managed_ctype_array<ADM_dataset_t> m_inputs;
     managed_ctype_array<ADM_dataset_t> m_outputs;
-    managed_ctype<ADM_storage_t> m_storage;
+    managed_ctype<ADM_adhoc_storage_t> m_adhoc_storage;
 };
 
 

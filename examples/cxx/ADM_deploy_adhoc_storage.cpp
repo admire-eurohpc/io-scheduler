@@ -55,7 +55,7 @@ main(int argc, char* argv[]) {
 
     try {
         const auto adhoc_storage = admire::register_adhoc_storage(
-                server, name, admire::storage::type::dataclay,
+                server, name, admire::adhoc_storage::type::dataclay,
                 adhoc_storage_ctx);
 
         fmt::print(stdout,
@@ -65,10 +65,10 @@ main(int argc, char* argv[]) {
         admire::deploy_adhoc_storage(server, adhoc_storage);
 
     } catch(const std::exception& e) {
-        fmt::print(
-                stderr,
-                "FATAL: ADM_register_adhoc_storage() or ADM_deploy_adhoc_storage() failed: {}\n",
-                e.what());
+        fmt::print(stderr,
+                   "FATAL: ADM_register_adhoc_storage() or "
+                   "ADM_deploy_adhoc_storage() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
 

@@ -74,14 +74,14 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 ADM_return_t
 register_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
-                     ADM_storage_t* pfs_storage);
+                     ADM_pfs_storage_t* pfs_storage);
 
 ADM_return_t
 update_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
-                   ADM_storage_t pfs_storage);
+                   ADM_pfs_storage_t pfs_storage);
 
 ADM_return_t
-remove_pfs_storage(const server& srv, ADM_storage_t pfs_storage);
+remove_pfs_storage(const server& srv, ADM_pfs_storage_t pfs_storage);
 
 admire::transfer
 transfer_datasets(const server& srv, const job& job,
@@ -95,7 +95,7 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
                         ADM_dataset_info_t info);
 
 ADM_return_t
-set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
+set_io_resources(const server& srv, ADM_job_t job, ADM_adhoc_storage_t tier,
                  ADM_adhoc_resources_t resources);
 
 ADM_return_t

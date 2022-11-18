@@ -42,7 +42,7 @@ main(int argc, char* argv[]) {
     ADM_pfs_context_t ctx = ADM_pfs_context_create("/gpfs");
     assert(ctx);
 
-    ADM_storage_t pfs_storage;
+    ADM_pfs_storage_t pfs_storage;
     ADM_return_t ret = ADM_register_pfs_storage(server, ctx, &pfs_storage);
 
     if(ret != ADM_SUCCESS) {

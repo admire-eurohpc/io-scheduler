@@ -330,7 +330,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
                 std::quoted(rpc_client.self_address()), name, type, ctx);
 
     const auto rpc_name = name.c_str();
-    const auto rpc_type = static_cast<ADM_storage_type_t>(type);
+    const auto rpc_type = static_cast<ADM_adhoc_storage_type_t>(type);
     const auto rpc_ctx = api::convert(ctx);
 
     ADM_register_adhoc_storage_in_t in{rpc_name, rpc_type, rpc_ctx.get()};

@@ -43,7 +43,7 @@ main(int argc, char* argv[]) {
     int exit_status = EXIT_SUCCESS;
     ADM_server_t server = ADM_server_create("tcp", argv[1]);
 
-    ADM_storage_t pfs_storage;
+    ADM_pfs_storage_t pfs_storage;
 
     ADM_pfs_context_t ctx = ADM_pfs_context_create("/gpfs");
     assert(ctx);

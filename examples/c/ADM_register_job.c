@@ -50,7 +50,7 @@ main(int argc, char* argv[]) {
     ADM_node_t* adhoc_nodes = NULL;
     ADM_adhoc_resources_t adhoc_resources = NULL;
     ADM_adhoc_context_t adhoc_ctx = NULL;
-    ADM_storage_t adhoc_storage = NULL;
+    ADM_adhoc_storage_t adhoc_storage = NULL;
 
     // job information
     ADM_node_t* job_nodes = NULL;
@@ -103,7 +103,7 @@ main(int argc, char* argv[]) {
     }
 
     // 2. Register the adhoc storage
-    if(ADM_register_adhoc_storage(server, adhoc_name, ADM_STORAGE_GEKKOFS,
+    if(ADM_register_adhoc_storage(server, adhoc_name, ADM_ADHOC_STORAGE_GEKKOFS,
                                   adhoc_ctx, &adhoc_storage) != ADM_SUCCESS) {
         fprintf(stderr, "ADM_register_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));

@@ -113,8 +113,9 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job);
  */
 ADM_return_t
 ADM_register_adhoc_storage(ADM_server_t server, const char* name,
-                           ADM_storage_type_t type, ADM_adhoc_context_t ctx,
-                           ADM_storage_t* adhoc_storage);
+                           ADM_adhoc_storage_type_t type,
+                           ADM_adhoc_context_t ctx,
+                           ADM_adhoc_storage_t* adhoc_storage);
 
 /**
  * Update an already-registered adhoc storage system.
@@ -127,7 +128,7 @@ ADM_register_adhoc_storage(ADM_server_t server, const char* name,
  * successfully.
  */
 ADM_return_t
-ADM_update_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage,
+ADM_update_adhoc_storage(ADM_server_t server, ADM_adhoc_storage_t adhoc_storage,
                          ADM_adhoc_context_t ctx);
 
 /**
@@ -141,7 +142,8 @@ ADM_update_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage,
  * successfully.
  */
 ADM_return_t
-ADM_remove_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
+ADM_remove_adhoc_storage(ADM_server_t server,
+                         ADM_adhoc_storage_t adhoc_storage);
 
 /**
  * Initiate the deployment of an adhoc storage system instance.
@@ -153,7 +155,8 @@ ADM_remove_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_deploy_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
+ADM_deploy_adhoc_storage(ADM_server_t server,
+                         ADM_adhoc_storage_t adhoc_storage);
 
 /**
  * Register a PFS storage tier.
@@ -167,7 +170,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
  */
 ADM_return_t
 ADM_register_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
-                         ADM_storage_t* pfs_storage);
+                         ADM_pfs_storage_t* pfs_storage);
 
 /**
  * Update an already-registered PFS storage tier.
@@ -181,7 +184,7 @@ ADM_register_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
  */
 ADM_return_t
 ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
-                       ADM_storage_t adhoc_storage);
+                       ADM_pfs_storage_t adhoc_storage);
 
 /**
  * Remove an already-registered PFS storage tier.
@@ -194,7 +197,7 @@ ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
  * successfully.
  */
 ADM_return_t
-ADM_remove_pfs_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
+ADM_remove_pfs_storage(ADM_server_t server, ADM_pfs_storage_t adhoc_storage);
 
 /**
  * Transfers the dataset identified by the source_name to the storage tier
@@ -258,8 +261,8 @@ ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
  * successfully.
  */
 ADM_return_t
-ADM_set_io_resources(ADM_server_t server, ADM_job_t job, ADM_storage_t tier,
-                     ADM_adhoc_resources_t resources);
+ADM_set_io_resources(ADM_server_t server, ADM_job_t job,
+                     ADM_adhoc_storage_t tier, ADM_adhoc_resources_t resources);
 
 
 /**

@@ -24,8 +24,10 @@
 
 #include "rpc_types.h"
 
-hg_return_t (*hg_proc_ADM_storage_type_t)(hg_proc_t,
-                                          void*) = hg_proc_hg_uint32_t;
+hg_return_t (*hg_proc_ADM_adhoc_storage_type_t)(hg_proc_t,
+                                                void*) = hg_proc_hg_uint32_t;
+hg_return_t (*hg_proc_ADM_pfs_storage_type_t)(hg_proc_t,
+                                              void*) = hg_proc_hg_uint32_t;
 hg_return_t (*hg_proc_ADM_qos_scope_t)(hg_proc_t, void*) = hg_proc_hg_uint32_t;
 hg_return_t (*hg_proc_ADM_qos_class_t)(hg_proc_t, void*) = hg_proc_hg_uint32_t;
 
@@ -387,20 +389,19 @@ hg_proc_ADM_dataset_list_t(hg_proc_t proc, void* data) {
 
 
 hg_return_t
-hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
-    (void) proc;
-    (void) data;
+hg_proc_ADM_adhoc_storage_t(hg_proc_t proc, void* data) {
 
     hg_return_t ret = HG_SUCCESS;
-    ADM_storage_t* storage = (ADM_storage_t*) data;
-    ADM_storage_t tmp = NULL;
+    ADM_adhoc_storage_t* storage = (ADM_adhoc_storage_t*) data;
+    ADM_adhoc_storage_t tmp = NULL;
     hg_size_t storage_length = 0;
 
     switch(hg_proc_get_op(proc)) {
 
         case HG_ENCODE:
-            // find out the length of the adm_storage object we need to send
-            storage_length = *storage ? sizeof(adm_storage) : 0;
+            // find out the length of the adm_adhoc_storage object we need to
+            // send
+            storage_length = *storage ? sizeof(adm_adhoc_storage) : 0;
             ret = hg_proc_hg_size_t(proc, &storage_length);
 
             if(ret != HG_SUCCESS) {
@@ -411,7 +412,7 @@ hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
                 return HG_SUCCESS;
             }
 
-            // if we actually need to send an adm_storage object,
+            // if we actually need to send an adm_adhoc_storage object,
             // write each of its fields to the mercury buffer
             tmp = *storage;
 
@@ -437,23 +438,16 @@ hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
             }
 
             // 4. the appropriate storage context
-            switch(tmp->s_type) {
-                case ADM_STORAGE_GEKKOFS:
-                case ADM_STORAGE_DATACLAY:
-                case ADM_STORAGE_EXPAND:
-                case ADM_STORAGE_HERCULES:
-                    ret = hg_proc_ADM_adhoc_context_t(proc, &tmp->s_adhoc_ctx);
-                    break;
-                case ADM_STORAGE_LUSTRE:
-                case ADM_STORAGE_GPFS:
-                    ret = hg_proc_ADM_pfs_context_t(proc, &tmp->s_pfs_ctx);
-                    break;
+            ret = hg_proc_ADM_adhoc_context_t(proc, &tmp->s_adhoc_ctx);
+
+            if(ret != HG_SUCCESS) {
+                break;
             }
 
             break;
 
         case HG_DECODE:
-            // find out the length of the adm_storage object
+            // find out the length of the adm_adhoc_storage object
             ret = hg_proc_hg_size_t(proc, &storage_length);
 
             if(ret != HG_SUCCESS) {
@@ -465,9 +459,9 @@ hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
                 break;
             }
 
-            // if the received adm_storage object was not NULL, read each of
-            // its fields from the mercury buffer
-            tmp = (adm_storage*) calloc(1, sizeof(adm_storage));
+            // if the received adm_adhoc_storage object was not NULL, read each
+            // of its fields from the mercury buffer
+            tmp = (adm_adhoc_storage*) calloc(1, sizeof(adm_adhoc_storage));
 
             // 1. the storage type
             ret = hg_proc_uint32_t(proc, &tmp->s_type);
@@ -491,17 +485,10 @@ hg_proc_ADM_storage_t(hg_proc_t proc, void* data) {
             }
 
             // 4. the appropriate storage context
-            switch(tmp->s_type) {
-                case ADM_STORAGE_GEKKOFS:
-                case ADM_STORAGE_DATACLAY:
-                case ADM_STORAGE_EXPAND:
-                case ADM_STORAGE_HERCULES:
-                    ret = hg_proc_ADM_adhoc_context_t(proc, &tmp->s_adhoc_ctx);
-                    break;
-                case ADM_STORAGE_LUSTRE:
-                case ADM_STORAGE_GPFS:
-                    ret = hg_proc_ADM_pfs_context_t(proc, &tmp->s_adhoc_ctx);
-                    break;
+            ret = hg_proc_ADM_adhoc_context_t(proc, &tmp->s_adhoc_ctx);
+
+            if(ret != HG_SUCCESS) {
+                break;
             }
 
             // return the newly-created ctx
@@ -582,6 +569,116 @@ hg_proc_ADM_adhoc_context_t(hg_proc_t proc, void* data) {
             tmp = *ctx;
             free(tmp);
             ret = HG_SUCCESS;
+            break;
+    }
+
+    return ret;
+}
+
+hg_return_t
+hg_proc_ADM_pfs_storage_t(hg_proc_t proc, void* data) {
+
+    hg_return_t ret = HG_SUCCESS;
+    ADM_pfs_storage_t* storage = (ADM_pfs_storage_t*) data;
+    ADM_pfs_storage_t tmp = NULL;
+    hg_size_t storage_length = 0;
+
+    switch(hg_proc_get_op(proc)) {
+
+        case HG_ENCODE:
+            // find out the length of the adm_pfs_storage object we need to send
+            storage_length = *storage ? sizeof(adm_pfs_storage) : 0;
+            ret = hg_proc_hg_size_t(proc, &storage_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!storage_length) {
+                return HG_SUCCESS;
+            }
+
+            // if we actually need to send an adm_pfs_storage object,
+            // write each of its fields to the mercury buffer
+            tmp = *storage;
+
+            // 1. the storage type
+            ret = hg_proc_hg_uint32_t(proc, &tmp->s_type);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 2. the storage id
+            ret = hg_proc_hg_const_string_t(proc, &tmp->s_name);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 3. the server-assigned id
+            ret = hg_proc_hg_int64_t(proc, &tmp->s_id);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 4. the appropriate storage context
+            ret = hg_proc_ADM_pfs_context_t(proc, &tmp->s_pfs_ctx);
+            break;
+
+        case HG_DECODE:
+            // find out the length of the adm_pfs_storage object
+            ret = hg_proc_hg_size_t(proc, &storage_length);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            if(!storage_length) {
+                *storage = NULL;
+                break;
+            }
+
+            // if the received adm_pfs_storage object was not NULL, read each of
+            // its fields from the mercury buffer
+            tmp = (adm_pfs_storage*) calloc(1, sizeof(adm_pfs_storage));
+
+            // 1. the storage type
+            ret = hg_proc_uint32_t(proc, &tmp->s_type);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 2. the storage id
+            ret = hg_proc_hg_const_string_t(proc, &tmp->s_name);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 3. the server-assigned id
+            ret = hg_proc_hg_int64_t(proc, &tmp->s_id);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // 4. the appropriate storage context
+            ret = hg_proc_ADM_pfs_context_t(proc, &tmp->s_pfs_ctx);
+
+            if(ret != HG_SUCCESS) {
+                break;
+            }
+
+            // return the newly-created ctx
+            *storage = tmp;
+            break;
+
+        case HG_FREE:
+            tmp = *storage;
+            free(tmp);
             break;
     }
 

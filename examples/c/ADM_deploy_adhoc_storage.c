@@ -25,9 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <admire.h>
-#include <assert.h>
 #include "common.h"
-#include <net/proto/rpc_types.h>
 
 #define NADHOC_NODES 25
 #define NINPUTS      10
@@ -53,7 +51,7 @@ main(int argc, char* argv[]) {
     ADM_adhoc_resources_t adhoc_resources = NULL;
     ADM_adhoc_context_t adhoc_ctx = NULL;
     ADM_adhoc_context_t new_adhoc_ctx = NULL;
-    ADM_storage_t adhoc_storage = NULL;
+    ADM_adhoc_storage_t adhoc_storage = NULL;
 
 
     // Let's prepare all the information required by the API calls.
@@ -98,8 +96,9 @@ main(int argc, char* argv[]) {
     }
 
     // 2. Register the adhoc storage
-    if(ADM_register_adhoc_storage(server, adhoc_name, ADM_STORAGE_DATACLAY,
-                                  adhoc_ctx, &adhoc_storage) != ADM_SUCCESS) {
+    if(ADM_register_adhoc_storage(server, adhoc_name,
+                                  ADM_ADHOC_STORAGE_DATACLAY, adhoc_ctx,
+                                  &adhoc_storage) != ADM_SUCCESS) {
         fprintf(stderr, "ADM_register_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));
         goto cleanup;
@@ -120,8 +119,7 @@ main(int argc, char* argv[]) {
     }
 
     // We can now request the deployment to the server
-    if((ret = ADM_deploy_adhoc_storage(server, adhoc_storage)) !=
-       ADM_SUCCESS) {
+    if((ret = ADM_deploy_adhoc_storage(server, adhoc_storage)) != ADM_SUCCESS) {
         fprintf(stderr, "ADM_deploy_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));
         goto cleanup;

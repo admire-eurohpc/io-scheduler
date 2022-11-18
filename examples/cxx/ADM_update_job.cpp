@@ -49,7 +49,7 @@ main(int argc, char* argv[]) {
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
     const auto gkfs_storage = admire::register_adhoc_storage(
-            server, "foobar", admire::storage::type::gekkofs,
+            server, "foobar", admire::adhoc_storage::type::gekkofs,
             admire::adhoc_storage::ctx{
                     admire::adhoc_storage::execution_mode::separate_new,
                     admire::adhoc_storage::access_type::read_write,

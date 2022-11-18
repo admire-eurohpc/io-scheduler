@@ -499,11 +499,11 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
                 execvpe("gkfs", const_cast<char* const*>(args.data()),
                         const_cast<char* const*>(env.data()));
                 LOGGER_INFO("ADM_deploy_adhoc_storage() script didn't execute");
-                exit(0);
+                exit(EXIT_FAILURE);
                 break;
             }
             case -1: {
-                ec = ec.other;
+                ec = admire::error_code::other;
                 LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
                              "body: {{retval: {}}}",
                              rpc_id, std::quoted(__FUNCTION__),
@@ -514,9 +514,9 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
                 int wstatus = 0;
                 waitpid(pid, &wstatus, 0);
                 if(WEXITSTATUS(wstatus) != 0) {
-                    ec = ec.other;
+                    ec = admire::error_code::other;
                 } else {
-                    ec = ec.success;
+                    ec = admire::error_code::success;
                 }
                 break;
             }

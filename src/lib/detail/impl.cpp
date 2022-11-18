@@ -379,16 +379,16 @@ deploy_adhoc_storage(const server& srv,
 
     if(const auto rv = admire::error_code{out.retval}; !rv) {
         LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
-                     "body: {{retval: {}}}",
+                     "body: {{retval: {}}} [op_id: {}]",
                      rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                     std::quoted(rpc_client.self_address()), rv);
+                     std::quoted(rpc_client.self_address()), rv, out.op_id);
         return rv;
     }
 
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
-                "body: {{retval: {}}}]",
+                "body: {{retval: {}}}] [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                admire::error_code::success);
+                admire::error_code::success, out.op_id);
 
     return admire::error_code::success;
 }

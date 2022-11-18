@@ -174,8 +174,6 @@ typedef struct adm_pfs_context {
     const char* c_mount;
 } adm_pfs_context;
 
-hg_return_t
-hg_proc_ADM_pfs_context_t(hg_proc_t proc, void* data);
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
@@ -374,9 +372,12 @@ MERCURY_GEN_PROC(
 );
 
 /// ADM_deploy_adhoc_storage
-MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_in_t, ((ADM_storage_t) (adhoc_storage)))
+MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_in_t, ((hg_uint64_t) (id)))
 
-MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_out_t, ((int32_t) (retval)))
+MERCURY_GEN_PROC(ADM_deploy_adhoc_storage_out_t, 
+        ((hg_uint64_t) (op_id))
+        ((hg_int32_t) (retval))
+);
 
 /// ADM_register_pfs_storage
 MERCURY_GEN_PROC(ADM_register_pfs_storage_in_t, ((int32_t) (reqs)))

@@ -33,6 +33,7 @@
 
 // Process running
 #include <unistd.h>
+#include <sys/wait.h>
 
 struct remote_procedure {
     static std::uint64_t
@@ -443,34 +444,43 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
     assert(ret == HG_SUCCESS);
 
 
-    auto adhoc_storage = in.adhoc_storage;
-    const admire::adhoc_storage::ctx ctx(adhoc_storage->s_adhoc_ctx);
- 
     const auto rpc_id = remote_procedure::new_id();
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_storage: {}}}",
+                "body: {{adhoc_id: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                admire::adhoc_storage(adhoc_storage));
+                in.id);
 
     admire::error_code ec;
     ec = admire::error_code::success;
+    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
+    auto adhoc_storage_info = adhoc_manager.find(in.id);
+
+    if(!adhoc_storage_info) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error finding adhoc_storage: {}",
+                     rpc_id, in.id);
+        ec = admire::error_code::no_such_entity;
+    }
+
+    const auto& storage_info = adhoc_storage_info.value();
+    const auto adhoc_storage = storage_info->adhoc_storage();
 
     out.retval = ec;
 
     /* Look inside adhoc_storage and launch gkfs script */
 
-    if (adhoc_storage->s_type == ADM_STORAGE_GEKKOFS) {
-    /* Number of nodes */
-        int nnodes = ctx.resources().nodes().size();
-        const std::string nodes = "-n "+std::to_string(nnodes);
+    if(adhoc_storage.type() == admire::storage::type::gekkofs) {
+        const auto adhoc_ctx =
+                (admire::adhoc_storage::ctx*) adhoc_storage.context().get();
+        /* Number of nodes */
+        const std::string nodes =
+                std::to_string(adhoc_ctx->resources().nodes().size());
 
-    /* Walltime */
-        int twalltime = ctx.walltime();
-        const std::string walltime = std::to_string(twalltime);
+        /* Walltime */
+        const std::string walltime = std::to_string(adhoc_ctx->walltime());
 
-    /* Launch script */
+        /* Launch script */
         pid_t pid = fork();
-        switch (pid) {
+        switch(pid) {
             case 0: {
                 std::vector<const char*> args;
                 args.push_back("gkfs");
@@ -485,34 +495,40 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
                 args.push_back(NULL);
                 std::vector<const char*> env;
                 env.push_back(NULL);
-                
-                execvpe("gkfs", const_cast<char* const*>(args.data()), 
-                const_cast<char* const*>(env.data())); 
+
+                execvpe("gkfs", const_cast<char* const*>(args.data()),
+                        const_cast<char* const*>(env.data()));
                 LOGGER_INFO("ADM_deploy_adhoc_storage() script didn't execute");
                 exit(0);
                 break;
-            }            
+            }
             case -1: {
                 ec = ec.other;
                 LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec);
+                             "body: {{retval: {}}}",
+                             rpc_id, std::quoted(__FUNCTION__),
+                             std::quoted(get_address(h)), ec);
                 break;
             }
             default: {
-                ec = ec.success;
+                int wstatus = 0;
+                waitpid(pid, &wstatus, 0);
+                if(WEXITSTATUS(wstatus) != 0) {
+                    ec = ec.other;
+                } else {
+                    ec = ec.success;
+                }
                 break;
             }
         }
     }
-    
+
     out.retval = ec;
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-        "body: {{retval: {}}}",
-        rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-        ec);
-        
+                "body: {{retval: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ec);
+
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);
 

@@ -121,15 +121,11 @@ ADM_remove_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage) {
 }
 
 ADM_return_t
-ADM_deploy_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage) {
+ADM_deploy_adhoc_storage(ADM_server_t server, uint64_t adhoc_id) {
 
     const admire::server srv{server};
-    auto storage = admire::adhoc_storage{
-            static_cast<enum admire::storage::type>(adhoc_storage->s_type),
-            adhoc_storage->s_name,
-            adhoc_storage->s_id, adhoc_storage->s_adhoc_ctx};
 
-    return admire::detail::deploy_adhoc_storage(srv, storage);
+    return admire::detail::deploy_adhoc_storage(srv, adhoc_id);
 }
 
 ADM_return_t

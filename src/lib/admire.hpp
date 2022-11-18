@@ -70,7 +70,7 @@ void
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 void
-deploy_adhoc_storage(const server& srv, const adhoc_storage& reqs);
+deploy_adhoc_storage(const server& srv, uint64_t adhoc_id);
 
 ADM_return_t
 register_pfs_storage(const server& srv, ADM_pfs_context_t ctx,

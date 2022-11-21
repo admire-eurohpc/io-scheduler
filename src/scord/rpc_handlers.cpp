@@ -450,80 +450,79 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
                 in.id);
 
-    admire::error_code ec;
-    ec = admire::error_code::success;
+    auto ec = admire::error_code::success;
     auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-    auto adhoc_storage_info = adhoc_manager.find(in.id);
 
-    if(!adhoc_storage_info) {
-        LOGGER_ERROR("rpc id: {} error_msg: \"Error finding adhoc_storage: {}",
-                     rpc_id, in.id);
-        ec = admire::error_code::no_such_entity;
-    }
+    if(const auto am_result = adhoc_manager.find(in.id);
+       am_result.has_value()) {
+        const auto& storage_info = am_result.value();
+        const auto adhoc_storage = storage_info->adhoc_storage();
+        ec = admire::error_code::success;
+        if(adhoc_storage.type() == admire::storage::type::gekkofs) {
+            const auto adhoc_ctx =
+                    (admire::adhoc_storage::ctx*) adhoc_storage.context().get();
+            /* Number of nodes */
+            const std::string nodes =
+                    std::to_string(adhoc_ctx->resources().nodes().size());
 
-    const auto& storage_info = adhoc_storage_info.value();
-    const auto adhoc_storage = storage_info->adhoc_storage();
+            /* Walltime */
+            const std::string walltime = std::to_string(adhoc_ctx->walltime());
 
-    out.retval = ec;
+            /* Launch script */
+            switch(const auto pid = fork()) {
+                case 0: {
+                    std::vector<const char*> args;
+                    args.push_back("gkfs");
+                    // args.push_back("-c");
+                    // args.push_back("gkfs.conf");
+                    args.push_back("-n");
+                    args.push_back(nodes.c_str());
+                    // args.push_back("-w");
+                    // args.push_back(walltime.c_str());
+                    args.push_back("--srun");
+                    args.push_back("start");
+                    args.push_back(NULL);
+                    std::vector<const char*> env;
+                    env.push_back(NULL);
 
-    /* Look inside adhoc_storage and launch gkfs script */
-
-    if(adhoc_storage.type() == admire::storage::type::gekkofs) {
-        const auto adhoc_ctx =
-                (admire::adhoc_storage::ctx*) adhoc_storage.context().get();
-        /* Number of nodes */
-        const std::string nodes =
-                std::to_string(adhoc_ctx->resources().nodes().size());
-
-        /* Walltime */
-        const std::string walltime = std::to_string(adhoc_ctx->walltime());
-
-        /* Launch script */
-        pid_t pid = fork();
-        switch(pid) {
-            case 0: {
-                std::vector<const char*> args;
-                args.push_back("gkfs");
-                // args.push_back("-c");
-                // args.push_back("gkfs.conf");
-                args.push_back("-n");
-                args.push_back(nodes.c_str());
-                // args.push_back("-w");
-                // args.push_back(walltime.c_str());
-                args.push_back("--srun");
-                args.push_back("start");
-                args.push_back(NULL);
-                std::vector<const char*> env;
-                env.push_back(NULL);
-
-                execvpe("gkfs", const_cast<char* const*>(args.data()),
-                        const_cast<char* const*>(env.data()));
-                LOGGER_INFO("ADM_deploy_adhoc_storage() script didn't execute");
-                exit(EXIT_FAILURE);
-                break;
-            }
-            case -1: {
-                ec = admire::error_code::other;
-                LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
-                             "body: {{retval: {}}}",
-                             rpc_id, std::quoted(__FUNCTION__),
-                             std::quoted(get_address(h)), ec);
-                break;
-            }
-            default: {
-                int wstatus = 0;
-                waitpid(pid, &wstatus, 0);
-                if(WEXITSTATUS(wstatus) != 0) {
-                    ec = admire::error_code::other;
-                } else {
-                    ec = admire::error_code::success;
+                    execvpe("gkfs", const_cast<char* const*>(args.data()),
+                            const_cast<char* const*>(env.data()));
+                    LOGGER_INFO(
+                            "ADM_deploy_adhoc_storage() script didn't execute");
+                    exit(EXIT_FAILURE);
+                    break;
                 }
-                break;
+                case -1: {
+                    ec = admire::error_code::other;
+                    LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
+                                 "body: {{retval: {}}}",
+                                 rpc_id, std::quoted(__FUNCTION__),
+                                 std::quoted(get_address(h)), ec);
+                    break;
+                }
+                default: {
+                    int wstatus = 0;
+                    waitpid(pid, &wstatus, 0);
+                    if(WEXITSTATUS(wstatus) != 0) {
+                        ec = admire::error_code::other;
+                    } else {
+                        ec = admire::error_code::success;
+                    }
+                    break;
+                }
             }
         }
+
+    } else {
+        ec = am_result.error();
+        LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
+                     "body: {{retval: {}}}",
+                     rpc_id, std::quoted(__FUNCTION__),
+                     std::quoted(get_address(h)), ec);
     }
 
     out.retval = ec;
+
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
                 rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),

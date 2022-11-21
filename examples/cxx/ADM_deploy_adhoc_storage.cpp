@@ -62,21 +62,13 @@ main(int argc, char* argv[]) {
                    "ADM_register_adhoc_storage() remote procedure completed "
                    "successfully\n");
 
-        admire::deploy_adhoc_storage(server, adhoc_storage.id());
+        admire::deploy_adhoc_storage(server, adhoc_storage);
 
     } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_register_adhoc_storage() failed: {}\n",
-                   e.what());
-        exit(EXIT_FAILURE);
-    }
-
-    ADM_return_t ret = ADM_SUCCESS;
-
-
-    if(ret != ADM_SUCCESS) {
-        fmt::print(stdout,
-                   "ADM_deploy_adhoc_storage() remote procedure not completed "
-                   "successfully\n");
+        fmt::print(
+                stderr,
+                "FATAL: ADM_register_adhoc_storage() or ADM_deploy_adhoc_storage() failed: {}\n",
+                e.what());
         exit(EXIT_FAILURE);
     }
 

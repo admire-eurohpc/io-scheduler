@@ -284,9 +284,9 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 }
 
 void
-deploy_adhoc_storage(const server& srv, const uint64_t adhoc_id) {
+deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
    
-    const auto ec = detail::deploy_adhoc_storage(srv, adhoc_id);
+    const auto ec = detail::deploy_adhoc_storage(srv, adhoc_storage);
 
     if(!ec) {
         throw std::runtime_error(fmt::format(

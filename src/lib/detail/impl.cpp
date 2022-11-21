@@ -359,7 +359,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
 
 admire::error_code
 deploy_adhoc_storage(const server& srv,
-                     const uint64_t adhoc_id) {
+                     const adhoc_storage& adhoc_storage) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
@@ -367,14 +367,13 @@ deploy_adhoc_storage(const server& srv,
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_id: {}}}",
+                "body: {{adhoc_storage: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), adhoc_id);
+                std::quoted(rpc_client.self_address()), adhoc_storage);
 
-    ADM_deploy_adhoc_storage_in_t in{adhoc_id};
+    ADM_deploy_adhoc_storage_in_t in{adhoc_storage.id()};
     ADM_deploy_adhoc_storage_out_t out;
-    out.op_id = rpc_id;
-
+ 
     const auto rpc = endp.call("ADM_deploy_adhoc_storage", &in, &out);
 
     if(const auto rv = admire::error_code{out.retval}; !rv) {

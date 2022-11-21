@@ -67,7 +67,7 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 admire::error_code
 deploy_adhoc_storage(const server& srv,
-                     const uint64_t adhoc_id);
+                     const adhoc_storage& adhoc_storage);
 
 } // namespace admire::detail
 

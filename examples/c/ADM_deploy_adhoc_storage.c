@@ -120,7 +120,7 @@ main(int argc, char* argv[]) {
     }
 
     // We can now request the deployment to the server
-    if((ret = ADM_deploy_adhoc_storage(server, adhoc_storage->s_id)) !=
+    if((ret = ADM_deploy_adhoc_storage(server, adhoc_storage)) !=
        ADM_SUCCESS) {
         fprintf(stderr, "ADM_deploy_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));

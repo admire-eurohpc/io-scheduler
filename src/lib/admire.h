@@ -147,12 +147,13 @@ ADM_remove_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
  * Initiate the deployment of an adhoc storage system instance.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] adhoc_id An ADM_STORAGE referring to the adhoc storage
+ * @param[in] job An ADM_JOB identifying the originating job.
+ * @param[in] adhoc_storage An ADM_STORAGE referring to the adhoc storage
  * instance of interest.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_deploy_adhoc_storage(ADM_server_t server, u_int64_t adhoc_id);
+ADM_deploy_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage);
 
 /**
  * Register a PFS storage tier.

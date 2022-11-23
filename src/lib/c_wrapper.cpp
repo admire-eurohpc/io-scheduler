@@ -133,7 +133,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server,
 }
 
 ADM_return_t
-ADM_register_pfs_storage(ADM_server_t server, const char* name, 
+ADM_register_pfs_storage(ADM_server_t server, const char* name,
                          ADM_pfs_storage_type_t type, ADM_pfs_context_t ctx,
                          ADM_pfs_storage_t* pfs_storage) {
 
@@ -152,12 +152,12 @@ ADM_register_pfs_storage(ADM_server_t server, const char* name,
 }
 
 ADM_return_t
-ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
-                       ADM_pfs_storage_t pfs_storage) {
+ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_storage_t pfs_storage,
+                       ADM_pfs_context_t ctx) {
 
-    const admire::server srv{server};
-
-    return admire::update_pfs_storage(srv, ctx, pfs_storage);
+    return admire::detail::update_pfs_storage(admire::server{server},
+                                              admire::pfs_storage{pfs_storage},
+                                              admire::pfs_storage::ctx{ctx});
 }
 
 ADM_return_t

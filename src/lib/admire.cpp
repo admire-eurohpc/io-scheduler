@@ -292,12 +292,11 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
         throw std::runtime_error(fmt::format(
                 "ADM_deploy_adhoc_storage() error: {}", ec.message()));
     }
-  
 }
 
 ADM_return_t
 register_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
-                     ADM_storage_t* pfs_storage) {
+                     ADM_pfs_storage_t* pfs_storage) {
     (void) srv;
     (void) ctx;
     (void) pfs_storage;
@@ -324,7 +323,7 @@ register_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
 
 ADM_return_t
 update_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
-                   ADM_storage_t pfs_storage) {
+                   ADM_pfs_storage_t pfs_storage) {
     (void) srv;
     (void) ctx;
     (void) pfs_storage;
@@ -350,7 +349,7 @@ update_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
 }
 
 ADM_return_t
-remove_pfs_storage(const server& srv, ADM_storage_t pfs_storage) {
+remove_pfs_storage(const server& srv, ADM_pfs_storage_t pfs_storage) {
     (void) srv;
     (void) pfs_storage;
 
@@ -423,7 +422,7 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
 }
 
 ADM_return_t
-set_io_resources(const server& srv, ADM_job_t job, ADM_storage_t tier,
+set_io_resources(const server& srv, ADM_job_t job, ADM_adhoc_storage_t tier,
                  ADM_adhoc_resources_t resources) {
     (void) srv;
     (void) job;

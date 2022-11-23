@@ -439,16 +439,16 @@ ADM_dataset_list_destroy(ADM_dataset_list_t list) {
     return ret;
 }
 
-ADM_storage_t
-ADM_storage_create(const char* name, ADM_storage_type_t type, uint64_t id,
-                   void* ctx) {
+ADM_adhoc_storage_t
+ADM_adhoc_storage_create(const char* name, ADM_adhoc_storage_type_t type,
+                         uint64_t id, ADM_adhoc_context_t adhoc_ctx) {
 
-    struct adm_storage* adm_storage =
-            (struct adm_storage*) malloc(sizeof(*adm_storage));
+    struct adm_adhoc_storage* adm_adhoc_storage =
+            (struct adm_adhoc_storage*) malloc(sizeof(*adm_adhoc_storage));
     const char* error_msg = NULL;
 
-    if(!adm_storage) {
-        LOGGER_ERROR("Could not allocate ADM_storage_t");
+    if(!adm_adhoc_storage) {
+        LOGGER_ERROR("Could not allocate ADM_adhoc_storage_t");
         return NULL;
     }
 
@@ -457,92 +457,59 @@ ADM_storage_create(const char* name, ADM_storage_type_t type, uint64_t id,
         return NULL;
     }
 
-    if(!ctx) {
+    if(!adhoc_ctx) {
         LOGGER_ERROR("Null storage context")
         return NULL;
     }
 
-    adm_storage->s_name = (const char*) calloc(strlen(name) + 1, sizeof(char));
-    strcpy((char*) adm_storage->s_name, name);
-    adm_storage->s_type = type;
-    adm_storage->s_id = id;
+    adm_adhoc_storage->s_name =
+            (const char*) calloc(strlen(name) + 1, sizeof(char));
+    strcpy((char*) adm_adhoc_storage->s_name, name);
+    adm_adhoc_storage->s_type = type;
+    adm_adhoc_storage->s_id = id;
 
-    switch(adm_storage->s_type) {
-        case ADM_STORAGE_GEKKOFS:
-        case ADM_STORAGE_DATACLAY:
-        case ADM_STORAGE_EXPAND:
-        case ADM_STORAGE_HERCULES:
-            adm_storage->s_adhoc_ctx =
-                    (ADM_adhoc_context_t) calloc(1, sizeof(adm_adhoc_context));
-            if(!adm_storage->s_adhoc_ctx) {
-                error_msg = "Could not allocate ADM_adhoc_context_t";
-                goto cleanup_on_error;
-            }
-
-            memcpy(adm_storage->s_adhoc_ctx, (ADM_adhoc_context_t) ctx,
-                   sizeof(*(ADM_adhoc_context_t) ctx));
-            break;
-
-        case ADM_STORAGE_LUSTRE:
-        case ADM_STORAGE_GPFS:
-            adm_storage->s_pfs_ctx =
-                    (ADM_pfs_context_t) calloc(1, sizeof(adm_pfs_context));
-            if(!adm_storage->s_pfs_ctx) {
-                error_msg = "Could not allocate ADM_pfs_context_t";
-                goto cleanup_on_error;
-            }
-
-            memcpy(adm_storage->s_pfs_ctx, (ADM_pfs_context_t) ctx,
-                   sizeof(*(ADM_pfs_context_t) ctx));
-            break;
+    adm_adhoc_storage->s_adhoc_ctx =
+            (ADM_adhoc_context_t) calloc(1, sizeof(adm_adhoc_context));
+    if(!adm_adhoc_storage->s_adhoc_ctx) {
+        error_msg = "Could not allocate ADM_adhoc_context_t";
+        goto cleanup_on_error;
     }
 
-    return adm_storage;
+    memcpy(adm_adhoc_storage->s_adhoc_ctx, adhoc_ctx, sizeof(*adhoc_ctx));
+
+    return adm_adhoc_storage;
 
 cleanup_on_error:
     if(error_msg) {
         LOGGER_ERROR(error_msg);
     }
 
-    [[maybe_unused]] ADM_return_t ret = ADM_storage_destroy(adm_storage);
+    [[maybe_unused]] ADM_return_t ret =
+            ADM_adhoc_storage_destroy(adm_adhoc_storage);
     assert(ret);
 
     return NULL;
 }
 
 ADM_return_t
-ADM_storage_destroy(ADM_storage_t storage) {
+ADM_adhoc_storage_destroy(ADM_adhoc_storage_t adhoc_storage) {
 
     ADM_return_t ret = ADM_SUCCESS;
 
-    if(!storage) {
-        LOGGER_ERROR("Invalid ADM_storage_t")
+    if(!adhoc_storage) {
+        LOGGER_ERROR("Invalid ADM_adhoc_storage_t")
         return ADM_EBADARGS;
     }
 
-    if(storage->s_name) {
-        free((void*) storage->s_name);
+    if(adhoc_storage->s_name) {
+        free((void*) adhoc_storage->s_name);
     }
 
-    switch(storage->s_type) {
-        case ADM_STORAGE_GEKKOFS:
-        case ADM_STORAGE_DATACLAY:
-        case ADM_STORAGE_EXPAND:
-        case ADM_STORAGE_HERCULES:
-            if(storage->s_adhoc_ctx) {
-                free(storage->s_adhoc_ctx);
-            }
-            break;
-
-        case ADM_STORAGE_LUSTRE:
-        case ADM_STORAGE_GPFS:
-            if(storage->s_pfs_ctx) {
-                free(storage->s_pfs_ctx);
-            }
-            break;
+    if(adhoc_storage->s_adhoc_ctx) {
+        free(adhoc_storage->s_adhoc_ctx);
     }
 
-    free(storage);
+    free(adhoc_storage);
     return ret;
 }
 
@@ -598,6 +565,80 @@ ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res) {
     }
 
     free(res);
+    return ret;
+}
+
+ADM_pfs_storage_t
+ADM_pfs_storage_create(const char* name, ADM_pfs_storage_type_t type,
+                       uint64_t id, ADM_pfs_context_t pfs_ctx) {
+
+    struct adm_pfs_storage* adm_pfs_storage =
+            (struct adm_pfs_storage*) malloc(sizeof(*adm_pfs_storage));
+    const char* error_msg = NULL;
+
+    if(!adm_pfs_storage) {
+        LOGGER_ERROR("Could not allocate ADM_pfs_storage_t");
+        return NULL;
+    }
+
+    if(!name) {
+        LOGGER_ERROR("Null storage name")
+        return NULL;
+    }
+
+    if(!pfs_ctx) {
+        LOGGER_ERROR("Null storage context")
+        return NULL;
+    }
+
+    adm_pfs_storage->s_name =
+            (const char*) calloc(strlen(name) + 1, sizeof(char));
+    strcpy((char*) adm_pfs_storage->s_name, name);
+    adm_pfs_storage->s_type = type;
+    adm_pfs_storage->s_id = id;
+
+    adm_pfs_storage->s_pfs_ctx =
+            (ADM_pfs_context_t) calloc(1, sizeof(adm_pfs_context));
+    if(!adm_pfs_storage->s_pfs_ctx) {
+        error_msg = "Could not allocate ADM_pfs_context_t";
+        goto cleanup_on_error;
+    }
+
+    memcpy(adm_pfs_storage->s_pfs_ctx, pfs_ctx, sizeof(*pfs_ctx));
+
+    return adm_pfs_storage;
+
+cleanup_on_error:
+    if(error_msg) {
+        LOGGER_ERROR(error_msg);
+    }
+
+    [[maybe_unused]] ADM_return_t ret =
+            ADM_pfs_storage_destroy(adm_pfs_storage);
+    assert(ret);
+
+    return NULL;
+}
+
+ADM_return_t
+ADM_pfs_storage_destroy(ADM_pfs_storage_t pfs_storage) {
+
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!pfs_storage) {
+        LOGGER_ERROR("Invalid ADM_pfs_storage_t")
+        return ADM_EBADARGS;
+    }
+
+    if(pfs_storage->s_name) {
+        free((void*) pfs_storage->s_name);
+    }
+
+    if(pfs_storage->s_pfs_ctx) {
+        free(pfs_storage->s_pfs_ctx);
+    }
+
+    free(pfs_storage);
     return ret;
 }
 
@@ -755,7 +796,7 @@ ADM_job_resources_destroy(ADM_job_resources_t res) {
 ADM_job_requirements_t
 ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
                             ADM_dataset_t outputs[], size_t outputs_len,
-                            ADM_storage_t storage) {
+                            ADM_adhoc_storage_t adhoc_storage) {
 
     struct adm_job_requirements* adm_job_reqs =
             (struct adm_job_requirements*) calloc(
@@ -787,21 +828,21 @@ ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
     adm_job_reqs->r_inputs = inputs_list;
     adm_job_reqs->r_outputs = outputs_list;
 
-    if(!storage) {
+    if(!adhoc_storage) {
         return adm_job_reqs;
     }
 
-    if(storage->s_type != ADM_STORAGE_GEKKOFS &&
-       storage->s_type != ADM_STORAGE_DATACLAY &&
-       storage->s_type != ADM_STORAGE_EXPAND &&
-       storage->s_type != ADM_STORAGE_HERCULES) {
+    if(adhoc_storage->s_type != ADM_ADHOC_STORAGE_GEKKOFS &&
+       adhoc_storage->s_type != ADM_ADHOC_STORAGE_DATACLAY &&
+       adhoc_storage->s_type != ADM_ADHOC_STORAGE_EXPAND &&
+       adhoc_storage->s_type != ADM_ADHOC_STORAGE_HERCULES) {
         error_msg = "Invalid adhoc_storage type";
         goto cleanup_on_error;
     }
 
-    adm_job_reqs->r_storage =
-            ADM_storage_create(storage->s_name, storage->s_type, storage->s_id,
-                               storage->s_adhoc_ctx);
+    adm_job_reqs->r_adhoc_storage = ADM_adhoc_storage_create(
+            adhoc_storage->s_name, adhoc_storage->s_type, adhoc_storage->s_id,
+            adhoc_storage->s_adhoc_ctx);
 
     return adm_job_reqs;
 
@@ -835,8 +876,8 @@ ADM_job_requirements_destroy(ADM_job_requirements_t reqs) {
         ADM_dataset_list_destroy(reqs->r_outputs);
     }
 
-    if(reqs->r_storage) {
-        ADM_storage_destroy(reqs->r_storage);
+    if(reqs->r_adhoc_storage) {
+        ADM_adhoc_storage_destroy(reqs->r_adhoc_storage);
     }
 
     free(reqs);
@@ -1279,24 +1320,6 @@ dataset::id() const {
     return m_pimpl->id();
 }
 
-storage::storage(enum storage::type type, std::string name, std::uint64_t id)
-    : m_name(std::move(name)), m_type(type), m_id(id) {}
-
-std::string
-storage::name() const {
-    return m_name;
-}
-
-enum storage::type
-storage::type() const {
-    return m_type;
-}
-
-std::uint64_t
-storage::id() const {
-    return m_id;
-}
-
 adhoc_storage::resources::resources(std::vector<admire::node> nodes)
     : m_nodes(std::move(nodes)) {}
 
@@ -1356,7 +1379,10 @@ adhoc_storage::ctx::should_flush() const {
 class adhoc_storage::impl {
 
 public:
-    explicit impl(adhoc_storage::ctx ctx) : m_ctx(std::move(ctx)) {}
+    explicit impl(enum adhoc_storage::type type, std::string name,
+                  std::uint64_t id, adhoc_storage::ctx ctx)
+        : m_type(type), m_name(std::move(name)), m_id(id),
+          m_ctx(std::move(ctx)) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -1364,6 +1390,21 @@ public:
     impl&
     operator=(impl&&) noexcept = default;
     ~impl() = default;
+
+    std::string
+    name() const {
+        return m_name;
+    }
+
+    enum type
+    type() const {
+        return m_type;
+    }
+
+    std::uint64_t
+    id() const {
+        return m_id;
+    }
 
     adhoc_storage::ctx
     context() const {
@@ -1376,50 +1417,33 @@ public:
     }
 
 private:
+    enum type m_type;
+    std::string m_name;
+    std::uint64_t m_id;
     adhoc_storage::ctx m_ctx;
 };
 
-adhoc_storage::adhoc_storage(enum storage::type type, std::string name,
+adhoc_storage::adhoc_storage(enum adhoc_storage::type type, std::string name,
                              std::uint64_t id, execution_mode exec_mode,
                              access_type access_type,
                              adhoc_storage::resources res,
                              std::uint32_t walltime, bool should_flush)
-    : storage(type, std::move(name), id),
-      m_pimpl(std::make_unique<impl>(
+    : m_pimpl(std::make_unique<impl>(
+              type, std::move(name), id,
               adhoc_storage::ctx{exec_mode, access_type, std::move(res),
                                  walltime, should_flush})) {}
 
-adhoc_storage::adhoc_storage(ADM_storage_t st)
-    : storage(static_cast<enum storage::type>(st->s_type), st->s_name,
-              st->s_id) {
+adhoc_storage::adhoc_storage(ADM_adhoc_storage_t st)
+    : m_pimpl(std::make_unique<impl>(
+              static_cast<enum adhoc_storage::type>(st->s_type), st->s_name,
+              st->s_id, adhoc_storage::ctx{st->s_adhoc_ctx})) {}
 
-    switch(st->s_type) {
-        case ADM_STORAGE_LUSTRE:
-        case ADM_STORAGE_GPFS:
-            throw std::runtime_error(
-                    fmt::format("Invalid type {} for adhoc_storage",
-                                static_cast<enum storage::type>(st->s_type)));
-            break;
-
-        default:
-            break;
-    }
-    m_pimpl = std::make_unique<impl>(adhoc_storage::ctx{st->s_adhoc_ctx});
-}
-
-adhoc_storage::adhoc_storage(enum storage::type type, std::string name,
-                             std::uint64_t id, ADM_adhoc_context_t ctx)
-    : storage(type, std::move(name), id),
-      m_pimpl(std::make_unique<impl>(adhoc_storage::ctx{ctx})) {}
-
-adhoc_storage::adhoc_storage(enum storage::type type, std::string name,
+adhoc_storage::adhoc_storage(enum adhoc_storage::type type, std::string name,
                              std::uint64_t id, const adhoc_storage::ctx& ctx)
-    : storage(type, std::move(name), id), m_pimpl(std::make_unique<impl>(ctx)) {
-}
+    : m_pimpl(std::make_unique<impl>(type, std::move(name), id, ctx)) {}
 
 adhoc_storage::adhoc_storage(const adhoc_storage& other) noexcept
-    : storage(other.m_type, other.m_name, other.m_id),
-      m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
 
 adhoc_storage::adhoc_storage(adhoc_storage&&) noexcept = default;
 
@@ -1432,9 +1456,24 @@ adhoc_storage::operator=(const adhoc_storage& other) noexcept {
 adhoc_storage&
 adhoc_storage::operator=(adhoc_storage&&) noexcept = default;
 
-std::shared_ptr<storage::ctx>
+std::string
+adhoc_storage::name() const {
+    return m_pimpl->name();
+}
+
+enum adhoc_storage::type
+adhoc_storage::type() const {
+    return m_pimpl->type();
+}
+
+std::uint64_t
+adhoc_storage::id() const {
+    return m_pimpl->id();
+}
+
+adhoc_storage::ctx
 adhoc_storage::context() const {
-    return std::make_shared<adhoc_storage::ctx>(m_pimpl->context());
+    return m_pimpl->context();
 }
 
 void
@@ -1450,8 +1489,7 @@ pfs_storage::ctx::ctx(std::filesystem::path mount_point)
 pfs_storage::ctx::ctx(ADM_pfs_context_t ctx) : pfs_storage::ctx(ctx->c_mount) {}
 
 pfs_storage::pfs_storage(const pfs_storage& other) noexcept
-    : storage(other.m_type, other.m_name, other.m_id),
-      m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
 
 pfs_storage&
 pfs_storage::operator=(const pfs_storage& other) noexcept {
@@ -1465,9 +1503,11 @@ pfs_storage::ctx::mount_point() const {
 }
 
 class pfs_storage::impl {
-
 public:
-    explicit impl(pfs_storage::ctx ctx) : m_ctx(std::move(ctx)) {}
+    explicit impl(enum pfs_storage::type type, std::string name,
+                  std::uint64_t id, pfs_storage::ctx ctx)
+        : m_type(type), m_name(std::move(name)), m_id(id),
+          m_ctx(std::move(ctx)) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -1475,35 +1515,62 @@ public:
     impl&
     operator=(impl&&) noexcept = default;
 
+    enum type
+    type() const {
+        return m_type;
+    };
+
+    std::string
+    name() const {
+        return m_name;
+    }
+
+    std::uint64_t
+    id() const {
+        return m_id;
+    };
+
     pfs_storage::ctx
     context() const {
         return m_ctx;
     }
 
 private:
+    enum type m_type;
+    std::string m_name;
+    std::uint64_t m_id;
     pfs_storage::ctx m_ctx;
 };
 
-pfs_storage::pfs_storage(enum storage::type type, std::string name,
+pfs_storage::pfs_storage(enum pfs_storage::type type, std::string name,
                          std::uint64_t id, std::filesystem::path mount_point)
-    : storage(type, std::move(name), id),
-      m_pimpl(std::make_unique<impl>(
+    : m_pimpl(std::make_unique<impl>(
+              type, std::move(name), id,
               pfs_storage::ctx{std::move(mount_point)})) {}
-
-pfs_storage::pfs_storage(enum storage::type type, std::string name,
-                         std::uint64_t id, ADM_pfs_context_t ctx)
-    : storage(type, std::move(name), id),
-      m_pimpl(std::make_unique<impl>(pfs_storage::ctx{ctx})) {}
 
 pfs_storage::~pfs_storage() = default;
 
-std::shared_ptr<storage::ctx>
+std::string
+pfs_storage::name() const {
+    return m_pimpl->name();
+}
+
+enum pfs_storage::type
+pfs_storage::type() const {
+    return m_pimpl->type();
+}
+
+std::uint64_t
+pfs_storage::id() const {
+    return m_pimpl->id();
+}
+
+pfs_storage::ctx
 pfs_storage::context() const {
-    return std::make_shared<pfs_storage::ctx>(m_pimpl->context());
+    return m_pimpl->context();
 }
 
 class job_requirements::impl {
-
 public:
     impl(std::vector<admire::dataset> inputs,
          std::vector<admire::dataset> outputs)
@@ -1529,12 +1596,8 @@ public:
             m_outputs.emplace_back(reqs->r_outputs->l_datasets[i].d_id);
         }
 
-        if(reqs->r_storage) {
-            // TODO add a conversion constructor
-            m_adhoc_storage = admire::adhoc_storage(
-                    static_cast<enum storage::type>(reqs->r_storage->s_type),
-                    reqs->r_storage->s_name, reqs->r_storage->s_id,
-                    reqs->r_storage->s_adhoc_ctx);
+        if(reqs->r_adhoc_storage) {
+            m_adhoc_storage = admire::adhoc_storage(reqs->r_adhoc_storage);
         }
     }
 
@@ -1612,7 +1675,6 @@ job_requirements::adhoc_storage() const {
 }
 
 namespace qos {
-
 class entity::impl {
 public:
     template <typename T>

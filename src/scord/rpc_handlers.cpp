@@ -457,16 +457,15 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
        am_result.has_value()) {
         const auto& storage_info = am_result.value();
         const auto adhoc_storage = storage_info->adhoc_storage();
-        ec = admire::error_code::success;
-        if(adhoc_storage.type() == admire::storage::type::gekkofs) {
-            const auto adhoc_ctx =
-                    (admire::adhoc_storage::ctx*) adhoc_storage.context().get();
+
+        if(adhoc_storage.type() == admire::adhoc_storage::type::gekkofs) {
+            const auto adhoc_ctx = adhoc_storage.context();
             /* Number of nodes */
             const std::string nodes =
-                    std::to_string(adhoc_ctx->resources().nodes().size());
+                    std::to_string(adhoc_ctx.resources().nodes().size());
 
             /* Walltime */
-            const std::string walltime = std::to_string(adhoc_ctx->walltime());
+            const std::string walltime = std::to_string(adhoc_ctx.walltime());
 
             /* Launch script */
             switch(const auto pid = fork()) {

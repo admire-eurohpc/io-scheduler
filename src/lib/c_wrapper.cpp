@@ -82,8 +82,9 @@ ADM_remove_job(ADM_server_t server, ADM_job_t job) {
 
 ADM_return_t
 ADM_register_adhoc_storage(ADM_server_t server, const char* name,
-                           ADM_storage_type_t type, ADM_adhoc_context_t ctx,
-                           ADM_storage_t* adhoc_storage) {
+                           ADM_adhoc_storage_type_t type,
+                           ADM_adhoc_context_t ctx,
+                           ADM_adhoc_storage_t* adhoc_storage) {
 
     const admire::server srv{server};
 
@@ -101,7 +102,7 @@ ADM_register_adhoc_storage(ADM_server_t server, const char* name,
 }
 
 ADM_return_t
-ADM_update_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage,
+ADM_update_adhoc_storage(ADM_server_t server, ADM_adhoc_storage_t adhoc_storage,
                          ADM_adhoc_context_t ctx) {
 
     const admire::server srv{server};
@@ -112,7 +113,8 @@ ADM_update_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage,
 }
 
 ADM_return_t
-ADM_remove_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage) {
+ADM_remove_adhoc_storage(ADM_server_t server,
+                         ADM_adhoc_storage_t adhoc_storage) {
 
     const admire::server srv{server};
 
@@ -121,7 +123,8 @@ ADM_remove_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage) {
 }
 
 ADM_return_t
-ADM_deploy_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage) {
+ADM_deploy_adhoc_storage(ADM_server_t server,
+                         ADM_adhoc_storage_t adhoc_storage) {
 
     const admire::server srv{server};
 
@@ -131,7 +134,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage) {
 
 ADM_return_t
 ADM_register_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
-                         ADM_storage_t* pfs_storage) {
+                         ADM_pfs_storage_t* pfs_storage) {
 
     const admire::server srv{server};
 
@@ -140,7 +143,7 @@ ADM_register_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
 
 ADM_return_t
 ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
-                       ADM_storage_t pfs_storage) {
+                       ADM_pfs_storage_t pfs_storage) {
 
     const admire::server srv{server};
 
@@ -148,7 +151,7 @@ ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
 }
 
 ADM_return_t
-ADM_remove_pfs_storage(ADM_server_t server, ADM_storage_t pfs_storage) {
+ADM_remove_pfs_storage(ADM_server_t server, ADM_pfs_storage_t pfs_storage) {
 
     const admire::server srv{server};
 
@@ -189,7 +192,8 @@ ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
 }
 
 ADM_return_t
-ADM_set_io_resources(ADM_server_t server, ADM_job_t job, ADM_storage_t tier,
+ADM_set_io_resources(ADM_server_t server, ADM_job_t job,
+                     ADM_adhoc_storage_t tier,
                      ADM_adhoc_resources_t resources) {
 
     const admire::server srv{server};

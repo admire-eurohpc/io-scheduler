@@ -182,21 +182,29 @@ MERCURY_GEN_STRUCT_PROC(
 );
 // clang-format on
 
-extern hg_return_t (*hg_proc_ADM_storage_type_t)(hg_proc_t, void*);
+extern hg_return_t (*hg_proc_ADM_adhoc_storage_type_t)(hg_proc_t, void*);
 
-typedef struct adm_storage {
+typedef struct adm_adhoc_storage {
     const char* s_name;
-    ADM_storage_type_t s_type;
+    ADM_adhoc_storage_type_t s_type;
     uint64_t s_id;
-    union {
-        ADM_adhoc_context_t s_adhoc_ctx;
-        ADM_pfs_context_t s_pfs_ctx;
-    };
-} adm_storage;
+    ADM_adhoc_context_t s_adhoc_ctx;
+} adm_adhoc_storage;
 
 hg_return_t
-hg_proc_ADM_storage_t(hg_proc_t proc, void* data);
+hg_proc_ADM_adhoc_storage_t(hg_proc_t proc, void* data);
 
+extern hg_return_t (*hg_proc_ADM_pfs_storage_type_t)(hg_proc_t, void*);
+
+typedef struct adm_pfs_storage {
+    const char* s_name;
+    ADM_pfs_storage_type_t s_type;
+    uint64_t s_id;
+    ADM_pfs_context_t s_pfs_ctx;
+} adm_pfs_storage;
+
+hg_return_t
+hg_proc_ADM_pfs_storage_t(hg_proc_t proc, void* data);
 
 struct adm_node_list {
     /** An array of nodes */
@@ -256,15 +264,15 @@ typedef struct adm_job_requirements {
     /** An array of output datasets */
     ADM_dataset_list_t r_outputs;
     /** An optional definition for a specific storage instance */
-    ADM_storage_t r_storage;
+    ADM_adhoc_storage_t r_adhoc_storage;
 } adm_job_requirements;
 
 // clang-format off
 MERCURY_GEN_STRUCT_PROC(
     adm_job_requirements, // NOLINT
-        ((ADM_dataset_list_t) (r_inputs))
-        ((ADM_dataset_list_t) (r_outputs))
-        ((ADM_storage_t) (r_storage))
+        ((ADM_dataset_list_t)  (r_inputs))
+        ((ADM_dataset_list_t)  (r_outputs))
+        ((ADM_adhoc_storage_t) (r_adhoc_storage))
 );
 // clang-format on
 
@@ -334,9 +342,9 @@ MERCURY_GEN_PROC(
 /// ADM_register_adhoc_storage
 MERCURY_GEN_PROC(
     ADM_register_adhoc_storage_in_t,
-        ((hg_const_string_t)   (name))
-        ((ADM_storage_type_t)  (type))
-        ((ADM_adhoc_context_t) (ctx))
+        ((hg_const_string_t)        (name))
+        ((ADM_adhoc_storage_type_t) (type))
+        ((ADM_adhoc_context_t)      (ctx))
 );
 
 MERCURY_GEN_PROC(

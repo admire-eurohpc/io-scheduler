@@ -96,27 +96,25 @@ convert(const adhoc_storage::ctx& ctx) {
             std::move(managed_adhoc_resources)};
 }
 
-managed_ctype<ADM_storage_t>
+managed_ctype<ADM_adhoc_storage_t>
 convert(const std::optional<admire::adhoc_storage>& adhoc_storage) {
 
     if(!adhoc_storage) {
-        return managed_ctype<ADM_storage_t>{};
+        return managed_ctype<ADM_adhoc_storage_t>{};
     }
 
     return convert(adhoc_storage.value());
 }
 
-managed_ctype<ADM_storage_t>
+managed_ctype<ADM_adhoc_storage_t>
 convert(const admire::adhoc_storage& st) {
 
-    auto managed_ctx =
-            convert(*std::static_pointer_cast<admire::adhoc_storage::ctx>(
-                    st.context()));
-    ADM_storage_t c_st = ADM_storage_create(
-            st.name().c_str(), static_cast<ADM_storage_type_t>(st.type()),
+    auto managed_ctx = convert(st.context());
+    ADM_adhoc_storage_t c_st = ADM_adhoc_storage_create(
+            st.name().c_str(), static_cast<ADM_adhoc_storage_type_t>(st.type()),
             st.id(), managed_ctx.get());
 
-    return managed_ctype<ADM_storage_t>{c_st, std::move(managed_ctx)};
+    return managed_ctype<ADM_adhoc_storage_t>{c_st, std::move(managed_ctx)};
 }
 
 managed_ctype<ADM_dataset_t>

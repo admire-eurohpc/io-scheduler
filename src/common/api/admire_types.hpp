@@ -310,42 +310,14 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
-struct storage {
+struct adhoc_storage {
 
-    enum class type : std::underlying_type<ADM_storage_type_t>::type {
-        gekkofs = ADM_STORAGE_GEKKOFS,
-        dataclay = ADM_STORAGE_DATACLAY,
-        expand = ADM_STORAGE_EXPAND,
-        hercules = ADM_STORAGE_HERCULES,
-        lustre = ADM_STORAGE_LUSTRE,
-        gpfs = ADM_STORAGE_GPFS
+    enum class type : std::underlying_type<ADM_adhoc_storage_type_t>::type {
+        gekkofs = ADM_ADHOC_STORAGE_GEKKOFS,
+        dataclay = ADM_ADHOC_STORAGE_DATACLAY,
+        expand = ADM_ADHOC_STORAGE_EXPAND,
+        hercules = ADM_ADHOC_STORAGE_HERCULES,
     };
-
-    struct ctx {
-        virtual ~ctx() = default;
-    };
-
-    storage(storage::type type, std::string name, std::uint64_t id);
-
-    virtual ~storage() = default;
-
-    std::string
-    name() const;
-    type
-    type() const;
-    std::uint64_t
-    id() const;
-
-    virtual std::shared_ptr<ctx>
-    context() const = 0;
-
-protected:
-    std::string m_name;
-    enum type m_type;
-    std::uint64_t m_id;
-};
-
-struct adhoc_storage : public storage {
 
     enum class execution_mode : std::underlying_type<ADM_adhoc_mode_t>::type {
         in_job_shared = ADM_ADHOC_MODE_IN_JOB_SHARED,
@@ -371,7 +343,7 @@ struct adhoc_storage : public storage {
         std::vector<admire::node> m_nodes;
     };
 
-    struct ctx : storage::ctx {
+    struct ctx {
 
         ctx(execution_mode exec_mode, access_type access_type,
             adhoc_storage::resources resources, std::uint32_t walltime,
@@ -398,15 +370,13 @@ struct adhoc_storage : public storage {
         bool m_should_flush;
     };
 
-    adhoc_storage(enum storage::type type, std::string name, std::uint64_t id,
-                  execution_mode exec_mode, access_type access_type,
-                  adhoc_storage::resources res, std::uint32_t walltime,
-                  bool should_flush);
-    explicit adhoc_storage(ADM_storage_t storage);
-    adhoc_storage(enum storage::type type, std::string name, std::uint64_t id,
-                  ADM_adhoc_context_t ctx);
-    adhoc_storage(enum storage::type type, std::string name, std::uint64_t id,
-                  const admire::adhoc_storage::ctx& ctx);
+    adhoc_storage(enum adhoc_storage::type type, std::string name,
+                  std::uint64_t id, execution_mode exec_mode,
+                  access_type access_type, adhoc_storage::resources res,
+                  std::uint32_t walltime, bool should_flush);
+    explicit adhoc_storage(ADM_adhoc_storage_t storage);
+    adhoc_storage(enum adhoc_storage::type type, std::string name,
+                  std::uint64_t id, const admire::adhoc_storage::ctx& ctx);
 
     adhoc_storage(const adhoc_storage& other) noexcept;
     adhoc_storage(adhoc_storage&&) noexcept;
@@ -414,10 +384,16 @@ struct adhoc_storage : public storage {
     operator=(const adhoc_storage&) noexcept;
     adhoc_storage&
     operator=(adhoc_storage&&) noexcept;
-    ~adhoc_storage() override;
+    ~adhoc_storage();
 
-    std::shared_ptr<storage::ctx>
-    context() const final;
+    std::string
+    name() const;
+    type
+    type() const;
+    std::uint64_t
+    id() const;
+    adhoc_storage::ctx
+    context() const;
 
     void
     update(admire::adhoc_storage::ctx new_ctx);
@@ -427,9 +403,14 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
-struct pfs_storage : public storage {
+struct pfs_storage {
 
-    struct ctx : storage::ctx {
+    enum class type : std::underlying_type<ADM_pfs_storage_type_t>::type {
+        lustre = ADM_PFS_STORAGE_LUSTRE,
+        gpfs = ADM_PFS_STORAGE_GPFS
+    };
+
+    struct ctx {
 
         explicit ctx(std::filesystem::path mount_point);
 
@@ -442,20 +423,24 @@ struct pfs_storage : public storage {
         std::filesystem::path m_mount_point;
     };
 
-    pfs_storage(enum storage::type type, std::string name, std::uint64_t id,
+    pfs_storage(enum pfs_storage::type type, std::string name, std::uint64_t id,
                 std::filesystem::path mount_point);
-    pfs_storage(enum storage::type type, std::string name, std::uint64_t id,
-                ADM_pfs_context_t ctx);
     pfs_storage(const pfs_storage& other) noexcept;
     pfs_storage(pfs_storage&&) noexcept = default;
     pfs_storage&
     operator=(const pfs_storage& other) noexcept;
     pfs_storage&
     operator=(pfs_storage&&) noexcept = default;
-    ~pfs_storage() override;
+    ~pfs_storage();
 
-    std::shared_ptr<storage::ctx>
-    context() const final;
+    std::string
+    name() const;
+    type
+    type() const;
+    std::uint64_t
+    id() const;
+    pfs_storage::ctx
+    context() const;
 
 private:
     class impl;
@@ -547,34 +532,29 @@ struct fmt::formatter<admire::node> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<enum admire::storage::type>
+struct fmt::formatter<enum admire::adhoc_storage::type>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const enum admire::storage::type& t, FormatContext& ctx) const {
+    format(const enum admire::adhoc_storage::type& t,
+           FormatContext& ctx) const {
 
-        using admire::storage;
+        using admire::adhoc_storage;
         std::string_view name = "unknown";
 
         switch(t) {
-            case storage::type::gekkofs:
-                name = "ADM_STORAGE_GEKKOFS";
+            case adhoc_storage::type::gekkofs:
+                name = "ADM_ADHOC_STORAGE_GEKKOFS";
                 break;
-            case storage::type::dataclay:
-                name = "ADM_STORAGE_DATACLAY";
+            case adhoc_storage::type::dataclay:
+                name = "ADM_ADHOC_STORAGE_DATACLAY";
                 break;
-            case storage::type::expand:
-                name = "ADM_STORAGE_EXPAND";
+            case adhoc_storage::type::expand:
+                name = "ADM_ADHOC_STORAGE_EXPAND";
                 break;
-            case storage::type::hercules:
-                name = "ADM_STORAGE_HERCULES";
-                break;
-            case storage::type::lustre:
-                name = "ADM_STORAGE_LUSTRE";
-                break;
-            case storage::type::gpfs:
-                name = "ADM_STORAGE_GPFS";
+            case adhoc_storage::type::hercules:
+                name = "ADM_ADHOC_STORAGE_HERCULES";
                 break;
         }
 
@@ -643,41 +623,6 @@ struct fmt::formatter<admire::adhoc_storage::access_type>
     }
 };
 
-template <>
-struct fmt::formatter<std::shared_ptr<admire::storage>>
-    : formatter<std::string_view> {
-    // parse is inherited from formatter<string_view>.
-    template <typename FormatContext>
-    auto
-    format(const std::shared_ptr<admire::storage>& s,
-           FormatContext& ctx) const {
-
-        if(!s) {
-            return formatter<std::string_view>::format("NULL", ctx);
-        }
-
-        switch(s->type()) {
-            case admire::storage::type::gekkofs:
-            case admire::storage::type::dataclay:
-            case admire::storage::type::expand:
-            case admire::storage::type::hercules:
-                return formatter<std::string_view>::format(
-                        fmt::format("{}",
-                                    *(dynamic_cast<admire::adhoc_storage*>(
-                                            s.get()))),
-                        ctx);
-            case admire::storage::type::lustre:
-            case admire::storage::type::gpfs:
-                return formatter<std::string_view>::format(
-                        fmt::format("{}", *(dynamic_cast<admire::pfs_storage*>(
-                                                  s.get()))),
-                        ctx);
-            default:
-                return formatter<std::string_view>::format("unknown", ctx);
-        }
-    }
-};
-
 template <typename T>
 struct fmt::formatter<std::optional<T>> : formatter<std::string_view> {
 
@@ -696,14 +641,9 @@ struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const admire::adhoc_storage& s, FormatContext& ctx) const {
-
-        const auto pctx = std::dynamic_pointer_cast<admire::adhoc_storage::ctx>(
-                s.context());
-
-        const auto str =
-                fmt::format("{{type: {}, id: {}, name: {}, context: {}}}",
-                            s.type(), s.id(), std::quoted(s.name()),
-                            (pctx ? fmt::format("{}", *pctx) : "NULL"));
+        const auto str = fmt::format(
+                "{{type: {}, id: {}, name: {}, context: {}}}", s.type(), s.id(),
+                std::quoted(s.name()), s.context());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
@@ -742,6 +682,29 @@ struct fmt::formatter<admire::adhoc_storage::ctx>
     }
 };
 
+template <>
+struct fmt::formatter<enum admire::pfs_storage::type>
+    : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const enum admire::pfs_storage::type& t, FormatContext& ctx) const {
+
+        using admire::pfs_storage;
+        std::string_view name = "unknown";
+
+        switch(t) {
+            case pfs_storage::type::lustre:
+                name = "ADM_PFS_STORAGE_LUSTRE";
+                break;
+            case pfs_storage::type::gpfs:
+                name = "ADM_PFS_STORAGE_GPFS";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
 
 template <>
 struct fmt::formatter<admire::pfs_storage> : formatter<std::string_view> {
@@ -749,11 +712,7 @@ struct fmt::formatter<admire::pfs_storage> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const admire::pfs_storage& s, FormatContext& ctx) const {
-
-        const auto pctx = std::dynamic_pointer_cast<admire::pfs_storage::ctx>(
-                s.context());
-        const auto str = fmt::format(
-                "{{context: {}}}", (pctx ? fmt::format("{}", *pctx) : "NULL"));
+        const auto str = fmt::format("{{context: {}}}", s.context());
         return formatter<std::string_view>::format(str, ctx);
     }
 };

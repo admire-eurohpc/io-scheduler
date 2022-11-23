@@ -502,11 +502,18 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
                 }
                 default: {
                     int wstatus = 0;
-                    waitpid(pid, &wstatus, 0);
-                    if(WEXITSTATUS(wstatus) != 0) {
+                    pid_t retwait = waitpid(pid, &wstatus, 0);
+                    if(retwait == -1) {
+                        LOGGER_ERROR(
+                                "rpc id: {} error_msg: \"Error waitpid code: {}\"",
+                                rpc_id, retwait);
                         ec = admire::error_code::other;
                     } else {
-                        ec = admire::error_code::success;
+                        if(WEXITSTATUS(wstatus) != 0) {
+                            ec = admire::error_code::other;
+                        } else {
+                            ec = admire::error_code::success;
+                        }
                     }
                     break;
                 }

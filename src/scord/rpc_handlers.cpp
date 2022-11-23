@@ -675,11 +675,28 @@ ADM_remove_pfs_storage(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
+    const auto rpc_id = remote_procedure::new_id();
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{pfs_storage_id: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                in.server_id);
 
-    LOGGER_INFO("ADM_remove_pfs_storage()");
 
-    out.ret = 0;
+    auto& pfs_manager = scord::pfs_storage_manager::instance();
+    admire::error_code ec = pfs_manager.remove(in.server_id);
+
+    if(!ec) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error removing pfs storage: {}\"",
+                     rpc_id, in.server_id);
+    }
+
+    out.op_id = rpc_id;
+    out.retval = ec;
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ec);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

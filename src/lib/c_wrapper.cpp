@@ -162,10 +162,8 @@ ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_storage_t pfs_storage,
 
 ADM_return_t
 ADM_remove_pfs_storage(ADM_server_t server, ADM_pfs_storage_t pfs_storage) {
-
-    const admire::server srv{server};
-
-    return admire::remove_pfs_storage(srv, pfs_storage);
+    return admire::detail::remove_pfs_storage(admire::server{server},
+                                              admire::pfs_storage{pfs_storage});
 }
 
 ADM_return_t

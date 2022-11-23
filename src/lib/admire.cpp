@@ -322,29 +322,15 @@ update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
     }
 }
 
-ADM_return_t
-remove_pfs_storage(const server& srv, ADM_pfs_storage_t pfs_storage) {
-    (void) srv;
-    (void) pfs_storage;
+void
+remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
 
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+    const auto ec = detail::remove_pfs_storage(srv, pfs_storage);
 
-    auto endp = rpc_client.lookup(srv.address());
-
-    LOGGER_INFO("ADM_remove_pfs_storage(...)");
-
-    ADM_remove_pfs_storage_in_t in{};
-    ADM_remove_pfs_storage_out_t out;
-
-    const auto rpc = endp.call("ADM_remove_pfs_storage", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_remove_pfs_storage() = {}", out.ret);
-        return static_cast<ADM_return_t>(out.ret);
+    if(!ec) {
+        throw std::runtime_error(fmt::format(
+                "ADM_remove_pfs_storage() error: {}", ec.message()));
     }
-
-    LOGGER_INFO("ADM_remove_pfs_storage() = {}", ADM_SUCCESS);
-    return ADM_SUCCESS;
 }
 
 admire::transfer

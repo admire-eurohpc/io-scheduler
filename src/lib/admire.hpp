@@ -81,8 +81,8 @@ void
 update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
                    const admire::pfs_storage::ctx& pfs_storage_ctx);
 
-ADM_return_t
-remove_pfs_storage(const server& srv, ADM_pfs_storage_t pfs_storage);
+void
+remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage);
 
 admire::transfer
 transfer_datasets(const server& srv, const job& job,

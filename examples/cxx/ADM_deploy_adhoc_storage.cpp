@@ -24,7 +24,12 @@
 
 #include <fmt/format.h>
 #include <admire.hpp>
+#include "common.hpp"
 
+#define NJOB_NODES   50
+#define NADHOC_NODES 25
+#define NINPUTS      10
+#define NOUTPUTS     5
 
 int
 main(int argc, char* argv[]) {
@@ -38,21 +43,32 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_storage_t adhoc_storage{};
-    ADM_return_t ret = ADM_SUCCESS;
+    const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
+    const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
+    const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
+
+    std::string name = "adhoc_storage_42";
+    const auto adhoc_storage_ctx = admire::adhoc_storage::ctx{
+            admire::adhoc_storage::execution_mode::separate_new,
+            admire::adhoc_storage::access_type::read_write,
+            admire::adhoc_storage::resources{adhoc_nodes}, 100, false};
 
     try {
-        ret = admire::deploy_adhoc_storage(server, adhoc_storage);
-    } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_deploy_adhoc_storage() failed: {}\n",
-                   e.what());
-        exit(EXIT_FAILURE);
-    }
+        const auto adhoc_storage = admire::register_adhoc_storage(
+                server, name, admire::storage::type::dataclay,
+                adhoc_storage_ctx);
 
-    if(ret != ADM_SUCCESS) {
         fmt::print(stdout,
-                   "ADM_deploy_adhoc_storage() remote procedure not completed "
+                   "ADM_register_adhoc_storage() remote procedure completed "
                    "successfully\n");
+
+        admire::deploy_adhoc_storage(server, adhoc_storage);
+
+    } catch(const std::exception& e) {
+        fmt::print(
+                stderr,
+                "FATAL: ADM_register_adhoc_storage() or ADM_deploy_adhoc_storage() failed: {}\n",
+                e.what());
         exit(EXIT_FAILURE);
     }
 

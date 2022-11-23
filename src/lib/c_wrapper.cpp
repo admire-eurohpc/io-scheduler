@@ -125,7 +125,8 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_storage_t adhoc_storage) {
 
     const admire::server srv{server};
 
-    return admire::deploy_adhoc_storage(srv, adhoc_storage);
+    return admire::detail::deploy_adhoc_storage(
+            srv, admire::adhoc_storage{adhoc_storage});
 }
 
 ADM_return_t

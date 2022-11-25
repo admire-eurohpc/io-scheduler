@@ -66,12 +66,15 @@ admire::error_code
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 admire::error_code
-deploy_adhoc_storage(const server& srv,
-                     const adhoc_storage& adhoc_storage);
+deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 tl::expected<admire::pfs_storage, admire::error_code>
 register_pfs_storage(const server& srv, const std::string& name,
                      enum pfs_storage::type type, const pfs_storage::ctx& ctx);
+
+admire::error_code
+update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
+                   const admire::pfs_storage::ctx& pfs_storage_ctx);
 
 } // namespace admire::detail
 

@@ -77,9 +77,9 @@ register_pfs_storage(const server& srv, const std::string& name,
                      enum admire::pfs_storage::type type,
                      const admire::pfs_storage::ctx& ctx);
 
-ADM_return_t
-update_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
-                   ADM_pfs_storage_t pfs_storage);
+void
+update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
+                   const admire::pfs_storage::ctx& pfs_storage_ctx);
 
 ADM_return_t
 remove_pfs_storage(const server& srv, ADM_pfs_storage_t pfs_storage);

@@ -285,7 +285,7 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
 void
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
-   
+
     const auto ec = detail::deploy_adhoc_storage(srv, adhoc_storage);
 
     if(!ec) {
@@ -308,31 +308,18 @@ register_pfs_storage(const server& srv, const std::string& name,
     return rv.value();
 }
 
-ADM_return_t
-update_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
-                   ADM_pfs_storage_t pfs_storage) {
-    (void) srv;
-    (void) ctx;
-    (void) pfs_storage;
 
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+void
+update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
+                   const admire::pfs_storage::ctx& pfs_storage_ctx) {
 
-    auto endp = rpc_client.lookup(srv.address());
+    const auto ec =
+            detail::update_pfs_storage(srv, pfs_storage, pfs_storage_ctx);
 
-    LOGGER_INFO("ADM_update_pfs_storage(...)");
-
-    ADM_update_pfs_storage_in_t in{};
-    ADM_update_pfs_storage_out_t out;
-
-    const auto rpc = endp.call("ADM_update_pfs_storage", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_update_pfs_storage() = {}", out.ret);
-        return static_cast<ADM_return_t>(out.ret);
+    if(!ec) {
+        throw std::runtime_error(fmt::format(
+                "ADM_update_pfs_storage() error: {}", ec.message()));
     }
-
-    LOGGER_INFO("ADM_update_pfs_storage() = {}", ADM_SUCCESS);
-    return ADM_SUCCESS;
 }
 
 ADM_return_t

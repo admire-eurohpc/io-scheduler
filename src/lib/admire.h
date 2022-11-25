@@ -186,8 +186,8 @@ ADM_register_pfs_storage(ADM_server_t server, const char* name,
  * successfully.
  */
 ADM_return_t
-ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
-                       ADM_pfs_storage_t adhoc_storage);
+ADM_update_pfs_storage(ADM_server_t server, ADM_pfs_storage_t adhoc_storage,
+                       ADM_pfs_context_t ctx);
 
 /**
  * Remove an already-registered PFS storage tier.

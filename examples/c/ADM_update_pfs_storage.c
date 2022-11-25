@@ -89,7 +89,7 @@ main(int argc, char* argv[]) {
     }
 
     // We can now request the update to the server
-    if((ret = ADM_update_pfs_storage(server, new_pfs_ctx, pfs_storage)) !=
+    if((ret = ADM_update_pfs_storage(server, pfs_storage, new_pfs_ctx)) !=
        ADM_SUCCESS) {
         fprintf(stderr, "ADM_update_pfs_storage() failed: %s\n",
                 ADM_strerror(ret));

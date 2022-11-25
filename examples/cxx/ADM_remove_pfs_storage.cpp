@@ -37,21 +37,20 @@ main(int argc, char* argv[]) {
 
     admire::server server{"tcp", argv[1]};
 
-    ADM_pfs_storage_t pfs_storage{};
-    ADM_return_t ret = ADM_SUCCESS;
+    std::string pfs_name = "gpfs_scratch";
+    std::string pfs_mount = "/gpfs/scratch";
 
     try {
-        ret = admire::remove_pfs_storage(server, pfs_storage);
-    } catch(const std::exception& e) {
-        fmt::print(stderr, "FATAL: ADM_remove_pfs_storage() failed: {}\n",
-                   e.what());
-        exit(EXIT_FAILURE);
-    }
+        const auto pfs_storage = admire::register_pfs_storage(
+                server, pfs_name, admire::pfs_storage::type::gpfs,
+                admire::pfs_storage::ctx{pfs_mount});
 
-    if(ret != ADM_SUCCESS) {
-        fmt::print(stdout,
-                   "ADM_remove_pfs_storage() remote procedure not completed "
-                   "successfully\n");
+        admire::remove_pfs_storage(server, pfs_storage);
+    } catch(const std::exception& e) {
+        fmt::print(stderr,
+                   "FATAL: ADM_register_pfs_storage() or "
+                   "ADM_remove_pfs_storage() failed: {}\n",
+                   e.what());
         exit(EXIT_FAILURE);
     }
 

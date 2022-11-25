@@ -76,6 +76,9 @@ admire::error_code
 update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
                    const admire::pfs_storage::ctx& pfs_storage_ctx);
 
+admire::error_code
+remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage);
+
 } // namespace admire::detail
 
 #endif // SCORD_ADMIRE_IMPL_HPP

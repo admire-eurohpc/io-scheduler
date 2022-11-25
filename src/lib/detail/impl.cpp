@@ -358,8 +358,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
 }
 
 admire::error_code
-deploy_adhoc_storage(const server& srv,
-                     const adhoc_storage& adhoc_storage) {
+deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
@@ -373,7 +372,7 @@ deploy_adhoc_storage(const server& srv,
 
     ADM_deploy_adhoc_storage_in_t in{adhoc_storage.id()};
     ADM_deploy_adhoc_storage_out_t out;
- 
+
     const auto rpc = endp.call("ADM_deploy_adhoc_storage", &in, &out);
 
     if(const auto rv = admire::error_code{out.retval}; !rv) {
@@ -514,4 +513,47 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
                 out.op_id);
     return admire::error_code::success;
 }
+
+tl::expected<admire::pfs_storage, admire::error_code>
+register_pfs_storage(const server& srv, const std::string& name,
+                     enum pfs_storage::type type, const pfs_storage::ctx& ctx) {
+
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+
+    const auto rpc_id = ::api::remote_procedure::new_id();
+    auto endp = rpc_client.lookup(srv.address());
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{name: {}, type: {}, pfs_ctx: {}}}",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc_client.self_address()), name, type, ctx);
+
+    const auto rpc_name = name.c_str();
+    const auto rpc_type = static_cast<ADM_pfs_storage_type_t>(type);
+    const auto rpc_ctx = api::convert(ctx);
+
+    ADM_register_pfs_storage_in_t in{rpc_name, rpc_type, rpc_ctx.get()};
+    ADM_register_pfs_storage_out_t out;
+
+    const auto rpc = endp.call("ADM_register_pfs_storage", &in, &out);
+
+    if(const auto rv = admire::error_code{out.retval}; !rv) {
+        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
+                     "body: {{retval: {}}} [op_id: {}]",
+                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                     std::quoted(rpc_client.self_address()), rv, out.op_id);
+        return tl::make_unexpected(rv);
+    }
+
+    auto rpc_pfs_storage = admire::pfs_storage{type, name, out.id, ctx};
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}, id: {}}} [op_id: {}]",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc_client.self_address()),
+                admire::error_code::success, out.id, out.op_id);
+
+    return rpc_pfs_storage;
+}
+
 } // namespace admire::detail

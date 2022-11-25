@@ -51,6 +51,12 @@ convert(const adhoc_storage::ctx& ctx);
 managed_ctype<ADM_adhoc_storage_t>
 convert(const admire::adhoc_storage& st);
 
+managed_ctype<ADM_pfs_context_t>
+convert(const pfs_storage::ctx& ctx);
+
+managed_ctype<ADM_pfs_storage_t>
+convert(const admire::pfs_storage& st);
+
 managed_ctype<ADM_dataset_t>
 convert(const admire::dataset& dataset);
 
@@ -222,6 +228,52 @@ struct admire::api::managed_ctype<ADM_adhoc_storage_t> {
     scord::utils::ctype_ptr<ADM_adhoc_storage_t, ADM_adhoc_storage_destroy>
             m_storage;
     managed_ctype<ADM_adhoc_context_t> m_ctx;
+};
+
+template <>
+struct admire::api::managed_ctype<ADM_pfs_context_t> {
+
+    managed_ctype() = default;
+
+    explicit managed_ctype(ADM_pfs_context_t ctx) : m_pfs_context(ctx) {}
+
+    ADM_pfs_context_t
+    get() const {
+        return m_pfs_context.get();
+    }
+
+    ADM_pfs_context_t
+    release() {
+        return m_pfs_context.release();
+    }
+
+    scord::utils::ctype_ptr<ADM_pfs_context_t, ADM_pfs_context_destroy>
+            m_pfs_context;
+};
+
+template <>
+struct admire::api::managed_ctype<ADM_pfs_storage_t> {
+
+    managed_ctype() = default;
+
+    explicit managed_ctype(ADM_pfs_storage_t st,
+                           managed_ctype<ADM_pfs_context_t>&& ctx)
+        : m_storage(st), m_ctx(std::move(ctx)) {}
+
+    ADM_pfs_storage_t
+    get() const {
+        return m_storage.get();
+    }
+
+    ADM_pfs_storage_t
+    release() {
+        std::ignore = m_ctx.release();
+        return m_storage.release();
+    }
+
+    scord::utils::ctype_ptr<ADM_pfs_storage_t, ADM_pfs_storage_destroy>
+            m_storage;
+    managed_ctype<ADM_pfs_context_t> m_ctx;
 };
 
 template <>

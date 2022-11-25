@@ -294,31 +294,18 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     }
 }
 
-ADM_return_t
-register_pfs_storage(const server& srv, ADM_pfs_context_t ctx,
-                     ADM_pfs_storage_t* pfs_storage) {
-    (void) srv;
-    (void) ctx;
-    (void) pfs_storage;
+admire::pfs_storage
+register_pfs_storage(const server& srv, const std::string& name,
+                     enum pfs_storage::type type, const pfs_storage::ctx& ctx) {
 
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+    const auto rv = detail::register_pfs_storage(srv, name, type, ctx);
 
-    auto endp = rpc_client.lookup(srv.address());
-
-    LOGGER_INFO("ADM_register_pfs_storage(...)");
-
-    ADM_register_pfs_storage_in_t in{};
-    ADM_register_pfs_storage_out_t out;
-
-    const auto rpc = endp.call("ADM_register_pfs_storage", &in, &out);
-
-    if(out.ret < 0) {
-        LOGGER_ERROR("ADM_register_pfs_storage() = {}", out.ret);
-        return static_cast<ADM_return_t>(out.ret);
+    if(!rv) {
+        throw std::runtime_error(fmt::format(
+                "ADM_register_pfs_storage() error: {}", rv.error().message()));
     }
 
-    LOGGER_INFO("ADM_register_pfs_storage() = {}", ADM_SUCCESS);
-    return ADM_SUCCESS;
+    return rv.value();
 }
 
 ADM_return_t

@@ -162,6 +162,8 @@ ADM_deploy_adhoc_storage(ADM_server_t server,
  * Register a PFS storage tier.
  *
  * @param[in] server The server to which the request is directed
+ * @param[in] name The desired name for the PFS.
+ * @param[in] type The desired type for the PFS.
  * @param[in] ctx The EXECUTION_CONTEXT for the PFS.
  * @param[out] adhoc_storage An ADM_STORAGE referring to the newly-created
  * PFS instance.
@@ -169,7 +171,8 @@ ADM_deploy_adhoc_storage(ADM_server_t server,
  * successfully.
  */
 ADM_return_t
-ADM_register_pfs_storage(ADM_server_t server, ADM_pfs_context_t ctx,
+ADM_register_pfs_storage(ADM_server_t server, const char* name,
+                         ADM_pfs_storage_type_t type, ADM_pfs_context_t ctx,
                          ADM_pfs_storage_t* pfs_storage);
 
 /**

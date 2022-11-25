@@ -26,7 +26,7 @@
 add_executable(scord)
 
 target_sources(scord PRIVATE scord.cpp rpc_handlers.hpp rpc_handlers.cpp
-  env.hpp job_manager.hpp adhoc_storage_manager.hpp)
+  env.hpp job_manager.hpp adhoc_storage_manager.hpp pfs_storage_manager.hpp)
 
 target_include_directories(
   scord

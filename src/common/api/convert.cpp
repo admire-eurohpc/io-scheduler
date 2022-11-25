@@ -117,6 +117,33 @@ convert(const admire::adhoc_storage& st) {
     return managed_ctype<ADM_adhoc_storage_t>{c_st, std::move(managed_ctx)};
 }
 
+managed_ctype<ADM_pfs_context_t>
+convert(const pfs_storage::ctx& ctx) {
+    return managed_ctype<ADM_pfs_context_t>{
+            ADM_pfs_context_create(ctx.mount_point().c_str())};
+}
+
+managed_ctype<ADM_pfs_storage_t>
+convert(const std::optional<admire::pfs_storage>& pfs_storage) {
+
+    if(!pfs_storage) {
+        return managed_ctype<ADM_pfs_storage_t>{};
+    }
+
+    return convert(pfs_storage.value());
+}
+
+managed_ctype<ADM_pfs_storage_t>
+convert(const admire::pfs_storage& st) {
+
+    auto managed_ctx = convert(st.context());
+    ADM_pfs_storage_t c_st = ADM_pfs_storage_create(
+            st.name().c_str(), static_cast<ADM_pfs_storage_type_t>(st.type()),
+            st.id(), managed_ctx.get());
+
+    return managed_ctype<ADM_pfs_storage_t>{c_st, std::move(managed_ctx)};
+}
+
 managed_ctype<ADM_dataset_t>
 convert(const admire::dataset& dataset) {
     return managed_ctype<ADM_dataset_t>(

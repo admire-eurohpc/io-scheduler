@@ -30,6 +30,7 @@
 #include "rpc_handlers.hpp"
 #include "job_manager.hpp"
 #include "adhoc_storage_manager.hpp"
+#include "pfs_storage_manager.hpp"
 
 // Process running
 #include <unistd.h>
@@ -549,6 +550,7 @@ DEFINE_MARGO_RPC_HANDLER(ADM_deploy_adhoc_storage);
 static void
 ADM_register_pfs_storage(hg_handle_t h) {
 
+    using admire::pfs_storage;
     using scord::network::utils::get_address;
 
     [[maybe_unused]] hg_return_t ret;
@@ -561,11 +563,38 @@ ADM_register_pfs_storage(hg_handle_t h) {
     ret = margo_get_input(h, &in);
     assert(ret == HG_SUCCESS);
 
-    out.ret = -1;
+    const std::string pfs_name{in.name};
+    const auto pfs_type = static_cast<enum pfs_storage::type>(in.type);
+    const pfs_storage::ctx pfs_ctx{in.ctx};
 
-    LOGGER_INFO("ADM_register_pfs_storage()");
+    const auto rpc_id = remote_procedure::new_id();
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{name: {}, type: {}, pfs_ctx: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                pfs_name, pfs_type, pfs_ctx);
 
-    out.ret = 0;
+    admire::error_code ec;
+    std::uint64_t out_pfs_id = 0;
+    auto& pfs_manager = scord::pfs_storage_manager::instance();
+
+    if(const auto pm_result = pfs_manager.create(pfs_type, pfs_name, pfs_ctx);
+       pm_result.has_value()) {
+        const auto& adhoc_storage_info = pm_result.value();
+        out_pfs_id = adhoc_storage_info->pfs_storage().id();
+    } else {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating pfs_storage: {}\"",
+                     rpc_id, pm_result.error());
+        ec = pm_result.error();
+    }
+
+    out.op_id = rpc_id;
+    out.retval = ec;
+    out.id = out_pfs_id;
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} => "
+                "body: {{retval: {}, id: {}}}",
+                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                ec, out.id);
 
     ret = margo_respond(h, &out);
     assert(ret == HG_SUCCESS);

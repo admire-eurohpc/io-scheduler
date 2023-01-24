@@ -528,6 +528,7 @@ ADM_deploy_adhoc_storage(hg_handle_t h) {
                      std::quoted(get_address(h)), ec);
     }
 
+    out.op_id = rpc_id;
     out.retval = ec;
 
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
@@ -1081,7 +1082,7 @@ ADM_adhoc_access(hg_handle_t h) {
     if(in.access == nullptr) {
         LOGGER_ERROR("ADM_adhoc_access(): invalid access (nullptr)");
     } else {
-        LOGGER_INFO("ADM_adhoc_access({}, {})", in.access);
+        LOGGER_INFO("ADM_adhoc_access({})", in.access);
 
         if((acc == "write-only") || (acc == "read-only") ||
            (acc == "read-write")) {

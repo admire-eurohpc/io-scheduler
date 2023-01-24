@@ -84,7 +84,7 @@ set(CMAKE_SHARED_LINKER_FLAGS_ASAN
 set_property(GLOBAL APPEND PROPERTY DEBUG_CONFIGURATIONS Debug)
 set_property(GLOBAL APPEND PROPERTY DEBUG_CONFIGURATIONS ASan)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message(STATUS "[${PROJECT_NAME}] Project version: ${PROJECT_VERSION}")
@@ -220,7 +220,7 @@ message(STATUS "[${PROJECT_NAME}] Downloading and building file_options")
 FetchContent_Declare(
   file_options
   GIT_REPOSITORY https://storage.bsc.es/gitlab/utils/file_options
-  GIT_TAG 50071ff78d0974b2f1178f27ce1a08d22e5e8fa2 # v0.1.0-pre
+  GIT_TAG bdb4f7f7f2dd731815241fc41afe6373df8f732a # v0.1.0-pre
   GIT_SHALLOW ON
   GIT_PROGRESS ON
 )

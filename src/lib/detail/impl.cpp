@@ -366,9 +366,9 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     auto endp = rpc_client.lookup(srv.address());
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_storage: {}}}",
+                "body: {{adhoc_id: {}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), adhoc_storage);
+                std::quoted(rpc_client.self_address()), adhoc_storage.id());
 
     ADM_deploy_adhoc_storage_in_t in{adhoc_storage.id()};
     ADM_deploy_adhoc_storage_out_t out;

@@ -161,26 +161,26 @@ public:
 
     template <typename... Args>
     inline void
-    info(const char* fmt, const Args&... args) {
-        m_internal_logger->info(fmt, args...);
+    info(fmt::format_string<Args...> fmt, Args&&... args) {
+        m_internal_logger->info(fmt, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     inline void
-    debug(const char* fmt, const Args&... args) {
-        m_internal_logger->debug(fmt, args...);
+    debug(fmt::format_string<Args...> fmt, Args&&... args) {
+        m_internal_logger->debug(fmt, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     inline void
-    warn(const char* fmt, const Args&... args) {
-        m_internal_logger->warn(fmt, args...);
+    warn(fmt::format_string<Args...> fmt, Args&&... args) {
+        m_internal_logger->warn(fmt, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     inline void
-    error(const char* fmt, const Args&... args) {
-        m_internal_logger->error(fmt, args...);
+    error(fmt::format_string<Args...> fmt, Args&&... args) {
+        m_internal_logger->error(fmt, std::forward<Args>(args)...);
     }
 
     static inline std::string
@@ -194,25 +194,27 @@ public:
 
     template <typename... Args>
     inline void
-    error_errno(const char* fmt, const Args&... args) {
+    error_errno(fmt::format_string<Args...> fmt, Args&&... args) {
 
         const int saved_errno = errno;
 
         constexpr const std::size_t MAX_ERROR_MSG = 128;
-        std::array<char, MAX_ERROR_MSG> errstr;
+        std::array<char, MAX_ERROR_MSG> errstr; // NOLINT
 
-        std::string str_fmt(fmt);
+        fmt::string_view sv{fmt};
+        std::string str_fmt{sv.begin(), sv.end()};
         str_fmt += ": {}";
 
         char* msg = strerror_r(saved_errno, errstr.data(), MAX_ERROR_MSG);
 
-        m_internal_logger->error(str_fmt.c_str(), args..., msg);
+        m_internal_logger->error(fmt::runtime(str_fmt),
+                                 std::forward<Args>(args)..., msg);
     }
 
     template <typename... Args>
     inline void
-    critical(const char* fmt, const Args&... args) {
-        m_internal_logger->critical(fmt, args...);
+    critical(fmt::format_string<Args...> fmt, Args&&... args) {
+        m_internal_logger->critical(fmt, std::forward<Args>(args)...);
     }
 
     template <typename T>

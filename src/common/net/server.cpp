@@ -296,15 +296,12 @@ server::check_configuration() {
 
 void
 server::print_greeting() {
-    const char greeting[] = "Starting {} daemon (pid {})";
-    const auto gsep =
-            std::string(sizeof(greeting) - 4 + m_settings->progname().size() +
-                                std::to_string(getpid()).size(),
-                        '=');
+    const auto greeting = fmt::format("Starting {} daemon (pid {})",
+                                      m_settings->progname(), getpid());
 
-    LOGGER_INFO("{}", gsep);
-    LOGGER_INFO(greeting, m_settings->progname(), getpid());
-    LOGGER_INFO("{}", gsep);
+    LOGGER_INFO("{:=>{}}", "", greeting.size());
+    LOGGER_INFO(greeting);
+    LOGGER_INFO("{:=>{}}", "", greeting.size());
 }
 
 void
@@ -332,15 +329,12 @@ server::print_configuration() {
 
 void
 server::print_farewell() {
-    const char farewell[] = "Stopping {} daemon (pid {})";
-    const auto fsep =
-            std::string(sizeof(farewell) - 4 + m_settings->progname().size() +
-                                std::to_string(getpid()).size(),
-                        '=');
+    const auto farewell = fmt::format("Stopping {} daemon (pid {})",
+                                      m_settings->progname(), getpid());
 
-    LOGGER_INFO("{}", fsep);
-    LOGGER_INFO(farewell, m_settings->progname(), getpid());
-    LOGGER_INFO("{}", fsep);
+    LOGGER_INFO("{:=>{}}", "", farewell.size());
+    LOGGER_INFO(farewell);
+    LOGGER_INFO("{:=>{}}", "", farewell.size());
 }
 
 int

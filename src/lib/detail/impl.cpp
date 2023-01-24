@@ -386,6 +386,7 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     LOGGER_INFO("rpc id: {} name: {} from: {} <= "
                 "body: {{retval: {}}}] [op_id: {}]",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc_client.self_address()),
                 admire::error_code::success, out.op_id);
 
     return admire::error_code::success;

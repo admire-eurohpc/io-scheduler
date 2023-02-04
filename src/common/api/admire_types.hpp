@@ -92,6 +92,12 @@ struct error_code {
     std::string_view
     message() const;
 
+    template <typename Archive>
+    void
+    serialize(Archive&& ar) {
+        ar& m_value;
+    }
+
 private:
     ADM_return_t m_value;
 };

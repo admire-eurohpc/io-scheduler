@@ -181,7 +181,8 @@ ping(const server& srv) {
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
-    if(const auto lookup_rv = rpc_client.lookup(srv.address()); lookup_rv) {
+    if(const auto lookup_rv = rpc_client.lookup(srv.address());
+       lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
         LOGGER_INFO("rpc id: {} name: {} from: {} => "
@@ -189,17 +190,19 @@ ping(const server& srv) {
                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
                     std::quoted(rpc_client.self_address().value_or("unknown")));
 
-        if(const auto call_rv = endp.call("ADM_"s + __FUNCTION__); call_rv) {
+        if(const auto call_rv = endp.call("ADM_"s + __FUNCTION__);
+           call_rv.has_value()) {
 
             const scord::network::generic_response resp{call_rv.value()};
 
-            LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc id: {} name: {} from: {} <= "
                         "body: {{retval: {}}} [op_id: {}]",
                         rpc_id, std::quoted("ADM_"s + __FUNCTION__),
                         std::quoted(endp.address()), resp.error_code(),
                         resp.op_id());
 
-            return admire::error_code::success;
+            return resp.error_code();
         }
     }
 

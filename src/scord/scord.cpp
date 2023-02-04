@@ -181,6 +181,8 @@ main(int argc, char* argv[]) {
     try {
         scord::network::server daemon(cfg);
 
+        daemon.set_handler("ADM_ping"s, scord::network::handlers::ping);
+
 #if 0
         const auto rpc_registration_cb = [](auto&& ctx) {
             LOGGER_INFO(" * Registering RPCs handlers...");

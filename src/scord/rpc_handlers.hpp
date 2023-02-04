@@ -26,6 +26,12 @@
 #ifndef SCORD_RPC_HANDLERS_HPP
 #define SCORD_RPC_HANDLERS_HPP
 
+namespace scord::network::handlers {
+
+void ping(const scord::network::request& req);
+
+}
+
 #include <margo.h>
 
 #ifdef __cplusplus
@@ -34,9 +40,6 @@ extern "C" {
 
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {
-
-/// ADM_ping
-DECLARE_MARGO_RPC_HANDLER(ADM_ping);
 
 /// ADM_register_job
 DECLARE_MARGO_RPC_HANDLER(ADM_register_job);

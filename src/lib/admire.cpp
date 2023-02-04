@@ -23,7 +23,6 @@
  *****************************************************************************/
 
 #include <admire.hpp>
-#include <net/engine.hpp>
 #include <net/proto/rpc_types.h>
 #include <logger/logger.hpp>
 #include <utils/ctype_ptr.hpp>

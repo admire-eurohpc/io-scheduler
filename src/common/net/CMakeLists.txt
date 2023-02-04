@@ -35,7 +35,7 @@ set_property(TARGET _rpc_client PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_library(_rpc_server STATIC)
 target_sources(
   _rpc_server
-  INTERFACE server.hpp
+  INTERFACE server.hpp request.hpp
   PRIVATE server.cpp
 )
 

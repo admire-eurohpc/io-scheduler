@@ -42,6 +42,7 @@
 
 namespace fs = std::filesystem;
 namespace bpo = boost::program_options;
+using namespace std::literals;
 
 void
 print_version(const std::string& progname) {
@@ -178,8 +179,9 @@ main(int argc, char* argv[]) {
     }
 
     try {
-        scord::server daemon;
+        scord::network::server daemon(cfg);
 
+#if 0
         const auto rpc_registration_cb = [](auto&& ctx) {
             LOGGER_INFO(" * Registering RPCs handlers...");
 
@@ -327,8 +329,8 @@ main(int argc, char* argv[]) {
 
             // TODO: add internal RPCs for communication with scord-ctl
         };
+#endif
 
-        daemon.configure(cfg, rpc_registration_cb);
         return daemon.run();
     } catch(const std::exception& ex) {
         fmt::print(stderr,

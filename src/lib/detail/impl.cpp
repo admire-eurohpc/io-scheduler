@@ -23,7 +23,9 @@
  *****************************************************************************/
 
 #include <tl/expected.hpp>
-#include <net/engine.hpp>
+#include <net/client.hpp>
+#include <net/endpoint.hpp>
+#include <net/request.hpp>
 #include <net/proto/rpc_types.h>
 #include <api/convert.hpp>
 #include <admire_types.hpp>

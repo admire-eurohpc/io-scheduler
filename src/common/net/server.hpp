@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -25,35 +25,37 @@
 #ifndef SCORD_SERVER_HPP
 #define SCORD_SERVER_HPP
 
-#include <memory>
-#include <atomic>
-#include "engine.hpp"
+#include <config/settings.hpp>
+#include <utils/signal_listener.hpp>
+#include <thallium.hpp>
+#include <thallium/serialization/stl/string.hpp>
+#include <thallium/serialization/stl/vector.hpp>
 
-namespace scord {
+namespace scord::network {
 
-namespace config {
-struct settings;
-} // namespace config
-
-namespace utils {
-struct signal_listener;
-} // namespace utils
+using request = thallium::request;
 
 class server {
 
 public:
-    server();
-    ~server();
-    void
-    configure(const config::settings& settings);
+    template <typename... Handlers>
+    explicit server(config::settings cfg, Handlers&&... handlers)
+        : m_settings(std::move(cfg)) {
 
-    template <typename Callback>
-    void
-    configure(const config::settings& settings,
-              Callback rpc_registration_callback) {
-        configure(settings);
-        m_rpc_registration_callback = rpc_registration_callback;
+        using namespace std::literals;
+
+        const std::string thallim_address =
+                m_settings.transport_protocol() + "://"s +
+                m_settings.bind_address() + ":"s +
+                std::to_string(m_settings.remote_port());
+
+        m_network_engine =
+                thallium::engine(thallim_address, THALLIUM_SERVER_MODE);
+
+        (set_handler(std::forward<Handlers>(handlers)), ...);
     }
+
+    ~server();
 
     config::settings
     get_configuration() const;
@@ -66,16 +68,10 @@ public:
     void
     teardown_and_exit();
 
-
     template <typename Callable>
     void
-    install_rpc_handlers(Callable fun) {
-
-        install_rpc_handlers();
-
-        // FIXME: improve network_engine so that we don't need to rely on
-        //  calling a lambda here to register RPCs
-        fun(m_network_engine);
+    set_handler(const std::string& name, Callable&& handler) {
+        m_network_engine.define(name, handler);
     }
 
 private:
@@ -88,8 +84,7 @@ private:
     init_logger();
     void
     install_signal_handlers();
-    void
-    install_rpc_handlers();
+
     void
     check_configuration();
     void
@@ -100,14 +95,11 @@ private:
     print_farewell();
 
 private:
-    std::unique_ptr<config::settings> m_settings;
-    std::unique_ptr<network::engine> m_network_engine;
-    std::unique_ptr<utils::signal_listener> m_signal_listener;
-    std::function<void(std::unique_ptr<network::engine>&)>
-            m_rpc_registration_callback;
+    scord::config::settings m_settings;
+    thallium::engine m_network_engine;
+    scord::utils::signal_listener m_signal_listener;
 };
 
-
-} // namespace scord
+} // namespace scord::network
 
 #endif // SCORD_SERVER_HPP

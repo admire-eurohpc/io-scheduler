@@ -176,7 +176,9 @@ main(int argc, char* argv[]) {
     }
 
     try {
-        scord::server daemon;
+        scord::network::server daemon(cfg);
+
+#if 0
         const auto rpc_registration_cb = [](auto&& ctx) {
             LOGGER_INFO(" * Registering RPCs handlers...");
 
@@ -186,6 +188,7 @@ main(int argc, char* argv[]) {
         };
 
         daemon.configure(cfg, rpc_registration_cb);
+#endif
         return daemon.run();
     } catch(const std::exception& ex) {
         fmt::print(stderr,

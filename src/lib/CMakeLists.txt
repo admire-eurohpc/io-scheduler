@@ -32,7 +32,8 @@ set_target_properties(adm_iosched PROPERTIES PUBLIC_HEADER "admire.h;admire.hpp"
 
 target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(adm_iosched PRIVATE common::network::engine
+target_link_libraries(adm_iosched PRIVATE
+  common::network::rpc_client
   common::network::rpc_types PUBLIC
   tl::expected common::api::types)
 

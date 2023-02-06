@@ -33,6 +33,7 @@
 
 using namespace std::literals;
 
+#if 0
 void
 rpc_registration_cb(scord::network::rpc_client* client) {
 
@@ -157,6 +158,7 @@ rpc_registration_cb(scord::network::rpc_client* client) {
     REGISTER_RPC(client, "ADM_get_statistics", ADM_get_statistics_in_t,
                  ADM_get_statistics_out_t, NULL, true);
 }
+#endif
 
 namespace api {
 
@@ -175,33 +177,48 @@ namespace admire::detail {
 admire::error_code
 ping(const server& srv) {
 
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+    scord::network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
-    auto endp = rpc_client.lookup(srv.address());
+    if(const auto lookup_rv = rpc_client.lookup(srv.address()); lookup_rv) {
+        const auto& endp = lookup_rv.value();
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{}}",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()));
+        LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                    "body: {{}}",
+                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                    std::quoted(rpc_client.self_address().value_or("unknown")));
 
-    ADM_ping_out_t out;
+        if(const auto call_rv = endp.call("ADM_"s + __FUNCTION__); call_rv) {
 
-    const auto rpc = endp.call("ADM_ping", nullptr, &out);
+            const scord::network::generic_response resp{call_rv.value()};
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
-                "body: {{retval: {}}} [op_id: {}]",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc.origin()), admire::error_code{out.retval},
-                out.op_id);
-    return admire::error_code::success;
+            LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                        "body: {{retval: {}}} [op_id: {}]",
+                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                        std::quoted(endp.address()), resp.error_code(),
+                        resp.op_id());
+
+            return admire::error_code::success;
+        }
+    }
+
+    LOGGER_ERROR("rpc call failed");
+    return admire::error_code::other;
 }
 
 tl::expected<admire::job, admire::error_code>
 register_job(const server& srv, const job::resources& job_resources,
              const job_requirements& reqs, admire::slurm_job_id slurm_id) {
 
+    (void) srv;
+    (void) job_resources;
+    (void) reqs;
+    (void) slurm_id;
+
+    return tl::make_unexpected(admire::error_code::snafu);
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -240,12 +257,20 @@ register_job(const server& srv, const job::resources& job_resources,
                 out.op_id);
 
     return job;
+#endif
 }
 
 admire::error_code
 update_job(const server& srv, const job& job,
            const job::resources& job_resources) {
 
+    (void) srv;
+    (void) job;
+    (void) job_resources;
+
+    return admire::error_code::snafu;
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -278,10 +303,18 @@ update_job(const server& srv, const job& job,
                 std::quoted(rpc.origin()), admire::error_code::success,
                 out.op_id);
     return admire::error_code::success;
+#endif
 }
 
 admire::error_code
 remove_job(const server& srv, const job& job) {
+
+    (void) srv;
+    (void) job;
+
+    return admire::error_code::snafu;
+
+#if 0
 
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
@@ -314,6 +347,7 @@ remove_job(const server& srv, const job& job) {
                 std::quoted(rpc.origin()), admire::error_code::success,
                 out.op_id);
     return admire::error_code::success;
+#endif
 }
 
 tl::expected<admire::adhoc_storage, admire::error_code>
@@ -321,6 +355,14 @@ register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx) {
 
+    (void) srv;
+    (void) name;
+    (void) type;
+    (void) ctx;
+
+    return tl::make_unexpected(admire::error_code::snafu);
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -357,11 +399,18 @@ register_adhoc_storage(const server& srv, const std::string& name,
                 admire::error_code::success, out.id, out.op_id);
 
     return rpc_adhoc_storage;
+#endif
 }
 
 admire::error_code
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
+    (void) srv;
+    (void) adhoc_storage;
+
+    return admire::error_code::snafu;
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -392,6 +441,7 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
                 admire::error_code::success, out.op_id);
 
     return admire::error_code::success;
+#endif
 }
 
 tl::expected<transfer, error_code>
@@ -401,6 +451,16 @@ transfer_datasets(const server& srv, const job& job,
                   const std::vector<qos::limit>& limits,
                   transfer::mapping mapping) {
 
+    (void) srv;
+    (void) job;
+    (void) sources;
+    (void) targets;
+    (void) limits;
+    (void) mapping;
+
+    return tl::make_unexpected(admire::error_code::snafu);
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -442,6 +502,7 @@ transfer_datasets(const server& srv, const job& job,
                 std::quoted(rpc.origin()), admire::error_code::success, tx,
                 out.op_id);
     return tx;
+#endif
 }
 
 admire::error_code
@@ -449,6 +510,13 @@ update_adhoc_storage(const server& srv,
                      const adhoc_storage::ctx& adhoc_storage_ctx,
                      const adhoc_storage& adhoc_storage) {
 
+    (void) srv;
+    (void) adhoc_storage_ctx;
+    (void) adhoc_storage;
+
+    return admire::error_code::snafu;
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -481,11 +549,18 @@ update_adhoc_storage(const server& srv,
                 out.op_id);
 
     return admire::error_code::success;
+#endif
 }
 
 admire::error_code
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
+    (void) srv;
+    (void) adhoc_storage;
+
+    return admire::error_code::snafu;
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -515,12 +590,21 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
                 std::quoted(rpc.origin()), admire::error_code::success,
                 out.op_id);
     return admire::error_code::success;
+#endif
 }
 
 tl::expected<admire::pfs_storage, admire::error_code>
 register_pfs_storage(const server& srv, const std::string& name,
                      enum pfs_storage::type type, const pfs_storage::ctx& ctx) {
 
+    (void) srv;
+    (void) name;
+    (void) type;
+    (void) ctx;
+
+    return tl::make_unexpected(admire::error_code::snafu);
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -557,12 +641,20 @@ register_pfs_storage(const server& srv, const std::string& name,
                 admire::error_code::success, out.id, out.op_id);
 
     return rpc_pfs_storage;
+#endif
 }
 
 admire::error_code
 update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
                    const admire::pfs_storage::ctx& pfs_storage_ctx) {
 
+    (void) srv;
+    (void) pfs_storage;
+    (void) pfs_storage_ctx;
+
+    return admire::error_code::snafu;
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -595,11 +687,18 @@ update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
                 out.op_id);
 
     return admire::error_code::success;
+#endif
 }
 
 admire::error_code
 remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
 
+    (void) srv;
+    (void) pfs_storage;
+
+    return admire::error_code::snafu;
+
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
@@ -630,6 +729,7 @@ remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
                 out.op_id);
 
     return admire::error_code::success;
+#endif
 }
 
 } // namespace admire::detail

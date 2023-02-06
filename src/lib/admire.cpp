@@ -68,6 +68,8 @@ init_logger() {
     }
 }
 
+
+#if 0
 void
 rpc_registration_cb(scord::network::rpc_client* client) {
 
@@ -192,6 +194,7 @@ rpc_registration_cb(scord::network::rpc_client* client) {
     REGISTER_RPC(client, "ADM_get_statistics", ADM_get_statistics_in_t,
                  ADM_get_statistics_out_t, NULL, true);
 }
+#endif
 
 } // namespace
 
@@ -359,6 +362,7 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
     (void) target;
     (void) info;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -378,6 +382,7 @@ set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
     }
 
     LOGGER_INFO("ADM_set_dataset_information() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -389,6 +394,7 @@ set_io_resources(const server& srv, ADM_job_t job, ADM_adhoc_storage_t tier,
     (void) tier;
     (void) resources;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -408,6 +414,7 @@ set_io_resources(const server& srv, ADM_job_t job, ADM_adhoc_storage_t tier,
     }
 
     LOGGER_INFO("ADM_set_io_resources() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -419,6 +426,7 @@ get_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
     (void) transfer;
     (void) priority;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -436,6 +444,7 @@ get_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
     }
 
     LOGGER_INFO("ADM_get_transfer_priority() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -447,6 +456,7 @@ set_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
     (void) transfer;
     (void) incr;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -464,15 +474,18 @@ set_transfer_priority(const server& srv, ADM_job_t job, ADM_transfer_t transfer,
     }
 
     LOGGER_INFO("ADM_set_transfer_priority() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
 ADM_return_t
 cancel_transfer(const server& srv, ADM_job_t job, ADM_transfer_t transfer) {
 
+    (void) srv;
     (void) job;
     (void) transfer;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -491,6 +504,7 @@ cancel_transfer(const server& srv, ADM_job_t job, ADM_transfer_t transfer) {
     }
 
     LOGGER_INFO("ADM_cancel_transfer() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -501,6 +515,7 @@ get_pending_transfers(const server& srv, ADM_job_t job,
     (void) job;
     (void) pending_transfers;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -519,6 +534,7 @@ get_pending_transfers(const server& srv, ADM_job_t job,
     }
 
     LOGGER_INFO("ADM_get_pending_transfers() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -530,6 +546,7 @@ set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     (void) entity;
     (void) limit;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -552,6 +569,7 @@ set_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     }
 
     LOGGER_INFO("ADM_set_qos_constraints() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -563,6 +581,7 @@ get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     (void) entity;
     (void) limits;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -583,6 +602,7 @@ get_qos_constraints(const server& srv, ADM_job_t job, ADM_qos_entity_t entity,
     }
 
     LOGGER_INFO("ADM_get_qos_constraints() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -595,6 +615,7 @@ define_data_operation(const server& srv, ADM_job_t job, const char* path,
     (void) op;
     (void) args;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -617,6 +638,7 @@ define_data_operation(const server& srv, ADM_job_t job, const char* path,
     }
 
     LOGGER_INFO("ADM_define_data_operation() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -630,6 +652,7 @@ connect_data_operation(const server& srv, ADM_job_t job, ADM_dataset_t input,
     (void) should_stream;
     (void) args;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -651,6 +674,7 @@ connect_data_operation(const server& srv, ADM_job_t job, ADM_dataset_t input,
     }
 
     LOGGER_INFO("ADM_connect_data_operation() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -663,6 +687,7 @@ finalize_data_operation(const server& srv, ADM_job_t job,
     (void) op;
     (void) status;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -681,6 +706,7 @@ finalize_data_operation(const server& srv, ADM_job_t job,
     }
 
     LOGGER_INFO("ADM_finalize_data_operation() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -696,6 +722,7 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
     (void) should_stream;
     (void) args;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -717,6 +744,7 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
     }
 
     LOGGER_INFO("ADM_link_transfer_to_data_operation() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 
@@ -726,6 +754,7 @@ get_statistics(const server& srv, ADM_job_t job, ADM_job_stats_t** stats) {
     (void) job;
     (void) stats;
 
+#if 0
     scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
 
     auto endp = rpc_client.lookup(srv.address());
@@ -744,6 +773,7 @@ get_statistics(const server& srv, ADM_job_t job, ADM_job_stats_t** stats) {
     }
 
     LOGGER_INFO("ADM_get_statistics() = {}", ADM_SUCCESS);
+#endif
     return ADM_SUCCESS;
 }
 

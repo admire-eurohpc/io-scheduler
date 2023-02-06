@@ -213,55 +213,48 @@ ping(const server& srv) {
 
 tl::expected<admire::job, admire::error_code>
 register_job(const server& srv, const job::resources& job_resources,
-             const job_requirements& reqs, admire::slurm_job_id slurm_id) {
+             const job_requirements& job_requirements,
+             admire::slurm_job_id slurm_id) {
 
-    (void) srv;
-    (void) job_resources;
-    (void) reqs;
-    (void) slurm_id;
-
-    return tl::make_unexpected(admire::error_code::snafu);
-
-#if 0
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+    scord::network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
-    auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+    if(const auto lookup_rv = rpc_client.lookup(srv.address());
+       lookup_rv.has_value()) {
+        const auto& endp = lookup_rv.value();
+
+        LOGGER_INFO(
+                "rpc id: {} name: {} from: {} => "
                 "body: {{job_resources: {}, job_requirements: {}, slurm_id: "
                 "{}}}",
                 rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), job_resources, reqs,
-                slurm_id);
+                std::quoted(rpc_client.self_address()), job_resources,
+                job_requirements, slurm_id);
 
-    auto rpc_job_resources = api::convert(job_resources);
-    auto rpc_reqs = api::convert(reqs);
+        if(const auto call_rv = endp.call("ADM_"s + __FUNCTION__, job_resources,
+                                          job_requirements, slurm_id);
+           call_rv.has_value()) {
 
-    ADM_register_job_in_t in{rpc_job_resources.get(), *rpc_reqs.get(),
-                             slurm_id};
-    ADM_register_job_out_t out;
+            const scord::network::response_with_id resp{call_rv.value()};
 
-    const auto rpc = endp.call("ADM_register_job", &in, &out);
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc id: {} name: {} from: {} <= "
+                        "body: {{retval: {}, job_id: {}}} [op_id: {}]",
+                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                        std::quoted(endp.address()), resp.error_code(),
+                        resp.value(), resp.op_id());
 
-    if(const auto rv = admire::error_code{out.retval}; !rv) {
-        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
-                     "body: {} [op_id: {}]",
-                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                     std::quoted(rpc.origin()), rv, out.op_id);
-        return tl::make_unexpected(rv);
+            if(const auto ec = resp.error_code(); !ec) {
+                return tl::make_unexpected(resp.error_code());
+            }
+
+            return admire::job{resp.value(), slurm_id};
+        }
     }
 
-    const admire::job job = api::convert(out.job);
-
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
-                "body: {{retval: {}, job: {}}} [op_id: {}]",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc.origin()), admire::error_code::success, job,
-                out.op_id);
-
-    return job;
-#endif
+    LOGGER_ERROR("rpc call failed");
+    return tl::make_unexpected(admire::error_code::other);
 }
 
 admire::error_code

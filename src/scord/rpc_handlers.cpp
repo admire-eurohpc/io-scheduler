@@ -73,6 +73,57 @@ ping(const scord::network::request& req) {
     req.respond(resp);
 }
 
+void
+register_job(const scord::network::request& req,
+             const admire::job::resources& job_resources,
+             const admire::job_requirements& job_requirements,
+             admire::slurm_job_id slurm_id) {
+
+    using scord::network::get_address;
+
+    const auto rpc_name = "ADM_"s + __FUNCTION__;
+    const auto rpc_id = remote_procedure::new_id();
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{job_resources: {}, job_requirements: {}, slurm_id: "
+                "{}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                job_resources, job_requirements, slurm_id);
+
+    admire::error_code ec;
+    std::optional<admire::job_id> job_id;
+    auto& jm = scord::job_manager::instance();
+
+    if(const auto jm_result =
+               jm.create(slurm_id, job_resources, job_requirements);
+       jm_result.has_value()) {
+
+        const auto& job_info = jm_result.value();
+
+        // if the job requires an adhoc storage instance, inform the appropriate
+        // adhoc_storage instance (if registered)
+        if(job_requirements.adhoc_storage()) {
+            const auto adhoc_id = job_requirements.adhoc_storage()->id();
+            auto& adhoc_manager = scord::adhoc_storage_manager::instance();
+            ec = adhoc_manager.add_client_info(adhoc_id, job_info);
+        }
+
+        job_id = job_info->job().id();
+    } else {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating job: {}\"", rpc_id,
+                     jm_result.error());
+        ec = jm_result.error();
+    }
+
+    const auto resp = response_with_id{rpc_id, ec, job_id};
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}, job_id: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                ec, job_id);
+
+    req.respond(resp);
+}
 
 void
 register_adhoc_storage(const request& req, const std::string& name,
@@ -115,78 +166,6 @@ register_adhoc_storage(const request& req, const std::string& name,
 }
 
 } // namespace scord::network::handlers
-
-
-static void
-ADM_register_job(hg_handle_t h) {
-
-    using scord::network::utils::get_address;
-
-    [[maybe_unused]] hg_return_t ret;
-
-    ADM_register_job_in_t in;
-    ADM_register_job_out_t out;
-
-    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
-
-    ret = margo_get_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    const admire::job_requirements reqs(&in.reqs);
-    const admire::job::resources job_resources(in.job_resources);
-    const admire::slurm_job_id slurm_id = in.slurm_job_id;
-
-    const auto rpc_id = remote_procedure::new_id();
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job_resources: {}, job_requirements: {}, slurm_id: "
-                "{}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                job_resources, reqs, slurm_id);
-
-    admire::error_code ec = admire::error_code::success;
-    std::optional<admire::job> out_job;
-    auto& jm = scord::job_manager::instance();
-
-    if(const auto jm_result = jm.create(slurm_id, job_resources, reqs);
-       jm_result.has_value()) {
-
-        const auto& job_info = jm_result.value();
-
-        // if the job requires an adhoc storage instance, inform the appropriate
-        // adhoc_storage instance (if registered)
-        if(reqs.adhoc_storage()) {
-            const auto adhoc_id = reqs.adhoc_storage()->id();
-            auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-            ec = adhoc_manager.add_client_info(adhoc_id, job_info);
-        }
-
-        out_job = job_info->job();
-    } else {
-        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating job: {}\"", rpc_id,
-                     jm_result.error());
-        ec = jm_result.error();
-    }
-
-    out.op_id = rpc_id;
-    out.retval = ec;
-    out.job = out_job ? admire::api::convert(*out_job).release() : nullptr;
-
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}, job: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec, out_job);
-
-    ret = margo_respond(h, &out);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_free_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_destroy(h);
-    assert(ret == HG_SUCCESS);
-}
-
-DEFINE_MARGO_RPC_HANDLER(ADM_register_job);
 
 
 static void

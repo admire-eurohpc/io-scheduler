@@ -31,6 +31,8 @@
 #include <api/convert.hpp>
 #include <variant>
 #include <optional>
+#include <cereal/types/memory.hpp>
+#include <thallium/serialization/proc_input_archive.hpp>
 #include "admire_types.hpp"
 #include "internal_types.hpp"
 
@@ -1199,6 +1201,7 @@ node::serialize<scord::network::serialization::input_archive>(
 class job::impl {
 
 public:
+    impl() {}
     impl(job_id id, slurm_job_id slurm_job_id)
         : m_id(id), m_slurm_job_id(slurm_job_id) {}
     impl(const impl& rhs) = default;
@@ -1219,9 +1222,25 @@ public:
     }
 
 private:
+    friend class cereal::access;
+
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(CEREAL_NVP(m_id));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(CEREAL_NVP(m_id));
+    }
+
     job_id m_id;
     slurm_job_id m_slurm_job_id;
 };
+
+job::resources::resources() = default;
 
 job::resources::resources(std::vector<admire::node> nodes)
     : m_nodes(std::move(nodes)) {}
@@ -1239,6 +1258,8 @@ std::vector<admire::node>
 job::resources::nodes() const {
     return m_nodes;
 }
+
+job::job() = default;
 
 job::job(job_id id, slurm_job_id slurm_job_id)
     : m_pimpl(std::make_unique<job::impl>(id, slurm_job_id)) {}
@@ -1270,6 +1291,19 @@ job_id
 job::slurm_id() const {
     return m_pimpl->slurm_id();
 }
+
+template <class Archive>
+inline void
+job::serialize(Archive& ar) {
+    ar(CEREAL_NVP(m_pimpl));
+}
+
+template void
+job::serialize<thallium::proc_input_archive<>>(thallium::proc_input_archive<>&);
+template void
+job::serialize<thallium::proc_output_archive<>>(
+        thallium::proc_output_archive<>&);
+
 
 class transfer::impl {
 
@@ -1321,8 +1355,8 @@ transfer::id() const {
 
 class dataset::impl {
 public:
+    impl() = default;
     explicit impl(std::string id) : m_id(std::move(id)) {}
-
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -1336,9 +1370,23 @@ public:
         return m_id;
     }
 
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_id));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_id));
+    }
+
 private:
     std::string m_id;
 };
+
+dataset::dataset() = default;
 
 dataset::dataset(std::string id)
     : m_pimpl(std::make_unique<dataset::impl>(std::move(id))) {}
@@ -1365,6 +1413,32 @@ std::string
 dataset::id() const {
     return m_pimpl->id();
 }
+
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+dataset::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+dataset::impl::save<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&) const;
+
+template void
+dataset::impl::load<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
+
+template void
+dataset::serialize<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&);
+
+template void
+dataset::serialize<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
 
 adhoc_storage::resources::resources(std::vector<admire::node> nodes)
     : m_nodes(std::move(nodes)) {}
@@ -1425,6 +1499,7 @@ adhoc_storage::ctx::should_flush() const {
 class adhoc_storage::impl {
 
 public:
+    impl() = default;
     explicit impl(enum adhoc_storage::type type, std::string name,
                   std::uint64_t id, adhoc_storage::ctx ctx)
         : m_type(type), m_name(std::move(name)), m_id(id),
@@ -1462,12 +1537,33 @@ public:
         m_ctx = std::move(new_ctx);
     }
 
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_type));
+        ar(SCORD_SERIALIZATION_NVP(m_name));
+        ar(SCORD_SERIALIZATION_NVP(m_id));
+        ar(SCORD_SERIALIZATION_NVP(m_ctx));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_type));
+        ar(SCORD_SERIALIZATION_NVP(m_name));
+        ar(SCORD_SERIALIZATION_NVP(m_id));
+        ar(SCORD_SERIALIZATION_NVP(m_ctx));
+    }
+
+
 private:
     enum type m_type;
     std::string m_name;
     std::uint64_t m_id;
     adhoc_storage::ctx m_ctx;
 };
+
+adhoc_storage::adhoc_storage() = default;
 
 adhoc_storage::adhoc_storage(enum adhoc_storage::type type, std::string name,
                              std::uint64_t id, execution_mode exec_mode,
@@ -1526,6 +1622,32 @@ void
 adhoc_storage::update(admire::adhoc_storage::ctx new_ctx) {
     return m_pimpl->update(std::move(new_ctx));
 }
+
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+adhoc_storage::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+adhoc_storage::impl::save<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&) const;
+
+template void
+adhoc_storage::impl::load<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
+
+template void
+adhoc_storage::serialize<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&);
+
+template void
+adhoc_storage::serialize<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
 
 adhoc_storage::~adhoc_storage() = default;
 
@@ -1645,6 +1767,7 @@ pfs_storage::update(admire::pfs_storage::ctx new_ctx) {
 class job_requirements::impl {
 
 public:
+    impl() = default;
     impl(std::vector<admire::dataset> inputs,
          std::vector<admire::dataset> outputs)
         : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)) {}
@@ -1696,12 +1819,30 @@ public:
         return m_adhoc_storage;
     }
 
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_inputs));
+        ar(SCORD_SERIALIZATION_NVP(m_outputs));
+        ar(SCORD_SERIALIZATION_NVP(m_adhoc_storage));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_inputs));
+        ar(SCORD_SERIALIZATION_NVP(m_outputs));
+        ar(SCORD_SERIALIZATION_NVP(m_adhoc_storage));
+    }
+
 private:
     std::vector<admire::dataset> m_inputs;
     std::vector<admire::dataset> m_outputs;
     std::optional<admire::adhoc_storage> m_adhoc_storage;
 };
 
+
+job_requirements::job_requirements() = default;
 
 job_requirements::job_requirements(std::vector<admire::dataset> inputs,
                                    std::vector<admire::dataset> outputs)
@@ -1746,6 +1887,32 @@ std::optional<admire::adhoc_storage>
 job_requirements::adhoc_storage() const {
     return m_pimpl->adhoc_storage();
 }
+
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+job_requirements::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+job_requirements::impl::save<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&) const;
+
+template void
+job_requirements::impl::load<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
+
+template void
+job_requirements::serialize<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&);
+
+template void
+job_requirements::serialize<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
 
 namespace qos {
 

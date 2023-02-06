@@ -26,6 +26,7 @@
 #ifndef SCORD_RPC_HANDLERS_HPP
 #define SCORD_RPC_HANDLERS_HPP
 
+#include <net/serialization.hpp>
 #include <admire_types.hpp>
 
 namespace scord::network::handlers {
@@ -33,6 +34,12 @@ namespace scord::network::handlers {
 void ping(const scord::network::request& req);
 void register_adhoc_storage(const request& req, const std::string& name,
 enum admire::adhoc_storage::type type, const admire::adhoc_storage::ctx& ctx);
+
+void
+register_job(const scord::network::request& req,
+             const admire::job::resources& job_resources,
+             const admire::job_requirements& job_requirements,
+             admire::slurm_job_id slurm_id);
 
 }
 
@@ -44,9 +51,6 @@ extern "C" {
 
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {
-
-/// ADM_register_job
-DECLARE_MARGO_RPC_HANDLER(ADM_register_job);
 
 /// ADM_update_job
 DECLARE_MARGO_RPC_HANDLER(ADM_update_job);

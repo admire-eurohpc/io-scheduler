@@ -32,6 +32,7 @@
 #include <fmt/format.h>
 #include <utils/ctype_ptr.hpp>
 #include <optional>
+#include <cereal/access.hpp>
 #include "admire_types.h"
 
 namespace admire {
@@ -171,16 +172,24 @@ struct job_requirements;
 struct job {
 
     struct resources {
+        resources();
         explicit resources(std::vector<admire::node> nodes);
         explicit resources(ADM_job_resources_t res);
 
         std::vector<admire::node>
         nodes() const;
 
+        template <typename Archive>
+        void
+        serialize(Archive&& ar) {
+            ar& m_nodes;
+        }
+
     private:
         std::vector<admire::node> m_nodes;
     };
 
+    job();
     job(job_id id, slurm_job_id slurm_id);
     explicit job(ADM_job_t job);
     job(const job&) noexcept;
@@ -200,6 +209,11 @@ struct job {
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
+
+    friend class cereal::access;
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 };
 
 struct transfer {
@@ -305,6 +319,7 @@ private:
 
 
 struct dataset {
+    dataset();
     explicit dataset(std::string id);
     explicit dataset(ADM_dataset_t dataset);
     dataset(const dataset&) noexcept;
@@ -317,6 +332,12 @@ struct dataset {
 
     std::string
     id() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;
@@ -402,6 +423,7 @@ struct adhoc_storage {
         bool m_should_flush;
     };
 
+    adhoc_storage();
     adhoc_storage(enum adhoc_storage::type type, std::string name,
                   std::uint64_t id, execution_mode exec_mode,
                   access_type access_type, adhoc_storage::resources res,
@@ -429,6 +451,12 @@ struct adhoc_storage {
 
     void
     update(admire::adhoc_storage::ctx new_ctx);
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;
@@ -490,6 +518,8 @@ private:
 
 struct job_requirements {
 
+    job_requirements();
+
     job_requirements(std::vector<admire::dataset> inputs,
                      std::vector<admire::dataset> outputs);
 
@@ -514,6 +544,12 @@ struct job_requirements {
     outputs() const;
     std::optional<admire::adhoc_storage>
     adhoc_storage() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;

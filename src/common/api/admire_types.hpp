@@ -141,6 +141,7 @@ private:
 
 struct node {
 
+    node();
     explicit node(std::string hostname);
     explicit node(const ADM_node_t& srv);
     node(const node&) noexcept;
@@ -153,6 +154,12 @@ struct node {
 
     std::string
     hostname() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;
@@ -339,17 +346,26 @@ struct adhoc_storage {
     };
 
     struct resources {
+        resources() = default;
         explicit resources(std::vector<admire::node> nodes);
         explicit resources(ADM_adhoc_resources_t res);
 
         std::vector<admire::node>
         nodes() const;
 
+        template <typename Archive>
+        void
+        serialize(Archive&& ar) {
+            ar& m_nodes;
+        }
+
     private:
         std::vector<admire::node> m_nodes;
     };
 
     struct ctx {
+
+        ctx() = default;
 
         ctx(execution_mode exec_mode, access_type access_type,
             adhoc_storage::resources resources, std::uint32_t walltime,
@@ -367,6 +383,16 @@ struct adhoc_storage {
         walltime() const;
         bool
         should_flush() const;
+
+        template <class Archive>
+        void
+        serialize(Archive&& ar) {
+            ar& m_exec_mode;
+            ar& m_access_type;
+            ar& m_resources;
+            ar& m_walltime;
+            ar& m_should_flush;
+        }
 
     private:
         execution_mode m_exec_mode;

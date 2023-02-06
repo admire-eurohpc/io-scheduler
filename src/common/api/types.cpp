@@ -24,6 +24,7 @@
 
 #include <logger/logger.hpp>
 #include <net/proto/rpc_types.h>
+#include <net/serialization.hpp>
 #include <utility>
 #include <utils/ctype_ptr.hpp>
 #include <cstdarg>
@@ -1117,6 +1118,7 @@ server::address() const {
 class node::impl {
 
 public:
+    impl() = default;
     explicit impl(std::string hostname) : m_hostname(std::move(hostname)) {}
 
     std::string
@@ -1124,9 +1126,23 @@ public:
         return m_hostname;
     }
 
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_hostname));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_hostname));
+    }
+
 private:
     std::string m_hostname;
 };
+
+node::node() = default;
 
 node::node(std::string hostname)
     : m_pimpl(std::make_unique<node::impl>(std::move(hostname))) {}
@@ -1153,6 +1169,32 @@ std::string
 node::hostname() const {
     return m_pimpl->hostname();
 }
+
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+node::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+node::impl::save<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&) const;
+
+template void
+node::impl::load<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
+
+template void
+node::serialize<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&);
+
+template void
+node::serialize<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
 
 class job::impl {
 

@@ -26,6 +26,7 @@
 #include <net/client.hpp>
 #include <net/endpoint.hpp>
 #include <net/request.hpp>
+#include <net/serialization.hpp>
 #include <net/proto/rpc_types.h>
 #include <api/convert.hpp>
 #include <admire_types.hpp>
@@ -188,7 +189,7 @@ ping(const server& srv) {
         LOGGER_INFO("rpc id: {} name: {} from: {} => "
                     "body: {{}}",
                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address().value_or("unknown")));
+                    std::quoted(rpc_client.self_address()));
 
         if(const auto call_rv = endp.call("ADM_"s + __FUNCTION__);
            call_rv.has_value()) {
@@ -358,51 +359,42 @@ register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx) {
 
-    (void) srv;
-    (void) name;
-    (void) type;
-    (void) ctx;
-
-    return tl::make_unexpected(admire::error_code::snafu);
-
-#if 0
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+    scord::network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
-    auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{name: {}, type: {}, adhoc_ctx: {}}}",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), name, type, ctx);
+    if(const auto& lookup_rv = rpc_client.lookup(srv.address());
+       lookup_rv.has_value()) {
+        const auto& endp = lookup_rv.value();
 
-    const auto rpc_name = name.c_str();
-    const auto rpc_type = static_cast<ADM_adhoc_storage_type_t>(type);
-    const auto rpc_ctx = api::convert(ctx);
+        LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                    "body: {{name: {}, type: {}, adhoc_ctx: {}}}",
+                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                    std::quoted(rpc_client.self_address()), name, type, ctx);
 
-    ADM_register_adhoc_storage_in_t in{rpc_name, rpc_type, rpc_ctx.get()};
-    ADM_register_adhoc_storage_out_t out;
+        if(const auto& call_rv =
+                   endp.call("ADM_"s + __FUNCTION__, name, type, ctx);
+           call_rv.has_value()) {
 
-    const auto rpc = endp.call("ADM_register_adhoc_storage", &in, &out);
+            const scord::network::response_with_id resp{call_rv.value()};
 
-    if(const auto rv = admire::error_code{out.retval}; !rv) {
-        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
-                     "body: {{retval: {}}} [op_id: {}]",
-                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                     std::quoted(rpc_client.self_address()), rv, out.op_id);
-        return tl::make_unexpected(rv);
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc id: {} name: {} from: {} <= "
+                        "body: {{retval: {}, adhoc_id: {}}} [op_id: {}]",
+                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                        std::quoted(endp.address()), resp.error_code(),
+                        resp.value(), resp.op_id());
+
+            if(const auto ec = resp.error_code(); !ec) {
+                return tl::make_unexpected(ec);
+            }
+
+            return admire::adhoc_storage{type, name, resp.value(), ctx};
+        }
     }
 
-    auto rpc_adhoc_storage = admire::adhoc_storage{type, name, out.id, ctx};
-
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
-                "body: {{retval: {}, id: {}}} [op_id: {}]",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()),
-                admire::error_code::success, out.id, out.op_id);
-
-    return rpc_adhoc_storage;
-#endif
+    LOGGER_ERROR("rpc call failed");
+    return tl::make_unexpected(admire::error_code::other);
 }
 
 admire::error_code

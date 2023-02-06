@@ -68,6 +68,37 @@ private:
     admire::error_code m_error_code;
 };
 
+template <typename Value>
+class response_with_value : public generic_response {
+
+public:
+    constexpr response_with_value() noexcept = default;
+
+    constexpr response_with_value(std::uint64_t op_id, admire::error_code ec,
+                                  std::optional<Value> value) noexcept
+        : generic_response(op_id, ec), m_value(std::move(value)) {}
+
+    constexpr auto
+    value() const noexcept {
+        return m_value.value();
+    }
+
+    constexpr auto
+    has_value() const noexcept {
+        return m_value.has_value();
+    }
+
+    template <typename Archive>
+    constexpr void
+    serialize(Archive&& ar) {
+        ar(cereal::base_class<generic_response>(this), m_value);
+    }
+
+private:
+    std::optional<Value> m_value;
+};
+
+using response_with_id = response_with_value<std::uint64_t>;
 
 } // namespace scord::network
 

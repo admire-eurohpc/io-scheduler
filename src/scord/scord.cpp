@@ -33,6 +33,7 @@
 
 #include <version.hpp>
 #include <net/server.hpp>
+#include <net/serialization.hpp>
 #include <net/proto/rpc_types.h>
 #include <config/settings.hpp>
 #include "rpc_handlers.hpp"
@@ -182,6 +183,8 @@ main(int argc, char* argv[]) {
         scord::network::server daemon(cfg);
 
         daemon.set_handler("ADM_ping"s, scord::network::handlers::ping);
+        daemon.set_handler("ADM_register_adhoc_storage"s,
+                           scord::network::handlers::register_adhoc_storage);
 
 #if 0
         const auto rpc_registration_cb = [](auto&& ctx) {

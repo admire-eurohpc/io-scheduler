@@ -26,9 +26,13 @@
 #ifndef SCORD_RPC_HANDLERS_HPP
 #define SCORD_RPC_HANDLERS_HPP
 
+#include <admire_types.hpp>
+
 namespace scord::network::handlers {
 
 void ping(const scord::network::request& req);
+void register_adhoc_storage(const request& req, const std::string& name,
+enum admire::adhoc_storage::type type, const admire::adhoc_storage::ctx& ctx);
 
 }
 
@@ -49,9 +53,6 @@ DECLARE_MARGO_RPC_HANDLER(ADM_update_job);
 
 /// ADM_remove_job
 DECLARE_MARGO_RPC_HANDLER(ADM_remove_job);
-
-/// ADM_register_adhoc_storage
-DECLARE_MARGO_RPC_HANDLER(ADM_register_adhoc_storage);
 
 /// ADM_update_adhoc_storage
 DECLARE_MARGO_RPC_HANDLER(ADM_update_adhoc_storage);

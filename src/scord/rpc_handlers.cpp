@@ -24,6 +24,7 @@
 
 #include <logger/logger.hpp>
 #include <net/engine.hpp>
+#include <net/serialization.hpp>
 #include <net/proto/rpc_types.h>
 #include <admire.hpp>
 #include <api/convert.hpp>
@@ -68,6 +69,47 @@ ping(const scord::network::request& req) {
                 "body: {{retval: {}}}",
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 admire::error_code::success);
+
+    req.respond(resp);
+}
+
+
+void
+register_adhoc_storage(const request& req, const std::string& name,
+                       enum admire::adhoc_storage::type type,
+                       const admire::adhoc_storage::ctx& ctx) {
+
+    using scord::network::get_address;
+
+    const auto rpc_name = "ADM_"s + __FUNCTION__;
+    const auto rpc_id = remote_procedure::new_id();
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{name: {}, type: {}, adhoc_ctx: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                name, type, ctx);
+
+    admire::error_code ec;
+    std::optional<std::uint64_t> adhoc_id;
+    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
+
+    if(const auto am_result = adhoc_manager.create(type, name, ctx);
+       am_result.has_value()) {
+        const auto& adhoc_storage_info = am_result.value();
+        adhoc_id = adhoc_storage_info->adhoc_storage().id();
+    } else {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating adhoc_storage: "
+                     "{}\"",
+                     rpc_id, am_result.error());
+        ec = am_result.error();
+    }
+
+    const auto resp = response_with_id{rpc_id, ec, adhoc_id};
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}, adhoc_id: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                ec, adhoc_id);
 
     req.respond(resp);
 }
@@ -262,67 +304,6 @@ ADM_remove_job(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_remove_job);
-
-static void
-ADM_register_adhoc_storage(hg_handle_t h) {
-
-    using scord::network::utils::get_address;
-
-    [[maybe_unused]] hg_return_t ret;
-
-    ADM_register_adhoc_storage_in_t in;
-    ADM_register_adhoc_storage_out_t out;
-
-    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
-
-    ret = margo_get_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    const std::string name(in.name);
-    const auto type = static_cast<enum admire::adhoc_storage::type>(in.type);
-    const admire::adhoc_storage::ctx ctx(in.ctx);
-
-    const auto rpc_id = remote_procedure::new_id();
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{name: {}, type: {}, adhoc_ctx: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                name, type, ctx);
-
-    admire::error_code ec;
-    std::uint64_t out_adhoc_id = 0;
-    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-
-    if(const auto am_result = adhoc_manager.create(type, name, ctx);
-       am_result.has_value()) {
-        const auto& adhoc_storage_info = am_result.value();
-        out_adhoc_id = adhoc_storage_info->adhoc_storage().id();
-    } else {
-        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating adhoc_storage: "
-                     "{}\"",
-                     rpc_id, am_result.error());
-        ec = am_result.error();
-    }
-
-    out.op_id = rpc_id;
-    out.retval = ec;
-    out.id = out_adhoc_id;
-
-    LOGGER_INFO("rpc id: {} name: {} to: {} => "
-                "body: {{retval: {}, id: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec, out.id);
-
-    ret = margo_respond(h, &out);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_free_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_destroy(h);
-    assert(ret == HG_SUCCESS);
-}
-
-DEFINE_MARGO_RPC_HANDLER(ADM_register_adhoc_storage);
 
 static void
 ADM_update_adhoc_storage(hg_handle_t h) {

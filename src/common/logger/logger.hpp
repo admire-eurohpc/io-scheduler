@@ -350,4 +350,14 @@ private:
         }                                                                      \
     } while(0);
 
+
+#define LOGGER_EVAL(expr, L1, L2, ...)                                         \
+    do {                                                                       \
+        if(expr) {                                                             \
+            LOGGER_##L1(__VA_ARGS__);                                          \
+        } else {                                                               \
+            LOGGER_##L2(__VA_ARGS__);                                          \
+        }                                                                      \
+    } while(0);
+
 #endif /* SCORD_LOGGER_HPP */

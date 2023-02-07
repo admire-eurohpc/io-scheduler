@@ -195,6 +195,7 @@ main(int argc, char* argv[]) {
         daemon.set_handler(EXPAND(deploy_adhoc_storage));
         daemon.set_handler(EXPAND(register_pfs_storage));
         daemon.set_handler(EXPAND(update_pfs_storage));
+        daemon.set_handler(EXPAND(remove_pfs_storage));
 
 #undef EXPAND
 

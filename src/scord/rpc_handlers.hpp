@@ -69,6 +69,9 @@ void
 update_pfs_storage(const request& req, std::uint64_t pfs_id,
                    const admire::pfs_storage::ctx& new_ctx);
 
+void
+remove_pfs_storage(const request& req, std::uint64_t pfs_id);
+
 } // namespace scord::network::handlers
 
 #include <margo.h>
@@ -79,9 +82,6 @@ extern "C" {
 
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {
-
-/// ADM_remove_pfs_storage
-DECLARE_MARGO_RPC_HANDLER(ADM_remove_pfs_storage);
 
 /// ADM_input
 DECLARE_MARGO_RPC_HANDLER(ADM_input);

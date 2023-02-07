@@ -181,25 +181,22 @@ main(int argc, char* argv[]) {
     try {
         scord::network::server daemon(cfg);
 
-        daemon.set_handler("ADM_ping"s, scord::network::handlers::ping);
-        daemon.set_handler("ADM_register_job"s,
-                           scord::network::handlers::register_job);
-        daemon.set_handler("ADM_update_job"s,
-                           scord::network::handlers::update_job);
-        daemon.set_handler("ADM_remove_job"s,
-                           scord::network::handlers::remove_job);
-        daemon.set_handler("ADM_register_adhoc_storage"s,
-                           scord::network::handlers::register_adhoc_storage);
-        daemon.set_handler("ADM_update_adhoc_storage"s,
-                           scord::network::handlers::update_adhoc_storage);
-        daemon.set_handler("ADM_remove_adhoc_storage"s,
-                           scord::network::handlers::remove_adhoc_storage);
-        daemon.set_handler("ADM_deploy_adhoc_storage"s,
-                           scord::network::handlers::deploy_adhoc_storage);
-        daemon.set_handler("ADM_register_pfs_storage"s,
-                           scord::network::handlers::register_pfs_storage);
-        daemon.set_handler("ADM_update_pfs_storage"s,
-                           scord::network::handlers::update_pfs_storage);
+        // convenience macro to ensure the names of an RPC and its handler
+        // always match
+#define EXPAND(rpc_name) "ADM_" #rpc_name##s, scord::network::handlers::rpc_name
+
+        daemon.set_handler(EXPAND(ping));
+        daemon.set_handler(EXPAND(register_job));
+        daemon.set_handler(EXPAND(update_job));
+        daemon.set_handler(EXPAND(remove_job));
+        daemon.set_handler(EXPAND(register_adhoc_storage));
+        daemon.set_handler(EXPAND(update_adhoc_storage));
+        daemon.set_handler(EXPAND(remove_adhoc_storage));
+        daemon.set_handler(EXPAND(deploy_adhoc_storage));
+        daemon.set_handler(EXPAND(register_pfs_storage));
+        daemon.set_handler(EXPAND(update_pfs_storage));
+
+#undef EXPAND
 
 #if 0
         const auto rpc_registration_cb = [](auto&& ctx) {

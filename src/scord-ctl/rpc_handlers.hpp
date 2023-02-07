@@ -25,16 +25,15 @@
 #ifndef SCORD_CTL_RPC_HANDLERS_HPP
 #define SCORD_CTL_RPC_HANDLERS_HPP
 
-#include <margo.h>
+#include <net/request.hpp>
+#include <net/serialization.hpp>
+#include <admire_types.hpp>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace scord::network::handlers {
 
-DECLARE_MARGO_RPC_HANDLER(ADM_ping);
+void
+ping(const scord::network::request& req);
 
-#ifdef __cplusplus
-};
-#endif
+} // namespace scord::network::handlers
 
 #endif // SCORD_CTL_RPC_HANDLERS_HPP

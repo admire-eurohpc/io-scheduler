@@ -41,6 +41,9 @@ update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
                      const admire::adhoc_storage::ctx& new_ctx);
 
 void
+remove_adhoc_storage(const request& req, std::uint64_t adhoc_id);
+
+void
 register_job(const scord::network::request& req,
              const admire::job::resources& job_resources,
              const admire::job_requirements& job_requirements,
@@ -62,9 +65,6 @@ DECLARE_MARGO_RPC_HANDLER(ADM_update_job);
 
 /// ADM_remove_job
 DECLARE_MARGO_RPC_HANDLER(ADM_remove_job);
-
-/// ADM_remove_adhoc_storage
-DECLARE_MARGO_RPC_HANDLER(ADM_remove_adhoc_storage);
 
 /// ADM_deploy_adhoc_storage
 DECLARE_MARGO_RPC_HANDLER(ADM_deploy_adhoc_storage);

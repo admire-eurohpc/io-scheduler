@@ -197,9 +197,34 @@ update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
 
     req.respond(resp);
 }
+
+void
+remove_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
+
+    using scord::network::get_address;
+
+    const auto rpc_name = "ADM_"s + __FUNCTION__;
+    const auto rpc_id = remote_procedure::new_id();
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{adhoc_id: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                adhoc_id);
+
+    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
+    admire::error_code ec = adhoc_manager.remove(adhoc_id);
+
+    if(!ec) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"", rpc_id,
+                     adhoc_id);
+    }
+
+    const auto resp = generic_response{rpc_id, ec};
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
-                rpc_id, std::quoted(__FUNCTION__),
-                std::quoted(get_address(req)), ec);
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                ec);
 
     req.respond(resp);
 }
@@ -322,57 +347,6 @@ ADM_remove_job(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_remove_job);
-
-
-static void
-ADM_remove_adhoc_storage(hg_handle_t h) {
-
-    using scord::network::utils::get_address;
-
-    [[maybe_unused]] hg_return_t ret;
-
-    ADM_remove_adhoc_storage_in_t in;
-    ADM_remove_adhoc_storage_out_t out;
-
-    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
-
-    ret = margo_get_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    const auto rpc_id = remote_procedure::new_id();
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_storage_id: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                in.server_id);
-
-
-    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-    admire::error_code ec = adhoc_manager.remove(in.server_id);
-
-    if(!ec) {
-        LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"", rpc_id,
-                     in.server_id);
-    }
-
-    out.op_id = rpc_id;
-    out.retval = ec;
-
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec);
-
-    ret = margo_respond(h, &out);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_free_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_destroy(h);
-    assert(ret == HG_SUCCESS);
-}
-
-DEFINE_MARGO_RPC_HANDLER(ADM_remove_adhoc_storage);
 
 static void
 ADM_deploy_adhoc_storage(hg_handle_t h) {

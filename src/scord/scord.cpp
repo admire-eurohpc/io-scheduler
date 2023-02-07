@@ -184,6 +184,8 @@ main(int argc, char* argv[]) {
         daemon.set_handler("ADM_ping"s, scord::network::handlers::ping);
         daemon.set_handler("ADM_register_adhoc_storage"s,
                            scord::network::handlers::register_adhoc_storage);
+        daemon.set_handler("ADM_update_adhoc_storage"s,
+                           scord::network::handlers::update_adhoc_storage);
         daemon.set_handler("ADM_register_job"s,
                            scord::network::handlers::register_job);
 

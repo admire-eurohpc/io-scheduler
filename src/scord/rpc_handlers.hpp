@@ -22,7 +22,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-// clang-format off
 #ifndef SCORD_RPC_HANDLERS_HPP
 #define SCORD_RPC_HANDLERS_HPP
 
@@ -31,9 +30,15 @@
 
 namespace scord::network::handlers {
 
-void ping(const scord::network::request& req);
-void register_adhoc_storage(const request& req, const std::string& name,
-enum admire::adhoc_storage::type type, const admire::adhoc_storage::ctx& ctx);
+void
+ping(const scord::network::request& req);
+void
+register_adhoc_storage(const request& req, const std::string& name,
+                       enum admire::adhoc_storage::type type,
+                       const admire::adhoc_storage::ctx& ctx);
+void
+update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
+                     const admire::adhoc_storage::ctx& new_ctx);
 
 void
 register_job(const scord::network::request& req,
@@ -41,7 +46,7 @@ register_job(const scord::network::request& req,
              const admire::job_requirements& job_requirements,
              admire::slurm_job_id slurm_id);
 
-}
+} // namespace scord::network::handlers
 
 #include <margo.h>
 
@@ -57,9 +62,6 @@ DECLARE_MARGO_RPC_HANDLER(ADM_update_job);
 
 /// ADM_remove_job
 DECLARE_MARGO_RPC_HANDLER(ADM_remove_job);
-
-/// ADM_update_adhoc_storage
-DECLARE_MARGO_RPC_HANDLER(ADM_update_adhoc_storage);
 
 /// ADM_remove_adhoc_storage
 DECLARE_MARGO_RPC_HANDLER(ADM_remove_adhoc_storage);

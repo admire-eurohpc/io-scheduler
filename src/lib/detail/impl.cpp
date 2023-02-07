@@ -374,104 +374,6 @@ register_adhoc_storage(const server& srv, const std::string& name,
 }
 
 admire::error_code
-deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
-
-    scord::network::client rpc_client{srv.protocol()};
-
-    const auto rpc_id = ::api::remote_procedure::new_id();
-
-    if(const auto& lookup_rv = rpc_client.lookup(srv.address());
-       lookup_rv.has_value()) {
-        const auto& endp = lookup_rv.value();
-
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{adhoc_id: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), adhoc_storage.id());
-
-        if(const auto& call_rv =
-                   endp.call("ADM_"s + __FUNCTION__, adhoc_storage.id());
-           call_rv.has_value()) {
-
-            const scord::network::generic_response resp{call_rv.value()};
-
-            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
-
-            return resp.error_code();
-        }
-    }
-
-    LOGGER_ERROR("rpc call failed");
-    return admire::error_code::other;
-}
-
-tl::expected<transfer, error_code>
-transfer_datasets(const server& srv, const job& job,
-                  const std::vector<dataset>& sources,
-                  const std::vector<dataset>& targets,
-                  const std::vector<qos::limit>& limits,
-                  transfer::mapping mapping) {
-
-    (void) srv;
-    (void) job;
-    (void) sources;
-    (void) targets;
-    (void) limits;
-    (void) mapping;
-
-    return tl::make_unexpected(admire::error_code::snafu);
-
-#if 0
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
-
-    const auto rpc_id = ::api::remote_procedure::new_id();
-    auto endp = rpc_client.lookup(srv.address());
-
-    LOGGER_INFO(
-            "rpc id: {} name: {} from: {} => "
-            "body: {{job: {}, sources: {}, targets: {}, limits: {}, mapping: {}}}",
-            rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-            std::quoted(rpc_client.self_address()), job, sources, targets,
-            limits, mapping);
-
-    const auto rpc_job = api::convert(job);
-    const auto rpc_sources = api::convert(sources);
-    const auto rpc_targets = api::convert(targets);
-    const auto rpc_qos_limits = api::convert(limits);
-
-    ADM_transfer_datasets_in_t in{rpc_job.get(), rpc_sources.get(),
-                                  rpc_targets.get(), rpc_qos_limits.get(),
-                                  static_cast<ADM_transfer_mapping_t>(mapping)};
-    ADM_transfer_datasets_out_t out;
-
-    [[maybe_unused]] const auto rpc =
-            endp.call("ADM_transfer_datasets", &in, &out);
-
-    if(const auto rv = admire::error_code{out.retval}; !rv) {
-        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
-                     "body: {{retval: {}}} [op_id: {}]",
-                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                     std::quoted(rpc.origin()), rv, out.op_id);
-        return tl::make_unexpected(rv);
-    }
-
-    const admire::transfer tx = api::convert(out.tx);
-
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
-                "body: {{retval: {}, transfer: {}}} [op_id: {}]",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc.origin()), admire::error_code::success, tx,
-                out.op_id);
-    return tx;
-#endif
-}
-
-admire::error_code
 update_adhoc_storage(const server& srv, const adhoc_storage::ctx& new_ctx,
                      const adhoc_storage& adhoc_storage) {
 
@@ -683,6 +585,104 @@ remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
                 out.op_id);
 
     return admire::error_code::success;
+#endif
+}
+
+admire::error_code
+deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
+
+    scord::network::client rpc_client{srv.protocol()};
+
+    const auto rpc_id = ::api::remote_procedure::new_id();
+
+    if(const auto& lookup_rv = rpc_client.lookup(srv.address());
+       lookup_rv.has_value()) {
+        const auto& endp = lookup_rv.value();
+
+        LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                    "body: {{adhoc_id: {}}}",
+                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                    std::quoted(rpc_client.self_address()), adhoc_storage.id());
+
+        if(const auto& call_rv =
+                   endp.call("ADM_"s + __FUNCTION__, adhoc_storage.id());
+           call_rv.has_value()) {
+
+            const scord::network::generic_response resp{call_rv.value()};
+
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc id: {} name: {} from: {} <= "
+                        "body: {{retval: {}}} [op_id: {}]",
+                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                        std::quoted(endp.address()), resp.error_code(),
+                        resp.op_id());
+
+            return resp.error_code();
+        }
+    }
+
+    LOGGER_ERROR("rpc call failed");
+    return admire::error_code::other;
+}
+
+tl::expected<transfer, error_code>
+transfer_datasets(const server& srv, const job& job,
+                  const std::vector<dataset>& sources,
+                  const std::vector<dataset>& targets,
+                  const std::vector<qos::limit>& limits,
+                  transfer::mapping mapping) {
+
+    (void) srv;
+    (void) job;
+    (void) sources;
+    (void) targets;
+    (void) limits;
+    (void) mapping;
+
+    return tl::make_unexpected(admire::error_code::snafu);
+
+#if 0
+    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+
+    const auto rpc_id = ::api::remote_procedure::new_id();
+    auto endp = rpc_client.lookup(srv.address());
+
+    LOGGER_INFO(
+            "rpc id: {} name: {} from: {} => "
+            "body: {{job: {}, sources: {}, targets: {}, limits: {}, mapping: {}}}",
+            rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+            std::quoted(rpc_client.self_address()), job, sources, targets,
+            limits, mapping);
+
+    const auto rpc_job = api::convert(job);
+    const auto rpc_sources = api::convert(sources);
+    const auto rpc_targets = api::convert(targets);
+    const auto rpc_qos_limits = api::convert(limits);
+
+    ADM_transfer_datasets_in_t in{rpc_job.get(), rpc_sources.get(),
+                                  rpc_targets.get(), rpc_qos_limits.get(),
+                                  static_cast<ADM_transfer_mapping_t>(mapping)};
+    ADM_transfer_datasets_out_t out;
+
+    [[maybe_unused]] const auto rpc =
+            endp.call("ADM_transfer_datasets", &in, &out);
+
+    if(const auto rv = admire::error_code{out.retval}; !rv) {
+        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
+                     "body: {{retval: {}}} [op_id: {}]",
+                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                     std::quoted(rpc.origin()), rv, out.op_id);
+        return tl::make_unexpected(rv);
+    }
+
+    const admire::transfer tx = api::convert(out.tx);
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
+                "body: {{retval: {}, transfer: {}}} [op_id: {}]",
+                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                std::quoted(rpc.origin()), admire::error_code::success, tx,
+                out.op_id);
+    return tx;
 #endif
 }
 

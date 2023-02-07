@@ -32,19 +32,6 @@ namespace scord::network::handlers {
 
 void
 ping(const scord::network::request& req);
-void
-register_adhoc_storage(const request& req, const std::string& name,
-                       enum admire::adhoc_storage::type type,
-                       const admire::adhoc_storage::ctx& ctx);
-void
-update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
-                     const admire::adhoc_storage::ctx& new_ctx);
-
-void
-remove_adhoc_storage(const request& req, std::uint64_t adhoc_id);
-
-void
-deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id);
 
 void
 register_job(const scord::network::request& req,
@@ -58,6 +45,20 @@ update_job(const request& req, admire::job_id job_id,
 
 void
 remove_job(const request& req, admire::job_id job_id);
+
+void
+register_adhoc_storage(const request& req, const std::string& name,
+                       enum admire::adhoc_storage::type type,
+                       const admire::adhoc_storage::ctx& ctx);
+void
+update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
+                     const admire::adhoc_storage::ctx& new_ctx);
+
+void
+remove_adhoc_storage(const request& req, std::uint64_t adhoc_id);
+
+void
+deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id);
 
 } // namespace scord::network::handlers
 

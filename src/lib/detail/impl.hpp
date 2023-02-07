@@ -46,13 +46,6 @@ update_job(const server& srv, const job& job,
 admire::error_code
 remove_job(const server& srv, const job& job);
 
-tl::expected<transfer, error_code>
-transfer_datasets(const server& srv, const job& job,
-                  const std::vector<dataset>& sources,
-                  const std::vector<dataset>& targets,
-                  const std::vector<qos::limit>& limits,
-                  transfer::mapping mapping);
-
 tl::expected<admire::adhoc_storage, admire::error_code>
 register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
@@ -78,6 +71,13 @@ update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
 
 admire::error_code
 remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage);
+
+tl::expected<transfer, error_code>
+transfer_datasets(const server& srv, const job& job,
+                  const std::vector<dataset>& sources,
+                  const std::vector<dataset>& targets,
+                  const std::vector<qos::limit>& limits,
+                  transfer::mapping mapping);
 
 } // namespace admire::detail
 

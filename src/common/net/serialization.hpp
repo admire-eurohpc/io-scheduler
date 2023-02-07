@@ -33,6 +33,29 @@
 #include <thallium/serialization/stl/string.hpp>
 #include <thallium/serialization/stl/vector.hpp>
 
+// Cereal does not serialize std::filesystem::path's by default
+#include <filesystem>
+
+namespace cereal {
+
+//! Loading for std::filesystem::path
+template <class Archive>
+inline void
+CEREAL_LOAD_FUNCTION_NAME(Archive& ar, std::filesystem::path& out) {
+    std::string tmp;
+    ar(CEREAL_NVP_("data", tmp));
+    out.assign(tmp);
+}
+
+//! Saving for std::filesystem::path
+template <class Archive>
+inline void
+CEREAL_SAVE_FUNCTION_NAME(Archive& ar, const std::filesystem::path& in) {
+    ar(CEREAL_NVP_("data", in.string()));
+}
+
+} // namespace cereal
+
 namespace scord::network::serialization {
 
 #define SCORD_SERIALIZATION_NVP CEREAL_NVP

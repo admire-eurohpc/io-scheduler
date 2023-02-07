@@ -60,6 +60,11 @@ remove_adhoc_storage(const request& req, std::uint64_t adhoc_id);
 void
 deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id);
 
+void
+register_pfs_storage(const request& req, const std::string& name,
+                     enum admire::pfs_storage::type type,
+                     const admire::pfs_storage::ctx& ctx);
+
 } // namespace scord::network::handlers
 
 #include <margo.h>
@@ -70,9 +75,6 @@ extern "C" {
 
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {
-
-/// ADM_register_pfs_storage
-DECLARE_MARGO_RPC_HANDLER(ADM_register_pfs_storage);
 
 /// ADM_update_pfs_storage
 DECLARE_MARGO_RPC_HANDLER(ADM_update_pfs_storage);

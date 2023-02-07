@@ -404,69 +404,47 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
     req.respond(resp);
 }
 
-} // namespace scord::network::handlers
+void
+register_pfs_storage(const request& req, const std::string& name,
+                     enum admire::pfs_storage::type type,
+                     const admire::pfs_storage::ctx& ctx) {
 
+    using scord::network::get_address;
 
-static void
-ADM_register_pfs_storage(hg_handle_t h) {
-
-    using admire::pfs_storage;
-    using scord::network::utils::get_address;
-
-    [[maybe_unused]] hg_return_t ret;
-
-    ADM_register_pfs_storage_in_t in;
-    ADM_register_pfs_storage_out_t out;
-
-    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
-
-    ret = margo_get_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    const std::string pfs_name{in.name};
-    const auto pfs_type = static_cast<enum pfs_storage::type>(in.type);
-    const pfs_storage::ctx pfs_ctx{in.ctx};
-
+    const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
+
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
                 "body: {{name: {}, type: {}, pfs_ctx: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                pfs_name, pfs_type, pfs_ctx);
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                name, type, ctx);
 
     admire::error_code ec;
-    std::uint64_t out_pfs_id = 0;
+    std::optional<std::uint64_t> pfs_id = 0;
     auto& pfs_manager = scord::pfs_storage_manager::instance();
 
-    if(const auto pm_result = pfs_manager.create(pfs_type, pfs_name, pfs_ctx);
+    if(const auto pm_result = pfs_manager.create(type, name, ctx);
        pm_result.has_value()) {
         const auto& adhoc_storage_info = pm_result.value();
-        out_pfs_id = adhoc_storage_info->pfs_storage().id();
+        pfs_id = adhoc_storage_info->pfs_storage().id();
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error creating pfs_storage: {}\"",
                      rpc_id, pm_result.error());
         ec = pm_result.error();
     }
 
-    out.op_id = rpc_id;
-    out.retval = ec;
-    out.id = out_pfs_id;
+    const auto resp = response_with_id{rpc_id, ec, pfs_id};
 
     LOGGER_INFO("rpc id: {} name: {} to: {} => "
-                "body: {{retval: {}, id: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec, out.id);
+                "body: {{retval: {}, pfs_id: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                ec, pfs_id);
 
-    ret = margo_respond(h, &out);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_free_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_destroy(h);
-    assert(ret == HG_SUCCESS);
+    req.respond(resp);
 }
 
-DEFINE_MARGO_RPC_HANDLER(ADM_register_pfs_storage);
+} // namespace scord::network::handlers
+
 
 static void
 ADM_update_pfs_storage(hg_handle_t h) {

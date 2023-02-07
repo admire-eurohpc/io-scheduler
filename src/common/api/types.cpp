@@ -1664,6 +1664,7 @@ pfs_storage::ctx::mount_point() const {
 class pfs_storage::impl {
 
 public:
+    impl() = default;
     explicit impl(enum pfs_storage::type type, std::string name,
                   std::uint64_t id, pfs_storage::ctx ctx)
         : m_type(type), m_name(std::move(name)), m_id(id),
@@ -1701,12 +1702,32 @@ public:
         m_ctx = std::move(new_ctx);
     }
 
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_type));
+        ar(SCORD_SERIALIZATION_NVP(m_name));
+        ar(SCORD_SERIALIZATION_NVP(m_id));
+        ar(SCORD_SERIALIZATION_NVP(m_ctx));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_type));
+        ar(SCORD_SERIALIZATION_NVP(m_name));
+        ar(SCORD_SERIALIZATION_NVP(m_id));
+        ar(SCORD_SERIALIZATION_NVP(m_ctx));
+    }
+
 private:
     enum type m_type;
     std::string m_name;
     std::uint64_t m_id;
     pfs_storage::ctx m_ctx;
 };
+
+pfs_storage::pfs_storage() = default;
 
 pfs_storage::pfs_storage(enum pfs_storage::type type, std::string name,
                          std::uint64_t id, std::filesystem::path mount_point)
@@ -1763,6 +1784,32 @@ void
 pfs_storage::update(admire::pfs_storage::ctx new_ctx) {
     return m_pimpl->update(std::move(new_ctx));
 }
+
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+pfs_storage::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+pfs_storage::impl::save<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&) const;
+
+template void
+pfs_storage::impl::load<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
+
+template void
+pfs_storage::serialize<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&);
+
+template void
+pfs_storage::serialize<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
 
 class job_requirements::impl {
 

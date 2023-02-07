@@ -472,6 +472,8 @@ struct pfs_storage {
 
     struct ctx {
 
+        ctx() = default;
+
         explicit ctx(std::filesystem::path mount_point);
 
         explicit ctx(ADM_pfs_context_t ctx);
@@ -479,9 +481,17 @@ struct pfs_storage {
         std::filesystem::path
         mount_point() const;
 
+        template <class Archive>
+        void
+        serialize(Archive&& ar) {
+            ar& m_mount_point;
+        }
+
     private:
         std::filesystem::path m_mount_point;
     };
+
+    pfs_storage();
 
     pfs_storage(enum pfs_storage::type type, std::string name, std::uint64_t id,
                 std::filesystem::path mount_point);
@@ -510,6 +520,12 @@ struct pfs_storage {
 
     void
     update(admire::pfs_storage::ctx new_ctx);
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;

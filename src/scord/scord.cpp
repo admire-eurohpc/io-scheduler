@@ -196,6 +196,8 @@ main(int argc, char* argv[]) {
                            scord::network::handlers::remove_adhoc_storage);
         daemon.set_handler("ADM_deploy_adhoc_storage"s,
                            scord::network::handlers::deploy_adhoc_storage);
+        daemon.set_handler("ADM_register_pfs_storage"s,
+                           scord::network::handlers::register_pfs_storage);
 
 #if 0
         const auto rpc_registration_cb = [](auto&& ctx) {

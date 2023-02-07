@@ -188,6 +188,8 @@ main(int argc, char* argv[]) {
                            scord::network::handlers::update_adhoc_storage);
         daemon.set_handler("ADM_remove_adhoc_storage"s,
                            scord::network::handlers::remove_adhoc_storage);
+        daemon.set_handler("ADM_deploy_adhoc_storage"s,
+                           scord::network::handlers::deploy_adhoc_storage);
         daemon.set_handler("ADM_register_job"s,
                            scord::network::handlers::register_job);
 

@@ -1308,6 +1308,7 @@ job::serialize<thallium::proc_output_archive<>>(
 class transfer::impl {
 
 public:
+    impl() = default;
     explicit impl(transfer_id id) : m_id(id) {}
 
     impl(const impl& rhs) = default;
@@ -1322,9 +1323,23 @@ public:
         return m_id;
     }
 
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_id));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_id));
+    }
+
 private:
     transfer_id m_id;
 };
+
+transfer::transfer() = default;
 
 transfer::transfer(transfer_id id)
     : m_pimpl(std::make_unique<transfer::impl>(id)) {}
@@ -1352,6 +1367,32 @@ transfer_id
 transfer::id() const {
     return m_pimpl->id();
 }
+
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+transfer::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+transfer::impl::save<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&) const;
+
+template void
+transfer::impl::load<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
+
+template void
+transfer::serialize<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&);
+
+template void
+transfer::serialize<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
 
 class dataset::impl {
 public:
@@ -1965,6 +2006,8 @@ namespace qos {
 
 class entity::impl {
 public:
+    impl() = default;
+
     template <typename T>
     impl(const admire::qos::scope& s, T&& data) : m_scope(s), m_data(data) {}
 
@@ -1990,6 +2033,20 @@ public:
         return std::get<T>(m_data);
     }
 
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_scope));
+        ar(SCORD_SERIALIZATION_NVP(m_data));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_scope));
+        ar(SCORD_SERIALIZATION_NVP(m_data));
+    }
+
 private:
     static std::variant<dataset, node, job, transfer>
     init_helper(ADM_qos_entity_t entity) {
@@ -2013,6 +2070,8 @@ private:
     admire::qos::scope m_scope;
     std::variant<dataset, node, job, transfer> m_data;
 };
+
+entity::entity() = default;
 
 template <typename T>
 entity::entity(admire::qos::scope s, T&& data)
@@ -2066,10 +2125,36 @@ entity::data<admire::transfer>() const {
     return m_pimpl->data<admire::transfer>();
 }
 
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+entity::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+entity::impl::save<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&) const;
+
+template void
+entity::impl::load<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
+
+template void
+entity::serialize<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&);
+
+template void
+entity::serialize<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
 
 class limit::impl {
 
 public:
+    impl() = default;
     impl(admire::qos::subclass cls, uint64_t value, admire::qos::entity e)
         : m_subclass(cls), m_value(value), m_entity(std::move(e)) {}
 
@@ -2104,11 +2189,29 @@ public:
         return m_value;
     }
 
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_subclass));
+        ar(SCORD_SERIALIZATION_NVP(m_value));
+        ar(SCORD_SERIALIZATION_NVP(m_entity));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_subclass));
+        ar(SCORD_SERIALIZATION_NVP(m_value));
+        ar(SCORD_SERIALIZATION_NVP(m_entity));
+    }
+
 private:
     admire::qos::subclass m_subclass;
     uint64_t m_value;
     std::optional<admire::qos::entity> m_entity;
 };
+
+limit::limit() = default;
 
 limit::limit(admire::qos::subclass cls, uint64_t value)
     : m_pimpl(std::make_unique<limit::impl>(cls, value)) {}
@@ -2149,6 +2252,32 @@ uint64_t
 limit::value() const {
     return m_pimpl->value();
 }
+
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+limit::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+limit::impl::save<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&) const;
+
+template void
+limit::impl::load<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
+
+template void
+limit::serialize<scord::network::serialization::output_archive>(
+        scord::network::serialization::output_archive&);
+
+template void
+limit::serialize<scord::network::serialization::input_archive>(
+        scord::network::serialization::input_archive&);
 
 } // namespace qos
 

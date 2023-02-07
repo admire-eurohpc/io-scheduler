@@ -27,6 +27,7 @@
 
 #include <cereal/cereal.hpp>
 #include <cereal/types/optional.hpp>
+#include <cereal/types/variant.hpp>
 #include <cereal/types/memory.hpp>
 #include <thallium/serialization/proc_input_archive.hpp>
 #include <thallium/serialization/proc_output_archive.hpp>

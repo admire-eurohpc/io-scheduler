@@ -506,6 +506,42 @@ remove_pfs_storage(const request& req, std::uint64_t pfs_id) {
     req.respond(resp);
 }
 
+void
+transfer_datasets(const request& req, admire::job_id job_id,
+                  const std::vector<admire::dataset>& sources,
+                  const std::vector<admire::dataset>& targets,
+                  const std::vector<admire::qos::limit>& limits,
+                  enum admire::transfer::mapping mapping) {
+
+    using scord::network::get_address;
+
+    const auto rpc_name = "ADM_"s + __FUNCTION__;
+    const auto rpc_id = remote_procedure::new_id();
+
+    LOGGER_INFO(
+            "rpc id: {} name: {} from: {} => "
+            "body: {{job_id: {}, sources: {}, targets: {}, limits: {}, mapping: {}}}",
+            rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+            job_id, sources, targets, limits, mapping);
+
+    admire::error_code ec;
+
+    std::optional<std::uint64_t> tx_id;
+
+    // TODO: generate a global ID for the transfer and contact Cargo to
+    // actually request it
+    tx_id = 42;
+
+    const auto resp = response_with_id{rpc_id, ec, tx_id};
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}, tx_id: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                ec, tx_id);
+
+    req.respond(resp);
+}
+
 } // namespace scord::network::handlers
 
 /**
@@ -1068,85 +1104,6 @@ ADM_in_transit_ops(hg_handle_t h) {
 }
 
 DEFINE_MARGO_RPC_HANDLER(ADM_in_transit_ops)
-
-
-/**
- * Transfers the dataset identified by the source_name to the storage tier
- * defined by destination_name, and apply the provided constraints during the
- * transfer. This function returns a handle that can be used to track the
- * operation (i.e., get statistics, or status).
- *
- * @param in.source A source_location identifying the source dataset/s in the
- * source storage tier.
- * @param in.destination A destination_location identifying the destination
- * dataset/s in its desired location in a storage tier.
- * @param in.qos_constraints A list of qos_constraints that must be applied to
- * the transfer. These may not exceed the global ones set at node, application,
- * or resource level (see Section 3.4).
- * @param in.distribution A distribution strategy for data (e.g. one-to-one,
- * one-to-many, many-to-many)
- * @param in.job_id A job_id identifying the originating job.
- * @param out.transfer_handle A transfer_handle allowing clients to interact
- * with the transfer (e.g. wait for its completion, query its status, cancel it,
- * etc.
- * @return out.ret Returns if the remote procedure has been completed
- * successfully or not.
- */
-static void
-ADM_transfer_datasets(hg_handle_t h) {
-
-    using scord::network::utils::get_address;
-
-    [[maybe_unused]] hg_return_t ret;
-
-    ADM_transfer_datasets_in_t in;
-    ADM_transfer_datasets_out_t out;
-
-    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
-
-    ret = margo_get_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    const admire::job job{in.job};
-    const std::vector<admire::dataset> sources =
-            admire::api::convert(in.sources);
-    const std::vector<admire::dataset> targets =
-            admire::api::convert(in.targets);
-    const std::vector<admire::qos::limit> limits =
-            admire::api::convert(in.qos_limits);
-    const auto mapping = static_cast<admire::transfer::mapping>(in.mapping);
-
-    const auto id = remote_procedure::new_id();
-    LOGGER_INFO(
-            "rpc id: {} name: {} from: {} => "
-            "body: {{job: {}, sources: {}, targets: {}, limits: {}, mapping: {}}}",
-            id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), job,
-            sources, targets, limits, mapping);
-
-    admire::error_code ec;
-
-    const auto transfer = admire::transfer{42};
-
-    out.op_id = id;
-    out.retval = ec;
-    out.tx = admire::api::convert(transfer).release();
-
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}, transfer: {}}}",
-                id, std::quoted(__FUNCTION__), std::quoted(get_address(h)), ec,
-                transfer);
-
-    ret = margo_respond(h, &out);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_free_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_destroy(h);
-    assert(ret == HG_SUCCESS);
-}
-
-DEFINE_MARGO_RPC_HANDLER(ADM_transfer_datasets)
 
 /**
  * Sets information for the dataset identified by resource_id.

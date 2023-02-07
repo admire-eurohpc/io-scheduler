@@ -72,6 +72,13 @@ update_pfs_storage(const request& req, std::uint64_t pfs_id,
 void
 remove_pfs_storage(const request& req, std::uint64_t pfs_id);
 
+void
+transfer_datasets(const request& req, admire::job_id job_id,
+                  const std::vector<admire::dataset>& sources,
+                  const std::vector<admire::dataset>& targets,
+                  const std::vector<admire::qos::limit>& limits,
+                  enum admire::transfer::mapping mapping);
+
 } // namespace scord::network::handlers
 
 #include <margo.h>
@@ -120,9 +127,6 @@ DECLARE_MARGO_RPC_HANDLER(ADM_in_situ_ops);
 /// ADM_in_transit_ops
 DECLARE_MARGO_RPC_HANDLER(ADM_in_transit_ops);
 
-
-/// ADM_transfer_datasets
-DECLARE_MARGO_RPC_HANDLER(ADM_transfer_datasets);
 
 /// ADM_set_dataset_information
 DECLARE_MARGO_RPC_HANDLER(ADM_set_dataset_information);

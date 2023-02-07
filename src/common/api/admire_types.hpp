@@ -224,6 +224,7 @@ struct transfer {
         n_to_n = ADM_MAPPING_N_TO_N
     };
 
+    transfer();
     explicit transfer(transfer_id id);
     explicit transfer(ADM_transfer_t transfer);
 
@@ -238,6 +239,12 @@ struct transfer {
 
     transfer_id
     id() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;
@@ -260,6 +267,7 @@ enum class scope : std::underlying_type<ADM_qos_scope_t>::type {
 
 struct entity {
 
+    entity();
     template <typename T>
     entity(admire::qos::scope s, T&& data);
     explicit entity(ADM_qos_entity_t entity);
@@ -280,6 +288,12 @@ struct entity {
     T
     data() const;
 
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
@@ -287,6 +301,7 @@ private:
 
 struct limit {
 
+    limit();
     limit(admire::qos::subclass cls, uint64_t value);
     limit(admire::qos::subclass cls, uint64_t value,
           const admire::qos::entity& e);
@@ -309,6 +324,12 @@ struct limit {
 
     uint64_t
     value() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;

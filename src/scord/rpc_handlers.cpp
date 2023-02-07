@@ -126,6 +126,38 @@ register_job(const scord::network::request& req,
 }
 
 void
+update_job(const request& req, admire::job_id job_id,
+           const admire::job::resources& new_resources) {
+
+    using scord::network::get_address;
+
+    const auto rpc_name = "ADM_"s + __FUNCTION__;
+    const auto rpc_id = remote_procedure::new_id();
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{job_id: {}, new_resources: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                job_id, new_resources);
+
+    auto& jm = scord::job_manager::instance();
+    const auto ec = jm.update(job_id, new_resources);
+
+    if(!ec) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error updating job: {}\"", rpc_id,
+                     ec);
+    }
+
+    const auto resp = generic_response{rpc_id, ec};
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                ec);
+
+    req.respond(resp);
+}
+
+void
 register_adhoc_storage(const request& req, const std::string& name,
                        enum admire::adhoc_storage::type type,
                        const admire::adhoc_storage::ctx& ctx) {
@@ -330,59 +362,6 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
 }
 
 } // namespace scord::network::handlers
-
-
-static void
-ADM_update_job(hg_handle_t h) {
-
-    using scord::network::utils::get_address;
-
-    [[maybe_unused]] hg_return_t ret;
-
-    ADM_update_job_in_t in;
-    ADM_update_job_out_t out;
-
-    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
-
-    ret = margo_get_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    const admire::job job(in.job);
-    const admire::job::resources job_resources(in.job_resources);
-
-    const auto rpc_id = remote_procedure::new_id();
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job: {}, job_resources: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                job, job_resources);
-
-    auto& jm = scord::job_manager::instance();
-    const auto ec = jm.update(job.id(), job_resources);
-
-    if(ec != ADM_SUCCESS) {
-        LOGGER_ERROR("rpc id: {} error_msg: \"Error updating job: {}\"", rpc_id,
-                     ec);
-    }
-
-    out.op_id = rpc_id;
-    out.retval = ec;
-
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                ec);
-
-    ret = margo_respond(h, &out);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_free_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_destroy(h);
-    assert(ret == HG_SUCCESS);
-}
-
-DEFINE_MARGO_RPC_HANDLER(ADM_update_job);
 
 
 static void

@@ -52,6 +52,10 @@ register_job(const scord::network::request& req,
              const admire::job_requirements& job_requirements,
              admire::slurm_job_id slurm_id);
 
+void
+update_job(const request& req, admire::job_id job_id,
+           const admire::job::resources& new_resources);
+
 } // namespace scord::network::handlers
 
 #include <margo.h>
@@ -62,9 +66,6 @@ extern "C" {
 
 // FIXME: cannot be in a namespace due to Margo limitations
 // namespace scord::network::rpc {
-
-/// ADM_update_job
-DECLARE_MARGO_RPC_HANDLER(ADM_update_job);
 
 /// ADM_remove_job
 DECLARE_MARGO_RPC_HANDLER(ADM_remove_job);

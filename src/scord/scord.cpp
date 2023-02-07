@@ -192,6 +192,8 @@ main(int argc, char* argv[]) {
                            scord::network::handlers::deploy_adhoc_storage);
         daemon.set_handler("ADM_register_job"s,
                            scord::network::handlers::register_job);
+        daemon.set_handler("ADM_update_job"s,
+                           scord::network::handlers::update_job);
 
 #if 0
         const auto rpc_registration_cb = [](auto&& ctx) {

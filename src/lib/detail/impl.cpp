@@ -259,48 +259,40 @@ register_job(const server& srv, const job::resources& job_resources,
 
 admire::error_code
 update_job(const server& srv, const job& job,
-           const job::resources& job_resources) {
+           const job::resources& new_resources) {
 
-    (void) srv;
-    (void) job;
-    (void) job_resources;
-
-    return admire::error_code::snafu;
-
-#if 0
-    scord::network::rpc_client rpc_client{srv.protocol(), rpc_registration_cb};
+    scord::network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
-    auto endp = rpc_client.lookup(srv.address());
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job: {}, job_resources: {}}}",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), job, job_resources);
+    if(const auto& lookup_rv = rpc_client.lookup(srv.address());
+       lookup_rv.has_value()) {
+        const auto& endp = lookup_rv.value();
 
-    const auto rpc_job = api::convert(job);
-    const auto rpc_job_resources = api::convert(job_resources);
+        LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                    "body: {{job_id: {}, new_resources: {}}}",
+                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                    std::quoted(rpc_client.self_address()), job.id(),
+                    new_resources);
 
-    ADM_update_job_in_t in{rpc_job.get(), rpc_job_resources.get()};
-    ADM_update_job_out_t out;
+        if(const auto& call_rv =
+                   endp.call("ADM_"s + __FUNCTION__, job.id(), new_resources);
+           call_rv.has_value()) {
 
-    const auto rpc = endp.call("ADM_update_job", &in, &out);
+            const scord::network::generic_response resp{call_rv.value()};
 
-    if(const auto rv = admire::error_code{out.retval}; !rv) {
-        LOGGER_ERROR("rpc id: {} name: {} from: {} <= "
-                     "body: {{retval: {}}} [op_id: {}]",
-                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                     std::quoted(rpc.origin()), rv, out.op_id);
-        return rv;
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc id: {} name: {} from: {} <= "
+                        "body: {{retval: {}}} [op_id: {}]",
+                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                        std::quoted(endp.address()), resp.error_code(),
+                        resp.op_id());
+            return resp.error_code();
+        }
     }
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} <= "
-                "body: {{retval: {}}} [op_id: {}]",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc.origin()), admire::error_code::success,
-                out.op_id);
-    return admire::error_code::success;
-#endif
+    LOGGER_ERROR("rpc call failed");
+    return admire::error_code::other;
 }
 
 admire::error_code

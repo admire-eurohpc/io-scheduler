@@ -443,60 +443,40 @@ register_pfs_storage(const request& req, const std::string& name,
     req.respond(resp);
 }
 
-} // namespace scord::network::handlers
+void
+update_pfs_storage(const request& req, std::uint64_t pfs_id,
+                   const admire::pfs_storage::ctx& new_ctx) {
 
+    using scord::network::get_address;
 
-static void
-ADM_update_pfs_storage(hg_handle_t h) {
-
-    using scord::network::utils::get_address;
-
-    [[maybe_unused]] hg_return_t ret;
-
-    ADM_update_pfs_storage_in_t in;
-    ADM_update_pfs_storage_out_t out;
-
-    [[maybe_unused]] margo_instance_id mid = margo_hg_handle_get_instance(h);
-
-    ret = margo_get_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    const admire::pfs_storage::ctx pfs_storage_ctx(in.pfs_storage_ctx);
-    const std::uint64_t server_id(in.server_id);
-
+    const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
+
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{pfs_storage_id: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
-                server_id);
+                "body: {{pfs_id: {}, new_ctx: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                pfs_id, new_ctx);
 
     auto& pfs_manager = scord::pfs_storage_manager::instance();
-    const auto ec = pfs_manager.update(server_id, pfs_storage_ctx);
+    const auto ec = pfs_manager.update(pfs_id, new_ctx);
 
     if(!ec) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error updating pfs_storage: {}\"",
                      rpc_id, ec);
     }
 
-    out.op_id = rpc_id;
-    out.retval = ec;
+    const auto resp = generic_response{rpc_id, ec};
 
     LOGGER_INFO("rpc id: {} name: {} to: {} => "
                 "body: {{retval: {}}}",
-                rpc_id, std::quoted(__FUNCTION__), std::quoted(get_address(h)),
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 ec);
 
-    ret = margo_respond(h, &out);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_free_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    ret = margo_destroy(h);
-    assert(ret == HG_SUCCESS);
+    req.respond(resp);
 }
 
-DEFINE_MARGO_RPC_HANDLER(ADM_update_pfs_storage);
+} // namespace scord::network::handlers
+
 
 static void
 ADM_remove_pfs_storage(hg_handle_t h) {

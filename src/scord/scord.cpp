@@ -194,6 +194,8 @@ main(int argc, char* argv[]) {
                            scord::network::handlers::register_job);
         daemon.set_handler("ADM_update_job"s,
                            scord::network::handlers::update_job);
+        daemon.set_handler("ADM_remove_job"s,
+                           scord::network::handlers::remove_job);
 
 #if 0
         const auto rpc_registration_cb = [](auto&& ctx) {

@@ -26,12 +26,11 @@
 # Define the CMake project and configure CMake
 # ##############################################################################
 
-# FetchContent_MakeAvailable() was introduced in 3.14
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.19)
 
 project(
   scord
-  VERSION 0.1.0
+  VERSION 0.2.0
   LANGUAGES C CXX
 )
 

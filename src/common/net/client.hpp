@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -22,18 +22,29 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_CTL_RPC_HANDLERS_HPP
-#define SCORD_CTL_RPC_HANDLERS_HPP
+#ifndef SCORD_CLIENT_HPP
+#define SCORD_CLIENT_HPP
 
-#include <net/request.hpp>
-#include <net/serialization.hpp>
-#include <admire_types.hpp>
+#include <optional>
+#include <thallium.hpp>
 
-namespace scord::network::handlers {
+namespace scord::network {
 
-void
-ping(const scord::network::request& req);
+class endpoint;
 
-} // namespace scord::network::handlers
+class client {
 
-#endif // SCORD_CTL_RPC_HANDLERS_HPP
+public:
+    explicit client(const std::string& protocol);
+    std::optional<endpoint>
+    lookup(const std::string& address) noexcept;
+    std::string
+    self_address() const noexcept;
+
+private:
+    std::shared_ptr<thallium::engine> m_engine;
+};
+
+} // namespace scord::network
+
+#endif // SCORD_CLIENT_HPP

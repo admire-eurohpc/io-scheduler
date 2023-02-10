@@ -36,21 +36,15 @@ ping(const server& srv);
 
 tl::expected<admire::job, admire::error_code>
 register_job(const server& srv, const job::resources& job_resources,
-             const job_requirements& reqs, admire::slurm_job_id slurm_id);
+             const job_requirements& job_requirements,
+             admire::slurm_job_id slurm_id);
 
 admire::error_code
 update_job(const server& srv, const job& job,
-           const job::resources& job_resources);
+           const job::resources& new_resources);
 
 admire::error_code
 remove_job(const server& srv, const job& job);
-
-tl::expected<transfer, error_code>
-transfer_datasets(const server& srv, const job& job,
-                  const std::vector<dataset>& sources,
-                  const std::vector<dataset>& targets,
-                  const std::vector<qos::limit>& limits,
-                  transfer::mapping mapping);
 
 tl::expected<admire::adhoc_storage, admire::error_code>
 register_adhoc_storage(const server& srv, const std::string& name,
@@ -58,8 +52,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
                        const adhoc_storage::ctx& ctx);
 
 admire::error_code
-update_adhoc_storage(const server& srv,
-                     const adhoc_storage::ctx& adhoc_storage_ctx,
+update_adhoc_storage(const server& srv, const adhoc_storage::ctx& new_ctx,
                      const adhoc_storage& adhoc_storage);
 
 admire::error_code
@@ -74,10 +67,17 @@ register_pfs_storage(const server& srv, const std::string& name,
 
 admire::error_code
 update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
-                   const admire::pfs_storage::ctx& pfs_storage_ctx);
+                   const admire::pfs_storage::ctx& new_ctx);
 
 admire::error_code
 remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage);
+
+tl::expected<transfer, error_code>
+transfer_datasets(const server& srv, const job& job,
+                  const std::vector<dataset>& sources,
+                  const std::vector<dataset>& targets,
+                  const std::vector<qos::limit>& limits,
+                  transfer::mapping mapping);
 
 } // namespace admire::detail
 

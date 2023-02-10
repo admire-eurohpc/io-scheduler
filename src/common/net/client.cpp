@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -22,18 +22,38 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_CTL_RPC_HANDLERS_HPP
-#define SCORD_CTL_RPC_HANDLERS_HPP
+#include <optional>
+#include <logger/logger.hpp>
+#include "client.hpp"
+#include "endpoint.hpp"
 
-#include <net/request.hpp>
-#include <net/serialization.hpp>
-#include <admire_types.hpp>
+using namespace std::literals;
 
-namespace scord::network::handlers {
+namespace scord::network {
 
-void
-ping(const scord::network::request& req);
 
-} // namespace scord::network::handlers
+client::client(const std::string& protocol)
+    : m_engine(std::make_shared<thallium::engine>(protocol,
+                                                  THALLIUM_CLIENT_MODE)) {}
 
-#endif // SCORD_CTL_RPC_HANDLERS_HPP
+std::optional<endpoint>
+client::lookup(const std::string& address) noexcept {
+    try {
+        return endpoint{m_engine, m_engine->lookup(address)};
+    } catch(const std::exception& ex) {
+        LOGGER_ERROR("client::lookup() failed: {}", ex.what());
+        return std::nullopt;
+    }
+}
+
+std::string
+client::self_address() const noexcept {
+    try {
+        return m_engine->self();
+    } catch(const std::exception& ex) {
+        LOGGER_ERROR("client::self_address() failed: {}", ex.what());
+        return "unknown"s;
+    }
+}
+
+} // namespace scord::network

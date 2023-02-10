@@ -32,6 +32,7 @@
 #include <fmt/format.h>
 #include <utils/ctype_ptr.hpp>
 #include <optional>
+#include <cereal/access.hpp>
 #include "admire_types.h"
 
 namespace admire {
@@ -92,6 +93,12 @@ struct error_code {
     std::string_view
     message() const;
 
+    template <typename Archive>
+    void
+    serialize(Archive&& ar) {
+        ar& m_value;
+    }
+
 private:
     ADM_return_t m_value;
 };
@@ -135,6 +142,7 @@ private:
 
 struct node {
 
+    node();
     explicit node(std::string hostname);
     explicit node(const ADM_node_t& srv);
     node(const node&) noexcept;
@@ -148,6 +156,12 @@ struct node {
     std::string
     hostname() const;
 
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
@@ -158,16 +172,24 @@ struct job_requirements;
 struct job {
 
     struct resources {
+        resources();
         explicit resources(std::vector<admire::node> nodes);
         explicit resources(ADM_job_resources_t res);
 
         std::vector<admire::node>
         nodes() const;
 
+        template <typename Archive>
+        void
+        serialize(Archive&& ar) {
+            ar& m_nodes;
+        }
+
     private:
         std::vector<admire::node> m_nodes;
     };
 
+    job();
     job(job_id id, slurm_job_id slurm_id);
     explicit job(ADM_job_t job);
     job(const job&) noexcept;
@@ -187,6 +209,11 @@ struct job {
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
+
+    friend class cereal::access;
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 };
 
 struct transfer {
@@ -197,6 +224,7 @@ struct transfer {
         n_to_n = ADM_MAPPING_N_TO_N
     };
 
+    transfer();
     explicit transfer(transfer_id id);
     explicit transfer(ADM_transfer_t transfer);
 
@@ -211,6 +239,12 @@ struct transfer {
 
     transfer_id
     id() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;
@@ -233,6 +267,7 @@ enum class scope : std::underlying_type<ADM_qos_scope_t>::type {
 
 struct entity {
 
+    entity();
     template <typename T>
     entity(admire::qos::scope s, T&& data);
     explicit entity(ADM_qos_entity_t entity);
@@ -253,6 +288,12 @@ struct entity {
     T
     data() const;
 
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
@@ -260,6 +301,7 @@ private:
 
 struct limit {
 
+    limit();
     limit(admire::qos::subclass cls, uint64_t value);
     limit(admire::qos::subclass cls, uint64_t value,
           const admire::qos::entity& e);
@@ -283,6 +325,12 @@ struct limit {
     uint64_t
     value() const;
 
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
@@ -292,6 +340,7 @@ private:
 
 
 struct dataset {
+    dataset();
     explicit dataset(std::string id);
     explicit dataset(ADM_dataset_t dataset);
     dataset(const dataset&) noexcept;
@@ -304,6 +353,12 @@ struct dataset {
 
     std::string
     id() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;
@@ -333,17 +388,26 @@ struct adhoc_storage {
     };
 
     struct resources {
+        resources() = default;
         explicit resources(std::vector<admire::node> nodes);
         explicit resources(ADM_adhoc_resources_t res);
 
         std::vector<admire::node>
         nodes() const;
 
+        template <typename Archive>
+        void
+        serialize(Archive&& ar) {
+            ar& m_nodes;
+        }
+
     private:
         std::vector<admire::node> m_nodes;
     };
 
     struct ctx {
+
+        ctx() = default;
 
         ctx(execution_mode exec_mode, access_type access_type,
             adhoc_storage::resources resources, std::uint32_t walltime,
@@ -362,6 +426,16 @@ struct adhoc_storage {
         bool
         should_flush() const;
 
+        template <class Archive>
+        void
+        serialize(Archive&& ar) {
+            ar& m_exec_mode;
+            ar& m_access_type;
+            ar& m_resources;
+            ar& m_walltime;
+            ar& m_should_flush;
+        }
+
     private:
         execution_mode m_exec_mode;
         enum access_type m_access_type;
@@ -370,6 +444,7 @@ struct adhoc_storage {
         bool m_should_flush;
     };
 
+    adhoc_storage();
     adhoc_storage(enum adhoc_storage::type type, std::string name,
                   std::uint64_t id, execution_mode exec_mode,
                   access_type access_type, adhoc_storage::resources res,
@@ -398,6 +473,12 @@ struct adhoc_storage {
     void
     update(admire::adhoc_storage::ctx new_ctx);
 
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
@@ -412,6 +493,8 @@ struct pfs_storage {
 
     struct ctx {
 
+        ctx() = default;
+
         explicit ctx(std::filesystem::path mount_point);
 
         explicit ctx(ADM_pfs_context_t ctx);
@@ -419,9 +502,17 @@ struct pfs_storage {
         std::filesystem::path
         mount_point() const;
 
+        template <class Archive>
+        void
+        serialize(Archive&& ar) {
+            ar& m_mount_point;
+        }
+
     private:
         std::filesystem::path m_mount_point;
     };
+
+    pfs_storage();
 
     pfs_storage(enum pfs_storage::type type, std::string name, std::uint64_t id,
                 std::filesystem::path mount_point);
@@ -451,12 +542,20 @@ struct pfs_storage {
     void
     update(admire::pfs_storage::ctx new_ctx);
 
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
 private:
     class impl;
     std::unique_ptr<impl> m_pimpl;
 };
 
 struct job_requirements {
+
+    job_requirements();
 
     job_requirements(std::vector<admire::dataset> inputs,
                      std::vector<admire::dataset> outputs);
@@ -482,6 +581,12 @@ struct job_requirements {
     outputs() const;
     std::optional<admire::adhoc_storage>
     adhoc_storage() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
 
 private:
     class impl;

@@ -33,13 +33,13 @@
 
 #include <version.hpp>
 #include <net/server.hpp>
-#include <net/proto/rpc_types.h>
 #include <config/settings.hpp>
 #include "rpc_handlers.hpp"
 #include "env.hpp"
 
 namespace fs = std::filesystem;
 namespace bpo = boost::program_options;
+using namespace std::literals;
 
 void
 print_version(const std::string& progname) {
@@ -176,16 +176,16 @@ main(int argc, char* argv[]) {
     }
 
     try {
-        scord::server daemon;
-        const auto rpc_registration_cb = [](auto&& ctx) {
-            LOGGER_INFO(" * Registering RPCs handlers...");
+        scord::network::server daemon(cfg);
 
-            REGISTER_RPC(ctx, "ADM_ping", void, ADM_ping_out_t, ADM_ping, true);
+// convenience macro to ensure the names of an RPC and its handler
+// always match
+#define EXPAND(rpc_name) "ADM_" #rpc_name##s, scord::network::handlers::rpc_name
 
-            // TODO: add internal RPCs for communication with scord
-        };
+        daemon.set_handler(EXPAND(ping));
 
-        daemon.configure(cfg, rpc_registration_cb);
+#undef EXPAND
+
         return daemon.run();
     } catch(const std::exception& ex) {
         fmt::print(stderr,

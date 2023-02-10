@@ -22,26 +22,23 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(_network_engine STATIC)
+add_library(_rpc_client STATIC)
 target_sources(
-  _network_engine
-  INTERFACE engine.hpp
-  PRIVATE detail/address.hpp
+  _rpc_client
+  INTERFACE endpoint.hpp client.hpp request.hpp serialization.hpp
+  PRIVATE endpoint.cpp client.cpp
 )
 
-target_link_libraries(
-  _network_engine PUBLIC common::logger transport_library Mercury::Mercury
-                        Argobots::Argobots Margo::Margo
-)
-set_property(TARGET _network_engine PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(_rpc_client PUBLIC common::config common::logger thallium)
+set_property(TARGET _rpc_client PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_library(_rpc_server STATIC)
 target_sources(
   _rpc_server
-  INTERFACE server.hpp
+  INTERFACE server.hpp request.hpp serialization.hpp
   PRIVATE server.cpp
 )
 
-target_link_libraries(_rpc_server PUBLIC common::config _network_engine)
+target_link_libraries(_rpc_server PUBLIC common::config common::logger thallium)
 
 add_subdirectory(proto)

@@ -40,12 +40,11 @@
 #include <config/settings.hpp>
 #include <logger/logger.hpp>
 #include <utils/signal_listener.hpp>
-#include "engine.hpp"
 #include "server.hpp"
 
-namespace scord {
+using namespace std::literals;
 
-server::server() : m_settings(std::make_unique<config::settings>()) {}
+namespace scord::network {
 
 server::~server() = default;
 
@@ -143,7 +142,7 @@ server::daemonize() {
      */
     int pfd;
 
-    if((pfd = ::open(m_settings->pidfile().c_str(), O_RDWR | O_CREAT, 0640)) ==
+    if((pfd = ::open(m_settings.pidfile().c_str(), O_RDWR | O_CREAT, 0640)) ==
        -1) {
         LOGGER_ERRNO("Failed to create daemon lock file");
         exit(EXIT_FAILURE);
@@ -178,14 +177,9 @@ server::daemonize() {
     return 0;
 }
 
-void
-server::configure(const config::settings& settings) {
-    m_settings = std::make_unique<config::settings>(settings);
-}
-
 config::settings
 server::get_configuration() const {
-    return *m_settings;
+    return m_settings;
 }
 
 void
@@ -215,16 +209,15 @@ server::signal_handler(int signum) {
 void
 server::init_logger() {
 
-    if(m_settings->use_console()) {
-        logger::create_global_logger(m_settings->progname(), "console color");
+    if(m_settings.use_console()) {
+        logger::create_global_logger(m_settings.progname(), "console color");
         return;
-        ;
     }
 
-    if(m_settings->use_syslog()) {
-        logger::create_global_logger(m_settings->progname(), "syslog");
+    if(m_settings.use_syslog()) {
+        logger::create_global_logger(m_settings.progname(), "syslog");
 
-        if(!m_settings->daemonize()) {
+        if(!m_settings.daemonize()) {
             fmt::print(stderr, "PSA: Output sent to syslog while in "
                                "non-daemon mode\n");
         }
@@ -232,13 +225,13 @@ server::init_logger() {
         return;
     }
 
-    if(!m_settings->log_file().empty()) {
-        logger::create_global_logger(m_settings->progname(), "file",
-                                     m_settings->log_file());
+    if(!m_settings.log_file().empty()) {
+        logger::create_global_logger(m_settings.progname(), "file",
+                                     m_settings.log_file());
         return;
     }
 
-    logger::create_global_logger(m_settings->progname(), "console color");
+    logger::create_global_logger(m_settings.progname(), "console color");
 }
 
 void
@@ -246,58 +239,22 @@ server::install_signal_handlers() {
 
     LOGGER_INFO(" * Installing signal handlers...");
 
-    m_signal_listener = std::make_unique<utils::signal_listener>();
-
-    m_signal_listener->set_handler(std::bind(&server::signal_handler, // NOLINT
-                                             this, std::placeholders::_1),
-                                   SIGHUP, SIGTERM, SIGINT);
+    m_signal_listener.set_handler(std::bind(&server::signal_handler, // NOLINT
+                                            this, std::placeholders::_1),
+                                  SIGHUP, SIGTERM, SIGINT);
 
     // This call does not block. Instead, it starts an internal std::thread
     // responsible for processing incoming signals
-    m_signal_listener->run();
+    m_signal_listener.run();
 }
 
 void
-server::install_rpc_handlers() {
-
-    LOGGER_INFO(" * Creating RPC listener...");
-
-    // create (but not start) the API listener
-    // and register handlers for each request type
-    m_network_engine = std::make_unique<network::rpc_acceptor>(
-            m_settings->transport_protocol(), m_settings->bind_address(),
-            m_settings->remote_port());
-
-    if(m_rpc_registration_callback) {
-        m_rpc_registration_callback(m_network_engine);
-    }
-}
-
-void
-server::check_configuration() {
-
-    //    // check that the staging directory exists and that we can write to it
-    //    if(!fs::exists(m_settings->staging_directory())) {
-    //        LOGGER_ERROR("Staging directory {} does not exist",
-    //                     m_settings->staging_directory());
-    //        teardown_and_exit();
-    //    }
-
-    //    auto s = fs::status(m_settings->staging_directory());
-    //
-    //    auto expected_perms = fs::perms::owner_read | fs::perms::owner_write;
-    //
-    //    if((s.permissions() & expected_perms) != expected_perms) {
-    //        LOGGER_ERROR("Unable to read from/write to staging directory {}",
-    //                     m_settings->staging_directory());
-    //        teardown_and_exit();
-    //    }
-}
+server::check_configuration() {}
 
 void
 server::print_greeting() {
     const auto greeting = fmt::format("Starting {} daemon (pid {})",
-                                      m_settings->progname(), getpid());
+                                      m_settings.progname(), getpid());
 
     LOGGER_INFO("{:=>{}}", "", greeting.size());
     LOGGER_INFO(greeting);
@@ -309,28 +266,26 @@ server::print_configuration() {
     LOGGER_INFO("");
     LOGGER_INFO("[[ Configuration ]]");
     LOGGER_INFO("  - running as daemon?: {}",
-                (m_settings->daemonize() ? "yes" : "no"));
+                (m_settings.daemonize() ? "yes" : "no"));
 
-    if(!m_settings->log_file().empty()) {
-        LOGGER_INFO("  - log file: {}", m_settings->log_file());
+    if(!m_settings.log_file().empty()) {
+        LOGGER_INFO("  - log file: {}", m_settings.log_file());
         LOGGER_INFO("  - log file maximum size: {}",
-                    m_settings->log_file_max_size());
+                    m_settings.log_file_max_size());
     } else {
         LOGGER_INFO("  - log file: none");
     }
 
-    LOGGER_INFO("  - pidfile: {}", m_settings->pidfile());
-    //    LOGGER_INFO("  - staging directory: {}",
-    //    m_settings->staging_directory());
-    LOGGER_INFO("  - port for remote requests: {}", m_settings->remote_port());
-    LOGGER_INFO("  - workers: {}", m_settings->workers_in_pool());
+    LOGGER_INFO("  - pidfile: {}", m_settings.pidfile());
+    LOGGER_INFO("  - port for remote requests: {}", m_settings.remote_port());
+    LOGGER_INFO("  - workers: {}", m_settings.workers_in_pool());
     LOGGER_INFO("");
 }
 
 void
 server::print_farewell() {
     const auto farewell = fmt::format("Stopping {} daemon (pid {})",
-                                      m_settings->progname(), getpid());
+                                      m_settings.progname(), getpid());
 
     LOGGER_INFO("{:=>{}}", "", farewell.size());
     LOGGER_INFO(farewell);
@@ -354,7 +309,7 @@ server::run() {
 #endif
 
     // daemonize if needed
-    if(m_settings->daemonize() && daemonize() != 0) {
+    if(m_settings.daemonize() && daemonize() != 0) {
         /* parent clean ups and exits, child continues */
         teardown();
         return EXIT_SUCCESS;
@@ -367,14 +322,13 @@ server::run() {
     LOGGER_INFO("[[ Starting up ]]");
 
     install_signal_handlers();
-    install_rpc_handlers();
 
     LOGGER_INFO("");
     LOGGER_INFO("[[ Start up successful, awaiting requests... ]]");
 
     // N.B. This call blocks here, which means that everything after it
     // will only run when a shutdown command is received
-    m_network_engine->listen();
+    m_network_engine.wait_for_finalize();
 
     print_farewell();
     teardown();
@@ -388,22 +342,15 @@ server::run() {
 void
 server::teardown() {
 
-    if(m_signal_listener) {
-        LOGGER_INFO("* Stopping signal listener...");
-        m_signal_listener->stop();
-    }
+    LOGGER_INFO("* Stopping signal listener...");
+    m_signal_listener.stop();
 
-    if(m_settings) {
-        std::error_code ec;
+    std::error_code ec;
+    fs::remove(m_settings.pidfile(), ec);
 
-        fs::remove(m_settings->pidfile(), ec);
-
-        if(ec) {
-            LOGGER_ERROR("Failed to remove pidfile {}: {}",
-                         m_settings->pidfile(), ec.message());
-        }
-
-        m_settings.reset();
+    if(ec) {
+        LOGGER_ERROR("Failed to remove pidfile {}: {}", m_settings.pidfile(),
+                     ec.message());
     }
 }
 
@@ -415,7 +362,7 @@ server::teardown_and_exit() {
 
 void
 server::shutdown() {
-    m_network_engine->stop();
+    m_network_engine.finalize();
 }
 
-} // namespace scord
+} // namespace scord::network

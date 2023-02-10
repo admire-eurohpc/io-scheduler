@@ -41,24 +41,16 @@ public:
     address() const;
 
     template <typename... Args>
-    auto
+    inline std::optional<thallium::packed_data<>>
     call(const std::string& rpc_name, Args&&... args) const {
 
-        // deduce the return type of the expression in the try-block below so
-        // that we know the type to return within std::optional
-        using rpc_function_type =
-                decltype(m_engine->define(std::declval<decltype(rpc_name)>()));
-        using rpc_return_type = decltype(std::declval<rpc_function_type>().on(
-                m_endpoint)(std::forward<Args>(args)...));
-        using return_type = std::optional<rpc_return_type>;
-
         try {
-            const auto& rpc = m_engine->define(rpc_name);
-            const auto& rv = rpc.on(m_endpoint)(std::forward<Args>(args)...);
-            return return_type{rv};
+            const auto rpc = m_engine->define(rpc_name);
+            return std::make_optional(
+                    rpc.on(m_endpoint)(std::forward<Args>(args)...));
         } catch(const std::exception& ex) {
             LOGGER_ERROR("endpoint::call() failed: {}", ex.what());
-            return return_type{};
+            return std::nullopt;
         }
     }
 

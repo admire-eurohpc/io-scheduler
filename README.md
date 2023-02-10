@@ -1,3 +1,8 @@
+[![Gitlab pipeline status (self-managed)](https://img.shields.io/gitlab/pipeline-status/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab%2F&logo=gitlab)](https://img.shields.io/gitlab/pipeline-status/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab%2F&logo=gitlab)
+[![coverage report](https://storage.bsc.es/gitlab/eu/admire/io-scheduler/badges/main/coverage.svg)](https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/commits/main)
+[![latest release](https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/badges/release.svg)](https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/releases)
+[![GitLab (self-managed)](https://img.shields.io/gitlab/license/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab)](https://img.shields.io/gitlab/license/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab)
+
 # scord
 
 I/O Scheduler prototype for the ADMIRE EU project
@@ -11,27 +16,36 @@ cause indirect errors that are very difficult to track down.
 The following software packages are required to build `scord` and need to be
 available in the system:
 
-- A C++ compiler that supports the C++17 standard, for example
+- A C++ compiler that supports the C++20 standard, for example
 [GCC](https://gcc.gnu.org)/[Clang](https://clang.llvm.org/) versions
 8.0/5.0 or later.
-- [CMake](https://cmake.org) 3.14 or later.
+- [CMake](https://cmake.org) 3.19 or later.
 - pkg-config 0.29.1 (earlier versions will probably work but haven't been tested).
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp) version 0.6.2 and later.
-- [Margo](https://github.com/mochi-hpc/mochi-margo) version 0.9.6 and later, and its dependencies:
+- [Margo](https://github.com/mochi-hpc/mochi-margo) version 0.9.8 and later, and its dependencies:
   - [Argobots](https://github.com/pmodels/argobots) version 1.1 or later.
   - [Mercury](https://github.com/mercury-hpc/mercury) version 2.0.1 or later.
     - [libfabric](https://github.com/ofiwg/libfabric) version 1.14.0rc3 and/or
 [ucx](https://github.com/openucx/ucx.git) version 1.13.
   - [JSON-C](https://github.com/json-c/json-c) version 0.13.1.
+- [Thallium](https://github.com/mochi-hpc/mochi-thallium) version 0.10.1 or
+ later.
 - [libconfig-dev] version 1.4.9 or later.
-- [agios] (https://github.com/francielizanon/agios) (development branch)
+- [agios](https://github.com/francielizanon/agios) (development branch)
+- [redis-plus-plus](https://github.com/sewenew/redis-plus-plus) version 1.3.
+3 or later, and its dependencies:
+  - [hiredis](https://github.com/redis/hiredis) version 0.14.1 or later.
 
-The following libraries are also required by `scord`, but will be downloaded
-and compiled by the project as part of the standard build process.
+The following libraries are also required by `scord`, but will be
+automatically downloaded and compiled by the project as part of the standard
+build process.
 
 - [{fmt}](https://fmt.dev/latest/index.html) version 8.0.1 or later.
 - [spdlog](https://github.com/gabime/spdlog) version 1.9.2 or later.
 - [Catch2](https://github.com/catchorg/Catch2) version 3.0.1 or later.
+- [tl/expected](https://github.com/TartanLlama/expected).
+- [file_options](https://storage.bsc.es/gitlab/utils/file_options).
+- [gen_opts](https://storage.bsc.es/gitlab/utils/genopts).
 
 > **ℹ️** **Important**  
 Margo and Argobots use `pkg-config` to ensure they compile and link correctly

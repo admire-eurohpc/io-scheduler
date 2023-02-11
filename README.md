@@ -1,11 +1,15 @@
-[![Gitlab pipeline status (self-managed)](https://img.shields.io/gitlab/pipeline-status/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab%2F&logo=gitlab)](https://img.shields.io/gitlab/pipeline-status/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab%2F&logo=gitlab)
+<div align="center">
+<h1> scord </h1>
+
+[![build status)](https://img.shields.io/gitlab/pipeline-status/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab%2F&logo=gitlab)](https://img.shields.io/gitlab/pipeline-status/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab%2F&logo=gitlab)
 [![coverage report](https://storage.bsc.es/gitlab/eu/admire/io-scheduler/badges/main/coverage.svg)](https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/commits/main)
 [![latest release](https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/badges/release.svg)](https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/releases)
 [![GitLab (self-managed)](https://img.shields.io/gitlab/license/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab)](https://img.shields.io/gitlab/license/eu/admire/io-scheduler?gitlab_url=https%3A%2F%2Fstorage.bsc.es%2Fgitlab)
+[![Language](https://img.shields.io/static/v1?label=language&message=C99%20%2F%20C%2B%2B20&color=red)](https://en.wikipedia.org/wiki/C%2B%2B20)
 
-# scord
+<p><b>The storage coordinator for HPC clusters</b></p>
 
-I/O Scheduler prototype for the ADMIRE EU project
+</div>
 
 ## Software requirements
 

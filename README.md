@@ -11,18 +11,120 @@
 
 </div>
 
-## Software requirements
+## Overview
 
-Compiling and running `scord` requires up-to-date versions of various software
-packages. Beware that using excessively old versions of these packages can
+Scord is an open-source storage coordination service designed for Linux HPC
+clusters. As a storage coordination service, Scord provides facilities for
+system administrators to easily model their storage hierarchies and expose them
+to users in a consistent manner. Once the storage architecture is modelled,
+Scord can efficiently orchestrate data transfers between the different
+storage tiers in order to support complex HPC workloads using node-local
+storage, burst buffers and ad-hoc storage systems.
+
+> **ℹ️** **Important**  
+> This software was partially supported by the EuroHPC-funded project ADMIRE  
+   (Project ID: 956748, https://www.admire-eurohpc.eu).
+
+## Building and installing
+
+This section describes how to build and install Scord. Two main options
+are basically supported out of the box:
+
+- Automatically building both Scord and its dependencies using
+  [Spack](https://github.com/spack/spack).
+- Build and install Scord manually.
+
+### Building scord and its dependencies with Spack
+
+Scord and all its dependencies can be built using
+[Spack](https://github.com/spack/spack). If you already have Spack, make sure
+you have the latest release. If you use a clone of the Spack `develop`
+branch, be sure to pull the latest changes.
+
+#### Installing Spack
+
+If you haven't already, install Spack with the following commands:
+
+```shell
+$ git clone -c feature.manyFiles=true https://github.com/spack/spack
+```
+
+This will create a directory called `spack` in your machine. Once you have
+cloned Spack, we recommend sourcing the appropriate script for your shell.
+This will add Spack to your `PATH` and enable the use of the `spack` command:
+
+```shell
+# For bash/zsh/sh
+$ . spack/share/spack/setup-env.sh
+
+# For tcsh/csh
+$ source spack/share/spack/setup-env.csh
+
+# For fish
+$ . spack/share/spack/setup-env.fish
+```
+
+Since Scord is not yet available in the official Spack repositories, you need
+to add the Scord Spack repository to the local Spack namespace in your
+machine. To do so, download the
+[`spack/` directory](https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/tree/main/spack)
+located in the root of Scord's repository root to your machine (e.g. under
+`~/projects/scord/spack`) and execute the following:
+
+```shell
+spack repo add ~/projects/scord/spack/
+```
+
+You should now be able to fetch information from the Scord package using
+Spack:
+
+```shell
+spack info scord
+```
+
+If that worked, you are now ready to install Scord:
+
+```shell
+spack install scord
+```
+
+You can include or remove variants with Spack when a custom Scord
+build is desired. The available variants are listed below:
+
+
+| Variant | Command     | Default | Description                                                              |
+|---------|-------------|---------|--------------------------------------------------------------------------|
+| OFI     | `scord+ofi` | True    | Use [libfabric](https://github.com/ofiwg/libfabric) as transport library |
+| UCX     | `scord+ucx` | False   | Use [ucx](https://github.com/openucx/ucx.git) as transport library       |
+
+
+> ⚠️ **Attention**  
+> The initial install could take a while as Spack will install build
+> dependencies (autoconf, automake, m4, libtool, pkg-config, etc.) as well as
+> any dependencies of dependencies (cmake, perl, etc.) if you don’t already
+> have these dependencies installed through Spack.
+
+After the installation completes, remember that you first need to load
+Scord in order to use it:
+
+```shell
+spack load scord
+```
+
+### Building scord manually
+
+If you prefer to build and install Scord from sources, you can also do so
+but bear in mind that compiling and running Scord requires up-to-date
+versions of various software packages that will need to be available in your
+system. Also beware that using excessively old versions of these packages can
 cause indirect errors that are very difficult to track down.
 
-The following software packages are required to build `scord` and need to be
-available in the system:
+With that in mind, the following software packages are required to build Scord
+and need to be available in the system:
 
 - A C++ compiler that supports the C++20 standard, for example
 [GCC](https://gcc.gnu.org)/[Clang](https://clang.llvm.org/) versions
-8.0/5.0 or later.
+8.0/6.0 or later.
 - [CMake](https://cmake.org) 3.19 or later.
 - pkg-config 0.29.1 (earlier versions will probably work but haven't been tested).
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp) version 0.6.2 and later.
@@ -40,7 +142,7 @@ available in the system:
 3 or later, and its dependencies:
   - [hiredis](https://github.com/redis/hiredis) version 0.14.1 or later.
 
-The following libraries are also required by `scord`, but will be
+The following libraries are also required by Scord, but will be
 automatically downloaded and compiled by the project as part of the standard
 build process.
 
@@ -53,16 +155,16 @@ build process.
 
 > **ℹ️** **Important**  
 Margo and Argobots use `pkg-config` to ensure they compile and link correctly
-with all of their dependencies' libraries. When building `scord` manually,
+with all of their dependencies' libraries. When building Scord manually,
 you'll need to appropriately set either the ``PKG_CONFIG_PATH`` environment
 variable or the ``CMAKE_PREFIX_PATH`` CMake variable to the appropriate
 installation paths where the ``.pc`` files for Argobots and Margo reside.
 
-## Building
+#### Building
 
 You may either install the full sources or clone the repository directly. The
 package relies on CMake to build the service, which requires you to do an
-out-of-source build. Thus, once the `scord` sources are located in an
+out-of-source build. Thus, once the Scord sources are located in an
 appropriate `SCORD_SOURCES` directory (for example, `$HOME/scord`), you can
 build the service by running the following commands:
 
@@ -77,9 +179,9 @@ cmake <CMAKE_OPTIONS> ..
 make
 ```
 
-### A more complex example:
+#### A more complex example:
 
-The following CMake options can be used to configure how `scord` is built:
+The following CMake options can be used to configure how Scord is built:
 
 - `SCORD_TRANSPORT_LIBRARY`: This option allows configuring the transport
   library used by the service. Currently, both `libfabric` and `ucx` are
@@ -101,18 +203,18 @@ The following CMake options can be used to configure how `scord` is built:
 - `SCORD_BUILD_TESTS`: This option instructs CMake to build the tests
   contained in the `tests` subdirectory.
 
-Thus, let's assume that we want to build `scord` with the following
+Thus, let's assume that we want to build Scord with the following
 configuration:
 
 1. The service should use `libfabric` as the transport library.
 2. The service should use `tcp` as the communication protocol.
 3. The server should listen for RPCs on address `192.168.0.111` and on port
    `52000`.
-5. Usage examples should be built.
+4. Usage examples should be built.
 
-Let's also assume that `scord` sources are located in `$HOME/scord`, that
+Let's also assume that Scord sources are located in `$HOME/scord`, that
 dependencies were installed in `/opt`, and that we also want to install
-`scord` in `/usr/local`. Taking into account all these requirements, `scord`
+Scord in `/usr/local`. Taking into account all these requirements, Scord
 can be built by running the following commands:
 
 ```bash
@@ -130,7 +232,7 @@ cmake -DCMAKE_PREFIX_PATH:STRING=/opt \
 make
 ```
 
-## Running tests
+#### Running tests
 
 Tests are integrated in [CTest](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html), CMake's testing facility. Once built, the
 tests can be run in parallel using the `ctest` command line tool:
@@ -146,10 +248,10 @@ Test project /home/amiranda/var/projects/scord/repo/build
 Total Test time (real) =   0.14 sec
 ```
 
-## Installing
+#### Installing
 
-Assuming that the CMAKE_INSTALL_PREFIX has been set (see previous step) and
-that you have write permissions to the destination directory, `scord` can be
+Assuming that the `CMAKE_INSTALL_PREFIX` has been set (see previous step) and
+that you have write permissions to the destination directory, Scord can be
 installed by running the following command from the build directory:
 
 ```bash
@@ -167,7 +269,7 @@ scord
 ## Testing the configuration
 
 If you just want to test that everything works as it should, you can start
-`scord` in foreground mode and redirect its logging output to the console
+Scord in foreground mode and redirect its logging output to the console
 with the following command:
 
 ```bash
@@ -195,7 +297,7 @@ Which should produce output similar to the following:
 [2021-11-19 10:30:30.066151] [scord] [131119] [info]
 [2021-11-19 10:30:30.066161] [scord] [131119] [info] [[ Start up successful, awaiting requests... ]]
 ```
-Now we can use one of the example programs to send a `ping` RPC to `scord`:
+Now we can use one of the example programs to send a `ping` RPC to Scord:
 
 ```bash
 

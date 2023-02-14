@@ -25,7 +25,7 @@
 add_library(_api_types STATIC)
 
 target_sources(_api_types PUBLIC scord/types.h scord/types.hpp PRIVATE
-  types.cpp convert.hpp convert.cpp internal_types.hpp errors.c)
+  types.cpp convert.hpp convert.cpp scord/internal_types.hpp errors.c)
 
 target_include_directories(_api_types PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

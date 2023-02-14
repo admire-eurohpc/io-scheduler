@@ -26,7 +26,7 @@
 #define SCORD_PFS_STORAGE_MANAGER_HPP
 
 #include <scord/types.hpp>
-#include <internal_types.hpp>
+#include <scord/internal_types.hpp>
 #include <utility>
 #include <utils/utils.hpp>
 #include <unordered_map>

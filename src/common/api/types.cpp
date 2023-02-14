@@ -29,7 +29,7 @@
 #include <variant>
 #include <optional>
 #include "scord/types.hpp"
-#include "internal_types.hpp"
+#include "scord/internal_types.hpp"
 
 /******************************************************************************/
 /* C Type definitions and related functions                                   */

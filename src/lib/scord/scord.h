@@ -34,10 +34,10 @@
 extern "C" {
 #endif
 
-#define ADM_IOSCHED_API_VERSION       "0.1.0"
-#define ADM_IOSCHED_API_VERSION_MAJOR 0
-#define ADM_IOSCHED_API_VERSION_MINOR 1
-#define ADM_IOSCHED_API_VERSION_PATCH 0
+#define SCORD_API_VERSION       "0.1.0"
+#define SCORD_API_VERSION_MAJOR 0
+#define SCORD_API_VERSION_MINOR 1
+#define SCORD_API_VERSION_PATCH 0
 
 
 /******************************************************************************/

@@ -24,7 +24,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <admire.h>
+#include <scord/scord.h>
 #include <assert.h>
 
 int

@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
-#include <admire.h>
+#include <scord/scord.h>
 #include <string>
 
 SCENARIO("Error messages can be printed", "[lib][ADM_strerror]") {

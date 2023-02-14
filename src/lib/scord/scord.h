@@ -22,8 +22,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_ADMIRE_H
-#define SCORD_ADMIRE_H
+#ifndef SCORD_H
+#define SCORD_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -473,4 +473,4 @@ ADM_strerror(ADM_return_t errnum);
 } // extern "C"
 #endif
 
-#endif // SCORD_ADMIRE_H
+#endif // SCORD_H

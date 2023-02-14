@@ -27,14 +27,16 @@ class Scord(CMakePackage):
     """A parallel data stager for malleable applications."""
 
     homepage = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler"
-    url = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/archive/v0.2.0/scord-v0.2.0.tar.bz2"
+    url = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/archive/v0.2.1/io-scheduler-v0.2.1.tar.bz2"
     git = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler.git"
 
     maintainers("alberto-miranda")
 
     # available versions
     version("latest", branch="main")
-    version("0.2.0", sha256="cfec167dbba00a62977bde63e6ed23512bd5d053")
+    version("0.2.0", sha256="61e0e2a10858e6a7027244f7b4609b64e03e8ef78ec080ef5536cacf7623ab42")
+    version("0.2.1", sha256="e0a2e7fb835544eace291fc94ea689e504a84a6a6ef3d28c6a098d16cc4a7000")
+
 
     # build variants
     variant('build_type',

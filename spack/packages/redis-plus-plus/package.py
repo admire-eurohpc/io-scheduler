@@ -26,7 +26,6 @@ from spack.package import *
 class RedisPlusPlus(CMakePackage):
     """A C++ client library for Redis"""
 
-    # FIXME: Add a proper url for your package's homepage here.
     homepage = 'https://github.com/sewenew/redis-plus-plus'
     url = 'https://github.com/sewenew/redis-plus-plus/archive/refs/tags/1.3.3.zip'
     git = 'https://github.com/sewenew/redis-plus-plus'

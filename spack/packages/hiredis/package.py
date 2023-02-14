@@ -32,7 +32,6 @@ class Hiredis(MakefilePackage):
 
     version("1.1.0", sha256='fe6d21741ec7f3fc9df409d921f47dfc73a4d8ff64f4ac6f1d95f951bf7f53d6')
 
-    # FIXME: Add dependencies if required.
     depends_on("openssl")
 
     def edit(self, spec, prefix):

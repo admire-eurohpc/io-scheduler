@@ -33,7 +33,7 @@
 #include <utils/ctype_ptr.hpp>
 #include <optional>
 #include <cereal/access.hpp>
-#include "admire_types.h"
+#include <scord/types.h>
 
 namespace admire {
 

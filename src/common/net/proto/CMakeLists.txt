@@ -29,7 +29,7 @@ set_property(TARGET _rpc_types PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(_rpc_types PUBLIC ${CMAKE_SOURCE_DIR}/src/lib)
 target_sources(
   _rpc_types
-  PRIVATE rpc_types.h rpc_types.c ${CMAKE_SOURCE_DIR}/src/lib/admire.h
+  PRIVATE rpc_types.h rpc_types.c
 )
 
 target_link_libraries(_rpc_types PRIVATE common::api::types Mercury::Mercury

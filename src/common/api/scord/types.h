@@ -22,8 +22,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_ADMIRE_TYPES_H
-#define SCORD_ADMIRE_TYPES_H
+#ifndef SCORD_TYPES_H
+#define SCORD_TYPES_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -652,4 +652,4 @@ ADM_data_operation_destroy(ADM_data_operation_t op);
 } // extern "C"
 #endif
 
-#endif // SCORD_ADMIRE_TYPES_H
+#endif // SCORD_TYPES_H

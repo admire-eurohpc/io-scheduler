@@ -22,7 +22,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include <admire_types.h>
+#include "scord/types.h"
 
 const char* const adm_errlist[ADM_ERR_MAX + 1] = {
         [ADM_SUCCESS] = "Success",

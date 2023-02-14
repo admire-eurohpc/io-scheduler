@@ -28,7 +28,7 @@
 #include <net/proto/rpc_types.h>
 #include <stdarg.h>
 #include <admire_types.hpp>
-#include <admire_types.h>
+#include <scord/types.h>
 #include <api/convert.hpp>
 #include "detail/impl.hpp"
 

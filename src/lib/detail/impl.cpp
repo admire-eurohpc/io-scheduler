@@ -27,7 +27,7 @@
 #include <net/endpoint.hpp>
 #include <net/request.hpp>
 #include <net/serialization.hpp>
-#include <admire_types.hpp>
+#include <scord/types.hpp>
 #include "impl.hpp"
 
 using namespace std::literals;

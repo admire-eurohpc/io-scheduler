@@ -25,7 +25,7 @@
 #include <admire.h>
 #include <string>
 #include <utility>
-#include "admire_types.hpp"
+#include "scord/types.hpp"
 #include "net/proto/rpc_types.h"
 
 #ifndef SCORD_ADMIRE_HPP
@@ -35,7 +35,7 @@
 /* Public type definitions and type-related functions                         */
 /******************************************************************************/
 
-// See admire_types.hpp
+// See scord/types.hpp
 
 
 /******************************************************************************/

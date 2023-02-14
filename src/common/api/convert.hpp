@@ -26,7 +26,7 @@
 #define SCORD_CONVERT_HPP
 
 #include "scord/types.h"
-#include "admire_types.hpp"
+#include "scord/types.hpp"
 
 namespace admire::api {
 

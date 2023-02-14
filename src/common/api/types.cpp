@@ -28,7 +28,7 @@
 #include <utility>
 #include <variant>
 #include <optional>
-#include "admire_types.hpp"
+#include "scord/types.hpp"
 #include "internal_types.hpp"
 
 /******************************************************************************/

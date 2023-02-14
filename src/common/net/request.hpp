@@ -26,7 +26,7 @@
 #define SCORD_NET_REQUEST_HPP
 
 #include <thallium.hpp>
-#include "admire_types.hpp"
+#include <scord/types.hpp>
 
 namespace scord::network {
 

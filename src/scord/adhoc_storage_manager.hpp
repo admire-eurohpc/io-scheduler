@@ -26,7 +26,7 @@
 #ifndef SCORD_ADHOC_STORAGE_MANAGER_HPP
 #define SCORD_ADHOC_STORAGE_MANAGER_HPP
 
-#include <admire_types.hpp>
+#include <scord/types.hpp>
 #include <internal_types.hpp>
 #include <utility>
 #include <utils/utils.hpp>

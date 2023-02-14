@@ -22,8 +22,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_ADMIRE_TYPES_HPP
-#define SCORD_ADMIRE_TYPES_HPP
+#ifndef SCORD_TYPES_HPP
+#define SCORD_TYPES_HPP
 
 #include <string>
 #include <cstdint>
@@ -1041,4 +1041,4 @@ struct fmt::formatter<std::vector<admire::qos::limit>>
     }
 };
 
-#endif // SCORD_ADMIRE_TYPES_HPP
+#endif // SCORD_TYPES_HPP

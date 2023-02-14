@@ -27,7 +27,7 @@
 #include <logger/logger.hpp>
 #include <net/proto/rpc_types.h>
 #include <stdarg.h>
-#include <admire_types.hpp>
+#include <scord/types.hpp>
 #include <scord/types.h>
 #include <api/convert.hpp>
 #include "detail/impl.hpp"

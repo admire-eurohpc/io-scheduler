@@ -2,7 +2,7 @@
 #define SCORD_CXX_EXAMPLES_COMMON_HPP
 
 #include <vector>
-#include <admire_types.hpp>
+#include <scord/types.hpp>
 
 std::vector<admire::node>
 prepare_nodes(size_t n);

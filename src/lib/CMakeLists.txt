@@ -32,7 +32,7 @@ target_sources(
 
 list(APPEND public_headers "admire.h"
      "${CMAKE_SOURCE_DIR}/src/common/api/scord/types.h" "admire.hpp"
-     "${CMAKE_SOURCE_DIR}/src/common/api/admire_types.hpp"
+     "${CMAKE_SOURCE_DIR}/src/common/api/scord/types.hpp"
 )
 
 set_target_properties(libscord PROPERTIES PUBLIC_HEADER "${public_headers}")

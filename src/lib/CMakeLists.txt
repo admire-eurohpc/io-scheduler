@@ -22,23 +22,25 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_library(adm_iosched SHARED)
+add_library(libscord SHARED)
 
-target_sources(adm_iosched
+target_sources(libscord
   PUBLIC admire.h admire.hpp
   PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp env.hpp)
 
-set_target_properties(adm_iosched PROPERTIES PUBLIC_HEADER "admire.h;admire.hpp")
+set_target_properties(libscord PROPERTIES PUBLIC_HEADER "admire.h;admire.hpp")
 
-target_include_directories(adm_iosched PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(libscord PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(adm_iosched PRIVATE
+target_link_libraries(libscord PRIVATE
   common::network::rpc_client
   common::network::rpc_types PUBLIC
   tl::expected common::api::types)
 
+set_target_properties(libscord PROPERTIES OUTPUT_NAME "scord")
+
 install(
-  TARGETS adm_iosched
+  TARGETS libscord
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

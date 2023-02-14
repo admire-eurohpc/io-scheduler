@@ -54,10 +54,10 @@ init_logger() {
         if(const auto p = std::getenv(admire::env::LOG);
            p && !std::string{p}.empty() && std::string{p} != "0") {
             if(const auto log_file = std::getenv(admire::env::LOG_OUTPUT)) {
-                scord::logger::create_global_logger("libadm_iosched", "file",
+                scord::logger::create_global_logger("libscord", "file",
                                                     log_file);
             } else {
-                scord::logger::create_global_logger("libadm_iosched",
+                scord::logger::create_global_logger("libscord",
                                                     "console color");
             }
         }

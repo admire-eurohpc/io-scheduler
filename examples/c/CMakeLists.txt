@@ -52,7 +52,7 @@ target_link_libraries(c_examples_common common::api::types)
 foreach(example IN LISTS examples_c)
   add_executable(${example}_c)
   target_sources(${example}_c PRIVATE ${example}.c)
-  target_link_libraries(${example}_c PUBLIC adm_iosched c_examples_common)
+  target_link_libraries(${example}_c PUBLIC libscord c_examples_common)
   set_target_properties(${example}_c PROPERTIES OUTPUT_NAME ${example})
 endforeach()
 

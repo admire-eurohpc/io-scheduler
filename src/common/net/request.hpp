@@ -43,7 +43,7 @@ class generic_response {
 public:
     constexpr generic_response() noexcept = default;
     constexpr generic_response(std::uint64_t op_id,
-                               admire::error_code ec) noexcept
+                               scord::error_code ec) noexcept
         : m_op_id(op_id), m_error_code(ec) {}
 
     constexpr std::uint64_t
@@ -51,7 +51,7 @@ public:
         return m_op_id;
     }
 
-    constexpr admire::error_code
+    constexpr scord::error_code
     error_code() const noexcept {
         return m_error_code;
     }
@@ -65,7 +65,7 @@ public:
 
 private:
     std::uint64_t m_op_id;
-    admire::error_code m_error_code;
+    scord::error_code m_error_code;
 };
 
 template <typename Value>
@@ -74,7 +74,7 @@ class response_with_value : public generic_response {
 public:
     constexpr response_with_value() noexcept = default;
 
-    constexpr response_with_value(std::uint64_t op_id, admire::error_code ec,
+    constexpr response_with_value(std::uint64_t op_id, scord::error_code ec,
                                   std::optional<Value> value) noexcept
         : generic_response(op_id, ec), m_value(std::move(value)) {}
 

@@ -34,10 +34,10 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     try {
-        admire::ping(server);
+        scord::ping(server);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_ping() failed: {}\n", e.what());
         exit(EXIT_FAILURE);

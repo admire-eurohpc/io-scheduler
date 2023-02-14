@@ -42,14 +42,14 @@
 /* Public prototypes                                                          */
 /******************************************************************************/
 
-namespace admire {
+namespace scord {
 
 void
 ping(const server& srv);
 
-admire::job
+scord::job
 register_job(const server& srv, const job::resources& job_resources,
-             const job_requirements& reqs, admire::slurm_job_id slurm_id);
+             const job_requirements& reqs, scord::slurm_job_id slurm_id);
 
 void
 update_job(const server& srv, const job&, const job::resources& job_resources);
@@ -57,7 +57,7 @@ update_job(const server& srv, const job&, const job::resources& job_resources);
 void
 remove_job(const server& srv, const job& job);
 
-admire::adhoc_storage
+scord::adhoc_storage
 register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx);
@@ -72,19 +72,19 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 void
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
-admire::pfs_storage
+scord::pfs_storage
 register_pfs_storage(const server& srv, const std::string& name,
-                     enum admire::pfs_storage::type type,
-                     const admire::pfs_storage::ctx& ctx);
+                     enum scord::pfs_storage::type type,
+                     const scord::pfs_storage::ctx& ctx);
 
 void
 update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
-                   const admire::pfs_storage::ctx& pfs_storage_ctx);
+                   const scord::pfs_storage::ctx& pfs_storage_ctx);
 
 void
 remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage);
 
-admire::transfer
+scord::transfer
 transfer_datasets(const server& srv, const job& job,
                   const std::vector<dataset>& sources,
                   const std::vector<dataset>& targets,
@@ -144,6 +144,6 @@ link_transfer_to_data_operation(const server& srv, ADM_job_t job,
 ADM_return_t
 get_statistics(const server& srv, ADM_job_t job, ADM_job_stats_t** stats);
 
-} // namespace admire
+} // namespace scord
 
 #endif // SCORD_HPP

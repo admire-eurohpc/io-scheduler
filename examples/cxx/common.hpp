@@ -4,13 +4,13 @@
 #include <vector>
 #include <scord/types.hpp>
 
-std::vector<admire::node>
+std::vector<scord::node>
 prepare_nodes(size_t n);
 
-std::vector<admire::dataset>
+std::vector<scord::dataset>
 prepare_datasets(const std::string& pattern, size_t n);
 
-std::vector<admire::qos::limit>
+std::vector<scord::qos::limit>
 prepare_qos_limits(size_t n);
 
 #endif // SCORD_CXX_EXAMPLES_COMMON_HPP

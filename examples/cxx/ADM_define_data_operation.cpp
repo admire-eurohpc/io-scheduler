@@ -36,7 +36,7 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
     const char* path = "/tmpxxxxx";
@@ -45,7 +45,7 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::define_data_operation(server, job, path, &op, args);
+        ret = scord::define_data_operation(server, job, path, &op, args);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_define_data_operation() failed: {}\n",
                    e.what());

@@ -1060,7 +1060,7 @@ const char*
 ADM_strerror(ADM_return_t errnum);
 };
 
-namespace admire {
+namespace scord {
 
 std::string_view
 error_code::message() const {
@@ -1237,7 +1237,7 @@ private:
 
 job::resources::resources() = default;
 
-job::resources::resources(std::vector<admire::node> nodes)
+job::resources::resources(std::vector<scord::node> nodes)
     : m_nodes(std::move(nodes)) {}
 
 job::resources::resources(ADM_job_resources_t res) {
@@ -1249,7 +1249,7 @@ job::resources::resources(ADM_job_resources_t res) {
     }
 }
 
-std::vector<admire::node>
+std::vector<scord::node>
 job::resources::nodes() const {
     return m_nodes;
 }
@@ -1476,7 +1476,7 @@ template void
 dataset::serialize<scord::network::serialization::input_archive>(
         scord::network::serialization::input_archive&);
 
-adhoc_storage::resources::resources(std::vector<admire::node> nodes)
+adhoc_storage::resources::resources(std::vector<scord::node> nodes)
     : m_nodes(std::move(nodes)) {}
 
 adhoc_storage::resources::resources(ADM_adhoc_resources_t res) {
@@ -1488,7 +1488,7 @@ adhoc_storage::resources::resources(ADM_adhoc_resources_t res) {
     }
 }
 
-std::vector<admire::node>
+std::vector<scord::node>
 adhoc_storage::resources::nodes() const {
     return m_nodes;
 }
@@ -1655,7 +1655,7 @@ adhoc_storage::context() const {
 }
 
 void
-adhoc_storage::update(admire::adhoc_storage::ctx new_ctx) {
+adhoc_storage::update(scord::adhoc_storage::ctx new_ctx) {
     return m_pimpl->update(std::move(new_ctx));
 }
 
@@ -1817,7 +1817,7 @@ pfs_storage::context() const {
 }
 
 void
-pfs_storage::update(admire::pfs_storage::ctx new_ctx) {
+pfs_storage::update(scord::pfs_storage::ctx new_ctx) {
     return m_pimpl->update(std::move(new_ctx));
 }
 
@@ -1851,13 +1851,13 @@ class job_requirements::impl {
 
 public:
     impl() = default;
-    impl(std::vector<admire::dataset> inputs,
-         std::vector<admire::dataset> outputs)
+    impl(std::vector<scord::dataset> inputs,
+         std::vector<scord::dataset> outputs)
         : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)) {}
 
-    impl(std::vector<admire::dataset> inputs,
-         std::vector<admire::dataset> outputs,
-         admire::adhoc_storage adhoc_storage)
+    impl(std::vector<scord::dataset> inputs,
+         std::vector<scord::dataset> outputs,
+         scord::adhoc_storage adhoc_storage)
         : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)),
           m_adhoc_storage(std::move(adhoc_storage)) {}
 
@@ -1876,7 +1876,7 @@ public:
         }
 
         if(reqs->r_adhoc_storage) {
-            m_adhoc_storage = admire::adhoc_storage(reqs->r_adhoc_storage);
+            m_adhoc_storage = scord::adhoc_storage(reqs->r_adhoc_storage);
         }
     }
 
@@ -1887,17 +1887,17 @@ public:
     impl&
     operator=(impl&&) noexcept = default;
 
-    std::vector<admire::dataset>
+    std::vector<scord::dataset>
     inputs() const {
         return m_inputs;
     }
 
-    std::vector<admire::dataset>
+    std::vector<scord::dataset>
     outputs() const {
         return m_outputs;
     }
 
-    std::optional<admire::adhoc_storage>
+    std::optional<scord::adhoc_storage>
     adhoc_storage() const {
         return m_adhoc_storage;
     }
@@ -1919,21 +1919,21 @@ public:
     }
 
 private:
-    std::vector<admire::dataset> m_inputs;
-    std::vector<admire::dataset> m_outputs;
-    std::optional<admire::adhoc_storage> m_adhoc_storage;
+    std::vector<scord::dataset> m_inputs;
+    std::vector<scord::dataset> m_outputs;
+    std::optional<scord::adhoc_storage> m_adhoc_storage;
 };
 
 
 job_requirements::job_requirements() = default;
 
-job_requirements::job_requirements(std::vector<admire::dataset> inputs,
-                                   std::vector<admire::dataset> outputs)
+job_requirements::job_requirements(std::vector<scord::dataset> inputs,
+                                   std::vector<scord::dataset> outputs)
     : m_pimpl(std::make_unique<impl>(std::move(inputs), std::move(outputs))) {}
 
-job_requirements::job_requirements(std::vector<admire::dataset> inputs,
-                                   std::vector<admire::dataset> outputs,
-                                   admire::adhoc_storage adhoc_storage)
+job_requirements::job_requirements(std::vector<scord::dataset> inputs,
+                                   std::vector<scord::dataset> outputs,
+                                   scord::adhoc_storage adhoc_storage)
     : m_pimpl(std::make_unique<impl>(std::move(inputs), std::move(outputs),
                                      std::move(adhoc_storage))) {}
 
@@ -1956,17 +1956,17 @@ job_requirements::operator=(job_requirements&&) noexcept = default;
 
 job_requirements::~job_requirements() = default;
 
-std::vector<admire::dataset>
+std::vector<scord::dataset>
 job_requirements::inputs() const {
     return m_pimpl->inputs();
 }
 
-std::vector<admire::dataset>
+std::vector<scord::dataset>
 job_requirements::outputs() const {
     return m_pimpl->outputs();
 }
 
-std::optional<admire::adhoc_storage>
+std::optional<scord::adhoc_storage>
 job_requirements::adhoc_storage() const {
     return m_pimpl->adhoc_storage();
 }
@@ -2004,7 +2004,7 @@ public:
     impl() = default;
 
     template <typename T>
-    impl(const admire::qos::scope& s, T&& data) : m_scope(s), m_data(data) {}
+    impl(const scord::qos::scope& s, T&& data) : m_scope(s), m_data(data) {}
 
     explicit impl(ADM_qos_entity_t entity)
         : m_scope(static_cast<qos::scope>(entity->e_scope)),
@@ -2017,7 +2017,7 @@ public:
     impl&
     operator=(impl&&) noexcept = default;
 
-    admire::qos::scope
+    scord::qos::scope
     scope() const {
         return m_scope;
     }
@@ -2047,13 +2047,13 @@ private:
     init_helper(ADM_qos_entity_t entity) {
         switch(entity->e_scope) {
             case ADM_QOS_SCOPE_DATASET:
-                return admire::dataset(entity->e_dataset);
+                return scord::dataset(entity->e_dataset);
             case ADM_QOS_SCOPE_NODE:
-                return admire::node(entity->e_node);
+                return scord::node(entity->e_node);
             case ADM_QOS_SCOPE_JOB:
-                return admire::job(entity->e_job);
+                return scord::job(entity->e_job);
             case ADM_QOS_SCOPE_TRANSFER:
-                return admire::transfer(entity->e_transfer);
+                return scord::transfer(entity->e_transfer);
             default:
                 throw std::runtime_error(fmt::format(
                         "Unexpected scope value: {}", entity->e_scope));
@@ -2062,14 +2062,14 @@ private:
 
 
 private:
-    admire::qos::scope m_scope;
+    scord::qos::scope m_scope;
     std::variant<dataset, node, job, transfer> m_data;
 };
 
 entity::entity() = default;
 
 template <typename T>
-entity::entity(admire::qos::scope s, T&& data)
+entity::entity(scord::qos::scope s, T&& data)
     : m_pimpl(std::make_unique<entity::impl>(s, std::forward<T>(data))) {}
 
 entity::entity(ADM_qos_entity_t entity)
@@ -2091,33 +2091,33 @@ entity::operator=(entity&&) noexcept = default;
 
 entity::~entity() = default;
 
-admire::qos::scope
+scord::qos::scope
 entity::scope() const {
     return m_pimpl->scope();
 }
 
 template <>
-admire::node
-entity::data<admire::node>() const {
-    return m_pimpl->data<admire::node>();
+scord::node
+entity::data<scord::node>() const {
+    return m_pimpl->data<scord::node>();
 }
 
 template <>
-admire::job
-entity::data<admire::job>() const {
-    return m_pimpl->data<admire::job>();
+scord::job
+entity::data<scord::job>() const {
+    return m_pimpl->data<scord::job>();
 }
 
 template <>
-admire::dataset
-entity::data<admire::dataset>() const {
-    return m_pimpl->data<admire::dataset>();
+scord::dataset
+entity::data<scord::dataset>() const {
+    return m_pimpl->data<scord::dataset>();
 }
 
 template <>
-admire::transfer
-entity::data<admire::transfer>() const {
-    return m_pimpl->data<admire::transfer>();
+scord::transfer
+entity::data<scord::transfer>() const {
+    return m_pimpl->data<scord::transfer>();
 }
 
 // since the PIMPL class is fully defined at this point, we can now
@@ -2150,16 +2150,16 @@ class limit::impl {
 
 public:
     impl() = default;
-    impl(admire::qos::subclass cls, uint64_t value, admire::qos::entity e)
+    impl(scord::qos::subclass cls, uint64_t value, scord::qos::entity e)
         : m_subclass(cls), m_value(value), m_entity(std::move(e)) {}
 
-    impl(admire::qos::subclass cls, uint64_t value)
+    impl(scord::qos::subclass cls, uint64_t value)
         : m_subclass(cls), m_value(value) {}
 
     explicit impl(ADM_qos_limit_t l)
         : m_subclass(static_cast<qos::subclass>(l->l_class)),
           m_value(l->l_value),
-          m_entity(l->l_entity ? std::optional(admire::qos::entity(l->l_entity))
+          m_entity(l->l_entity ? std::optional(scord::qos::entity(l->l_entity))
                                : std::nullopt) {}
 
     impl(const impl& rhs) = default;
@@ -2169,12 +2169,12 @@ public:
     impl&
     operator=(impl&&) noexcept = default;
 
-    std::optional<admire::qos::entity>
+    std::optional<scord::qos::entity>
     entity() const {
         return m_entity;
     }
 
-    admire::qos::subclass
+    scord::qos::subclass
     subclass() const {
         return m_subclass;
     }
@@ -2201,18 +2201,18 @@ public:
     }
 
 private:
-    admire::qos::subclass m_subclass;
+    scord::qos::subclass m_subclass;
     uint64_t m_value;
-    std::optional<admire::qos::entity> m_entity;
+    std::optional<scord::qos::entity> m_entity;
 };
 
 limit::limit() = default;
 
-limit::limit(admire::qos::subclass cls, uint64_t value)
+limit::limit(scord::qos::subclass cls, uint64_t value)
     : m_pimpl(std::make_unique<limit::impl>(cls, value)) {}
 
-limit::limit(admire::qos::subclass cls, uint64_t value,
-             const admire::qos::entity& e)
+limit::limit(scord::qos::subclass cls, uint64_t value,
+             const scord::qos::entity& e)
     : m_pimpl(std::make_unique<limit::impl>(cls, value, e)) {}
 
 limit::limit(ADM_qos_limit_t l) : m_pimpl(std::make_unique<limit::impl>(l)) {}
@@ -2233,12 +2233,12 @@ limit::operator=(limit&&) noexcept = default;
 
 limit::~limit() = default;
 
-std::optional<admire::qos::entity>
+std::optional<scord::qos::entity>
 limit::entity() const {
     return m_pimpl->entity();
 }
 
-admire::qos::subclass
+scord::qos::subclass
 limit::subclass() const {
     return m_pimpl->subclass();
 }
@@ -2276,4 +2276,4 @@ limit::serialize<scord::network::serialization::input_archive>(
 
 } // namespace qos
 
-} // namespace admire
+} // namespace scord

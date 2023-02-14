@@ -35,14 +35,14 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
     ADM_transfer_t tx{};
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::cancel_transfer(server, job, tx);
+        ret = scord::cancel_transfer(server, job, tx);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_cancel_transfer() failed: {}\n",
                    e.what());

@@ -51,9 +51,9 @@ init_logger() {
     try {
 
 
-        if(const auto p = std::getenv(admire::env::LOG);
+        if(const auto p = std::getenv(scord::env::LOG);
            p && !std::string{p}.empty() && std::string{p} != "0") {
-            if(const auto log_file = std::getenv(admire::env::LOG_OUTPUT)) {
+            if(const auto log_file = std::getenv(scord::env::LOG_OUTPUT)) {
                 scord::logger::create_global_logger("libscord", "file",
                                                     log_file);
             } else {
@@ -198,7 +198,7 @@ rpc_registration_cb(scord::network::rpc_client* client) {
 } // namespace
 
 
-namespace admire {
+namespace scord {
 
 void
 ping(const server& srv) {
@@ -209,9 +209,9 @@ ping(const server& srv) {
 }
 
 
-admire::job
+scord::job
 register_job(const server& srv, const job::resources& resources,
-             const job_requirements& reqs, admire::slurm_job_id slurm_job_id) {
+             const job_requirements& reqs, scord::slurm_job_id slurm_job_id) {
 
     const auto rv = detail::register_job(srv, resources, reqs, slurm_job_id);
 
@@ -246,7 +246,7 @@ remove_job(const server& srv, const job& job) {
     }
 }
 
-admire::adhoc_storage
+scord::adhoc_storage
 register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx) {
@@ -296,7 +296,7 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     }
 }
 
-admire::pfs_storage
+scord::pfs_storage
 register_pfs_storage(const server& srv, const std::string& name,
                      enum pfs_storage::type type, const pfs_storage::ctx& ctx) {
 
@@ -313,7 +313,7 @@ register_pfs_storage(const server& srv, const std::string& name,
 
 void
 update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
-                   const admire::pfs_storage::ctx& pfs_storage_ctx) {
+                   const scord::pfs_storage::ctx& pfs_storage_ctx) {
 
     const auto ec =
             detail::update_pfs_storage(srv, pfs_storage, pfs_storage_ctx);
@@ -335,7 +335,7 @@ remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
     }
 }
 
-admire::transfer
+scord::transfer
 transfer_datasets(const server& srv, const job& job,
                   const std::vector<dataset>& sources,
                   const std::vector<dataset>& targets,
@@ -776,4 +776,4 @@ get_statistics(const server& srv, ADM_job_t job, ADM_job_stats_t** stats) {
     return ADM_SUCCESS;
 }
 
-} // namespace admire
+} // namespace scord

@@ -49,12 +49,12 @@ ping(const scord::network::request& req) {
                 rpc_id, std::quoted(__FUNCTION__),
                 std::quoted(get_address(req)));
 
-    const auto resp = generic_response{rpc_id, admire::error_code::success};
+    const auto resp = generic_response{rpc_id, scord::error_code::success};
 
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
                 rpc_id, std::quoted(__FUNCTION__),
-                std::quoted(get_address(req)), admire::error_code::success);
+                std::quoted(get_address(req)), scord::error_code::success);
 
     req.respond(resp);
 }

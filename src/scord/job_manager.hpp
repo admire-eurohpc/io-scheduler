@@ -40,53 +40,51 @@ namespace scord {
 
 struct job_manager : scord::utils::singleton<job_manager> {
 
-    tl::expected<std::shared_ptr<admire::internal::job_info>,
-                 admire::error_code>
-    create(admire::slurm_job_id slurm_id, admire::job::resources job_resources,
-           admire::job_requirements job_requirements) {
+    tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
+    create(scord::slurm_job_id slurm_id, scord::job::resources job_resources,
+           scord::job_requirements job_requirements) {
 
         static std::atomic_uint64_t current_id;
-        admire::job_id id = current_id++;
+        scord::job_id id = current_id++;
 
         abt::unique_lock lock(m_jobs_mutex);
 
         if(const auto it = m_jobs.find(id); it == m_jobs.end()) {
             const auto& [it_job, inserted] = m_jobs.emplace(
                     id,
-                    std::make_shared<admire::internal::job_info>(
-                            admire::job{id, slurm_id}, std::move(job_resources),
+                    std::make_shared<scord::internal::job_info>(
+                            scord::job{id, slurm_id}, std::move(job_resources),
                             std::move(job_requirements)));
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
-                return tl::make_unexpected(admire::error_code::snafu);
+                return tl::make_unexpected(scord::error_code::snafu);
             }
 
             return it_job->second;
         }
 
         LOGGER_ERROR("{}: Job '{}' already exists", __FUNCTION__, id);
-        return tl::make_unexpected(admire::error_code::entity_exists);
+        return tl::make_unexpected(scord::error_code::entity_exists);
     }
 
-    admire::error_code
-    update(admire::job_id id, admire::job::resources job_resources) {
+    scord::error_code
+    update(scord::job_id id, scord::job::resources job_resources) {
 
         abt::unique_lock lock(m_jobs_mutex);
 
         if(const auto it = m_jobs.find(id); it != m_jobs.end()) {
             const auto& current_job_info = it->second;
             current_job_info->update(std::move(job_resources));
-            return admire::error_code::success;
+            return scord::error_code::success;
         }
 
         LOGGER_ERROR("{}: Job '{}' does not exist", __FUNCTION__, id);
-        return admire::error_code::no_such_entity;
+        return scord::error_code::no_such_entity;
     }
 
-    tl::expected<std::shared_ptr<admire::internal::job_info>,
-                 admire::error_code>
-    find(admire::job_id id) {
+    tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
+    find(scord::job_id id) {
 
         abt::shared_lock lock(m_jobs_mutex);
 
@@ -95,12 +93,11 @@ struct job_manager : scord::utils::singleton<job_manager> {
         }
 
         LOGGER_ERROR("Job '{}' was not registered or was already deleted", id);
-        return tl::make_unexpected(admire::error_code::no_such_entity);
+        return tl::make_unexpected(scord::error_code::no_such_entity);
     }
 
-    tl::expected<std::shared_ptr<admire::internal::job_info>,
-                 admire::error_code>
-    remove(admire::job_id id) {
+    tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
+    remove(scord::job_id id) {
 
         abt::unique_lock lock(m_jobs_mutex);
 
@@ -111,7 +108,7 @@ struct job_manager : scord::utils::singleton<job_manager> {
 
         LOGGER_ERROR("Job '{}' was not registered or was already deleted", id);
 
-        return tl::make_unexpected(admire::error_code::no_such_entity);
+        return tl::make_unexpected(scord::error_code::no_such_entity);
     }
 
 private:
@@ -119,8 +116,8 @@ private:
     job_manager() = default;
 
     mutable abt::shared_mutex m_jobs_mutex;
-    std::unordered_map<admire::job_id,
-                       std::shared_ptr<admire::internal::job_info>>
+    std::unordered_map<scord::job_id,
+                       std::shared_ptr<scord::internal::job_info>>
             m_jobs;
 };
 

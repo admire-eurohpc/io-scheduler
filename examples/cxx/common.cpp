@@ -1,8 +1,8 @@
 #include "common.hpp"
 
-std::vector<admire::node>
+std::vector<scord::node>
 prepare_nodes(size_t n) {
-    std::vector<admire::node> nodes;
+    std::vector<scord::node> nodes;
     nodes.reserve(n);
     for(size_t i = 0; i < n; ++i) {
         nodes.emplace_back(fmt::format("node-{:02d}", i));
@@ -11,9 +11,9 @@ prepare_nodes(size_t n) {
     return nodes;
 }
 
-std::vector<admire::dataset>
+std::vector<scord::dataset>
 prepare_datasets(const std::string& pattern, size_t n) {
-    std::vector<admire::dataset> datasets;
+    std::vector<scord::dataset> datasets;
     datasets.reserve(n);
     for(size_t i = 0; i < n; ++i) {
         datasets.emplace_back(fmt::format(fmt::runtime(pattern), i));
@@ -22,14 +22,14 @@ prepare_datasets(const std::string& pattern, size_t n) {
     return datasets;
 }
 
-std::vector<admire::qos::limit>
+std::vector<scord::qos::limit>
 prepare_qos_limits(size_t n) {
 
-    std::vector<admire::qos::limit> limits;
+    std::vector<scord::qos::limit> limits;
     limits.reserve(n);
 
     for(size_t i = 0; i < n; ++i) {
-        limits.emplace_back(admire::qos::subclass::bandwidth, 50);
+        limits.emplace_back(scord::qos::subclass::bandwidth, 50);
     }
 
     return limits;

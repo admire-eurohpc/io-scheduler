@@ -36,7 +36,7 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
     ADM_dataset_t target{};
@@ -44,7 +44,7 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::set_dataset_information(server, job, target, info);
+        ret = scord::set_dataset_information(server, job, target, info);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_set_dataset_information() failed: {}\n",
                    e.what());

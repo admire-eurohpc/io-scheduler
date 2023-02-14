@@ -33,8 +33,3 @@ target_link_libraries(_api_types PRIVATE
   Margo::Margo common::logger PUBLIC fmt::fmt common::abt_cxx)
 
 set_property(TARGET _api_types PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-install(
-  FILES admire_types.h admire_types.hpp
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)

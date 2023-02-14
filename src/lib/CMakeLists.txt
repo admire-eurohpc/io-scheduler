@@ -24,18 +24,29 @@
 
 add_library(libscord SHARED)
 
-target_sources(libscord
+target_sources(
+  libscord
   PUBLIC admire.h admire.hpp
-  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp env.hpp)
+  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp env.hpp
+)
 
-set_target_properties(libscord PROPERTIES PUBLIC_HEADER "admire.h;admire.hpp")
+list(APPEND public_headers "admire.h"
+     "${CMAKE_SOURCE_DIR}/src/common/api/admire_types.h" "admire.hpp"
+     "${CMAKE_SOURCE_DIR}/src/common/api/admire_types.hpp"
+)
 
-target_include_directories(libscord PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+set_target_properties(libscord PROPERTIES PUBLIC_HEADER "${public_headers}")
 
-target_link_libraries(libscord PRIVATE
-  common::network::rpc_client
-  common::network::rpc_types PUBLIC
-  tl::expected common::api::types)
+target_include_directories(
+  libscord PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+
+target_link_libraries(
+  libscord
+  PRIVATE common::network::rpc_client common::network::rpc_types
+  PUBLIC tl::expected common::api::types
+)
 
 set_target_properties(libscord PROPERTIES OUTPUT_NAME "scord")
 
@@ -43,5 +54,5 @@ install(
   TARGETS libscord
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )

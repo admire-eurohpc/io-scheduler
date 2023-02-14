@@ -26,50 +26,50 @@
 #ifndef SCORD_ADMIRE_IMPL_HPP
 #define SCORD_ADMIRE_IMPL_HPP
 
-#include <admire.hpp>
+#include <scord/scord.hpp>
 #include <tl/expected.hpp>
 
-namespace admire::detail {
+namespace scord::detail {
 
-admire::error_code
+scord::error_code
 ping(const server& srv);
 
-tl::expected<admire::job, admire::error_code>
+tl::expected<scord::job, scord::error_code>
 register_job(const server& srv, const job::resources& job_resources,
              const job_requirements& job_requirements,
-             admire::slurm_job_id slurm_id);
+             scord::slurm_job_id slurm_id);
 
-admire::error_code
+scord::error_code
 update_job(const server& srv, const job& job,
            const job::resources& new_resources);
 
-admire::error_code
+scord::error_code
 remove_job(const server& srv, const job& job);
 
-tl::expected<admire::adhoc_storage, admire::error_code>
+tl::expected<scord::adhoc_storage, scord::error_code>
 register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx);
 
-admire::error_code
+scord::error_code
 update_adhoc_storage(const server& srv, const adhoc_storage::ctx& new_ctx,
                      const adhoc_storage& adhoc_storage);
 
-admire::error_code
+scord::error_code
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
-admire::error_code
+scord::error_code
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
-tl::expected<admire::pfs_storage, admire::error_code>
+tl::expected<scord::pfs_storage, scord::error_code>
 register_pfs_storage(const server& srv, const std::string& name,
                      enum pfs_storage::type type, const pfs_storage::ctx& ctx);
 
-admire::error_code
+scord::error_code
 update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
-                   const admire::pfs_storage::ctx& new_ctx);
+                   const scord::pfs_storage::ctx& new_ctx);
 
-admire::error_code
+scord::error_code
 remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage);
 
 tl::expected<transfer, error_code>
@@ -79,6 +79,6 @@ transfer_datasets(const server& srv, const job& job,
                   const std::vector<qos::limit>& limits,
                   transfer::mapping mapping);
 
-} // namespace admire::detail
+} // namespace scord::detail
 
 #endif // SCORD_ADMIRE_IMPL_HPP

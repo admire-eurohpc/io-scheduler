@@ -27,7 +27,7 @@
 #include <net/endpoint.hpp>
 #include <net/request.hpp>
 #include <net/serialization.hpp>
-#include <admire_types.hpp>
+#include <scord/types.hpp>
 #include "impl.hpp"
 
 using namespace std::literals;
@@ -44,9 +44,9 @@ struct remote_procedure {
 
 } // namespace api
 
-namespace admire::detail {
+namespace scord::detail {
 
-admire::error_code
+scord::error_code
 ping(const server& srv) {
 
     scord::network::client rpc_client{srv.protocol()};
@@ -79,13 +79,13 @@ ping(const server& srv) {
     }
 
     LOGGER_ERROR("rpc call failed");
-    return admire::error_code::other;
+    return scord::error_code::other;
 }
 
-tl::expected<admire::job, admire::error_code>
+tl::expected<scord::job, scord::error_code>
 register_job(const server& srv, const job::resources& job_resources,
              const job_requirements& job_requirements,
-             admire::slurm_job_id slurm_id) {
+             scord::slurm_job_id slurm_id) {
 
     scord::network::client rpc_client{srv.protocol()};
 
@@ -120,15 +120,15 @@ register_job(const server& srv, const job::resources& job_resources,
                 return tl::make_unexpected(resp.error_code());
             }
 
-            return admire::job{resp.value(), slurm_id};
+            return scord::job{resp.value(), slurm_id};
         }
     }
 
     LOGGER_ERROR("rpc call failed");
-    return tl::make_unexpected(admire::error_code::other);
+    return tl::make_unexpected(scord::error_code::other);
 }
 
-admire::error_code
+scord::error_code
 update_job(const server& srv, const job& job,
            const job::resources& new_resources) {
 
@@ -163,10 +163,10 @@ update_job(const server& srv, const job& job,
     }
 
     LOGGER_ERROR("rpc call failed");
-    return admire::error_code::other;
+    return scord::error_code::other;
 }
 
-admire::error_code
+scord::error_code
 remove_job(const server& srv, const job& job) {
 
     scord::network::client rpc_client{srv.protocol()};
@@ -198,10 +198,10 @@ remove_job(const server& srv, const job& job) {
     }
 
     LOGGER_ERROR("rpc call failed");
-    return admire::error_code::other;
+    return scord::error_code::other;
 }
 
-tl::expected<admire::adhoc_storage, admire::error_code>
+tl::expected<scord::adhoc_storage, scord::error_code>
 register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
                        const adhoc_storage::ctx& ctx) {
@@ -236,15 +236,15 @@ register_adhoc_storage(const server& srv, const std::string& name,
                 return tl::make_unexpected(ec);
             }
 
-            return admire::adhoc_storage{type, name, resp.value(), ctx};
+            return scord::adhoc_storage{type, name, resp.value(), ctx};
         }
     }
 
     LOGGER_ERROR("rpc call failed");
-    return tl::make_unexpected(admire::error_code::other);
+    return tl::make_unexpected(scord::error_code::other);
 }
 
-admire::error_code
+scord::error_code
 update_adhoc_storage(const server& srv, const adhoc_storage::ctx& new_ctx,
                      const adhoc_storage& adhoc_storage) {
 
@@ -280,10 +280,10 @@ update_adhoc_storage(const server& srv, const adhoc_storage::ctx& new_ctx,
     }
 
     LOGGER_ERROR("rpc call failed");
-    return admire::error_code::other;
+    return scord::error_code::other;
 }
 
-admire::error_code
+scord::error_code
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
     scord::network::client rpc_client{srv.protocol()};
@@ -317,10 +317,10 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     }
 
     LOGGER_ERROR("rpc call failed");
-    return admire::error_code::other;
+    return scord::error_code::other;
 }
 
-tl::expected<admire::pfs_storage, admire::error_code>
+tl::expected<scord::pfs_storage, scord::error_code>
 register_pfs_storage(const server& srv, const std::string& name,
                      enum pfs_storage::type type, const pfs_storage::ctx& ctx) {
 
@@ -354,17 +354,17 @@ register_pfs_storage(const server& srv, const std::string& name,
                 return tl::make_unexpected(ec);
             }
 
-            return admire::pfs_storage{type, name, resp.value(), ctx};
+            return scord::pfs_storage{type, name, resp.value(), ctx};
         }
     }
 
     LOGGER_ERROR("rpc call failed");
-    return tl::make_unexpected(admire::error_code::other);
+    return tl::make_unexpected(scord::error_code::other);
 }
 
-admire::error_code
+scord::error_code
 update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
-                   const admire::pfs_storage::ctx& new_ctx) {
+                   const scord::pfs_storage::ctx& new_ctx) {
 
     scord::network::client rpc_client{srv.protocol()};
 
@@ -398,10 +398,10 @@ update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
     }
 
     LOGGER_ERROR("rpc call failed");
-    return admire::error_code::other;
+    return scord::error_code::other;
 }
 
-admire::error_code
+scord::error_code
 remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
 
     scord::network::client rpc_client{srv.protocol()};
@@ -435,10 +435,10 @@ remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
     }
 
     LOGGER_ERROR("rpc call failed");
-    return admire::error_code::other;
+    return scord::error_code::other;
 }
 
-admire::error_code
+scord::error_code
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
     scord::network::client rpc_client{srv.protocol()};
@@ -472,7 +472,7 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     }
 
     LOGGER_ERROR("rpc call failed");
-    return admire::error_code::other;
+    return scord::error_code::other;
 }
 
 tl::expected<transfer, error_code>
@@ -514,12 +514,12 @@ transfer_datasets(const server& srv, const job& job,
                 return tl::make_unexpected(ec);
             }
 
-            return admire::transfer{resp.value()};
+            return scord::transfer{resp.value()};
         }
     }
 
     LOGGER_ERROR("rpc call failed");
-    return tl::make_unexpected(admire::error_code::other);
+    return tl::make_unexpected(scord::error_code::other);
 }
 
-} // namespace admire::detail
+} // namespace scord::detail

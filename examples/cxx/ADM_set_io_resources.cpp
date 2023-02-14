@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 
 
 int
@@ -35,7 +35,7 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
     ADM_adhoc_storage_t tier{};
@@ -43,7 +43,7 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::set_io_resources(server, job, tier, resources);
+        ret = scord::set_io_resources(server, job, tier, resources);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_set_io_resources() failed: {}\n",
                    e.what());

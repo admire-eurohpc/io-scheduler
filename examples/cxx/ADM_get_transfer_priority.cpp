@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 
 
 int
@@ -36,7 +36,7 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
     ADM_transfer_t tx{};
@@ -44,7 +44,7 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::get_transfer_priority(server, job, tx, &priority);
+        ret = scord::get_transfer_priority(server, job, tx, &priority);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_get_transfer_priority() failed: {}\n",
                    e.what());

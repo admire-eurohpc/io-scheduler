@@ -25,10 +25,10 @@
 #ifndef SCORD_CONVERT_HPP
 #define SCORD_CONVERT_HPP
 
-#include "admire_types.h"
-#include "admire_types.hpp"
+#include "scord/types.h"
+#include "scord/types.hpp"
 
-namespace admire::api {
+namespace scord::api {
 
 // convenience types for managing the types from the C API in a RAII fashion
 template <typename T>
@@ -49,31 +49,31 @@ managed_ctype<ADM_adhoc_context_t>
 convert(const adhoc_storage::ctx& ctx);
 
 managed_ctype<ADM_adhoc_storage_t>
-convert(const admire::adhoc_storage& st);
+convert(const scord::adhoc_storage& st);
 
 managed_ctype<ADM_pfs_context_t>
 convert(const pfs_storage::ctx& ctx);
 
 managed_ctype<ADM_pfs_storage_t>
-convert(const admire::pfs_storage& st);
+convert(const scord::pfs_storage& st);
 
 managed_ctype<ADM_dataset_t>
-convert(const admire::dataset& dataset);
+convert(const scord::dataset& dataset);
 
 managed_ctype<ADM_dataset_list_t>
-convert(const std::vector<admire::dataset>& datasets);
+convert(const std::vector<scord::dataset>& datasets);
 
-std::vector<admire::dataset>
+std::vector<scord::dataset>
 convert(ADM_dataset_t datasets[], size_t datasets_len);
 
-std::vector<admire::dataset>
+std::vector<scord::dataset>
 convert(ADM_dataset_list_t list);
 
 managed_ctype<ADM_job_resources_t>
 convert(const job::resources& res);
 
 managed_ctype<ADM_job_requirements_t>
-convert(const admire::job_requirements& reqs);
+convert(const scord::job_requirements& reqs);
 
 managed_ctype<ADM_job_t>
 convert(const job& j);
@@ -93,10 +93,10 @@ convert(const std::vector<qos::limit>& limits);
 std::vector<qos::limit>
 convert(ADM_qos_limit_t limits[], size_t limits_len);
 
-std::vector<admire::qos::limit>
+std::vector<scord::qos::limit>
 convert(ADM_qos_limit_list_t list);
 
-} // namespace admire::api
+} // namespace scord::api
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ convert(ADM_qos_limit_list_t list);
 ////////////////////////////////////////////////////////////////////////////////
 
 template <>
-struct admire::api::managed_ctype<ADM_node_t> {
+struct scord::api::managed_ctype<ADM_node_t> {
 
     explicit managed_ctype(ADM_node_t node) : m_node(node) {}
 
@@ -122,7 +122,7 @@ struct admire::api::managed_ctype<ADM_node_t> {
 };
 
 template <>
-struct admire::api::managed_ctype_array<ADM_node_t> {
+struct scord::api::managed_ctype_array<ADM_node_t> {
 
     managed_ctype_array() = default;
 
@@ -156,7 +156,7 @@ struct admire::api::managed_ctype_array<ADM_node_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_adhoc_resources_t> {
+struct scord::api::managed_ctype<ADM_adhoc_resources_t> {
 
     managed_ctype() = default;
 
@@ -181,7 +181,7 @@ struct admire::api::managed_ctype<ADM_adhoc_resources_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_adhoc_context_t> {
+struct scord::api::managed_ctype<ADM_adhoc_context_t> {
 
     managed_ctype() = default;
 
@@ -206,7 +206,7 @@ struct admire::api::managed_ctype<ADM_adhoc_context_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_adhoc_storage_t> {
+struct scord::api::managed_ctype<ADM_adhoc_storage_t> {
 
     managed_ctype() = default;
 
@@ -231,7 +231,7 @@ struct admire::api::managed_ctype<ADM_adhoc_storage_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_pfs_context_t> {
+struct scord::api::managed_ctype<ADM_pfs_context_t> {
 
     managed_ctype() = default;
 
@@ -252,7 +252,7 @@ struct admire::api::managed_ctype<ADM_pfs_context_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_pfs_storage_t> {
+struct scord::api::managed_ctype<ADM_pfs_storage_t> {
 
     managed_ctype() = default;
 
@@ -277,7 +277,7 @@ struct admire::api::managed_ctype<ADM_pfs_storage_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_dataset_t> {
+struct scord::api::managed_ctype<ADM_dataset_t> {
 
     explicit managed_ctype(ADM_dataset_t dataset) : m_dataset(dataset) {}
 
@@ -295,7 +295,7 @@ struct admire::api::managed_ctype<ADM_dataset_t> {
 };
 
 template <>
-struct admire::api::managed_ctype_array<ADM_dataset_t> {
+struct scord::api::managed_ctype_array<ADM_dataset_t> {
 
     explicit managed_ctype_array(ADM_dataset_t* data, size_t size)
         : m_datasets(data, size) {}
@@ -328,7 +328,7 @@ struct admire::api::managed_ctype_array<ADM_dataset_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_dataset_list_t> {
+struct scord::api::managed_ctype<ADM_dataset_list_t> {
 
     explicit managed_ctype(ADM_dataset_list_t list) : m_list(list) {}
 
@@ -347,7 +347,7 @@ struct admire::api::managed_ctype<ADM_dataset_list_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_job_resources_t> {
+struct scord::api::managed_ctype<ADM_job_resources_t> {
 
     explicit managed_ctype(ADM_job_resources_t res,
                            managed_ctype_array<ADM_node_t>&& nodes)
@@ -369,7 +369,7 @@ struct admire::api::managed_ctype<ADM_job_resources_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_job_requirements_t> {
+struct scord::api::managed_ctype<ADM_job_requirements_t> {
 
     explicit managed_ctype(ADM_job_requirements_t reqs,
                            managed_ctype_array<ADM_dataset_t>&& inputs,
@@ -407,7 +407,7 @@ ADM_return_t
 ADM_transfer_destroy(ADM_transfer_t tx);
 
 template <>
-struct admire::api::managed_ctype<ADM_job_t> {
+struct scord::api::managed_ctype<ADM_job_t> {
 
     explicit managed_ctype(ADM_job_t job) : m_job(job) {}
 
@@ -425,7 +425,7 @@ struct admire::api::managed_ctype<ADM_job_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_transfer_t> {
+struct scord::api::managed_ctype<ADM_transfer_t> {
 
     explicit managed_ctype(ADM_transfer_t tx) : m_transfer(tx) {}
 
@@ -446,7 +446,7 @@ ADM_return_t
 ADM_qos_limit_destroy_all(ADM_qos_limit_t l);
 
 template <>
-struct admire::api::managed_ctype_array<ADM_qos_limit_t> {
+struct scord::api::managed_ctype_array<ADM_qos_limit_t> {
 
     explicit managed_ctype_array(ADM_qos_limit_t data[], size_t size)
         : m_qos_limits(data, size) {}
@@ -479,7 +479,7 @@ struct admire::api::managed_ctype_array<ADM_qos_limit_t> {
 };
 
 template <>
-struct admire::api::managed_ctype<ADM_qos_limit_list_t> {
+struct scord::api::managed_ctype<ADM_qos_limit_list_t> {
 
     explicit managed_ctype(ADM_qos_limit_list_t list) : m_list(list) {}
 

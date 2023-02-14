@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 
 int
 main(int argc, char* argv[]) {
@@ -35,7 +35,7 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     ADM_job_t job{};
     ADM_data_operation_t op{};
@@ -43,7 +43,7 @@ main(int argc, char* argv[]) {
     ADM_return_t ret = ADM_SUCCESS;
 
     try {
-        ret = admire::finalize_data_operation(server, job, op, &status);
+        ret = scord::finalize_data_operation(server, job, op, &status);
     } catch(const std::exception& e) {
         fmt::print(stderr, "FATAL: ADM_finalize_data_operation() failed: {}\n",
                    e.what());

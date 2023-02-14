@@ -58,21 +58,21 @@ ping(const scord::network::request& req) {
                 "body: {{}}",
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)));
 
-    const auto resp = generic_response{rpc_id, admire::error_code::success};
+    const auto resp = generic_response{rpc_id, scord::error_code::success};
 
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "
                 "body: {{retval: {}}}",
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                admire::error_code::success);
+                scord::error_code::success);
 
     req.respond(resp);
 }
 
 void
 register_job(const scord::network::request& req,
-             const admire::job::resources& job_resources,
-             const admire::job_requirements& job_requirements,
-             admire::slurm_job_id slurm_id) {
+             const scord::job::resources& job_resources,
+             const scord::job_requirements& job_requirements,
+             scord::slurm_job_id slurm_id) {
 
     using scord::network::get_address;
 
@@ -85,8 +85,8 @@ register_job(const scord::network::request& req,
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 job_resources, job_requirements, slurm_id);
 
-    admire::error_code ec;
-    std::optional<admire::job_id> job_id;
+    scord::error_code ec;
+    std::optional<scord::job_id> job_id;
     auto& jm = scord::job_manager::instance();
 
     if(const auto jm_result =
@@ -121,8 +121,8 @@ register_job(const scord::network::request& req,
 }
 
 void
-update_job(const request& req, admire::job_id job_id,
-           const admire::job::resources& new_resources) {
+update_job(const request& req, scord::job_id job_id,
+           const scord::job::resources& new_resources) {
 
     using scord::network::get_address;
 
@@ -153,7 +153,7 @@ update_job(const request& req, admire::job_id job_id,
 }
 
 void
-remove_job(const request& req, admire::job_id job_id) {
+remove_job(const request& req, scord::job_id job_id) {
 
     using scord::network::get_address;
 
@@ -165,7 +165,7 @@ remove_job(const request& req, admire::job_id job_id) {
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 job_id);
 
-    admire::error_code ec;
+    scord::error_code ec;
     auto& jm = scord::job_manager::instance();
     const auto jm_result = jm.remove(job_id);
 
@@ -197,8 +197,8 @@ remove_job(const request& req, admire::job_id job_id) {
 
 void
 register_adhoc_storage(const request& req, const std::string& name,
-                       enum admire::adhoc_storage::type type,
-                       const admire::adhoc_storage::ctx& ctx) {
+                       enum scord::adhoc_storage::type type,
+                       const scord::adhoc_storage::ctx& ctx) {
 
     using scord::network::get_address;
 
@@ -210,7 +210,7 @@ register_adhoc_storage(const request& req, const std::string& name,
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 name, type, ctx);
 
-    admire::error_code ec;
+    scord::error_code ec;
     std::optional<std::uint64_t> adhoc_id;
     auto& adhoc_manager = scord::adhoc_storage_manager::instance();
 
@@ -237,7 +237,7 @@ register_adhoc_storage(const request& req, const std::string& name,
 
 void
 update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
-                     const admire::adhoc_storage::ctx& new_ctx) {
+                     const scord::adhoc_storage::ctx& new_ctx) {
 
     using scord::network::get_address;
 
@@ -282,7 +282,7 @@ remove_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
                 adhoc_id);
 
     auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-    admire::error_code ec = adhoc_manager.remove(adhoc_id);
+    scord::error_code ec = adhoc_manager.remove(adhoc_id);
 
     if(!ec) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"", rpc_id,
@@ -312,7 +312,7 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 adhoc_id);
 
-    auto ec = admire::error_code::success;
+    auto ec = scord::error_code::success;
     auto& adhoc_manager = scord::adhoc_storage_manager::instance();
 
     if(const auto am_result = adhoc_manager.find(adhoc_id);
@@ -320,7 +320,7 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
         const auto& storage_info = am_result.value();
         const auto adhoc_storage = storage_info->adhoc_storage();
 
-        if(adhoc_storage.type() == admire::adhoc_storage::type::gekkofs) {
+        if(adhoc_storage.type() == scord::adhoc_storage::type::gekkofs) {
             const auto adhoc_ctx = adhoc_storage.context();
             /* Number of nodes */
             const std::string nodes =
@@ -354,7 +354,7 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
                     break;
                 }
                 case -1: {
-                    ec = admire::error_code::other;
+                    ec = scord::error_code::other;
                     LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
                                  "body: {{retval: {}}}",
                                  rpc_id, std::quoted(rpc_name),
@@ -368,12 +368,12 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
                         LOGGER_ERROR(
                                 "rpc id: {} error_msg: \"Error waitpid code: {}\"",
                                 rpc_id, retwait);
-                        ec = admire::error_code::other;
+                        ec = scord::error_code::other;
                     } else {
                         if(WEXITSTATUS(wstatus) != 0) {
-                            ec = admire::error_code::other;
+                            ec = scord::error_code::other;
                         } else {
-                            ec = admire::error_code::success;
+                            ec = scord::error_code::success;
                         }
                     }
                     break;
@@ -401,8 +401,8 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
 
 void
 register_pfs_storage(const request& req, const std::string& name,
-                     enum admire::pfs_storage::type type,
-                     const admire::pfs_storage::ctx& ctx) {
+                     enum scord::pfs_storage::type type,
+                     const scord::pfs_storage::ctx& ctx) {
 
     using scord::network::get_address;
 
@@ -414,7 +414,7 @@ register_pfs_storage(const request& req, const std::string& name,
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 name, type, ctx);
 
-    admire::error_code ec;
+    scord::error_code ec;
     std::optional<std::uint64_t> pfs_id = 0;
     auto& pfs_manager = scord::pfs_storage_manager::instance();
 
@@ -440,7 +440,7 @@ register_pfs_storage(const request& req, const std::string& name,
 
 void
 update_pfs_storage(const request& req, std::uint64_t pfs_id,
-                   const admire::pfs_storage::ctx& new_ctx) {
+                   const scord::pfs_storage::ctx& new_ctx) {
 
     using scord::network::get_address;
 
@@ -484,7 +484,7 @@ remove_pfs_storage(const request& req, std::uint64_t pfs_id) {
                 pfs_id);
 
     auto& pfs_manager = scord::pfs_storage_manager::instance();
-    admire::error_code ec = pfs_manager.remove(pfs_id);
+    scord::error_code ec = pfs_manager.remove(pfs_id);
 
     if(!ec) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error removing pfs storage: {}\"",
@@ -502,11 +502,11 @@ remove_pfs_storage(const request& req, std::uint64_t pfs_id) {
 }
 
 void
-transfer_datasets(const request& req, admire::job_id job_id,
-                  const std::vector<admire::dataset>& sources,
-                  const std::vector<admire::dataset>& targets,
-                  const std::vector<admire::qos::limit>& limits,
-                  enum admire::transfer::mapping mapping) {
+transfer_datasets(const request& req, scord::job_id job_id,
+                  const std::vector<scord::dataset>& sources,
+                  const std::vector<scord::dataset>& targets,
+                  const std::vector<scord::qos::limit>& limits,
+                  enum scord::transfer::mapping mapping) {
 
     using scord::network::get_address;
 
@@ -519,7 +519,7 @@ transfer_datasets(const request& req, admire::job_id job_id,
             rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
             job_id, sources, targets, limits, mapping);
 
-    admire::error_code ec;
+    scord::error_code ec;
 
     std::optional<std::uint64_t> tx_id;
 

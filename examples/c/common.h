@@ -1,7 +1,7 @@
 #ifndef SCORD_C_EXAMPLES_COMMON_H
 #define SCORD_C_EXAMPLES_COMMON_H
 
-#include <admire_types.h>
+#include <scord/types.h>
 
 ADM_node_t*
 prepare_nodes(size_t n);

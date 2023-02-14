@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 #include "common.hpp"
 
 #define NJOB_NODES   50
@@ -40,7 +40,7 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     const auto job_nodes = prepare_nodes(NJOB_NODES);
     const auto new_job_nodes = prepare_nodes(NJOB_NODES * 2);
@@ -48,24 +48,24 @@ main(int argc, char* argv[]) {
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
-    const auto gkfs_storage = admire::register_adhoc_storage(
-            server, "foobar", admire::adhoc_storage::type::gekkofs,
-            admire::adhoc_storage::ctx{
-                    admire::adhoc_storage::execution_mode::separate_new,
-                    admire::adhoc_storage::access_type::read_write,
-                    admire::adhoc_storage::resources{adhoc_nodes}, 100, false});
+    const auto gkfs_storage = scord::register_adhoc_storage(
+            server, "foobar", scord::adhoc_storage::type::gekkofs,
+            scord::adhoc_storage::ctx{
+                    scord::adhoc_storage::execution_mode::separate_new,
+                    scord::adhoc_storage::access_type::read_write,
+                    scord::adhoc_storage::resources{adhoc_nodes}, 100, false});
 
-    admire::job_requirements reqs{inputs, outputs, gkfs_storage};
+    scord::job_requirements reqs{inputs, outputs, gkfs_storage};
 
     const auto new_inputs = prepare_datasets("input-new-dataset-{}", NINPUTS);
     const auto new_outputs =
             prepare_datasets("output-new-dataset-{}", NOUTPUTS);
 
     try {
-        [[maybe_unused]] const auto job = admire::register_job(
-                server, admire::job::resources{job_nodes}, reqs, 0);
+        [[maybe_unused]] const auto job = scord::register_job(
+                server, scord::job::resources{job_nodes}, reqs, 0);
 
-        admire::update_job(server, job, admire::job::resources{new_job_nodes});
+        scord::update_job(server, job, scord::job::resources{new_job_nodes});
 
         fmt::print(
                 stdout,

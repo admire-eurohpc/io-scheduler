@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 #include "common.hpp"
 
 #define NJOB_NODES   50
@@ -41,28 +41,28 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
     std::string name = "adhoc_storage_42";
-    const auto adhoc_storage_ctx = admire::adhoc_storage::ctx{
-            admire::adhoc_storage::execution_mode::separate_new,
-            admire::adhoc_storage::access_type::read_write,
-            admire::adhoc_storage::resources{adhoc_nodes}, 100, false};
+    const auto adhoc_storage_ctx = scord::adhoc_storage::ctx{
+            scord::adhoc_storage::execution_mode::separate_new,
+            scord::adhoc_storage::access_type::read_write,
+            scord::adhoc_storage::resources{adhoc_nodes}, 100, false};
 
     try {
-        const auto adhoc_storage = admire::register_adhoc_storage(
-                server, name, admire::adhoc_storage::type::dataclay,
+        const auto adhoc_storage = scord::register_adhoc_storage(
+                server, name, scord::adhoc_storage::type::dataclay,
                 adhoc_storage_ctx);
 
         fmt::print(stdout,
                    "ADM_register_adhoc_storage() remote procedure completed "
                    "successfully\n");
 
-        admire::deploy_adhoc_storage(server, adhoc_storage);
+        scord::deploy_adhoc_storage(server, adhoc_storage);
 
     } catch(const std::exception& e) {
         fmt::print(stderr,

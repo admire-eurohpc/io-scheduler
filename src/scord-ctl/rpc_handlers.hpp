@@ -27,7 +27,7 @@
 
 #include <net/request.hpp>
 #include <net/serialization.hpp>
-#include <admire_types.hpp>
+#include <scord/types.hpp>
 
 namespace scord::network::handlers {
 

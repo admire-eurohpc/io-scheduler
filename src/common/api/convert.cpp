@@ -35,35 +35,35 @@ ADM_transfer_create(uint64_t id);
 
 namespace {
 
-admire::api::managed_ctype_array<ADM_node_t>
-as_ctype_array(const std::vector<admire::node>& nodes) {
+scord::api::managed_ctype_array<ADM_node_t>
+as_ctype_array(const std::vector<scord::node>& nodes) {
 
     std::vector<ADM_node_t> tmp;
 
     std::transform(nodes.cbegin(), nodes.cend(), std::back_inserter(tmp),
-                   [](const admire::node& n) {
+                   [](const scord::node& n) {
                        return ADM_node_create(n.hostname().c_str());
                    });
 
-    return admire::api::managed_ctype_array<ADM_node_t>{std::move(tmp)};
+    return scord::api::managed_ctype_array<ADM_node_t>{std::move(tmp)};
 }
 
-admire::api::managed_ctype_array<ADM_dataset_t>
-as_ctype_array(const std::vector<admire::dataset>& datasets) {
+scord::api::managed_ctype_array<ADM_dataset_t>
+as_ctype_array(const std::vector<scord::dataset>& datasets) {
 
     std::vector<ADM_dataset_t> tmp;
 
     std::transform(datasets.cbegin(), datasets.cend(), std::back_inserter(tmp),
-                   [](const admire::dataset& d) {
+                   [](const scord::dataset& d) {
                        return ADM_dataset_create(d.id().c_str());
                    });
 
-    return admire::api::managed_ctype_array<ADM_dataset_t>{std::move(tmp)};
+    return scord::api::managed_ctype_array<ADM_dataset_t>{std::move(tmp)};
 }
 
 } // namespace
 
-namespace admire::api {
+namespace scord::api {
 
 managed_ctype<ADM_node_t>
 convert(const node& node) {
@@ -97,7 +97,7 @@ convert(const adhoc_storage::ctx& ctx) {
 }
 
 managed_ctype<ADM_adhoc_storage_t>
-convert(const std::optional<admire::adhoc_storage>& adhoc_storage) {
+convert(const std::optional<scord::adhoc_storage>& adhoc_storage) {
 
     if(!adhoc_storage) {
         return managed_ctype<ADM_adhoc_storage_t>{};
@@ -107,7 +107,7 @@ convert(const std::optional<admire::adhoc_storage>& adhoc_storage) {
 }
 
 managed_ctype<ADM_adhoc_storage_t>
-convert(const admire::adhoc_storage& st) {
+convert(const scord::adhoc_storage& st) {
 
     auto managed_ctx = convert(st.context());
     ADM_adhoc_storage_t c_st = ADM_adhoc_storage_create(
@@ -124,7 +124,7 @@ convert(const pfs_storage::ctx& ctx) {
 }
 
 managed_ctype<ADM_pfs_storage_t>
-convert(const std::optional<admire::pfs_storage>& pfs_storage) {
+convert(const std::optional<scord::pfs_storage>& pfs_storage) {
 
     if(!pfs_storage) {
         return managed_ctype<ADM_pfs_storage_t>{};
@@ -134,7 +134,7 @@ convert(const std::optional<admire::pfs_storage>& pfs_storage) {
 }
 
 managed_ctype<ADM_pfs_storage_t>
-convert(const admire::pfs_storage& st) {
+convert(const scord::pfs_storage& st) {
 
     auto managed_ctx = convert(st.context());
     ADM_pfs_storage_t c_st = ADM_pfs_storage_create(
@@ -145,18 +145,18 @@ convert(const admire::pfs_storage& st) {
 }
 
 managed_ctype<ADM_dataset_t>
-convert(const admire::dataset& dataset) {
+convert(const scord::dataset& dataset) {
     return managed_ctype<ADM_dataset_t>(
             ADM_dataset_create(dataset.id().c_str()));
 }
 
 managed_ctype<ADM_dataset_list_t>
-convert(const std::vector<admire::dataset>& datasets) {
+convert(const std::vector<scord::dataset>& datasets) {
 
     std::vector<ADM_dataset_t> tmp;
 
     std::transform(datasets.cbegin(), datasets.cend(), std::back_inserter(tmp),
-                   [](const admire::dataset& d) {
+                   [](const scord::dataset& d) {
                        return ADM_dataset_create(d.id().c_str());
                    });
 
@@ -169,10 +169,10 @@ convert(const std::vector<admire::dataset>& datasets) {
     return rv;
 }
 
-std::vector<admire::dataset>
+std::vector<scord::dataset>
 convert(ADM_dataset_t datasets[], size_t datasets_len) {
 
-    std::vector<admire::dataset> rv;
+    std::vector<scord::dataset> rv;
     rv.reserve(datasets_len);
 
     for(size_t i = 0; i < datasets_len; ++i) {
@@ -182,10 +182,10 @@ convert(ADM_dataset_t datasets[], size_t datasets_len) {
     return rv;
 }
 
-std::vector<admire::dataset>
+std::vector<scord::dataset>
 convert(ADM_dataset_list_t list) {
 
-    std::vector<admire::dataset> rv;
+    std::vector<scord::dataset> rv;
     rv.reserve(list->l_length);
 
     for(size_t i = 0; i < list->l_length; ++i) {
@@ -207,7 +207,7 @@ convert(const job::resources& res) {
 }
 
 managed_ctype<ADM_job_requirements_t>
-convert(const admire::job_requirements& reqs) {
+convert(const scord::job_requirements& reqs) {
 
     const auto& adhoc_storage = reqs.adhoc_storage();
 
@@ -233,7 +233,7 @@ convert(const job& j) {
 
 job
 convert(ADM_job_t j) {
-    return admire::job{j};
+    return scord::job{j};
 }
 
 managed_ctype<ADM_transfer_t>
@@ -253,7 +253,7 @@ convert(const std::vector<qos::limit>& limits) {
 
     std::transform(
             limits.cbegin(), limits.cend(), std::back_inserter(tmp),
-            [](const admire::qos::limit& l) {
+            [](const scord::qos::limit& l) {
                 ADM_qos_entity_t e = nullptr;
 
                 if(l.entity()) {
@@ -262,7 +262,7 @@ convert(const std::vector<qos::limit>& limits) {
                         case qos::scope::dataset: {
                             e = ADM_qos_entity_create(
                                     static_cast<ADM_qos_scope_t>(s),
-                                    convert(l.entity()->data<admire::dataset>())
+                                    convert(l.entity()->data<scord::dataset>())
                                             .release());
                             break;
                         }
@@ -270,7 +270,7 @@ convert(const std::vector<qos::limit>& limits) {
                         case qos::scope::node: {
                             e = ADM_qos_entity_create(
                                     static_cast<ADM_qos_scope_t>(s),
-                                    convert(l.entity()->data<admire::node>())
+                                    convert(l.entity()->data<scord::node>())
                                             .release());
                             break;
                         }
@@ -278,7 +278,7 @@ convert(const std::vector<qos::limit>& limits) {
                         case qos::scope::job: {
                             e = ADM_qos_entity_create(
                                     static_cast<ADM_qos_scope_t>(s),
-                                    convert(l.entity()->data<admire::job>())
+                                    convert(l.entity()->data<scord::job>())
                                             .release());
                             break;
                         }
@@ -286,8 +286,7 @@ convert(const std::vector<qos::limit>& limits) {
                         case qos::scope::transfer: {
                             e = ADM_qos_entity_create(
                                     static_cast<ADM_qos_scope_t>(s),
-                                    convert(l.entity()
-                                                    ->data<admire::transfer>())
+                                    convert(l.entity()->data<scord::transfer>())
                                             .release());
                             break;
                         }
@@ -311,7 +310,7 @@ convert(const std::vector<qos::limit>& limits) {
 std::vector<qos::limit>
 convert(ADM_qos_limit_t limits[], size_t limits_len) {
 
-    std::vector<admire::qos::limit> rv;
+    std::vector<scord::qos::limit> rv;
     rv.reserve(limits_len);
 
     for(size_t i = 0; i < limits_len; ++i) {
@@ -321,10 +320,10 @@ convert(ADM_qos_limit_t limits[], size_t limits_len) {
     return rv;
 }
 
-std::vector<admire::qos::limit>
+std::vector<scord::qos::limit>
 convert(ADM_qos_limit_list_t list) {
 
-    std::vector<admire::qos::limit> rv;
+    std::vector<scord::qos::limit> rv;
     rv.reserve(list->l_length);
 
     for(size_t i = 0; i < list->l_length; ++i) {
@@ -335,4 +334,4 @@ convert(ADM_qos_limit_list_t list) {
 }
 
 
-} // namespace admire::api
+} // namespace scord::api

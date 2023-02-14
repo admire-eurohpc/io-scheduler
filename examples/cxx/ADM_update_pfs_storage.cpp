@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 
 
 int
@@ -35,7 +35,7 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     std::string pfs_name = "gpfs_scratch";
     std::string pfs_mount = "/gpfs/scratch";
@@ -43,12 +43,12 @@ main(int argc, char* argv[]) {
 
     try {
 
-        const auto pfs_storage = admire::register_pfs_storage(
-                server, pfs_name, admire::pfs_storage::type::gpfs,
-                admire::pfs_storage::ctx{pfs_mount});
+        const auto pfs_storage = scord::register_pfs_storage(
+                server, pfs_name, scord::pfs_storage::type::gpfs,
+                scord::pfs_storage::ctx{pfs_mount});
 
-        admire::update_pfs_storage(server, pfs_storage,
-                                   admire::pfs_storage::ctx{new_pfs_mount});
+        scord::update_pfs_storage(server, pfs_storage,
+                                  scord::pfs_storage::ctx{new_pfs_mount});
     } catch(const std::exception& e) {
         fmt::print(stderr,
                    "FATAL: ADM_update_pfs_storage() or "

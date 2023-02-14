@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 #include "common.hpp"
 
 #define NJOB_NODES   50
@@ -40,7 +40,7 @@ main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    admire::server server{"tcp", argv[1]};
+    scord::server server{"tcp", argv[1]};
 
     const auto job_nodes = prepare_nodes(NJOB_NODES);
     const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
@@ -48,21 +48,21 @@ main(int argc, char* argv[]) {
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
     std::string name = "adhoc_storage_42";
-    const auto adhoc_storage_ctx = admire::adhoc_storage::ctx{
-            admire::adhoc_storage::execution_mode::separate_new,
-            admire::adhoc_storage::access_type::read_write,
-            admire::adhoc_storage::resources{adhoc_nodes}, 100, false};
+    const auto adhoc_storage_ctx = scord::adhoc_storage::ctx{
+            scord::adhoc_storage::execution_mode::separate_new,
+            scord::adhoc_storage::access_type::read_write,
+            scord::adhoc_storage::resources{adhoc_nodes}, 100, false};
 
     try {
 
-        const auto adhoc_storage = admire::register_adhoc_storage(
-                server, name, admire::adhoc_storage::type::gekkofs,
+        const auto adhoc_storage = scord::register_adhoc_storage(
+                server, name, scord::adhoc_storage::type::gekkofs,
                 adhoc_storage_ctx);
 
-        admire::job_requirements reqs(inputs, outputs, adhoc_storage);
+        scord::job_requirements reqs(inputs, outputs, adhoc_storage);
 
-        [[maybe_unused]] const auto job = admire::register_job(
-                server, admire::job::resources{job_nodes}, reqs, 0);
+        [[maybe_unused]] const auto job = scord::register_job(
+                server, scord::job::resources{job_nodes}, reqs, 0);
 
         // do something with job
 

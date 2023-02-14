@@ -25,8 +25,8 @@
 #ifndef SCORD_PFS_STORAGE_MANAGER_HPP
 #define SCORD_PFS_STORAGE_MANAGER_HPP
 
-#include <admire_types.hpp>
-#include <internal_types.hpp>
+#include <scord/types.hpp>
+#include <scord/internal_types.hpp>
 #include <utility>
 #include <utils/utils.hpp>
 #include <unordered_map>
@@ -39,10 +39,10 @@ namespace scord {
 
 struct pfs_storage_manager : scord::utils::singleton<pfs_storage_manager> {
 
-    tl::expected<std::shared_ptr<admire::internal::pfs_storage_info>,
-                 admire::error_code>
-    create(enum admire::pfs_storage::type type, const std::string& name,
-           const admire::pfs_storage::ctx& ctx) {
+    tl::expected<std::shared_ptr<scord::internal::pfs_storage_info>,
+                 scord::error_code>
+    create(enum scord::pfs_storage::type type, const std::string& name,
+           const scord::pfs_storage::ctx& ctx) {
 
         static std::atomic_uint64_t current_id;
         std::uint64_t id = current_id++;
@@ -52,23 +52,23 @@ struct pfs_storage_manager : scord::utils::singleton<pfs_storage_manager> {
         if(const auto it = m_pfs_storages.find(id);
            it == m_pfs_storages.end()) {
             const auto& [it_pfs, inserted] = m_pfs_storages.emplace(
-                    id, std::make_shared<admire::internal::pfs_storage_info>(
-                                admire::pfs_storage{type, name, id, ctx}));
+                    id, std::make_shared<scord::internal::pfs_storage_info>(
+                                scord::pfs_storage{type, name, id, ctx}));
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
-                return tl::make_unexpected(admire::error_code::snafu);
+                return tl::make_unexpected(scord::error_code::snafu);
             }
 
             return it_pfs->second;
         }
 
         LOGGER_ERROR("{}: PFS storage '{}' already exists", __FUNCTION__, id);
-        return tl::make_unexpected(admire::error_code::entity_exists);
+        return tl::make_unexpected(scord::error_code::entity_exists);
     }
 
-    admire::error_code
-    update(std::uint64_t id, admire::pfs_storage::ctx new_ctx) {
+    scord::error_code
+    update(std::uint64_t id, scord::pfs_storage::ctx new_ctx) {
 
         abt::unique_lock lock(m_pfs_storages_mutex);
 
@@ -76,15 +76,15 @@ struct pfs_storage_manager : scord::utils::singleton<pfs_storage_manager> {
            it != m_pfs_storages.end()) {
             const auto current_pfs_info = it->second;
             current_pfs_info->update(std::move(new_ctx));
-            return admire::error_code::success;
+            return scord::error_code::success;
         }
 
         LOGGER_ERROR("{}: Adhoc storage '{}' does not exist", __FUNCTION__, id);
-        return admire::error_code::no_such_entity;
+        return scord::error_code::no_such_entity;
     }
 
-    tl::expected<std::shared_ptr<admire::internal::pfs_storage_info>,
-                 admire::error_code>
+    tl::expected<std::shared_ptr<scord::internal::pfs_storage_info>,
+                 scord::error_code>
     find(std::uint64_t id) {
 
         abt::shared_lock lock(m_pfs_storages_mutex);
@@ -96,24 +96,24 @@ struct pfs_storage_manager : scord::utils::singleton<pfs_storage_manager> {
         LOGGER_ERROR("PFS storage '{}' was not registered or was already "
                      "deleted",
                      id);
-        return tl::make_unexpected(admire::error_code::no_such_entity);
+        return tl::make_unexpected(scord::error_code::no_such_entity);
     }
 
-    admire::error_code
+    scord::error_code
     remove(std::uint64_t id) {
 
         abt::unique_lock lock(m_pfs_storages_mutex);
 
         if(m_pfs_storages.count(id) != 0) {
             m_pfs_storages.erase(id);
-            return admire::error_code::success;
+            return scord::error_code::success;
         }
 
         LOGGER_ERROR("PFS storage '{}' was not registered or was already "
                      "deleted",
                      id);
 
-        return admire::error_code::no_such_entity;
+        return scord::error_code::no_such_entity;
     }
 
 private:
@@ -122,7 +122,7 @@ private:
 
     mutable abt::shared_mutex m_pfs_storages_mutex;
     std::unordered_map<std::uint64_t,
-                       std::shared_ptr<admire::internal::pfs_storage_info>>
+                       std::shared_ptr<scord::internal::pfs_storage_info>>
             m_pfs_storages;
 };
 

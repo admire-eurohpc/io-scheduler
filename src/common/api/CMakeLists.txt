@@ -24,8 +24,8 @@
 
 add_library(_api_types STATIC)
 
-target_sources(_api_types PUBLIC admire_types.h admire_types.hpp PRIVATE
-  types.cpp convert.hpp convert.cpp internal_types.hpp errors.c)
+target_sources(_api_types PUBLIC scord/types.h scord/types.hpp PRIVATE
+  types.cpp convert.hpp convert.cpp scord/internal_types.hpp errors.c)
 
 target_include_directories(_api_types PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -33,8 +33,3 @@ target_link_libraries(_api_types PRIVATE
   Margo::Margo common::logger PUBLIC fmt::fmt common::abt_cxx)
 
 set_property(TARGET _api_types PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-install(
-  FILES admire_types.h admire_types.hpp
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)

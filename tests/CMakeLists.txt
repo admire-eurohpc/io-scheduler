@@ -25,7 +25,7 @@
 add_executable(tests)
 
 target_sources(tests PRIVATE test.cpp)
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain adm_iosched)
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain libscord)
 
 include(Catch)
 catch_discover_tests(tests)

@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include "common.h"
-#include "admire_types.h"
 
 ADM_node_t*
 prepare_nodes(size_t n) {

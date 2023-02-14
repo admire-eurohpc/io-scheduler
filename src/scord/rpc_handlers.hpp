@@ -27,7 +27,7 @@
 
 #include <net/request.hpp>
 #include <net/serialization.hpp>
-#include <admire_types.hpp>
+#include <scord/types.hpp>
 
 namespace scord::network::handlers {
 
@@ -36,24 +36,24 @@ ping(const scord::network::request& req);
 
 void
 register_job(const scord::network::request& req,
-             const admire::job::resources& job_resources,
-             const admire::job_requirements& job_requirements,
-             admire::slurm_job_id slurm_id);
+             const scord::job::resources& job_resources,
+             const scord::job_requirements& job_requirements,
+             scord::slurm_job_id slurm_id);
 
 void
-update_job(const request& req, admire::job_id job_id,
-           const admire::job::resources& new_resources);
+update_job(const request& req, scord::job_id job_id,
+           const scord::job::resources& new_resources);
 
 void
-remove_job(const request& req, admire::job_id job_id);
+remove_job(const request& req, scord::job_id job_id);
 
 void
 register_adhoc_storage(const request& req, const std::string& name,
-                       enum admire::adhoc_storage::type type,
-                       const admire::adhoc_storage::ctx& ctx);
+                       enum scord::adhoc_storage::type type,
+                       const scord::adhoc_storage::ctx& ctx);
 void
 update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
-                     const admire::adhoc_storage::ctx& new_ctx);
+                     const scord::adhoc_storage::ctx& new_ctx);
 
 void
 remove_adhoc_storage(const request& req, std::uint64_t adhoc_id);
@@ -63,22 +63,22 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id);
 
 void
 register_pfs_storage(const request& req, const std::string& name,
-                     enum admire::pfs_storage::type type,
-                     const admire::pfs_storage::ctx& ctx);
+                     enum scord::pfs_storage::type type,
+                     const scord::pfs_storage::ctx& ctx);
 
 void
 update_pfs_storage(const request& req, std::uint64_t pfs_id,
-                   const admire::pfs_storage::ctx& new_ctx);
+                   const scord::pfs_storage::ctx& new_ctx);
 
 void
 remove_pfs_storage(const request& req, std::uint64_t pfs_id);
 
 void
-transfer_datasets(const request& req, admire::job_id job_id,
-                  const std::vector<admire::dataset>& sources,
-                  const std::vector<admire::dataset>& targets,
-                  const std::vector<admire::qos::limit>& limits,
-                  enum admire::transfer::mapping mapping);
+transfer_datasets(const request& req, scord::job_id job_id,
+                  const std::vector<scord::dataset>& sources,
+                  const std::vector<scord::dataset>& targets,
+                  const std::vector<scord::qos::limit>& limits,
+                  enum scord::transfer::mapping mapping);
 
 } // namespace scord::network::handlers
 

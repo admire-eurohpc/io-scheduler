@@ -22,8 +22,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_ADMIRE_TYPES_HPP
-#define SCORD_ADMIRE_TYPES_HPP
+#ifndef SCORD_TYPES_HPP
+#define SCORD_TYPES_HPP
 
 #include <string>
 #include <cstdint>
@@ -33,9 +33,9 @@
 #include <utils/ctype_ptr.hpp>
 #include <optional>
 #include <cereal/access.hpp>
-#include "admire_types.h"
+#include <scord/types.h>
 
-namespace admire {
+namespace scord {
 
 struct error_code {
 
@@ -173,10 +173,10 @@ struct job {
 
     struct resources {
         resources();
-        explicit resources(std::vector<admire::node> nodes);
+        explicit resources(std::vector<scord::node> nodes);
         explicit resources(ADM_job_resources_t res);
 
-        std::vector<admire::node>
+        std::vector<scord::node>
         nodes() const;
 
         template <typename Archive>
@@ -186,7 +186,7 @@ struct job {
         }
 
     private:
-        std::vector<admire::node> m_nodes;
+        std::vector<scord::node> m_nodes;
     };
 
     job();
@@ -269,7 +269,7 @@ struct entity {
 
     entity();
     template <typename T>
-    entity(admire::qos::scope s, T&& data);
+    entity(scord::qos::scope s, T&& data);
     explicit entity(ADM_qos_entity_t entity);
 
     entity(const entity&) noexcept;
@@ -281,7 +281,7 @@ struct entity {
 
     ~entity();
 
-    admire::qos::scope
+    scord::qos::scope
     scope() const;
 
     template <typename T>
@@ -302,9 +302,9 @@ private:
 struct limit {
 
     limit();
-    limit(admire::qos::subclass cls, uint64_t value);
-    limit(admire::qos::subclass cls, uint64_t value,
-          const admire::qos::entity& e);
+    limit(scord::qos::subclass cls, uint64_t value);
+    limit(scord::qos::subclass cls, uint64_t value,
+          const scord::qos::entity& e);
     explicit limit(ADM_qos_limit_t l);
 
     limit(const limit&) noexcept;
@@ -316,10 +316,10 @@ struct limit {
 
     ~limit();
 
-    std::optional<admire::qos::entity>
+    std::optional<scord::qos::entity>
     entity() const;
 
-    admire::qos::subclass
+    scord::qos::subclass
     subclass() const;
 
     uint64_t
@@ -389,10 +389,10 @@ struct adhoc_storage {
 
     struct resources {
         resources() = default;
-        explicit resources(std::vector<admire::node> nodes);
+        explicit resources(std::vector<scord::node> nodes);
         explicit resources(ADM_adhoc_resources_t res);
 
-        std::vector<admire::node>
+        std::vector<scord::node>
         nodes() const;
 
         template <typename Archive>
@@ -402,7 +402,7 @@ struct adhoc_storage {
         }
 
     private:
-        std::vector<admire::node> m_nodes;
+        std::vector<scord::node> m_nodes;
     };
 
     struct ctx {
@@ -451,7 +451,7 @@ struct adhoc_storage {
                   std::uint32_t walltime, bool should_flush);
     explicit adhoc_storage(ADM_adhoc_storage_t storage);
     adhoc_storage(enum adhoc_storage::type type, std::string name,
-                  std::uint64_t id, const admire::adhoc_storage::ctx& ctx);
+                  std::uint64_t id, const scord::adhoc_storage::ctx& ctx);
 
     adhoc_storage(const adhoc_storage& other) noexcept;
     adhoc_storage(adhoc_storage&&) noexcept;
@@ -471,7 +471,7 @@ struct adhoc_storage {
     context() const;
 
     void
-    update(admire::adhoc_storage::ctx new_ctx);
+    update(scord::adhoc_storage::ctx new_ctx);
 
     // The implementation for this must be deferred until
     // after the declaration of the PIMPL class
@@ -540,7 +540,7 @@ struct pfs_storage {
     context() const;
 
     void
-    update(admire::pfs_storage::ctx new_ctx);
+    update(scord::pfs_storage::ctx new_ctx);
 
     // The implementation for this must be deferred until
     // after the declaration of the PIMPL class
@@ -557,12 +557,12 @@ struct job_requirements {
 
     job_requirements();
 
-    job_requirements(std::vector<admire::dataset> inputs,
-                     std::vector<admire::dataset> outputs);
+    job_requirements(std::vector<scord::dataset> inputs,
+                     std::vector<scord::dataset> outputs);
 
-    job_requirements(std::vector<admire::dataset> inputs,
-                     std::vector<admire::dataset> outputs,
-                     admire::adhoc_storage adhoc_storage);
+    job_requirements(std::vector<scord::dataset> inputs,
+                     std::vector<scord::dataset> outputs,
+                     scord::adhoc_storage adhoc_storage);
 
     explicit job_requirements(ADM_job_requirements_t reqs);
 
@@ -575,11 +575,11 @@ struct job_requirements {
 
     ~job_requirements();
 
-    std::vector<admire::dataset>
+    std::vector<scord::dataset>
     inputs() const;
-    std::vector<admire::dataset>
+    std::vector<scord::dataset>
     outputs() const;
-    std::optional<admire::adhoc_storage>
+    std::optional<scord::adhoc_storage>
     adhoc_storage() const;
 
     // The implementation for this must be deferred until
@@ -601,21 +601,21 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 template <>
-struct fmt::formatter<admire::error_code> : formatter<std::string_view> {
+struct fmt::formatter<scord::error_code> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::error_code& ec, FormatContext& ctx) const {
+    format(const scord::error_code& ec, FormatContext& ctx) const {
         return formatter<std::string_view>::format(ec.name(), ctx);
     }
 };
 
 template <>
-struct fmt::formatter<admire::job> : formatter<std::string_view> {
+struct fmt::formatter<scord::job> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::job& j, FormatContext& ctx) const {
+    format(const scord::job& j, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
                 fmt::format("{{id: {}, slurm_id: {}}}", j.id(), j.slurm_id()),
                 ctx);
@@ -623,22 +623,22 @@ struct fmt::formatter<admire::job> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<admire::dataset> : formatter<std::string_view> {
+struct fmt::formatter<scord::dataset> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::dataset& d, FormatContext& ctx) const {
+    format(const scord::dataset& d, FormatContext& ctx) const {
         const auto str = fmt::format("{{id: {}}}", std::quoted(d.id()));
         return formatter<std::string_view>::format(str, ctx);
     }
 };
 
 template <>
-struct fmt::formatter<admire::node> : formatter<std::string_view> {
+struct fmt::formatter<scord::node> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::node& n, FormatContext& ctx) const {
+    format(const scord::node& n, FormatContext& ctx) const {
         const auto str =
                 fmt::format("{{hostname: {}}}", std::quoted(n.hostname()));
         return formatter<std::string_view>::format(str, ctx);
@@ -646,15 +646,15 @@ struct fmt::formatter<admire::node> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<enum admire::adhoc_storage::type>
+struct fmt::formatter<enum scord::adhoc_storage::type>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const enum admire::adhoc_storage::type& t,
+    format(const enum scord::adhoc_storage::type& t,
            FormatContext& ctx) const {
 
-        using admire::adhoc_storage;
+        using scord::adhoc_storage;
         std::string_view name = "unknown";
 
         switch(t) {
@@ -677,15 +677,15 @@ struct fmt::formatter<enum admire::adhoc_storage::type>
 };
 
 template <>
-struct fmt::formatter<admire::adhoc_storage::execution_mode>
+struct fmt::formatter<scord::adhoc_storage::execution_mode>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::adhoc_storage::execution_mode& exec_mode,
+    format(const scord::adhoc_storage::execution_mode& exec_mode,
            FormatContext& ctx) const {
 
-        using execution_mode = admire::adhoc_storage::execution_mode;
+        using execution_mode = scord::adhoc_storage::execution_mode;
 
         std::string_view name = "unknown";
 
@@ -709,15 +709,15 @@ struct fmt::formatter<admire::adhoc_storage::execution_mode>
 };
 
 template <>
-struct fmt::formatter<admire::adhoc_storage::access_type>
+struct fmt::formatter<scord::adhoc_storage::access_type>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::adhoc_storage::access_type& type,
+    format(const scord::adhoc_storage::access_type& type,
            FormatContext& ctx) const {
 
-        using access_type = admire::adhoc_storage::access_type;
+        using access_type = scord::adhoc_storage::access_type;
 
         std::string_view name = "unknown";
 
@@ -750,11 +750,11 @@ struct fmt::formatter<std::optional<T>> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
+struct fmt::formatter<scord::adhoc_storage> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::adhoc_storage& s, FormatContext& ctx) const {
+    format(const scord::adhoc_storage& s, FormatContext& ctx) const {
         const auto str = fmt::format(
                 "{{type: {}, id: {}, name: {}, context: {}}}", s.type(), s.id(),
                 std::quoted(s.name()), s.context());
@@ -763,12 +763,12 @@ struct fmt::formatter<admire::adhoc_storage> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<admire::adhoc_storage::resources>
+struct fmt::formatter<scord::adhoc_storage::resources>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::adhoc_storage::resources& r,
+    format(const scord::adhoc_storage::resources& r,
            FormatContext& ctx) const {
 
         const auto str = fmt::format("{{nodes: {}}}", r.nodes());
@@ -779,12 +779,12 @@ struct fmt::formatter<admire::adhoc_storage::resources>
 
 
 template <>
-struct fmt::formatter<admire::adhoc_storage::ctx>
+struct fmt::formatter<scord::adhoc_storage::ctx>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::adhoc_storage::ctx& c, FormatContext& ctx) const {
+    format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const {
 
         const auto str =
                 fmt::format("{{execution_mode: {}, access_type: {}, "
@@ -797,14 +797,14 @@ struct fmt::formatter<admire::adhoc_storage::ctx>
 };
 
 template <>
-struct fmt::formatter<enum admire::pfs_storage::type>
+struct fmt::formatter<enum scord::pfs_storage::type>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const enum admire::pfs_storage::type& t, FormatContext& ctx) const {
+    format(const enum scord::pfs_storage::type& t, FormatContext& ctx) const {
 
-        using admire::pfs_storage;
+        using scord::pfs_storage;
         std::string_view name = "unknown";
 
         switch(t) {
@@ -821,44 +821,44 @@ struct fmt::formatter<enum admire::pfs_storage::type>
 };
 
 template <>
-struct fmt::formatter<admire::pfs_storage> : formatter<std::string_view> {
+struct fmt::formatter<scord::pfs_storage> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::pfs_storage& s, FormatContext& ctx) const {
+    format(const scord::pfs_storage& s, FormatContext& ctx) const {
         const auto str = fmt::format("{{context: {}}}", s.context());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
 
 template <>
-struct fmt::formatter<admire::pfs_storage::ctx> : formatter<std::string_view> {
+struct fmt::formatter<scord::pfs_storage::ctx> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::pfs_storage::ctx& c, FormatContext& ctx) const {
+    format(const scord::pfs_storage::ctx& c, FormatContext& ctx) const {
         const auto str = fmt::format("{{mount_point: {}}}", c.mount_point());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
 
 template <>
-struct fmt::formatter<admire::job::resources> : formatter<std::string_view> {
+struct fmt::formatter<scord::job::resources> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::job::resources& r, FormatContext& ctx) const {
+    format(const scord::job::resources& r, FormatContext& ctx) const {
         const auto str = fmt::format("{{nodes: {}}}", r.nodes());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
 
 template <>
-struct fmt::formatter<admire::job_requirements> : formatter<std::string_view> {
+struct fmt::formatter<scord::job_requirements> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::job_requirements& r, FormatContext& ctx) const {
+    format(const scord::job_requirements& r, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
                 fmt::format("{{inputs: {}, outputs: {}, adhoc_storage: {}}}",
                             r.inputs(), r.outputs(), r.adhoc_storage()),
@@ -867,13 +867,13 @@ struct fmt::formatter<admire::job_requirements> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<admire::qos::scope> : formatter<std::string_view> {
+struct fmt::formatter<scord::qos::scope> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::qos::scope& s, FormatContext& ctx) const {
+    format(const scord::qos::scope& s, FormatContext& ctx) const {
 
-        using scope = admire::qos::scope;
+        using scope = scord::qos::scope;
 
         std::string_view name = "unknown";
 
@@ -897,12 +897,12 @@ struct fmt::formatter<admire::qos::scope> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<std::optional<admire::qos::entity>>
+struct fmt::formatter<std::optional<scord::qos::entity>>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::optional<admire::qos::entity>& e,
+    format(const std::optional<scord::qos::entity>& e,
            FormatContext& ctx) const {
 
         if(!e) {
@@ -912,17 +912,17 @@ struct fmt::formatter<std::optional<admire::qos::entity>>
         std::string_view data = "unknown";
 
         switch(e->scope()) {
-            case admire::qos::scope::dataset:
-                data = fmt::format("{}", e->data<admire::dataset>());
+            case scord::qos::scope::dataset:
+                data = fmt::format("{}", e->data<scord::dataset>());
                 break;
-            case admire::qos::scope::node:
-                data = fmt::format("{}", e->data<admire::node>());
+            case scord::qos::scope::node:
+                data = fmt::format("{}", e->data<scord::node>());
                 break;
-            case admire::qos::scope::job:
-                data = fmt::format("{}", e->data<admire::job>());
+            case scord::qos::scope::job:
+                data = fmt::format("{}", e->data<scord::job>());
                 break;
-            case admire::qos::scope::transfer:
-                data = fmt::format("{}", e->data<admire::transfer>());
+            case scord::qos::scope::transfer:
+                data = fmt::format("{}", e->data<scord::transfer>());
                 break;
         }
 
@@ -933,13 +933,13 @@ struct fmt::formatter<std::optional<admire::qos::entity>>
 };
 
 template <>
-struct fmt::formatter<admire::qos::subclass> : formatter<std::string_view> {
+struct fmt::formatter<scord::qos::subclass> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::qos::subclass& sc, FormatContext& ctx) const {
+    format(const scord::qos::subclass& sc, FormatContext& ctx) const {
 
-        using subclass = admire::qos::subclass;
+        using subclass = scord::qos::subclass;
 
         std::string_view name = "unknown";
 
@@ -957,11 +957,11 @@ struct fmt::formatter<admire::qos::subclass> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<admire::qos::limit> : formatter<std::string_view> {
+struct fmt::formatter<scord::qos::limit> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::qos::limit& l, FormatContext& ctx) const {
+    format(const scord::qos::limit& l, FormatContext& ctx) const {
         const auto str = fmt::format("{{entity: {}, subclass: {}, value: {}}}",
                                      l.entity(), l.subclass(), l.value());
         return formatter<std::string_view>::format(str, ctx);
@@ -969,13 +969,13 @@ struct fmt::formatter<admire::qos::limit> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<admire::transfer::mapping> : formatter<std::string_view> {
+struct fmt::formatter<scord::transfer::mapping> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::transfer::mapping& m, FormatContext& ctx) const {
+    format(const scord::transfer::mapping& m, FormatContext& ctx) const {
 
-        using mapping = admire::transfer::mapping;
+        using mapping = scord::transfer::mapping;
 
         std::string_view name = "unknown";
 
@@ -996,49 +996,49 @@ struct fmt::formatter<admire::transfer::mapping> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<admire::transfer> : formatter<std::string_view> {
+struct fmt::formatter<scord::transfer> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const admire::transfer& tx, FormatContext& ctx) const {
+    format(const scord::transfer& tx, FormatContext& ctx) const {
         const auto str = fmt::format("{{id: {}}}", tx.id());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
 
 template <>
-struct fmt::formatter<std::vector<admire::node>> : formatter<std::string_view> {
+struct fmt::formatter<std::vector<scord::node>> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::vector<admire::node>& v, FormatContext& ctx) const {
+    format(const std::vector<scord::node>& v, FormatContext& ctx) const {
         const auto str = fmt::format("[{}]", fmt::join(v, ", "));
         return formatter<std::string_view>::format(str, ctx);
     }
 };
 
 template <>
-struct fmt::formatter<std::vector<admire::dataset>>
+struct fmt::formatter<std::vector<scord::dataset>>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::vector<admire::dataset>& v, FormatContext& ctx) const {
+    format(const std::vector<scord::dataset>& v, FormatContext& ctx) const {
         const auto str = fmt::format("[{}]", fmt::join(v, ", "));
         return formatter<std::string_view>::format(str, ctx);
     }
 };
 
 template <>
-struct fmt::formatter<std::vector<admire::qos::limit>>
+struct fmt::formatter<std::vector<scord::qos::limit>>
     : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::vector<admire::qos::limit>& l, FormatContext& ctx) const {
+    format(const std::vector<scord::qos::limit>& l, FormatContext& ctx) const {
         const auto str = fmt::format("[{}]", fmt::join(l, ", "));
         return formatter<std::string_view>::format(str, ctx);
     }
 };
 
-#endif // SCORD_ADMIRE_TYPES_HPP
+#endif // SCORD_TYPES_HPP

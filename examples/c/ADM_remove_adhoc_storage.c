@@ -24,7 +24,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <admire.h>
+#include <scord/scord.h>
 #include "common.h"
 
 #define NADHOC_NODES 25

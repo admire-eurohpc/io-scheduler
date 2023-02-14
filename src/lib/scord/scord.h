@@ -22,29 +22,29 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_ADMIRE_H
-#define SCORD_ADMIRE_H
+#ifndef SCORD_H
+#define SCORD_H
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "admire_types.h"
+#include <scord/types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define ADM_IOSCHED_API_VERSION       "0.1.0"
-#define ADM_IOSCHED_API_VERSION_MAJOR 0
-#define ADM_IOSCHED_API_VERSION_MINOR 1
-#define ADM_IOSCHED_API_VERSION_PATCH 0
+#define SCORD_API_VERSION       "0.1.0"
+#define SCORD_API_VERSION_MAJOR 0
+#define SCORD_API_VERSION_MINOR 1
+#define SCORD_API_VERSION_PATCH 0
 
 
 /******************************************************************************/
 /* Public type definitions and type-related functions                         */
 /******************************************************************************/
 
-// See admire_types.h
+// See scord/types.h
 
 
 /******************************************************************************/
@@ -473,4 +473,4 @@ ADM_strerror(ADM_return_t errnum);
 } // extern "C"
 #endif
 
-#endif // SCORD_ADMIRE_H
+#endif // SCORD_H

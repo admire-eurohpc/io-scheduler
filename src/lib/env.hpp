@@ -28,12 +28,12 @@
 #define LIBSCORD_ENV_PREFIX "LIBSCORD_"
 #define ADD_PREFIX(str)     LIBSCORD_ENV_PREFIX str
 
-namespace admire::env {
+namespace scord::env {
 
 static constexpr auto LOG = ADD_PREFIX("LOG");
 static constexpr auto LOG_OUTPUT = ADD_PREFIX("LOG_OUTPUT");
 
-} // namespace admire::env
+} // namespace scord::env
 
 
 #endif // LIBSCORD_ENV_HPP

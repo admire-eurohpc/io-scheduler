@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <scord/scord.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 #include <logger/logger.hpp>
 #include <net/proto/rpc_types.h>
 #include <stdarg.h>

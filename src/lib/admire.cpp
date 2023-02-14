@@ -22,7 +22,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include <admire.hpp>
+#include <scord/scord.hpp>
 #include <net/proto/rpc_types.h>
 #include <logger/logger.hpp>
 #include <utils/ctype_ptr.hpp>

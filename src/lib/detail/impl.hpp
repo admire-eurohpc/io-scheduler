@@ -26,7 +26,7 @@
 #ifndef SCORD_ADMIRE_IMPL_HPP
 #define SCORD_ADMIRE_IMPL_HPP
 
-#include <admire.hpp>
+#include <scord/scord.hpp>
 #include <tl/expected.hpp>
 
 namespace admire::detail {

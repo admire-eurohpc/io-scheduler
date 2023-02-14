@@ -22,8 +22,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include "fmt/format.h"
-#include "admire.hpp"
+#include <fmt/format.h>
+#include <scord/scord.hpp>
 
 
 int

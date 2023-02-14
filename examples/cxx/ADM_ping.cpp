@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 
 int
 main(int argc, char* argv[]) {

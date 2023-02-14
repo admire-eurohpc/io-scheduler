@@ -26,12 +26,12 @@ add_library(libscord SHARED)
 
 target_sources(
   libscord
-  PUBLIC scord/scord.h admire.hpp
+  PUBLIC scord/scord.h scord/scord.hpp
   PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp env.hpp
 )
 
 list(APPEND public_headers "scord/scord.h"
-     "${CMAKE_SOURCE_DIR}/src/common/api/scord/types.h" "admire.hpp"
+     "${CMAKE_SOURCE_DIR}/src/common/api/scord/types.h" "scord/scord.hpp"
      "${CMAKE_SOURCE_DIR}/src/common/api/scord/types.hpp"
 )
 

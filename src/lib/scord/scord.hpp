@@ -28,8 +28,8 @@
 #include "scord/types.hpp"
 #include "net/proto/rpc_types.h"
 
-#ifndef SCORD_ADMIRE_HPP
-#define SCORD_ADMIRE_HPP
+#ifndef SCORD_HPP
+#define SCORD_HPP
 
 /******************************************************************************/
 /* Public type definitions and type-related functions                         */
@@ -146,4 +146,4 @@ get_statistics(const server& srv, ADM_job_t job, ADM_job_stats_t** stats);
 
 } // namespace admire
 
-#endif // SCORD_ADMIRE_HPP
+#endif // SCORD_HPP

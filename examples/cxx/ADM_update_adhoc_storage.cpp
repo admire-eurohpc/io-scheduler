@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #include <fmt/format.h>
-#include <admire.hpp>
+#include <scord/scord.hpp>
 #include "common.hpp"
 
 #define NADHOC_NODES 25

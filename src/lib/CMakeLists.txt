@@ -27,7 +27,7 @@ add_library(libscord SHARED)
 target_sources(
   libscord
   PUBLIC scord/scord.h scord/scord.hpp
-  PRIVATE admire.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp env.hpp
+  PRIVATE libscord.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp env.hpp
 )
 
 list(APPEND public_headers "scord/scord.h"

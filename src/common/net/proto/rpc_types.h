@@ -25,6 +25,7 @@
 #ifndef SCORD_PROTO_TYPES_HPP
 #define SCORD_PROTO_TYPES_HPP
 
+#if 0
 #include <stdlib.h> // NOLINT
 #include <mercury_macros.h>
 #include <mercury_proc_string.h>
@@ -40,6 +41,7 @@ extern "C" {
  * types as `typedef struct T { ... } T;` solves both problems
  */
 
+#if 0
 typedef struct adm_node {
     const char* n_hostname;
 } adm_node;
@@ -98,6 +100,7 @@ extern hg_return_t (*hg_proc_ADM_qos_scope_t)(hg_proc_t, void*);
 
 hg_return_t
 hg_proc_ADM_qos_entity_t(hg_proc_t proc, void* data);
+#endif
 
 typedef struct adm_qos_limit {
     ADM_qos_entity_t l_entity;
@@ -648,5 +651,7 @@ MERCURY_GEN_PROC(ADM_get_statistics_out_t,
 #ifdef __cplusplus
 };     // extern "C"
 #endif // __cplusplus
+
+#endif
 
 #endif // SCORD_PROTO_TYPES_HPP

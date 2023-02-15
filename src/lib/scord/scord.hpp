@@ -26,7 +26,6 @@
 #include <string>
 #include <utility>
 #include "scord/types.hpp"
-#include "net/proto/rpc_types.h"
 
 #ifndef SCORD_HPP
 #define SCORD_HPP

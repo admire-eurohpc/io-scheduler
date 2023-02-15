@@ -29,6 +29,7 @@
 #include <optional>
 #include "scord/types.hpp"
 #include "scord/internal_types.hpp"
+#include "scord/types.h"
 #include "types-private.h"
 
 /******************************************************************************/
@@ -241,6 +242,10 @@ job::job(job_id id, slurm_job_id slurm_job_id)
 
 job::job(ADM_job_t job) : job::job(job->j_id, job->j_slurm_id) {}
 
+job::operator ADM_job_t() const {
+    return ADM_job_create(m_pimpl->id(), m_pimpl->slurm_id());
+}
+
 job::job(job&&) noexcept = default;
 
 job&
@@ -321,6 +326,10 @@ transfer::transfer(transfer_id id)
 
 transfer::transfer(ADM_transfer_t transfer)
     : transfer::transfer(transfer->t_id) {}
+
+transfer::operator ADM_transfer_t() const {
+    return ADM_transfer_create(m_pimpl->id());
+}
 
 transfer::transfer(transfer&&) noexcept = default;
 
@@ -468,6 +477,20 @@ adhoc_storage::resources::resources(ADM_adhoc_resources_t res) {
     }
 }
 
+adhoc_storage::resources::operator ADM_adhoc_resources_t() const {
+
+    std::vector<ADM_node_t> tmp;
+    std::transform(m_nodes.cbegin(), m_nodes.cend(), std::back_inserter(tmp),
+                   [](const scord::node& n) {
+                       return ADM_node_create(n.hostname().c_str());
+                   });
+
+    // N.B. This works because AMD_adhoc_resources_create() internally copies
+    // the data from the array passed to it. If that ever changes we will
+    // have a problem here...
+    return ADM_adhoc_resources_create(tmp.data(), tmp.size());
+}
+
 std::vector<scord::node>
 adhoc_storage::resources::nodes() const {
     return m_nodes;
@@ -486,6 +509,14 @@ adhoc_storage::ctx::ctx(ADM_adhoc_context_t ctx)
                          static_cast<enum access_type>(ctx->c_access),
                          adhoc_storage::resources{ctx->c_resources},
                          ctx->c_walltime, ctx->c_should_bg_flush) {}
+
+adhoc_storage::ctx::operator ADM_adhoc_context_t() const {
+    return ADM_adhoc_context_create(
+            static_cast<ADM_adhoc_mode_t>(m_exec_mode),
+            static_cast<ADM_adhoc_access_t>(m_access_type),
+            static_cast<ADM_adhoc_resources_t>(m_resources), m_walltime,
+            m_should_flush);
+}
 
 adhoc_storage::execution_mode
 adhoc_storage::ctx::exec_mode() const {
@@ -596,6 +627,14 @@ adhoc_storage::adhoc_storage(ADM_adhoc_storage_t st)
               static_cast<enum adhoc_storage::type>(st->s_type), st->s_name,
               st->s_id, adhoc_storage::ctx{st->s_adhoc_ctx})) {}
 
+adhoc_storage::operator ADM_adhoc_storage_t() const {
+    return ADM_adhoc_storage_create(
+            m_pimpl->name().c_str(),
+            static_cast<ADM_adhoc_storage_type_t>(m_pimpl->type()),
+            m_pimpl->id(),
+            static_cast<ADM_adhoc_context_t>(m_pimpl->context()));
+}
+
 adhoc_storage::adhoc_storage(enum adhoc_storage::type type, std::string name,
                              std::uint64_t id, const adhoc_storage::ctx& ctx)
     : m_pimpl(std::make_unique<impl>(type, std::move(name), id, ctx)) {}
@@ -671,6 +710,10 @@ pfs_storage::ctx::ctx(std::filesystem::path mount_point)
     : m_mount_point(std::move(mount_point)) {}
 
 pfs_storage::ctx::ctx(ADM_pfs_context_t ctx) : pfs_storage::ctx(ctx->c_mount) {}
+
+pfs_storage::ctx::operator ADM_pfs_context_t() const {
+    return ADM_pfs_context_create(m_mount_point.c_str());
+}
 
 std::filesystem::path
 pfs_storage::ctx::mount_point() const {
@@ -759,6 +802,13 @@ pfs_storage::pfs_storage(ADM_pfs_storage_t st)
     : m_pimpl(std::make_unique<impl>(
               static_cast<enum pfs_storage::type>(st->s_type), st->s_name,
               st->s_id, pfs_storage::ctx{st->s_pfs_ctx})) {}
+
+pfs_storage::operator ADM_pfs_storage_t() const {
+    return ADM_pfs_storage_create(
+            m_pimpl->name().c_str(),
+            static_cast<ADM_pfs_storage_type_t>(m_pimpl->type()), m_pimpl->id(),
+            static_cast<ADM_pfs_context_t>(m_pimpl->context()));
+}
 
 pfs_storage::pfs_storage(const pfs_storage& other) noexcept
     : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}

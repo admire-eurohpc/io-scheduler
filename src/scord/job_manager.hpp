@@ -26,7 +26,6 @@
 #define SCORD_JOB_MANAGER_HPP
 
 #include <scord/types.hpp>
-#include <scord/internal_types.hpp>
 #include <atomic>
 #include <utility>
 #include <utils/utils.hpp>
@@ -34,6 +33,7 @@
 #include <tl/expected.hpp>
 #include <logger/logger.hpp>
 #include <abt_cxx/shared_mutex.hpp>
+#include "internal_types.hpp"
 
 namespace scord {
 

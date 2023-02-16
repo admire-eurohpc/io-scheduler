@@ -45,11 +45,6 @@ target_include_directories(_rpc_client INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(common::network::rpc_client ALIAS _rpc_client)
 
-add_subdirectory(api)
-target_include_directories(_api_types INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::api::types ALIAS _api_types)
-
 add_subdirectory(abt_cxx)
 target_include_directories(_abt_cxx INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR})

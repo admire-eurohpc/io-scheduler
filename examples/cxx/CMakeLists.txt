@@ -47,7 +47,7 @@ list(APPEND examples_cxx
 
 add_library(cxx_examples_common STATIC)
 target_sources(cxx_examples_common PUBLIC common.hpp PRIVATE common.cpp)
-target_link_libraries(cxx_examples_common common::api::types)
+target_link_libraries(cxx_examples_common libscord_cxx_types)
 
 foreach(example IN LISTS examples_cxx)
   add_executable(${example}_cxx)

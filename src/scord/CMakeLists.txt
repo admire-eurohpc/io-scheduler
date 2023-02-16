@@ -39,9 +39,9 @@ target_link_libraries(
   PRIVATE common::config
           common::logger
           common::network::rpc_server
-          common::api::types
           common::utils
           common::abt_cxx
+          libscord_cxx_types
           tl::expected
           fmt::fmt
           Boost::program_options

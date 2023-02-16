@@ -22,6 +22,65 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
+################################################################################
+# Create a target for the C type definitions so that we can
+# include them where needed
+################################################################################
+add_library(libscord_c_types STATIC)
+
+target_sources(libscord_c_types PRIVATE scord/types.h types.c errors.c)
+
+set(public_headers, "")
+list(APPEND public_headers "scord/types.h")
+
+set_target_properties(
+  libscord_c_types PROPERTIES PUBLIC_HEADER "${public_headers}"
+)
+
+target_include_directories(
+  libscord_c_types PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                          $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+
+target_link_libraries(
+  libscord_c_types
+  PRIVATE Margo::Margo common::logger
+  PUBLIC fmt::fmt common::abt_cxx
+)
+
+set_property(TARGET libscord_c_types PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+################################################################################
+# Create a target for the C++ type definitions so that we can
+# include them where needed
+################################################################################
+add_library(libscord_cxx_types STATIC)
+
+target_sources(libscord_cxx_types PRIVATE scord/types.hpp types.cpp)
+
+set(public_headers, "")
+list(APPEND public_headers "scord/types.hpp")
+
+set_target_properties(
+  libscord_cxx_types PROPERTIES PUBLIC_HEADER "${public_headers}"
+)
+
+target_include_directories(
+  libscord_cxx_types PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                            $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+
+target_link_libraries(
+  libscord_cxx_types
+  PRIVATE libscord_c_types Margo::Margo common::logger
+  PUBLIC fmt::fmt common::abt_cxx
+)
+
+set_property(TARGET libscord_cxx_types PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+################################################################################
+# Create a target for the actual library that will be used by clients
+################################################################################
 add_library(libscord SHARED)
 
 target_sources(
@@ -30,10 +89,8 @@ target_sources(
   PRIVATE libscord.cpp c_wrapper.cpp detail/impl.hpp detail/impl.cpp env.hpp
 )
 
-list(APPEND public_headers "scord/scord.h"
-     "${CMAKE_SOURCE_DIR}/src/common/api/scord/types.h" "scord/scord.hpp"
-     "${CMAKE_SOURCE_DIR}/src/common/api/scord/types.hpp"
-)
+set(public_headers, "")
+list(APPEND public_headers "scord/scord.h" "scord/scord.hpp")
 
 set_target_properties(libscord PROPERTIES PUBLIC_HEADER "${public_headers}")
 
@@ -45,13 +102,13 @@ target_include_directories(
 target_link_libraries(
   libscord
   PRIVATE common::network::rpc_client
-  PUBLIC tl::expected common::api::types
+  PUBLIC tl::expected libscord_c_types libscord_cxx_types
 )
 
 set_target_properties(libscord PROPERTIES OUTPUT_NAME "scord")
 
 install(
-  TARGETS libscord
+  TARGETS libscord libscord_c_types libscord_cxx_types
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}

@@ -28,7 +28,6 @@
 #include <variant>
 #include <optional>
 #include "scord/types.hpp"
-#include "scord/internal_types.hpp"
 #include "scord/types.h"
 #include "types-private.h"
 

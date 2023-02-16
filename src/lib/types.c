@@ -28,7 +28,7 @@
 #include <string.h>
 // #include <logger/logger.hpp>
 #include "scord/types.h"
-#include "types-private.h"
+#include "types_private.h"
 
 #define LOGGER_ERROR(msg) fprintf(stderr, "%s\n", msg);
 

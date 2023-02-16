@@ -29,7 +29,7 @@
 #include <optional>
 #include "scord/types.hpp"
 #include "scord/types.h"
-#include "types-private.h"
+#include "types_private.h"
 
 /******************************************************************************/
 /* C++ Type definitions and related functions                                 */

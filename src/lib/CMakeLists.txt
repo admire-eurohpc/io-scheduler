@@ -44,7 +44,7 @@ target_include_directories(
 
 target_link_libraries(
   libscord
-  PRIVATE common::network::rpc_client common::network::rpc_types
+  PRIVATE common::network::rpc_client
   PUBLIC tl::expected common::api::types
 )
 

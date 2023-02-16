@@ -27,7 +27,6 @@
 #include <assert.h>
 #include <string.h>
 // #include <logger/logger.hpp>
-#include <net/proto/rpc_types.h>
 #include "scord/types.h"
 #include "types-private.h"
 

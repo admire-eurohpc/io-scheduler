@@ -25,7 +25,6 @@
 #include <scord/scord.h>
 #include <scord/scord.hpp>
 #include <logger/logger.hpp>
-#include <net/proto/rpc_types.h>
 #include <stdarg.h>
 #include <scord/types.hpp>
 #include <scord/types.h>

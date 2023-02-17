@@ -26,11 +26,9 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-// #include <logger/logger.hpp>
+#include <logger/logger.h>
 #include "scord/types.h"
 #include "types_private.h"
-
-#define LOGGER_ERROR(msg) fprintf(stderr, "%s\n", msg);
 
 /******************************************************************************/
 /* C Type definitions and related functions                                   */

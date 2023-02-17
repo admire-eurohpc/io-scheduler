@@ -34,6 +34,8 @@
 #include <filesystem>
 #include <sstream>
 
+#include "macros.h"
+
 #if FMT_VERSION < 50000
 namespace fmt {
 template <typename T>
@@ -278,86 +280,5 @@ private:
 };
 
 } // namespace scord
-
-// some macros to make it more convenient to use the global logger
-#define LOGGER_INFO(...)                                                       \
-    do {                                                                       \
-        using scord::logger;                                                   \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->info(__VA_ARGS__);                    \
-        }                                                                      \
-    } while(0);
-
-
-#ifdef __LOGGER_ENABLE_DEBUG__
-
-#define LOGGER_DEBUG(...)                                                      \
-    do {                                                                       \
-        using scord::logger;                                                   \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->debug(__VA_ARGS__);                   \
-        }                                                                      \
-    } while(0);
-
-#define LOGGER_FLUSH()                                                         \
-    do {                                                                       \
-        using scord::logger;                                                   \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->flush();                              \
-        }                                                                      \
-    } while(0);
-
-#else
-
-#define LOGGER_DEBUG(...)                                                      \
-    do {                                                                       \
-    } while(0);
-#define LOGGER_FLUSH()                                                         \
-    do {                                                                       \
-    } while(0);
-
-#endif // __LOGGER_ENABLE_DEBUG__
-
-#define LOGGER_WARN(...)                                                       \
-    do {                                                                       \
-        using scord::logger;                                                   \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->warn(__VA_ARGS__);                    \
-        }                                                                      \
-    } while(0);
-
-#define LOGGER_ERROR(...)                                                      \
-    do {                                                                       \
-        using scord::logger;                                                   \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->error(__VA_ARGS__);                   \
-        }                                                                      \
-    } while(0);
-
-#define LOGGER_ERRNO(...)                                                      \
-    do {                                                                       \
-        using scord::logger;                                                   \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->error_errno(__VA_ARGS__);             \
-        }                                                                      \
-    } while(0);
-
-#define LOGGER_CRITICAL(...)                                                   \
-    do {                                                                       \
-        using scord::logger;                                                   \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->critical(__VA_ARGS__);                \
-        }                                                                      \
-    } while(0);
-
-
-#define LOGGER_EVAL(expr, L1, L2, ...)                                         \
-    do {                                                                       \
-        if(expr) {                                                             \
-            LOGGER_##L1(__VA_ARGS__);                                          \
-        } else {                                                               \
-            LOGGER_##L2(__VA_ARGS__);                                          \
-        }                                                                      \
-    } while(0);
 
 #endif /* SCORD_LOGGER_HPP */

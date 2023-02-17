@@ -23,12 +23,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include <logger/logger.h>
 #include "scord/types.h"
 #include "types_private.h"
+
+#define maybe_unused __attribute__((unused))
 
 /******************************************************************************/
 /* C Type definitions and related functions                                   */
@@ -157,9 +158,7 @@ cleanup_on_error:
     }
     free(p);
 
-    if(error_msg) {
-        LOGGER_ERROR(error_msg);
-    }
+    LOGGER_ERROR(error_msg);
 
     return NULL;
 }
@@ -401,9 +400,7 @@ cleanup_on_error:
     }
     free(p);
 
-    if(error_msg) {
-        LOGGER_ERROR(error_msg);
-    }
+    LOGGER_ERROR(error_msg);
 
     return NULL;
 }
@@ -472,11 +469,9 @@ ADM_adhoc_storage_create(const char* name, ADM_adhoc_storage_type_t type,
     return adm_adhoc_storage;
 
 cleanup_on_error:
-    if(error_msg) {
-        LOGGER_ERROR(error_msg);
-    }
+    LOGGER_ERROR(error_msg);
 
-    [[maybe_unused]] ADM_return_t ret =
+    maybe_unused ADM_return_t ret =
             ADM_adhoc_storage_destroy(adm_adhoc_storage);
     assert(ret);
 
@@ -531,9 +526,7 @@ ADM_adhoc_resources_create(ADM_node_t nodes[], size_t nodes_len) {
     return adm_adhoc_resources;
 
 cleanup_on_error:
-    if(error_msg) {
-        LOGGER_ERROR(error_msg);
-    }
+    LOGGER_ERROR(error_msg);
 
     if(adm_adhoc_resources) {
         ADM_adhoc_resources_destroy(adm_adhoc_resources);
@@ -601,12 +594,9 @@ ADM_pfs_storage_create(const char* name, ADM_pfs_storage_type_t type,
     return adm_pfs_storage;
 
 cleanup_on_error:
-    if(error_msg) {
-        LOGGER_ERROR(error_msg);
-    }
+    LOGGER_ERROR(error_msg);
 
-    [[maybe_unused]] ADM_return_t ret =
-            ADM_pfs_storage_destroy(adm_pfs_storage);
+    maybe_unused ADM_return_t ret = ADM_pfs_storage_destroy(adm_pfs_storage);
     assert(ret);
 
     return NULL;
@@ -759,9 +749,7 @@ ADM_job_resources_create(ADM_node_t nodes[], size_t nodes_len) {
     return adm_job_resources;
 
 cleanup_on_error:
-    if(error_msg) {
-        LOGGER_ERROR(error_msg);
-    }
+    LOGGER_ERROR(error_msg);
 
     if(adm_job_resources) {
         ADM_job_resources_destroy(adm_job_resources);
@@ -843,15 +831,8 @@ ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
     return adm_job_reqs;
 
 cleanup_on_error:
-
-    if(error_msg) {
-        LOGGER_ERROR(error_msg);
-    }
-
-    if(adm_job_reqs) {
-        ADM_job_requirements_destroy(adm_job_reqs);
-    }
-
+    LOGGER_ERROR(error_msg);
+    ADM_job_requirements_destroy(adm_job_reqs);
     return NULL;
 }
 
@@ -1009,9 +990,7 @@ cleanup_on_error:
     }
     free(p);
 
-    if(error_msg) {
-        LOGGER_ERROR(error_msg);
-    }
+    LOGGER_ERROR(error_msg);
 
     return NULL;
 }

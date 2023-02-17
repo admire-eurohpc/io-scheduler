@@ -25,7 +25,9 @@
 # scord-ctl daemon
 add_executable(scord-ctl)
 
-target_sources(scord-ctl PRIVATE scord-ctl.cpp rpc_handlers.hpp rpc_handlers.cpp env.hpp)
+target_sources(
+  scord-ctl PRIVATE scord-ctl.cpp rpc_handlers.hpp rpc_handlers.cpp env.hpp
+)
 
 target_include_directories(
   scord-ctl
@@ -35,7 +37,7 @@ target_include_directories(
 
 target_link_libraries(
   scord-ctl PRIVATE common::config common::logger common::network::rpc_server
-                    common::network::rpc_types common::api::types fmt::fmt Boost::program_options
+                    libscord_cxx_types fmt::fmt Boost::program_options
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

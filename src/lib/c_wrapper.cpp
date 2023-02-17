@@ -25,12 +25,40 @@
 #include <scord/scord.h>
 #include <scord/scord.hpp>
 #include <logger/logger.hpp>
-#include <net/proto/rpc_types.h>
 #include <stdarg.h>
 #include <scord/types.hpp>
 #include <scord/types.h>
-#include <api/convert.hpp>
 #include "detail/impl.hpp"
+
+namespace {
+
+std::vector<scord::dataset>
+convert(ADM_dataset_t datasets[], size_t datasets_len) {
+
+    std::vector<scord::dataset> rv;
+    rv.reserve(datasets_len);
+
+    for(size_t i = 0; i < datasets_len; ++i) {
+        rv.emplace_back(datasets[i]);
+    }
+
+    return rv;
+}
+
+std::vector<scord::qos::limit>
+convert(ADM_qos_limit_t limits[], size_t limits_len) {
+
+    std::vector<scord::qos::limit> rv;
+    rv.reserve(limits_len);
+
+    for(size_t i = 0; i < limits_len; ++i) {
+        rv.emplace_back(limits[i]);
+    }
+
+    return rv;
+}
+
+} // namespace
 
 
 /******************************************************************************/
@@ -57,7 +85,7 @@ ADM_register_job(ADM_server_t server, ADM_job_resources_t res,
         return rv.error();
     }
 
-    *job = scord::api::convert(*rv).release();
+    *job = static_cast<ADM_job_t>(rv.value());
 
     return ADM_SUCCESS;
 }
@@ -96,7 +124,7 @@ ADM_register_adhoc_storage(ADM_server_t server, const char* name,
         return rv.error();
     }
 
-    *adhoc_storage = scord::api::convert(*rv).release();
+    *adhoc_storage = static_cast<ADM_adhoc_storage_t>(rv.value());
 
     return ADM_SUCCESS;
 }
@@ -146,7 +174,7 @@ ADM_register_pfs_storage(ADM_server_t server, const char* name,
         return rv.error();
     }
 
-    *pfs_storage = scord::api::convert(rv.value()).release();
+    *pfs_storage = static_cast<ADM_pfs_storage_t>(rv.value());
 
     return ADM_SUCCESS;
 }
@@ -176,16 +204,15 @@ ADM_transfer_datasets(ADM_server_t server, ADM_job_t job,
 
     const auto rv = scord::detail::transfer_datasets(
             scord::server{server}, scord::job{job},
-            scord::api::convert(sources, sources_len),
-            scord::api::convert(targets, targets_len),
-            scord::api::convert(limits, limits_len),
+            ::convert(sources, sources_len), ::convert(targets, targets_len),
+            ::convert(limits, limits_len),
             static_cast<scord::transfer::mapping>(mapping));
 
     if(!rv) {
         return rv.error();
     }
 
-    *transfer = scord::api::convert(*rv).release();
+    *transfer = static_cast<ADM_transfer_t>(rv.value());
 
     return ADM_SUCCESS;
 }

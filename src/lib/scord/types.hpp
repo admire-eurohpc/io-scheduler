@@ -192,6 +192,7 @@ struct job {
     job();
     job(job_id id, slurm_job_id slurm_id);
     explicit job(ADM_job_t job);
+    explicit operator ADM_job_t() const;
     job(const job&) noexcept;
     job(job&&) noexcept;
     job&
@@ -227,6 +228,7 @@ struct transfer {
     transfer();
     explicit transfer(transfer_id id);
     explicit transfer(ADM_transfer_t transfer);
+    explicit operator ADM_transfer_t() const;
 
     transfer(const transfer&) noexcept;
     transfer(transfer&&) noexcept;
@@ -391,6 +393,7 @@ struct adhoc_storage {
         resources() = default;
         explicit resources(std::vector<scord::node> nodes);
         explicit resources(ADM_adhoc_resources_t res);
+        explicit operator ADM_adhoc_resources_t() const;
 
         std::vector<scord::node>
         nodes() const;
@@ -414,6 +417,7 @@ struct adhoc_storage {
             bool should_flush);
 
         explicit ctx(ADM_adhoc_context_t ctx);
+        explicit operator ADM_adhoc_context_t() const;
 
         execution_mode
         exec_mode() const;
@@ -450,6 +454,7 @@ struct adhoc_storage {
                   access_type access_type, adhoc_storage::resources res,
                   std::uint32_t walltime, bool should_flush);
     explicit adhoc_storage(ADM_adhoc_storage_t storage);
+    explicit operator ADM_adhoc_storage_t() const;
     adhoc_storage(enum adhoc_storage::type type, std::string name,
                   std::uint64_t id, const scord::adhoc_storage::ctx& ctx);
 
@@ -498,6 +503,7 @@ struct pfs_storage {
         explicit ctx(std::filesystem::path mount_point);
 
         explicit ctx(ADM_pfs_context_t ctx);
+        explicit operator ADM_pfs_context_t() const;
 
         std::filesystem::path
         mount_point() const;
@@ -521,6 +527,7 @@ struct pfs_storage {
                 const pfs_storage::ctx& pfs_ctx);
 
     explicit pfs_storage(ADM_pfs_storage_t storage);
+    explicit operator ADM_pfs_storage_t() const;
 
     pfs_storage(const pfs_storage& other) noexcept;
     pfs_storage(pfs_storage&&) noexcept;
@@ -593,7 +600,7 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
-} // namespace admire
+} // namespace scord
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -651,8 +658,7 @@ struct fmt::formatter<enum scord::adhoc_storage::type>
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const enum scord::adhoc_storage::type& t,
-           FormatContext& ctx) const {
+    format(const enum scord::adhoc_storage::type& t, FormatContext& ctx) const {
 
         using scord::adhoc_storage;
         std::string_view name = "unknown";
@@ -768,8 +774,7 @@ struct fmt::formatter<scord::adhoc_storage::resources>
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::adhoc_storage::resources& r,
-           FormatContext& ctx) const {
+    format(const scord::adhoc_storage::resources& r, FormatContext& ctx) const {
 
         const auto str = fmt::format("{{nodes: {}}}", r.nodes());
 
@@ -779,8 +784,7 @@ struct fmt::formatter<scord::adhoc_storage::resources>
 
 
 template <>
-struct fmt::formatter<scord::adhoc_storage::ctx>
-    : formatter<std::string_view> {
+struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto

@@ -24,6 +24,6 @@
 
 add_library(_logger INTERFACE)
 
-target_sources(_logger INTERFACE logger.hpp)
+target_sources(_logger INTERFACE logger.h logger.hpp macros.h logger.cpp)
 
 target_link_libraries(_logger INTERFACE spdlog::spdlog fmt::fmt)

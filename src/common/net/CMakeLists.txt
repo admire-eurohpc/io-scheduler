@@ -40,5 +40,3 @@ target_sources(
 )
 
 target_link_libraries(_rpc_server PUBLIC common::config common::logger thallium)
-
-add_subdirectory(proto)

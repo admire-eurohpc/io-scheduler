@@ -47,7 +47,7 @@ list(APPEND examples_c
 
 add_library(c_examples_common STATIC)
 target_sources(c_examples_common PUBLIC common.h PRIVATE common.c)
-target_link_libraries(c_examples_common common::api::types)
+target_link_libraries(c_examples_common libscord_c_types)
 
 foreach(example IN LISTS examples_c)
   add_executable(${example}_c)

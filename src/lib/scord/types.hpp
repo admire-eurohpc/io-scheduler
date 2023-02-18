@@ -168,204 +168,7 @@ private:
 };
 
 struct job_requirements;
-
-struct job {
-
-    struct resources {
-        resources();
-        explicit resources(std::vector<scord::node> nodes);
-        explicit resources(ADM_job_resources_t res);
-
-        std::vector<scord::node>
-        nodes() const;
-
-        template <typename Archive>
-        void
-        serialize(Archive&& ar) {
-            ar& m_nodes;
-        }
-
-    private:
-        std::vector<scord::node> m_nodes;
-    };
-
-    job();
-    job(job_id id, slurm_job_id slurm_id);
-    explicit job(ADM_job_t job);
-    explicit operator ADM_job_t() const;
-    job(const job&) noexcept;
-    job(job&&) noexcept;
-    job&
-    operator=(job&&) noexcept;
-    job&
-    operator=(const job&) noexcept;
-    ~job();
-
-    job_id
-    id() const;
-
-    slurm_job_id
-    slurm_id() const;
-
-private:
-    class impl;
-    std::unique_ptr<impl> m_pimpl;
-
-    friend class cereal::access;
-    template <class Archive>
-    void
-    serialize(Archive& ar);
-};
-
-struct transfer {
-
-    enum class mapping : std::underlying_type<ADM_transfer_mapping_t>::type {
-        one_to_one = ADM_MAPPING_ONE_TO_ONE,
-        one_to_n = ADM_MAPPING_ONE_TO_N,
-        n_to_n = ADM_MAPPING_N_TO_N
-    };
-
-    transfer();
-    explicit transfer(transfer_id id);
-    explicit transfer(ADM_transfer_t transfer);
-    explicit operator ADM_transfer_t() const;
-
-    transfer(const transfer&) noexcept;
-    transfer(transfer&&) noexcept;
-    transfer&
-    operator=(const transfer&) noexcept;
-    transfer&
-    operator=(transfer&&) noexcept;
-
-    ~transfer();
-
-    transfer_id
-    id() const;
-
-    // The implementation for this must be deferred until
-    // after the declaration of the PIMPL class
-    template <class Archive>
-    void
-    serialize(Archive& ar);
-
-private:
-    class impl;
-    std::unique_ptr<impl> m_pimpl;
-};
-
-namespace qos {
-
-enum class subclass : std::underlying_type<ADM_qos_class_t>::type {
-    bandwidth = ADM_QOS_CLASS_BANDWIDTH,
-    iops = ADM_QOS_CLASS_IOPS,
-};
-
-enum class scope : std::underlying_type<ADM_qos_scope_t>::type {
-    dataset = ADM_QOS_SCOPE_DATASET,
-    node = ADM_QOS_SCOPE_NODE,
-    job = ADM_QOS_SCOPE_JOB,
-    transfer = ADM_QOS_SCOPE_TRANSFER
-};
-
-struct entity {
-
-    entity();
-    template <typename T>
-    entity(scord::qos::scope s, T&& data);
-    explicit entity(ADM_qos_entity_t entity);
-
-    entity(const entity&) noexcept;
-    entity(entity&&) noexcept;
-    entity&
-    operator=(const entity&) noexcept;
-    entity&
-    operator=(entity&&) noexcept;
-
-    ~entity();
-
-    scord::qos::scope
-    scope() const;
-
-    template <typename T>
-    T
-    data() const;
-
-    // The implementation for this must be deferred until
-    // after the declaration of the PIMPL class
-    template <class Archive>
-    void
-    serialize(Archive& ar);
-
-private:
-    class impl;
-    std::unique_ptr<impl> m_pimpl;
-};
-
-struct limit {
-
-    limit();
-    limit(scord::qos::subclass cls, uint64_t value);
-    limit(scord::qos::subclass cls, uint64_t value,
-          const scord::qos::entity& e);
-    explicit limit(ADM_qos_limit_t l);
-
-    limit(const limit&) noexcept;
-    limit(limit&&) noexcept;
-    limit&
-    operator=(const limit&) noexcept;
-    limit&
-    operator=(limit&&) noexcept;
-
-    ~limit();
-
-    std::optional<scord::qos::entity>
-    entity() const;
-
-    scord::qos::subclass
-    subclass() const;
-
-    uint64_t
-    value() const;
-
-    // The implementation for this must be deferred until
-    // after the declaration of the PIMPL class
-    template <class Archive>
-    void
-    serialize(Archive& ar);
-
-private:
-    class impl;
-    std::unique_ptr<impl> m_pimpl;
-};
-
-} // namespace qos
-
-
-struct dataset {
-    dataset();
-    explicit dataset(std::string id);
-    explicit dataset(ADM_dataset_t dataset);
-    dataset(const dataset&) noexcept;
-    dataset(dataset&&) noexcept;
-    dataset&
-    operator=(const dataset&) noexcept;
-    dataset&
-    operator=(dataset&&) noexcept;
-    ~dataset();
-
-    std::string
-    id() const;
-
-    // The implementation for this must be deferred until
-    // after the declaration of the PIMPL class
-    template <class Archive>
-    void
-    serialize(Archive& ar);
-
-private:
-    class impl;
-    std::unique_ptr<impl> m_pimpl;
-};
+struct dataset;
 
 struct adhoc_storage {
 
@@ -548,6 +351,237 @@ struct pfs_storage {
 
     void
     update(scord::pfs_storage::ctx new_ctx);
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
+struct job {
+
+    struct resources {
+        resources();
+        explicit resources(std::vector<scord::node> nodes);
+        explicit resources(ADM_job_resources_t res);
+
+        std::vector<scord::node>
+        nodes() const;
+
+        template <typename Archive>
+        void
+        serialize(Archive&& ar) {
+            ar& m_nodes;
+        }
+
+    private:
+        std::vector<scord::node> m_nodes;
+    };
+
+    struct requirements {
+
+        requirements();
+        requirements(std::vector<scord::dataset> inputs,
+                     std::vector<scord::dataset> outputs);
+        requirements(std::vector<scord::dataset> inputs,
+                     std::vector<scord::dataset> outputs,
+                     scord::adhoc_storage adhoc_storage);
+        explicit requirements(ADM_job_requirements_t reqs);
+
+        std::vector<scord::dataset>
+        inputs() const;
+        std::vector<scord::dataset>
+        outputs() const;
+        std::optional<scord::adhoc_storage>
+        adhoc_storage() const;
+
+        // The implementation for this must be deferred until
+        // after the declaration of the PIMPL class
+        template <class Archive>
+        void
+        serialize(Archive& ar) {
+            ar& m_inputs;
+            ar& m_outputs;
+            ar& m_adhoc_storage;
+        }
+
+    private:
+        std::vector<scord::dataset> m_inputs;
+        std::vector<scord::dataset> m_outputs;
+        std::optional<scord::adhoc_storage> m_adhoc_storage;
+    };
+
+    job();
+    job(job_id id, slurm_job_id slurm_id);
+    explicit job(ADM_job_t job);
+    explicit operator ADM_job_t() const;
+    job(const job&) noexcept;
+    job(job&&) noexcept;
+    job&
+    operator=(job&&) noexcept;
+    job&
+    operator=(const job&) noexcept;
+    ~job();
+
+    job_id
+    id() const;
+
+    slurm_job_id
+    slurm_id() const;
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+
+    friend class cereal::access;
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+};
+
+struct transfer {
+
+    enum class mapping : std::underlying_type<ADM_transfer_mapping_t>::type {
+        one_to_one = ADM_MAPPING_ONE_TO_ONE,
+        one_to_n = ADM_MAPPING_ONE_TO_N,
+        n_to_n = ADM_MAPPING_N_TO_N
+    };
+
+    transfer();
+    explicit transfer(transfer_id id);
+    explicit transfer(ADM_transfer_t transfer);
+    explicit operator ADM_transfer_t() const;
+
+    transfer(const transfer&) noexcept;
+    transfer(transfer&&) noexcept;
+    transfer&
+    operator=(const transfer&) noexcept;
+    transfer&
+    operator=(transfer&&) noexcept;
+
+    ~transfer();
+
+    transfer_id
+    id() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
+namespace qos {
+
+enum class subclass : std::underlying_type<ADM_qos_class_t>::type {
+    bandwidth = ADM_QOS_CLASS_BANDWIDTH,
+    iops = ADM_QOS_CLASS_IOPS,
+};
+
+enum class scope : std::underlying_type<ADM_qos_scope_t>::type {
+    dataset = ADM_QOS_SCOPE_DATASET,
+    node = ADM_QOS_SCOPE_NODE,
+    job = ADM_QOS_SCOPE_JOB,
+    transfer = ADM_QOS_SCOPE_TRANSFER
+};
+
+struct entity {
+
+    entity();
+    template <typename T>
+    entity(scord::qos::scope s, T&& data);
+    explicit entity(ADM_qos_entity_t entity);
+
+    entity(const entity&) noexcept;
+    entity(entity&&) noexcept;
+    entity&
+    operator=(const entity&) noexcept;
+    entity&
+    operator=(entity&&) noexcept;
+
+    ~entity();
+
+    scord::qos::scope
+    scope() const;
+
+    template <typename T>
+    T
+    data() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
+struct limit {
+
+    limit();
+    limit(scord::qos::subclass cls, uint64_t value);
+    limit(scord::qos::subclass cls, uint64_t value,
+          const scord::qos::entity& e);
+    explicit limit(ADM_qos_limit_t l);
+
+    limit(const limit&) noexcept;
+    limit(limit&&) noexcept;
+    limit&
+    operator=(const limit&) noexcept;
+    limit&
+    operator=(limit&&) noexcept;
+
+    ~limit();
+
+    std::optional<scord::qos::entity>
+    entity() const;
+
+    scord::qos::subclass
+    subclass() const;
+
+    uint64_t
+    value() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
+} // namespace qos
+
+
+struct dataset {
+    dataset();
+    explicit dataset(std::string id);
+    explicit dataset(ADM_dataset_t dataset);
+    dataset(const dataset&) noexcept;
+    dataset(dataset&&) noexcept;
+    dataset&
+    operator=(const dataset&) noexcept;
+    dataset&
+    operator=(dataset&&) noexcept;
+    ~dataset();
+
+    std::string
+    id() const;
 
     // The implementation for this must be deferred until
     // after the declaration of the PIMPL class

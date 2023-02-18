@@ -215,6 +215,53 @@ private:
     slurm_job_id m_slurm_job_id;
 };
 
+job::requirements::requirements() = default;
+
+job::requirements::requirements(std::vector<scord::dataset> inputs,
+                                std::vector<scord::dataset> outputs)
+    : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)) {}
+
+job::requirements::requirements(std::vector<scord::dataset> inputs,
+                                std::vector<scord::dataset> outputs,
+                                scord::adhoc_storage adhoc_storage)
+    : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)),
+      m_adhoc_storage(std::move(adhoc_storage)) {}
+
+job::requirements::requirements(ADM_job_requirements_t reqs) {
+
+    m_inputs.reserve(reqs->r_inputs->l_length);
+
+    for(size_t i = 0; i < reqs->r_inputs->l_length; ++i) {
+        m_inputs.emplace_back(reqs->r_inputs->l_datasets[i].d_id);
+    }
+
+    m_outputs.reserve(reqs->r_outputs->l_length);
+
+    for(size_t i = 0; i < reqs->r_outputs->l_length; ++i) {
+        m_outputs.emplace_back(reqs->r_outputs->l_datasets[i].d_id);
+    }
+
+    if(reqs->r_adhoc_storage) {
+        m_adhoc_storage = scord::adhoc_storage(reqs->r_adhoc_storage);
+    }
+}
+
+std::vector<scord::dataset>
+job::requirements::inputs() const {
+    return m_inputs;
+}
+
+std::vector<scord::dataset>
+job::requirements::outputs() const {
+    return m_outputs;
+}
+
+std::optional<scord::adhoc_storage>
+job::requirements::adhoc_storage() const {
+    return m_adhoc_storage;
+}
+
+
 job::resources::resources() = default;
 
 job::resources::resources(std::vector<scord::node> nodes)

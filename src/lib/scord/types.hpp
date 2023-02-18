@@ -167,7 +167,6 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
-struct job_requirements;
 struct dataset;
 
 struct adhoc_storage {
@@ -582,46 +581,6 @@ struct dataset {
 
     std::string
     id() const;
-
-    // The implementation for this must be deferred until
-    // after the declaration of the PIMPL class
-    template <class Archive>
-    void
-    serialize(Archive& ar);
-
-private:
-    class impl;
-    std::unique_ptr<impl> m_pimpl;
-};
-
-struct job_requirements {
-
-    job_requirements();
-
-    job_requirements(std::vector<scord::dataset> inputs,
-                     std::vector<scord::dataset> outputs);
-
-    job_requirements(std::vector<scord::dataset> inputs,
-                     std::vector<scord::dataset> outputs,
-                     scord::adhoc_storage adhoc_storage);
-
-    explicit job_requirements(ADM_job_requirements_t reqs);
-
-    job_requirements(const job_requirements&) noexcept;
-    job_requirements(job_requirements&&) noexcept;
-    job_requirements&
-    operator=(const job_requirements&) noexcept;
-    job_requirements&
-    operator=(job_requirements&&) noexcept;
-
-    ~job_requirements();
-
-    std::vector<scord::dataset>
-    inputs() const;
-    std::vector<scord::dataset>
-    outputs() const;
-    std::optional<scord::adhoc_storage>
-    adhoc_storage() const;
 
     // The implementation for this must be deferred until
     // after the declaration of the PIMPL class

@@ -42,7 +42,7 @@ struct job_manager : scord::utils::singleton<job_manager> {
 
     tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
     create(scord::slurm_job_id slurm_id, scord::job::resources job_resources,
-           scord::job_requirements job_requirements) {
+           scord::job::requirements job_requirements) {
 
         static std::atomic_uint64_t current_id;
         scord::job_id id = current_id++;

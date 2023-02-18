@@ -66,7 +66,7 @@ main(int argc, char* argv[]) {
                 server, name, scord::adhoc_storage::type::gekkofs,
                 adhoc_storage_ctx);
 
-        scord::job_requirements reqs(inputs, outputs, adhoc_storage);
+        scord::job::requirements reqs(inputs, outputs, adhoc_storage);
 
         const auto job = scord::register_job(
                 server, scord::job::resources{job_nodes}, reqs, 0);

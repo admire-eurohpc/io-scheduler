@@ -851,11 +851,11 @@ struct fmt::formatter<scord::job::resources> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<scord::job_requirements> : formatter<std::string_view> {
+struct fmt::formatter<scord::job::requirements> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::job_requirements& r, FormatContext& ctx) const {
+    format(const scord::job::requirements& r, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
                 fmt::format("{{inputs: {}, outputs: {}, adhoc_storage: {}}}",
                             r.inputs(), r.outputs(), r.adhoc_storage()),

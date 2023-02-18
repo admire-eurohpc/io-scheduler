@@ -48,7 +48,8 @@ ping(const server& srv);
 
 scord::job
 register_job(const server& srv, const job::resources& job_resources,
-             const job_requirements& reqs, scord::slurm_job_id slurm_id);
+             const job::requirements& job_requirements,
+             scord::slurm_job_id slurm_id);
 
 void
 update_job(const server& srv, const job&, const job::resources& job_resources);

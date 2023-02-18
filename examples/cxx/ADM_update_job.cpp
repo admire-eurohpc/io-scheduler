@@ -55,7 +55,7 @@ main(int argc, char* argv[]) {
                     scord::adhoc_storage::access_type::read_write,
                     scord::adhoc_storage::resources{adhoc_nodes}, 100, false});
 
-    scord::job_requirements reqs{inputs, outputs, gkfs_storage};
+    scord::job::requirements reqs{inputs, outputs, gkfs_storage};
 
     const auto new_inputs = prepare_datasets("input-new-dataset-{}", NINPUTS);
     const auto new_outputs =

@@ -37,7 +37,7 @@ ping(const scord::network::request& req);
 void
 register_job(const scord::network::request& req,
              const scord::job::resources& job_resources,
-             const scord::job_requirements& job_requirements,
+             const scord::job::requirements& job_requirements,
              scord::slurm_job_id slurm_id);
 
 void

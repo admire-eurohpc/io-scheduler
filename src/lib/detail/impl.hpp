@@ -36,7 +36,7 @@ ping(const server& srv);
 
 tl::expected<scord::job, scord::error_code>
 register_job(const server& srv, const job::resources& job_resources,
-             const job_requirements& job_requirements,
+             const job::requirements& job_requirements,
              scord::slurm_job_id slurm_id);
 
 scord::error_code

@@ -34,7 +34,7 @@ struct job_info {
     explicit job_info(scord::job job) : m_job(std::move(job)) {}
 
     job_info(scord::job job, scord::job::resources resources,
-             scord::job_requirements requirements)
+             scord::job::requirements requirements)
         : m_job(std::move(job)), m_resources(std::move(resources)),
           m_requirements(std::move(requirements)) {}
 
@@ -48,7 +48,7 @@ struct job_info {
         return m_resources;
     }
 
-    std::optional<scord::job_requirements>
+    std::optional<scord::job::requirements>
     requirements() const {
         return m_requirements;
     }
@@ -60,7 +60,7 @@ struct job_info {
 
     scord::job m_job;
     std::optional<scord::job::resources> m_resources;
-    std::optional<scord::job_requirements> m_requirements;
+    std::optional<scord::job::requirements> m_requirements;
 };
 
 struct adhoc_storage_info {

@@ -78,7 +78,7 @@ ADM_register_job(ADM_server_t server, ADM_job_resources_t res,
     const scord::server srv{server};
 
     const auto rv = scord::detail::register_job(srv, scord::job::resources{res},
-                                                scord::job_requirements{reqs},
+                                                scord::job::requirements{reqs},
                                                 slurm_id);
 
     if(!rv) {

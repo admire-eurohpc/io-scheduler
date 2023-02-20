@@ -216,7 +216,7 @@ register_adhoc_storage(const request& req, const std::string& name,
     std::optional<std::uint64_t> adhoc_id;
     auto& adhoc_manager = scord::adhoc_storage_manager::instance();
 
-    if(const auto am_result = adhoc_manager.create(type, name, ctx);
+    if(const auto am_result = adhoc_manager.create(type, name, ctx, resources);
        am_result.has_value()) {
         const auto& adhoc_storage_info = am_result.value();
         adhoc_id = adhoc_storage_info->adhoc_storage().id();
@@ -325,8 +325,8 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
         if(adhoc_storage.type() == scord::adhoc_storage::type::gekkofs) {
             const auto adhoc_ctx = adhoc_storage.context();
             /* Number of nodes */
-            const std::string nodes =
-                    std::to_string(adhoc_ctx.resources().nodes().size());
+            const std::string nodes = std::to_string(
+                    adhoc_storage.get_resources().nodes().size());
 
             /* Walltime */
             const std::string walltime = std::to_string(adhoc_ctx.walltime());

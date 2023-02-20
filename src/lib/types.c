@@ -430,7 +430,8 @@ ADM_dataset_list_destroy(ADM_dataset_list_t list) {
 
 ADM_adhoc_storage_t
 ADM_adhoc_storage_create(const char* name, ADM_adhoc_storage_type_t type,
-                         uint64_t id, ADM_adhoc_context_t adhoc_ctx) {
+                         uint64_t id, ADM_adhoc_context_t adhoc_ctx,
+                         ADM_adhoc_resources_t adhoc_resources) {
 
     struct adm_adhoc_storage* adm_adhoc_storage =
             (struct adm_adhoc_storage*) malloc(sizeof(*adm_adhoc_storage));
@@ -465,6 +466,8 @@ ADM_adhoc_storage_create(const char* name, ADM_adhoc_storage_type_t type,
     }
 
     memcpy(adm_adhoc_storage->s_adhoc_ctx, adhoc_ctx, sizeof(*adhoc_ctx));
+
+    adm_adhoc_storage->s_resources = adhoc_resources;
 
     return adm_adhoc_storage;
 
@@ -824,7 +827,7 @@ ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
 
     adm_job_reqs->r_adhoc_storage = ADM_adhoc_storage_create(
             adhoc_storage->s_name, adhoc_storage->s_type, adhoc_storage->s_id,
-            adhoc_storage->s_adhoc_ctx);
+            adhoc_storage->s_adhoc_ctx, adhoc_storage->s_resources);
 
     return adm_job_reqs;
 

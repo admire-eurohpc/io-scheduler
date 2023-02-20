@@ -95,6 +95,8 @@ struct adm_adhoc_storage {
     ADM_adhoc_storage_type_t s_type;
     uint64_t s_id;
     ADM_adhoc_context_t s_adhoc_ctx;
+    /** The resources assigned for the adhoc storage system */
+    ADM_adhoc_resources_t s_resources;
 };
 
 struct adm_pfs_storage {

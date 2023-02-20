@@ -585,9 +585,10 @@ class adhoc_storage::impl {
 public:
     impl() = default;
     explicit impl(enum adhoc_storage::type type, std::string name,
-                  std::uint64_t id, adhoc_storage::ctx ctx)
+                  std::uint64_t id, adhoc_storage::ctx ctx,
+                  struct adhoc_storage::resources resources)
         : m_type(type), m_name(std::move(name)), m_id(id),
-          m_ctx(std::move(ctx)) {}
+          m_ctx(std::move(ctx)), m_resources(std::move(resources)) {}
     impl(const impl& rhs) = default;
     impl(impl&& rhs) = default;
     impl&
@@ -615,6 +616,11 @@ public:
     context() const {
         return m_ctx;
     }
+
+    struct adhoc_storage::resources
+    resources() const {
+        return m_resources;
+    };
 
     void
     update(adhoc_storage::ctx new_ctx) {
@@ -645,6 +651,7 @@ private:
     std::string m_name;
     std::uint64_t m_id;
     adhoc_storage::ctx m_ctx;
+    struct adhoc_storage::resources m_resources;
 };
 
 adhoc_storage::adhoc_storage() = default;
@@ -652,29 +659,32 @@ adhoc_storage::adhoc_storage() = default;
 adhoc_storage::adhoc_storage(enum adhoc_storage::type type, std::string name,
                              std::uint64_t id, execution_mode exec_mode,
                              access_type access_type,
-                             adhoc_storage::resources res,
+                             struct adhoc_storage::resources res,
                              std::uint32_t walltime, bool should_flush)
-    : m_pimpl(std::make_unique<impl>(
-              type, std::move(name), id,
-              adhoc_storage::ctx{exec_mode, access_type, std::move(res),
-                                 walltime, should_flush})) {}
+    : m_pimpl(std::make_unique<impl>(type, std::move(name), id,
+                                     adhoc_storage::ctx{exec_mode, access_type,
+                                                        walltime, should_flush},
+                                     std::move(res))) {}
 
 adhoc_storage::adhoc_storage(ADM_adhoc_storage_t st)
     : m_pimpl(std::make_unique<impl>(
               static_cast<enum adhoc_storage::type>(st->s_type), st->s_name,
-              st->s_id, adhoc_storage::ctx{st->s_adhoc_ctx})) {}
+              st->s_id, adhoc_storage::ctx{st->s_adhoc_ctx},
+              adhoc_storage::resources{st->s_resources})) {}
 
 adhoc_storage::operator ADM_adhoc_storage_t() const {
     return ADM_adhoc_storage_create(
             m_pimpl->name().c_str(),
             static_cast<ADM_adhoc_storage_type_t>(m_pimpl->type()),
-            m_pimpl->id(),
-            static_cast<ADM_adhoc_context_t>(m_pimpl->context()));
+            m_pimpl->id(), static_cast<ADM_adhoc_context_t>(m_pimpl->context()),
+            static_cast<ADM_adhoc_resources_t>(m_pimpl->resources()));
 }
 
 adhoc_storage::adhoc_storage(enum adhoc_storage::type type, std::string name,
-                             std::uint64_t id, const adhoc_storage::ctx& ctx)
-    : m_pimpl(std::make_unique<impl>(type, std::move(name), id, ctx)) {}
+                             std::uint64_t id, const adhoc_storage::ctx& ctx,
+                             adhoc_storage::resources resources)
+    : m_pimpl(std::make_unique<impl>(type, std::move(name), id, ctx,
+                                     std::move(resources))) {}
 
 adhoc_storage::adhoc_storage(const adhoc_storage& other) noexcept
     : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
@@ -708,6 +718,11 @@ adhoc_storage::id() const {
 adhoc_storage::ctx
 adhoc_storage::context() const {
     return m_pimpl->context();
+}
+
+adhoc_storage::resources
+adhoc_storage::get_resources() const {
+    return m_pimpl->resources();
 }
 
 void

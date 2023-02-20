@@ -43,7 +43,8 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
     tl::expected<std::shared_ptr<scord::internal::adhoc_storage_info>,
                  scord::error_code>
     create(enum scord::adhoc_storage::type type, const std::string& name,
-           const scord::adhoc_storage::ctx& ctx) {
+           const scord::adhoc_storage::ctx& ctx,
+           const scord::adhoc_storage::resources& resources) {
 
         static std::atomic_uint64_t current_id;
         std::uint64_t id = current_id++;
@@ -54,7 +55,8 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
            it == m_adhoc_storages.end()) {
             const auto& [it_adhoc, inserted] = m_adhoc_storages.emplace(
                     id, std::make_shared<scord::internal::adhoc_storage_info>(
-                                scord::adhoc_storage{type, name, id, ctx}));
+                                scord::adhoc_storage{type, name, id, ctx,
+                                                     resources}));
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);

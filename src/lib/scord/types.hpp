@@ -255,7 +255,8 @@ struct adhoc_storage {
     explicit adhoc_storage(ADM_adhoc_storage_t storage);
     explicit operator ADM_adhoc_storage_t() const;
     adhoc_storage(enum adhoc_storage::type type, std::string name,
-                  std::uint64_t id, const scord::adhoc_storage::ctx& ctx);
+                  std::uint64_t id, const scord::adhoc_storage::ctx& ctx,
+                  adhoc_storage::resources resources);
 
     adhoc_storage(const adhoc_storage& other) noexcept;
     adhoc_storage(adhoc_storage&&) noexcept;
@@ -273,6 +274,9 @@ struct adhoc_storage {
     id() const;
     adhoc_storage::ctx
     context() const;
+
+    adhoc_storage::resources
+    get_resources() const;
 
     void
     update(scord::adhoc_storage::ctx new_ctx);

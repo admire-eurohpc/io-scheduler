@@ -239,7 +239,8 @@ register_adhoc_storage(const server& srv, const std::string& name,
                 return tl::make_unexpected(ec);
             }
 
-            return scord::adhoc_storage{type, name, resp.value(), ctx};
+            return scord::adhoc_storage{type, name, resp.value(), ctx,
+                                        resources};
         }
     }
 

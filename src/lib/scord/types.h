@@ -429,11 +429,13 @@ ADM_dataset_list_destroy(ADM_dataset_list_t list);
  * @param[in] adhoc_ctx Some specific context information for the storage
  * tier or NULL if none is required. For instance, an adhoc storage system may
  * find it useful to provide an ADM_adhoc_context_t describing the instance.
+ * @param[in] adhoc_resources The adhoc resources for this instance.
  * @return A valid ADM_ADHOC_STORAGE if successful, or NULL in case of failure.
  */
 ADM_adhoc_storage_t
 ADM_adhoc_storage_create(const char* name, ADM_adhoc_storage_type_t type,
-                         uint64_t id, ADM_adhoc_context_t adhoc_ctx);
+                         uint64_t id, ADM_adhoc_context_t adhoc_ctx,
+                         ADM_adhoc_resources_t adhoc_resources);
 
 /**
  * Destroy an ADM_ADHOC_STORAGE created by ADM_adhoc_storage_destroy().

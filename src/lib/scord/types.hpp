@@ -215,8 +215,7 @@ struct adhoc_storage {
         ctx() = default;
 
         ctx(execution_mode exec_mode, access_type access_type,
-            adhoc_storage::resources resources, std::uint32_t walltime,
-            bool should_flush);
+            std::uint32_t walltime, bool should_flush);
 
         explicit ctx(ADM_adhoc_context_t ctx);
         explicit operator ADM_adhoc_context_t() const;
@@ -237,7 +236,6 @@ struct adhoc_storage {
         serialize(Archive&& ar) {
             ar& m_exec_mode;
             ar& m_access_type;
-            ar& m_resources;
             ar& m_walltime;
             ar& m_should_flush;
         }
@@ -245,7 +243,6 @@ struct adhoc_storage {
     private:
         execution_mode m_exec_mode;
         enum access_type m_access_type;
-        adhoc_storage::resources m_resources;
         std::uint32_t m_walltime;
         bool m_should_flush;
     };
@@ -783,11 +780,10 @@ struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
     auto
     format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const {
 
-        const auto str =
-                fmt::format("{{execution_mode: {}, access_type: {}, "
-                            "resources: {}, walltime: {}, should_flush: {}}}",
-                            c.exec_mode(), c.access_type(), c.resources(),
-                            c.walltime(), c.should_flush());
+        const auto str = fmt::format("{{execution_mode: {}, access_type: {}, "
+                                     "walltime: {}, should_flush: {}}}",
+                                     c.exec_mode(), c.access_type(),
+                                     c.walltime(), c.should_flush());
 
         return formatter<std::string_view>::format(str, ctx);
     }

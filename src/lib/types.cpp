@@ -544,23 +544,19 @@ adhoc_storage::resources::nodes() const {
 
 adhoc_storage::ctx::ctx(adhoc_storage::execution_mode exec_mode,
                         adhoc_storage::access_type access_type,
-                        adhoc_storage::resources resources,
                         std::uint32_t walltime, bool should_flush)
-    : m_exec_mode(exec_mode), m_access_type(access_type),
-      m_resources(std::move(resources)), m_walltime(walltime),
+    : m_exec_mode(exec_mode), m_access_type(access_type), m_walltime(walltime),
       m_should_flush(should_flush) {}
 
 adhoc_storage::ctx::ctx(ADM_adhoc_context_t ctx)
     : adhoc_storage::ctx(static_cast<execution_mode>(ctx->c_mode),
                          static_cast<enum access_type>(ctx->c_access),
-                         adhoc_storage::resources{ctx->c_resources},
                          ctx->c_walltime, ctx->c_should_bg_flush) {}
 
 adhoc_storage::ctx::operator ADM_adhoc_context_t() const {
     return ADM_adhoc_context_create(
             static_cast<ADM_adhoc_mode_t>(m_exec_mode),
-            static_cast<ADM_adhoc_access_t>(m_access_type),
-            static_cast<ADM_adhoc_resources_t>(m_resources), m_walltime,
+            static_cast<ADM_adhoc_access_t>(m_access_type), m_walltime,
             m_should_flush);
 }
 
@@ -572,11 +568,6 @@ adhoc_storage::ctx::exec_mode() const {
 adhoc_storage::access_type
 adhoc_storage::ctx::access_type() const {
     return m_access_type;
-}
-
-adhoc_storage::resources
-adhoc_storage::ctx::resources() const {
-    return m_resources;
 }
 
 std::uint32_t

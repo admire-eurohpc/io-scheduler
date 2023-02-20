@@ -79,8 +79,6 @@ struct adm_adhoc_context {
     ADM_adhoc_mode_t c_mode;
     /** The adhoc storage system access type */
     ADM_adhoc_access_t c_access;
-    /** The resources assigned for the adhoc storage system */
-    ADM_adhoc_resources_t c_resources;
     /** The adhoc storage system walltime */
     uint32_t c_walltime;
     /** Whether the adhoc storage system should flush data in the background */

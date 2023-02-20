@@ -654,9 +654,8 @@ ADM_data_operation_destroy(ADM_data_operation_t op) {
 
 ADM_adhoc_context_t
 ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,
-                         ADM_adhoc_access_t access_type,
-                         ADM_adhoc_resources_t adhoc_resources,
-                         uint32_t walltime, bool should_flush) {
+                         ADM_adhoc_access_t access_type, uint32_t walltime,
+                         bool should_flush) {
 
     struct adm_adhoc_context* adm_adhoc_context =
             (struct adm_adhoc_context*) malloc(sizeof(*adm_adhoc_context));
@@ -668,7 +667,6 @@ ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,
 
     adm_adhoc_context->c_mode = exec_mode;
     adm_adhoc_context->c_access = access_type;
-    adm_adhoc_context->c_resources = adhoc_resources;
     adm_adhoc_context->c_walltime = walltime;
     adm_adhoc_context->c_should_bg_flush = should_flush;
 

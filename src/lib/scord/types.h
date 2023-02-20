@@ -477,7 +477,6 @@ ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res);
  *
  * @param[in] exec_mode The adhoc storage system execution mode
  * @param[in] access_type The adhoc storage system execution type
- * @param[in] adhoc_resources The resources assigned for the storage system
  * @param[in] walltime The adhoc storage system walltime
  * @param[in] should_flush Whether the adhoc storage system should flush data in
  * the background
@@ -485,9 +484,8 @@ ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res);
  */
 ADM_adhoc_context_t
 ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,
-                         ADM_adhoc_access_t access_type,
-                         ADM_adhoc_resources_t adhoc_resources,
-                         uint32_t walltime, bool should_flush);
+                         ADM_adhoc_access_t access_type, uint32_t walltime,
+                         bool should_flush);
 
 /**
  * Destroy an ADM_ADHOC_CONTEXT created by ADM_adhoc_context_create().

@@ -49,7 +49,8 @@ remove_job(const server& srv, const job& job);
 tl::expected<scord::adhoc_storage, scord::error_code>
 register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
-                       const adhoc_storage::ctx& ctx);
+                       const adhoc_storage::ctx& ctx,
+                       const adhoc_storage::resources& resources);
 
 scord::error_code
 update_adhoc_storage(const server& srv, const adhoc_storage::ctx& new_ctx,

@@ -204,7 +204,8 @@ remove_job(const server& srv, const job& job) {
 tl::expected<scord::adhoc_storage, scord::error_code>
 register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
-                       const adhoc_storage::ctx& ctx) {
+                       const adhoc_storage::ctx& ctx,
+                       const adhoc_storage::resources& resources) {
 
     scord::network::client rpc_client{srv.protocol()};
 
@@ -215,12 +216,14 @@ register_adhoc_storage(const server& srv, const std::string& name,
         const auto& endp = lookup_rv.value();
 
         LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{name: {}, type: {}, adhoc_ctx: {}}}",
+                    "body: {{name: {}, type: {}, adhoc_ctx: {}, "
+                    "adhoc_resources: {}}}",
                     rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), name, type, ctx);
+                    std::quoted(rpc_client.self_address()), name, type, ctx,
+                    resources);
 
-        if(const auto& call_rv =
-                   endp.call("ADM_"s + __FUNCTION__, name, type, ctx);
+        if(const auto& call_rv = endp.call("ADM_"s + __FUNCTION__, name, type,
+                                           ctx, resources);
            call_rv.has_value()) {
 
             const scord::network::response_with_id resp{call_rv.value()};

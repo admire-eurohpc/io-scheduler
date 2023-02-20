@@ -250,9 +250,11 @@ remove_job(const server& srv, const job& job) {
 scord::adhoc_storage
 register_adhoc_storage(const server& srv, const std::string& name,
                        enum adhoc_storage::type type,
-                       const adhoc_storage::ctx& ctx) {
+                       const adhoc_storage::ctx& ctx,
+                       const adhoc_storage::resources& resources) {
 
-    const auto rv = detail::register_adhoc_storage(srv, name, type, ctx);
+    const auto rv =
+            detail::register_adhoc_storage(srv, name, type, ctx, resources);
 
     if(!rv) {
         throw std::runtime_error(

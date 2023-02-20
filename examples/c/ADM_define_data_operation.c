@@ -72,8 +72,9 @@ main(int argc, char* argv[]) {
     const char* name = "adhoc_storage_42";
 
     ADM_adhoc_storage_t adhoc_storage;
-    ADM_return_t ret = ADM_register_adhoc_storage(
-            server, name, ADM_ADHOC_STORAGE_GEKKOFS, ctx, &adhoc_storage);
+    ADM_return_t ret =
+            ADM_register_adhoc_storage(server, name, ADM_ADHOC_STORAGE_GEKKOFS,
+                                       ctx, adhoc_resources, &adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stderr,

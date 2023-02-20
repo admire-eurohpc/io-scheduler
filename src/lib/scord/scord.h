@@ -115,6 +115,7 @@ ADM_return_t
 ADM_register_adhoc_storage(ADM_server_t server, const char* name,
                            ADM_adhoc_storage_type_t type,
                            ADM_adhoc_context_t ctx,
+                           ADM_adhoc_resources_t resources,
                            ADM_adhoc_storage_t* adhoc_storage);
 
 /**

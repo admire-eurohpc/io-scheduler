@@ -53,7 +53,8 @@ main(int argc, char* argv[]) {
             scord::adhoc_storage::ctx{
                     scord::adhoc_storage::execution_mode::separate_new,
                     scord::adhoc_storage::access_type::read_write,
-                    scord::adhoc_storage::resources{adhoc_nodes}, 100, false});
+                    scord::adhoc_storage::resources{adhoc_nodes}, 100, false},
+            scord::adhoc_storage::resources{adhoc_nodes});
 
     scord::job::requirements reqs{inputs, outputs, gkfs_storage};
 

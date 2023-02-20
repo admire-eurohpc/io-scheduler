@@ -198,7 +198,8 @@ remove_job(const request& req, scord::job_id job_id) {
 void
 register_adhoc_storage(const request& req, const std::string& name,
                        enum scord::adhoc_storage::type type,
-                       const scord::adhoc_storage::ctx& ctx) {
+                       const scord::adhoc_storage::ctx& ctx,
+                       const scord::adhoc_storage::resources& resources) {
 
     using scord::network::get_address;
 
@@ -206,9 +207,10 @@ register_adhoc_storage(const request& req, const std::string& name,
     const auto rpc_id = remote_procedure::new_id();
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{name: {}, type: {}, adhoc_ctx: {}}}",
+                "body: {{name: {}, type: {}, adhoc_ctx: {}, "
+                "adhoc_resources: {}}}",
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                name, type, ctx);
+                name, type, ctx, resources);
 
     scord::error_code ec;
     std::optional<std::uint64_t> adhoc_id;

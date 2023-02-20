@@ -281,6 +281,9 @@ struct adhoc_storage {
     void
     update(scord::adhoc_storage::ctx new_ctx);
 
+    void
+    update(scord::adhoc_storage::resources new_resources);
+
     // The implementation for this must be deferred until
     // after the declaration of the PIMPL class
     template <class Archive>

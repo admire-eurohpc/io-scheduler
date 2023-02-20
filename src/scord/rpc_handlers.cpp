@@ -239,7 +239,7 @@ register_adhoc_storage(const request& req, const std::string& name,
 
 void
 update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
-                     const scord::adhoc_storage::ctx& new_ctx) {
+                     const scord::adhoc_storage::resources& new_resources) {
 
     using scord::network::get_address;
 
@@ -247,12 +247,12 @@ update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
     const auto rpc_id = remote_procedure::new_id();
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_id: {}, new_ctx: {}}}",
+                "body: {{adhoc_id: {}, new_resources: {}}}",
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                adhoc_id, new_ctx);
+                adhoc_id, new_resources);
 
     auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-    const auto ec = adhoc_manager.update(adhoc_id, new_ctx);
+    const auto ec = adhoc_manager.update(adhoc_id, new_resources);
 
     if(!ec) {
         LOGGER_ERROR(

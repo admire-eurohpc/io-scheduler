@@ -132,13 +132,13 @@ ADM_register_adhoc_storage(ADM_server_t server, const char* name,
 
 ADM_return_t
 ADM_update_adhoc_storage(ADM_server_t server, ADM_adhoc_storage_t adhoc_storage,
-                         ADM_adhoc_context_t ctx) {
+                         ADM_adhoc_resources_t new_resources) {
 
     const scord::server srv{server};
 
     return scord::detail::update_adhoc_storage(
-            srv, scord::adhoc_storage::ctx{ctx},
-            scord::adhoc_storage{adhoc_storage});
+            srv, scord::adhoc_storage{adhoc_storage},
+            scord::adhoc_storage::resources{new_resources});
 }
 
 ADM_return_t

@@ -122,15 +122,14 @@ ADM_register_adhoc_storage(ADM_server_t server, const char* name,
  * Update an already-registered adhoc storage system.
  *
  * @param[in] server The server to which the request is directed
- * @param[in] ctx The updated EXECUTION_CONTEXT for the adhoc storage system.
  * @param[in] adhoc_storage An ADM_STORAGE referring to the adhoc storage
- * instance of interest.
+ * @param[in] new_resources The new resources for teh adhoc storage instance.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  * successfully.
  */
 ADM_return_t
 ADM_update_adhoc_storage(ADM_server_t server, ADM_adhoc_storage_t adhoc_storage,
-                         ADM_adhoc_context_t ctx);
+                         ADM_adhoc_resources_t new_resources);
 
 /**
  * Remove an already-registered adhoc storage system.

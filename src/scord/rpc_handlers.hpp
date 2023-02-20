@@ -54,7 +54,7 @@ register_adhoc_storage(const request& req, const std::string& name,
                        const scord::adhoc_storage::resources& resources);
 void
 update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
-                     const scord::adhoc_storage::ctx& new_ctx);
+                     const scord::adhoc_storage::resources& new_resources);
 
 void
 remove_adhoc_storage(const request& req, std::uint64_t adhoc_id);

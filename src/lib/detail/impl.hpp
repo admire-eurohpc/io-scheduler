@@ -53,8 +53,8 @@ register_adhoc_storage(const server& srv, const std::string& name,
                        const adhoc_storage::resources& resources);
 
 scord::error_code
-update_adhoc_storage(const server& srv, const adhoc_storage::ctx& new_ctx,
-                     const adhoc_storage& adhoc_storage);
+update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
+                     const adhoc_storage::resources& new_resources);
 
 scord::error_code
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);

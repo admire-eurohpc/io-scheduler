@@ -53,9 +53,6 @@ main(int argc, char* argv[]) {
             scord::adhoc_storage::access_type::read_write, 100, false};
     const auto adhoc_resources = scord::adhoc_storage::resources{adhoc_nodes};
 
-    const auto new_adhoc_storage_ctx = scord::adhoc_storage::ctx{
-            scord::adhoc_storage::execution_mode::separate_new,
-            scord::adhoc_storage::access_type::read_write, 200, false};
     const auto new_adhoc_resources =
             scord::adhoc_storage::resources{new_adhoc_nodes};
 
@@ -64,8 +61,7 @@ main(int argc, char* argv[]) {
                 server, name, scord::adhoc_storage::type::gekkofs,
                 adhoc_storage_ctx, adhoc_resources);
 
-        scord::update_adhoc_storage(server, adhoc_storage,
-                                    new_adhoc_storage_ctx);
+        scord::update_adhoc_storage(server, adhoc_storage, new_adhoc_resources);
 
         fmt::print(stdout,
                    "ADM_update_adhoc_storage() remote procedure completed "

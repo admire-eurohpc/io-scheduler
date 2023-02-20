@@ -627,6 +627,11 @@ public:
         m_ctx = std::move(new_ctx);
     }
 
+    void
+    update(scord::adhoc_storage::resources new_resources) {
+        m_resources = std::move(new_resources);
+    }
+
     template <class Archive>
     void
     load(Archive& ar) {
@@ -728,6 +733,11 @@ adhoc_storage::get_resources() const {
 void
 adhoc_storage::update(scord::adhoc_storage::ctx new_ctx) {
     return m_pimpl->update(std::move(new_ctx));
+}
+
+void
+adhoc_storage::update(scord::adhoc_storage::resources new_resources) {
+    return m_pimpl->update(std::move(new_resources));
 }
 
 // since the PIMPL class is fully defined at this point, we can now

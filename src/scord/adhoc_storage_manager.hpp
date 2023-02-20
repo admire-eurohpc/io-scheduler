@@ -71,14 +71,14 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
     }
 
     scord::error_code
-    update(std::uint64_t id, scord::adhoc_storage::ctx new_ctx) {
+    update(std::uint64_t id, scord::adhoc_storage::resources new_resources) {
 
         abt::unique_lock lock(m_adhoc_storages_mutex);
 
         if(const auto it = m_adhoc_storages.find(id);
            it != m_adhoc_storages.end()) {
             const auto current_adhoc_info = it->second;
-            current_adhoc_info->update(std::move(new_ctx));
+            current_adhoc_info->update(std::move(new_resources));
             return scord::error_code::success;
         }
 

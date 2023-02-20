@@ -267,9 +267,9 @@ register_adhoc_storage(const server& srv, const std::string& name,
 
 void
 update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
-                     const adhoc_storage::ctx& adhoc_storage_ctx) {
+                     const adhoc_storage::resources& new_resources) {
     const auto ec =
-            detail::update_adhoc_storage(srv, adhoc_storage_ctx, adhoc_storage);
+            detail::update_adhoc_storage(srv, adhoc_storage, new_resources);
 
     if(!ec) {
         throw std::runtime_error(fmt::format(

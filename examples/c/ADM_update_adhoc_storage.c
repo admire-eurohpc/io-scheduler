@@ -27,9 +27,10 @@
 #include <scord/scord.h>
 #include "common.h"
 
-#define NADHOC_NODES 25
-#define NINPUTS      10
-#define NOUTPUTS     5
+#define NADHOC_NODES      25
+#define N_NEW_ADHOC_NODES 10
+#define NINPUTS           10
+#define NOUTPUTS          5
 
 int
 main(int argc, char* argv[]) {
@@ -48,9 +49,11 @@ main(int argc, char* argv[]) {
     const char* adhoc_name = "adhoc_storage_42";
 
     ADM_node_t* adhoc_nodes = NULL;
+    ADM_node_t* new_adhoc_nodes = NULL;
     ADM_adhoc_resources_t adhoc_resources = NULL;
     ADM_adhoc_context_t adhoc_ctx = NULL;
     ADM_adhoc_context_t new_adhoc_ctx = NULL;
+    ADM_adhoc_resources_t new_adhoc_resources = NULL;
     ADM_adhoc_storage_t adhoc_storage = NULL;
 
 
@@ -105,8 +108,15 @@ main(int argc, char* argv[]) {
 
 
     // Now that we have an existing adhoc storage registered into the
-    // system, let's prepare a new execution context for the adhoc
+    // system, let's prepare a new set of resources for the adhoc
     // storage system
+
+    new_adhoc_nodes = prepare_nodes(N_NEW_ADHOC_NODES);
+
+    if(new_adhoc_nodes == NULL) {
+        fprintf(stderr, "Fatal error preparing adhoc nodes\n");
+        goto cleanup;
+    }
 
     new_adhoc_ctx = ADM_adhoc_context_create(ADM_ADHOC_MODE_SEPARATE_NEW,
                                              ADM_ADHOC_ACCESS_RDWR, 200, false);
@@ -116,9 +126,17 @@ main(int argc, char* argv[]) {
         goto cleanup;
     }
 
+    new_adhoc_resources =
+            ADM_adhoc_resources_create(new_adhoc_nodes, N_NEW_ADHOC_NODES);
+
+    if(new_adhoc_resources == NULL) {
+        fprintf(stderr, "Fatal error preparing new adhoc resources\n");
+        goto cleanup;
+    }
+
     // We can now request the update to the server
-    if((ret = ADM_update_adhoc_storage(server, adhoc_storage, new_adhoc_ctx)) !=
-       ADM_SUCCESS) {
+    if((ret = ADM_update_adhoc_storage(server, adhoc_storage,
+                                       new_adhoc_resources)) != ADM_SUCCESS) {
         fprintf(stderr, "ADM_update_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));
         goto cleanup;
@@ -142,6 +160,7 @@ cleanup:
     ADM_adhoc_context_destroy(new_adhoc_ctx);
     ADM_adhoc_context_destroy(adhoc_ctx);
     ADM_adhoc_resources_destroy(adhoc_resources);
+    destroy_nodes(new_adhoc_nodes, N_NEW_ADHOC_NODES);
     destroy_nodes(adhoc_nodes, NADHOC_NODES);
     exit(exit_status);
 }

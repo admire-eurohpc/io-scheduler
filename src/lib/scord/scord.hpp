@@ -65,7 +65,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
 
 void
 update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
-                     const adhoc_storage::ctx& adhoc_storage_ctx);
+                     const adhoc_storage::resources& new_resources);
 
 void
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);

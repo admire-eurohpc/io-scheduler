@@ -50,13 +50,13 @@ main(int argc, char* argv[]) {
     std::string name = "adhoc_storage_42";
     const auto adhoc_storage_ctx = scord::adhoc_storage::ctx{
             scord::adhoc_storage::execution_mode::separate_new,
-            scord::adhoc_storage::access_type::read_write,
-            scord::adhoc_storage::resources{adhoc_nodes}, 100, false};
+            scord::adhoc_storage::access_type::read_write, 100, false};
+    const auto adhoc_resources = scord::adhoc_storage::resources{adhoc_nodes};
 
     try {
         const auto adhoc_storage = scord::register_adhoc_storage(
                 server, name, scord::adhoc_storage::type::gekkofs,
-                adhoc_storage_ctx);
+                adhoc_storage_ctx, adhoc_resources);
         scord::remove_adhoc_storage(server, adhoc_storage);
         fmt::print(stdout,
                    "ADM_remove_adhoc_storage() remote procedure completed "

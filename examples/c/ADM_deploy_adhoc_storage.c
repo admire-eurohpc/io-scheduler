@@ -77,8 +77,7 @@ main(int argc, char* argv[]) {
 
     // 3. the adhoc storage execution context
     adhoc_ctx = ADM_adhoc_context_create(ADM_ADHOC_MODE_SEPARATE_NEW,
-                                         ADM_ADHOC_ACCESS_RDWR, adhoc_resources,
-                                         100, false);
+                                         ADM_ADHOC_ACCESS_RDWR, 100, false);
 
     if(adhoc_ctx == NULL) {
         fprintf(stderr, "Fatal error preparing adhoc context\n");
@@ -96,9 +95,9 @@ main(int argc, char* argv[]) {
     }
 
     // 2. Register the adhoc storage
-    if(ADM_register_adhoc_storage(server, adhoc_name,
-                                  ADM_ADHOC_STORAGE_DATACLAY, adhoc_ctx,
-                                  &adhoc_storage) != ADM_SUCCESS) {
+    if(ADM_register_adhoc_storage(
+               server, adhoc_name, ADM_ADHOC_STORAGE_DATACLAY, adhoc_ctx,
+               adhoc_resources, &adhoc_storage) != ADM_SUCCESS) {
         fprintf(stderr, "ADM_register_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));
         goto cleanup;
@@ -110,8 +109,7 @@ main(int argc, char* argv[]) {
     // storage system
 
     new_adhoc_ctx = ADM_adhoc_context_create(ADM_ADHOC_MODE_SEPARATE_NEW,
-                                             ADM_ADHOC_ACCESS_RDWR,
-                                             adhoc_resources, 200, false);
+                                             ADM_ADHOC_ACCESS_RDWR, 200, false);
 
     if(new_adhoc_ctx == NULL) {
         fprintf(stderr, "Fatal error preparing new adhoc context\n");

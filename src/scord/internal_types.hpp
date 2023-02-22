@@ -74,8 +74,8 @@ struct adhoc_storage_info {
     }
 
     void
-    update(scord::adhoc_storage::ctx adhoc_context) {
-        m_adhoc_storage.update(std::move(adhoc_context));
+    update(scord::adhoc_storage::resources new_resources) {
+        m_adhoc_storage.update(std::move(new_resources));
     }
 
     scord::error_code

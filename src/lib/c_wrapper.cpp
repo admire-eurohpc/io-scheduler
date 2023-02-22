@@ -112,13 +112,14 @@ ADM_return_t
 ADM_register_adhoc_storage(ADM_server_t server, const char* name,
                            ADM_adhoc_storage_type_t type,
                            ADM_adhoc_context_t ctx,
+                           ADM_adhoc_resources_t resources,
                            ADM_adhoc_storage_t* adhoc_storage) {
 
-    const scord::server srv{server};
-
-    const auto cxx_type = static_cast<enum scord::adhoc_storage::type>(type);
     const auto rv = scord::detail::register_adhoc_storage(
-            srv, name, cxx_type, scord::adhoc_storage::ctx{ctx});
+            scord::server{server}, name,
+            static_cast<enum scord::adhoc_storage::type>(type),
+            scord::adhoc_storage::ctx{ctx},
+            scord::adhoc_storage::resources{resources});
 
     if(!rv) {
         return rv.error();
@@ -131,13 +132,13 @@ ADM_register_adhoc_storage(ADM_server_t server, const char* name,
 
 ADM_return_t
 ADM_update_adhoc_storage(ADM_server_t server, ADM_adhoc_storage_t adhoc_storage,
-                         ADM_adhoc_context_t ctx) {
+                         ADM_adhoc_resources_t new_resources) {
 
     const scord::server srv{server};
 
     return scord::detail::update_adhoc_storage(
-            srv, scord::adhoc_storage::ctx{ctx},
-            scord::adhoc_storage{adhoc_storage});
+            srv, scord::adhoc_storage{adhoc_storage},
+            scord::adhoc_storage::resources{new_resources});
 }
 
 ADM_return_t

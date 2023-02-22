@@ -429,11 +429,13 @@ ADM_dataset_list_destroy(ADM_dataset_list_t list);
  * @param[in] adhoc_ctx Some specific context information for the storage
  * tier or NULL if none is required. For instance, an adhoc storage system may
  * find it useful to provide an ADM_adhoc_context_t describing the instance.
+ * @param[in] adhoc_resources The adhoc resources for this instance.
  * @return A valid ADM_ADHOC_STORAGE if successful, or NULL in case of failure.
  */
 ADM_adhoc_storage_t
 ADM_adhoc_storage_create(const char* name, ADM_adhoc_storage_type_t type,
-                         uint64_t id, ADM_adhoc_context_t adhoc_ctx);
+                         uint64_t id, ADM_adhoc_context_t adhoc_ctx,
+                         ADM_adhoc_resources_t adhoc_resources);
 
 /**
  * Destroy an ADM_ADHOC_STORAGE created by ADM_adhoc_storage_destroy().
@@ -477,7 +479,6 @@ ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res);
  *
  * @param[in] exec_mode The adhoc storage system execution mode
  * @param[in] access_type The adhoc storage system execution type
- * @param[in] adhoc_resources The resources assigned for the storage system
  * @param[in] walltime The adhoc storage system walltime
  * @param[in] should_flush Whether the adhoc storage system should flush data in
  * the background
@@ -485,9 +486,8 @@ ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res);
  */
 ADM_adhoc_context_t
 ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,
-                         ADM_adhoc_access_t access_type,
-                         ADM_adhoc_resources_t adhoc_resources,
-                         uint32_t walltime, bool should_flush);
+                         ADM_adhoc_access_t access_type, uint32_t walltime,
+                         bool should_flush);
 
 /**
  * Destroy an ADM_ADHOC_CONTEXT created by ADM_adhoc_context_create().

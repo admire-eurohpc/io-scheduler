@@ -64,15 +64,15 @@ main(int argc, char* argv[]) {
     assert(adhoc_resources);
 
     ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
-            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, adhoc_resources,
-            100, false);
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 100, false);
     assert(ctx);
 
     const char* name = "adhoc_storage_42";
 
     ADM_adhoc_storage_t adhoc_storage;
-    ADM_return_t ret = ADM_register_adhoc_storage(
-            server, name, ADM_ADHOC_STORAGE_GEKKOFS, ctx, &adhoc_storage);
+    ADM_return_t ret =
+            ADM_register_adhoc_storage(server, name, ADM_ADHOC_STORAGE_GEKKOFS,
+                                       ctx, adhoc_resources, &adhoc_storage);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stderr,

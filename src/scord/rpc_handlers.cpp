@@ -198,7 +198,8 @@ remove_job(const request& req, scord::job_id job_id) {
 void
 register_adhoc_storage(const request& req, const std::string& name,
                        enum scord::adhoc_storage::type type,
-                       const scord::adhoc_storage::ctx& ctx) {
+                       const scord::adhoc_storage::ctx& ctx,
+                       const scord::adhoc_storage::resources& resources) {
 
     using scord::network::get_address;
 
@@ -206,15 +207,16 @@ register_adhoc_storage(const request& req, const std::string& name,
     const auto rpc_id = remote_procedure::new_id();
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{name: {}, type: {}, adhoc_ctx: {}}}",
+                "body: {{name: {}, type: {}, adhoc_ctx: {}, "
+                "adhoc_resources: {}}}",
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                name, type, ctx);
+                name, type, ctx, resources);
 
     scord::error_code ec;
     std::optional<std::uint64_t> adhoc_id;
     auto& adhoc_manager = scord::adhoc_storage_manager::instance();
 
-    if(const auto am_result = adhoc_manager.create(type, name, ctx);
+    if(const auto am_result = adhoc_manager.create(type, name, ctx, resources);
        am_result.has_value()) {
         const auto& adhoc_storage_info = am_result.value();
         adhoc_id = adhoc_storage_info->adhoc_storage().id();
@@ -237,7 +239,7 @@ register_adhoc_storage(const request& req, const std::string& name,
 
 void
 update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
-                     const scord::adhoc_storage::ctx& new_ctx) {
+                     const scord::adhoc_storage::resources& new_resources) {
 
     using scord::network::get_address;
 
@@ -245,12 +247,12 @@ update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
     const auto rpc_id = remote_procedure::new_id();
 
     LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_id: {}, new_ctx: {}}}",
+                "body: {{adhoc_id: {}, new_resources: {}}}",
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                adhoc_id, new_ctx);
+                adhoc_id, new_resources);
 
     auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-    const auto ec = adhoc_manager.update(adhoc_id, new_ctx);
+    const auto ec = adhoc_manager.update(adhoc_id, new_resources);
 
     if(!ec) {
         LOGGER_ERROR(
@@ -323,8 +325,8 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
         if(adhoc_storage.type() == scord::adhoc_storage::type::gekkofs) {
             const auto adhoc_ctx = adhoc_storage.context();
             /* Number of nodes */
-            const std::string nodes =
-                    std::to_string(adhoc_ctx.resources().nodes().size());
+            const std::string nodes = std::to_string(
+                    adhoc_storage.get_resources().nodes().size());
 
             /* Walltime */
             const std::string walltime = std::to_string(adhoc_ctx.walltime());

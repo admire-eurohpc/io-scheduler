@@ -61,6 +61,12 @@ typedef enum {
 /** A RPC server */
 typedef struct adm_server* ADM_server_t;
 
+/** Node types */
+typedef enum {
+    ADM_NODE_REGULAR,
+    ADM_NODE_ADMINISTRATIVE,
+} ADM_node_type_t;
+
 /** A node */
 typedef struct adm_node* ADM_node_t;
 
@@ -247,7 +253,7 @@ ADM_server_destroy(ADM_server_t server);
  * @return A valid ADM_server_t if successful or NULL in case of failure.
  */
 ADM_node_t
-ADM_node_create(const char* hostname);
+ADM_node_create(const char* hostname, ADM_node_type_t type);
 
 /**
  * Destroy a node created by ADM_node_create().

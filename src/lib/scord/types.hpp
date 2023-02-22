@@ -142,8 +142,14 @@ private:
 
 struct node {
 
+    enum class type : std::underlying_type<ADM_node_type_t>::type {
+        regular = ADM_NODE_REGULAR,
+        administrative = ADM_NODE_ADMINISTRATIVE,
+    };
+
     node();
-    explicit node(std::string hostname);
+    explicit node(std::string hostname,
+                  node::type node_type = node::type::regular);
     explicit node(const ADM_node_t& srv);
     node(const node&) noexcept;
     node(node&&) noexcept;
@@ -155,6 +161,9 @@ struct node {
 
     std::string
     hostname() const;
+
+    node::type
+    get_type() const;
 
     // The implementation for this must be deferred until
     // after the declaration of the PIMPL class
@@ -638,13 +647,37 @@ struct fmt::formatter<scord::dataset> : formatter<std::string_view> {
 };
 
 template <>
+struct fmt::formatter<scord::node::type> : fmt::formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const scord::node::type& t, FormatContext& ctx) const {
+
+        using scord::node;
+        std::string_view name = "unknown";
+
+        switch(t) {
+            case node::type::regular:
+                name = "regular";
+                break;
+
+            case node::type::administrative:
+                name = "administrative";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
 struct fmt::formatter<scord::node> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
     format(const scord::node& n, FormatContext& ctx) const {
-        const auto str =
-                fmt::format("{{hostname: {}}}", std::quoted(n.hostname()));
+        const auto str = fmt::format("{{hostname: {}, type: {}}}",
+                                     std::quoted(n.hostname()), n.get_type());
         return formatter<std::string_view>::format(str, ctx);
     }
 };

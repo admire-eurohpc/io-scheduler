@@ -38,6 +38,7 @@ struct adm_server {
 
 struct adm_node {
     const char* n_hostname;
+    ADM_node_type_t n_type;
 };
 
 struct adm_dataset {

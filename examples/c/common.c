@@ -17,7 +17,7 @@ prepare_nodes(size_t n) {
         size_t len = snprintf(NULL, 0, "node-%02zu", i);
         char* id = (char*) alloca(len + 1);
         snprintf(id, len + 1, "node-%02zu", i);
-        nodes[i] = ADM_node_create(id);
+        nodes[i] = ADM_node_create(id, ADM_NODE_REGULAR);
         if(!nodes[i]) {
             return NULL;
         }

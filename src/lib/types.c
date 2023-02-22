@@ -66,7 +66,7 @@ ADM_server_destroy(ADM_server_t server) {
 }
 
 ADM_node_t
-ADM_node_create(const char* hostname) {
+ADM_node_create(const char* hostname, ADM_node_type_t type) {
 
     struct adm_node* adm_node =
             (struct adm_node*) malloc(sizeof(struct adm_node));
@@ -80,6 +80,7 @@ ADM_node_create(const char* hostname) {
         size_t n = strlen(hostname);
         adm_node->n_hostname = (const char*) calloc(n + 1, sizeof(char));
         strcpy((char*) adm_node->n_hostname, hostname);
+        adm_node->n_type = type;
     }
 
     return adm_node;

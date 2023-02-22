@@ -96,35 +96,45 @@ class node::impl {
 
 public:
     impl() = default;
-    explicit impl(std::string hostname) : m_hostname(std::move(hostname)) {}
+    explicit impl(std::string hostname, node::type node_type)
+        : m_hostname(std::move(hostname)), m_type(node_type) {}
 
     std::string
     hostname() const {
         return m_hostname;
     }
 
+    node::type
+    get_type() const {
+        return m_type;
+    }
+
     template <class Archive>
     void
     load(Archive& ar) {
         ar(SCORD_SERIALIZATION_NVP(m_hostname));
+        ar(SCORD_SERIALIZATION_NVP(m_type));
     }
 
     template <class Archive>
     void
     save(Archive& ar) const {
         ar(SCORD_SERIALIZATION_NVP(m_hostname));
+        ar(SCORD_SERIALIZATION_NVP(m_type));
     }
 
 private:
     std::string m_hostname;
+    node::type m_type;
 };
 
 node::node() = default;
 
-node::node(std::string hostname)
-    : m_pimpl(std::make_unique<node::impl>(std::move(hostname))) {}
+node::node(std::string hostname, node::type type)
+    : m_pimpl(std::make_unique<node::impl>(std::move(hostname), type)) {}
 
-node::node(const ADM_node_t& node) : node::node(node->n_hostname) {}
+node::node(const ADM_node_t& node)
+    : node::node(node->n_hostname, static_cast<node::type>(node->n_type)) {}
 
 node::node(const node& other) noexcept
     : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
@@ -145,6 +155,11 @@ node::~node() = default;
 std::string
 node::hostname() const {
     return m_pimpl->hostname();
+}
+
+node::type
+node::get_type() const {
+    return m_pimpl->get_type();
 }
 
 // since the PIMPL class is fully defined at this point, we can now
@@ -528,7 +543,9 @@ adhoc_storage::resources::operator ADM_adhoc_resources_t() const {
     std::vector<ADM_node_t> tmp;
     std::transform(m_nodes.cbegin(), m_nodes.cend(), std::back_inserter(tmp),
                    [](const scord::node& n) {
-                       return ADM_node_create(n.hostname().c_str());
+                       return ADM_node_create(
+                               n.hostname().c_str(),
+                               static_cast<ADM_node_type_t>(n.get_type()));
                    });
 
     // N.B. This works because AMD_adhoc_resources_create() internally copies

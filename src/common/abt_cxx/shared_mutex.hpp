@@ -123,7 +123,7 @@ public:
     unique_lock() noexcept : m_device(0), m_owns(false) {}
 
     explicit unique_lock(mutex_type& m)
-        : m_device(std::__addressof(m)), m_owns(false) {
+        : m_device(std::addressof(m)), m_owns(false) {
         lock();
         m_owns = true;
     }
@@ -234,7 +234,7 @@ public:
     shared_lock() noexcept : m_device(nullptr), m_owns(false) {}
 
     explicit shared_lock(mutex_type& m)
-        : m_device(std::__addressof(m)), m_owns(true) {
+        : m_device(std::addressof(m)), m_owns(true) {
         m.lock_shared();
     }
 

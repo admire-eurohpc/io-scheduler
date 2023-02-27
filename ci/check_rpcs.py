@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import pprint
+from loguru import logger
 import re
 import sys
 from pathlib import Path
@@ -12,6 +12,7 @@ RPC_NAMES = {
     'ADM_register_job', 'ADM_update_job', 'ADM_remove_job',
     'ADM_register_adhoc_storage', 'ADM_update_adhoc_storage',
     'ADM_remove_adhoc_storage', 'ADM_deploy_adhoc_storage',
+    'ADM_tear_down_adhoc_storage',
     'ADM_register_pfs_storage', 'ADM_update_pfs_storage',
     'ADM_remove_pfs_storage',
     'ADM_transfer_datasets', 'ADM_get_transfer_priority',
@@ -161,22 +162,23 @@ class RemoteProcedure:
         for extra_keys, rpc in zip([self_extra_keys, other_extra_keys],
                                    [self, other]):
             if len(extra_keys) != 0:
-                print("ERROR: Extra fields were found when comparing an rpc to "
-                      "its counterpart\n"
-                      f"    extra fields: {extra_keys}"
-                      f"    line number: {rpc.meta.lineno}"
-                      f"    line contents: {rpc.meta.line}", file=sys.stderr)
+                logger.error(
+                    "\nExtra fields were found when comparing an rpc "
+                    "to its counterpart\n"
+                    f"    extra fields: {extra_keys}"
+                    f"    line number: {rpc.meta.lineno}"
+                    f"    line contents: {rpc.meta.line}", file=sys.stderr)
                 return False
 
         for k in self_keys:
             if self._body[k] != other._body[k]:
-                print("ERROR: Mismatching values were found when comparing an "
-                      "rpc to its counterpart\n"
-                      f"    value1 (line: {self.meta.lineno}): {k}: "
-                      f"{self._body[k]}\n"
-                      f"    value2 (line: {other.meta.lineno}): {k}: "
-                      f"{other._body[k]} ",
-                      file=sys.stderr)
+                logger.error("\nMismatching values were found when "
+                             "comparing an rpc to its counterpart\n"
+                             f"    value1 (line: {self.meta.lineno}): {k}: "
+                             f"{self._body[k]}\n"
+                             f"    value2 (line: {other.meta.lineno}): {k}: "
+                             f"{other._body[k]} ",
+                             file=sys.stderr)
                 return False
 
         return True
@@ -318,14 +320,16 @@ if __name__ == "__main__":
     for lf, n in zip([client_logfile, server_logfile], ['CLIENT_LOGFILE',
                                                         'SERVER_LOGFILE']):
         if not lf.is_file():
-            print(f"ERROR: {n} '{lf}' is not a file", file=sys.stderr)
+            logger.error(f"{n} '{lf}' is not a file", file=sys.stderr)
             sys.exit(1)
 
     rpc_name = sys.argv[3]
 
     if rpc_name not in RPC_NAMES:
-        print(f"ERROR: '{rpc_name}' is not a valid rpc name", file=sys.stderr)
-        print(f"  Valid names: {', '.join(sorted(RPC_NAMES))}", file=sys.stderr)
+        logger.error(f"'{rpc_name}' is not a valid rpc name",
+                     file=sys.stderr)
+        logger.error(f"  Valid names: {', '.join(sorted(RPC_NAMES))}",
+                     file=sys.stderr)
         sys.exit(1)
 
     logfiles = [client_logfile, server_logfile]
@@ -345,9 +349,10 @@ if __name__ == "__main__":
                 if rpc.is_request:
                     found_rpcs[rpc.id] = rpc
                 else:
-                    print(f"ERROR: Found RPC reply without corresponding "
-                          f"request at line {rpc.meta.lineno}\n"
-                          f"    raw: '{rpc.meta.line}'", file=sys.stderr)
+                    logger.error(f"\nFound server reply for RPC without "
+                                 f"a corresponding client request at line"
+                                 f" {rpc.meta.lineno}\n"
+                                 f"    raw: '{rpc.meta.line}'", file=sys.stderr)
                     sys.exit(1)
             else:
                 req_rpc = found_rpcs[rpc.id]
@@ -358,7 +363,11 @@ if __name__ == "__main__":
     ec = 0
     for k in client_ops.keys():
 
-        assert (k in server_ops)
+        if k not in server_ops:
+            logger.error(
+                f"Operation ID '{k}' found in client log but missing "
+                f"in server log")
+            ec = 1
 
         if client_ops[k] != server_ops[k]:
             ec = 1

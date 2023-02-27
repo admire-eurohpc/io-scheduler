@@ -303,11 +303,6 @@ find_package(RedisPlusPlus 1.3.3 REQUIRED)
 add_compile_options("-Wall" "-Wextra" "-Werror" "$<$<CONFIG:RELEASE>:-O3>")
 add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:SCORD_DEBUG_BUILD>")
 add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:__LOGGER_ENABLE_DEBUG__>")
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  add_compile_options("-stdlib=libc++")
-else ()
-  # nothing special for gcc at the moment
-endif ()
 
 add_subdirectory(etc)
 add_subdirectory(src)

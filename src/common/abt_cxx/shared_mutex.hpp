@@ -25,7 +25,6 @@
 #include <cassert>
 #include <abt.h>
 #include <fmt/format.h>
-#include <bits/functexcept.h>
 
 #ifndef SCORD_ABT_SHARED_MUTEX_HPP
 #define SCORD_ABT_SHARED_MUTEX_HPP

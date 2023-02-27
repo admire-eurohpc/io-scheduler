@@ -162,6 +162,14 @@ ADM_deploy_adhoc_storage(ADM_server_t server,
 }
 
 ADM_return_t
+ADM_tear_down_adhoc_storage(ADM_server_t server,
+                            ADM_adhoc_storage_t adhoc_storage) {
+
+    return scord::detail::tear_down_adhoc_storage(
+            scord::server{server}, scord::adhoc_storage{adhoc_storage});
+}
+
+ADM_return_t
 ADM_register_pfs_storage(ADM_server_t server, const char* name,
                          ADM_pfs_storage_type_t type, ADM_pfs_context_t ctx,
                          ADM_pfs_storage_t* pfs_storage) {

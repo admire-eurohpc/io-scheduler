@@ -159,6 +159,18 @@ ADM_deploy_adhoc_storage(ADM_server_t server,
                          ADM_adhoc_storage_t adhoc_storage);
 
 /**
+ * Tear down a previously deployed adhoc storage system instance
+ *
+ * @param[in] server The server to which the request is directed
+ * @param[in] adhoc_storage An ADM_STORAGE referring to the adhoc storage
+ * instance of interest.
+ * @return Returns ADM_SUCCESS if the remote procedure has completed
+ */
+ADM_return_t
+ADM_tear_down_adhoc_storage(ADM_server_t server,
+                            ADM_adhoc_storage_t adhoc_storage);
+
+/**
  * Register a PFS storage tier.
  *
  * @param[in] server The server to which the request is directed

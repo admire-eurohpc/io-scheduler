@@ -299,6 +299,17 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     }
 }
 
+void
+tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
+
+    const auto ec = detail::tear_down_adhoc_storage(srv, adhoc_storage);
+
+    if(!ec) {
+        throw std::runtime_error(fmt::format(
+                "ADM_deploy_adhoc_storage() error: {}", ec.message()));
+    }
+}
+
 scord::pfs_storage
 register_pfs_storage(const server& srv, const std::string& name,
                      enum pfs_storage::type type, const pfs_storage::ctx& ctx) {

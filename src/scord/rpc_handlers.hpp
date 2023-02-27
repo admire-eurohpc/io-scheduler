@@ -63,6 +63,9 @@ void
 deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id);
 
 void
+tear_down_adhoc_storage(const request& req, std::uint64_t adhoc_id);
+
+void
 register_pfs_storage(const request& req, const std::string& name,
                      enum scord::pfs_storage::type type,
                      const scord::pfs_storage::ctx& ctx);

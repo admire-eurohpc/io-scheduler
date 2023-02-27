@@ -29,7 +29,7 @@ list(APPEND examples_c
   ADM_register_job ADM_update_job ADM_remove_job
   # adhoc storage
   ADM_register_adhoc_storage ADM_update_adhoc_storage ADM_remove_adhoc_storage
-  ADM_deploy_adhoc_storage
+  ADM_deploy_adhoc_storage ADM_tear_down_adhoc_storage
   # pfs storage
   ADM_register_pfs_storage ADM_update_pfs_storage ADM_remove_pfs_storage
   # transfers

@@ -287,7 +287,7 @@ public:
     mutex_type*
     release() noexcept {
         m_owns = false;
-        return std::__exchange(m_device, nullptr);
+        return std::exchange(m_device, nullptr);
     }
 
     // Getters

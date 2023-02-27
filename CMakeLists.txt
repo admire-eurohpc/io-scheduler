@@ -253,7 +253,7 @@ set(EXPECTED_BUILD_TESTS OFF)
 FetchContent_Declare(
   expected
   GIT_REPOSITORY https://github.com/TartanLlama/expected
-  GIT_TAG 9d812f5e3b5bc68023f6e31d29489cdcaacef606 # latest
+  GIT_TAG 3e304a4bdd00feef8d41f5b388c37bd9d6108025 # latest
   GIT_SHALLOW ON
   GIT_PROGRESS ON
 )
@@ -303,11 +303,6 @@ find_package(RedisPlusPlus 1.3.3 REQUIRED)
 add_compile_options("-Wall" "-Wextra" "-Werror" "$<$<CONFIG:RELEASE>:-O3>")
 add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:SCORD_DEBUG_BUILD>")
 add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:__LOGGER_ENABLE_DEBUG__>")
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  add_compile_options("-stdlib=libc++")
-else ()
-  # nothing special for gcc at the moment
-endif ()
 
 add_subdirectory(etc)
 add_subdirectory(src)

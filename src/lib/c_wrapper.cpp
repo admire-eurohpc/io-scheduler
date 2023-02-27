@@ -309,7 +309,7 @@ ADM_define_data_operation(ADM_server_t server, ADM_job_t job, const char* path,
 ADM_return_t
 ADM_connect_data_operation(ADM_server_t server, ADM_job_t job,
                            ADM_dataset_t input, ADM_dataset_t output,
-                           bool should_stream, ...) {
+                           int should_stream, ...) {
 
     const scord::server srv{server};
 
@@ -336,7 +336,7 @@ ADM_finalize_data_operation(ADM_server_t server, ADM_job_t job,
 ADM_return_t
 ADM_link_transfer_to_data_operation(ADM_server_t server, ADM_job_t job,
                                     ADM_data_operation_t op,
-                                    ADM_transfer_t transfer, bool should_stream,
+                                    ADM_transfer_t transfer, int should_stream,
                                     ...) {
 
     const scord::server srv{server};

@@ -133,17 +133,15 @@
 #define LOGGER_LOG16                 LOGGER_LOGN
 #define LOGGER_LOGN(level, fmt, ...) logger_log(level, fmt, __VA_ARGS__)
 
-#define LOGGER_INFO(fmt, ...) LOGGER_LOG(info, fmt __VA_OPT__(, ) __VA_ARGS__);
+#define LOGGER_INFO(fmt, ...) LOGGER_LOG(info, fmt, ##__VA_ARGS__);
 
 #ifdef __LOGGER_ENABLE_DEBUG__
-#define LOGGER_DEBUG(fmt, ...)                                                 \
-    LOGGER_LOG(debug, fmt __VA_OPT__(, ) __VA_ARGS__);
+#define LOGGER_DEBUG(fmt, ...) LOGGER_LOG(debug, fmt, ##__VA_ARGS__);
 #endif
 
-#define LOGGER_WARN(fmt, ...) LOGGER_LOG(warn, fmt __VA_OPT__(, ) __VA_ARGS__);
+#define LOGGER_WARN(fmt, ...) LOGGER_LOG(warn, fmt, ##__VA_ARGS__);
 
-#define LOGGER_ERROR(fmt, ...)                                                 \
-    LOGGER_LOG(error, fmt __VA_OPT__(, ) __VA_ARGS__);
+#define LOGGER_ERROR(fmt, ...) LOGGER_LOG(error, fmt, ##__VA_ARGS__);
 
 #endif
 

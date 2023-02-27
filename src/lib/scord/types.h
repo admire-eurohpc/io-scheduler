@@ -87,6 +87,7 @@ typedef struct adm_job_resources* ADM_job_resources_t;
 /** I/O stats from a job */
 typedef struct {
     // TODO: empty for now
+    uint32_t placeholder;
 } ADM_job_stats_t;
 
 /** The I/O requirements for a job */
@@ -212,6 +213,7 @@ typedef struct adm_data_operation* ADM_data_operation_t;
 /** A data operation status */
 typedef struct {
     // TODO: empty for now
+    uint32_t placeholder;
 } ADM_data_operation_status_t;
 
 

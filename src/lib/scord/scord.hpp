@@ -73,6 +73,9 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 void
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
+void
+tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
+
 scord::pfs_storage
 register_pfs_storage(const server& srv, const std::string& name,
                      enum scord::pfs_storage::type type,

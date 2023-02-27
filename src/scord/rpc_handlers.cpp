@@ -402,6 +402,32 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
 }
 
 void
+tear_down_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
+
+    using scord::network::generic_response;
+    using scord::network::get_address;
+
+    const auto rpc_name = "ADM_"s + __FUNCTION__;
+    const auto rpc_id = remote_procedure::new_id();
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{adhoc_id: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                adhoc_id);
+
+    // TODO: actually tear down the adhoc storage instance
+
+    const auto resp = generic_response{rpc_id, scord::error_code::success};
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                scord::error_code::success);
+
+    req.respond(resp);
+}
+
+void
 register_pfs_storage(const request& req, const std::string& name,
                      enum scord::pfs_storage::type type,
                      const scord::pfs_storage::ctx& ctx) {

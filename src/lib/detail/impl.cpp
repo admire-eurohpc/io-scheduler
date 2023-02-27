@@ -479,6 +479,43 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     return scord::error_code::other;
 }
 
+scord::error_code
+tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
+
+    scord::network::client rpc_client{srv.protocol()};
+
+    const auto rpc_id = ::api::remote_procedure::new_id();
+
+    if(const auto lookup_rv = rpc_client.lookup(srv.address());
+       lookup_rv.has_value()) {
+        const auto& endp = lookup_rv.value();
+
+        LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                    "body: {{adhoc_id: {}}}",
+                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                    std::quoted(rpc_client.self_address()), adhoc_storage.id());
+
+        if(const auto call_rv =
+                   endp.call("ADM_"s + __FUNCTION__, adhoc_storage.id());
+           call_rv.has_value()) {
+
+            const scord::network::generic_response resp{call_rv.value()};
+
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc id: {} name: {} from: {} <= "
+                        "body: {{retval: {}}} [op_id: {}]",
+                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                        std::quoted(endp.address()), resp.error_code(),
+                        resp.op_id());
+
+            return resp.error_code();
+        }
+    }
+
+    LOGGER_ERROR("rpc call failed");
+    return scord::error_code::other;
+}
+
 tl::expected<transfer, error_code>
 transfer_datasets(const server& srv, const job& job,
                   const std::vector<dataset>& sources,

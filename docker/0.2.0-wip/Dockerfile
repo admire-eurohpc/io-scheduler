@@ -15,6 +15,8 @@ RUN apt-get update && \
         automake \
         gcc \
         g++ \
+        clang \
+        libc++-dev \
         procps \
         # AGIOS dependencies
         libconfig-dev \

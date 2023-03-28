@@ -246,14 +246,13 @@ FetchContent_MakeAvailable(genopts)
 
 ### expected: required for using tl::expected in the C++ library implementation
 ### until std::expected makes it to C++
-
 message(STATUS "[${PROJECT_NAME}] Downloading and building tl::expected")
 set(EXPECTED_BUILD_PACKAGE OFF)
 set(EXPECTED_BUILD_TESTS OFF)
 FetchContent_Declare(
   expected
   GIT_REPOSITORY https://github.com/TartanLlama/expected
-  GIT_TAG 3e304a4bdd00feef8d41f5b388c37bd9d6108025 # latest
+  GIT_TAG 292eff8bd8ee230a7df1d6a1c00c4ea0eb2f0362 # v1.1.0
   GIT_SHALLOW ON
   GIT_PROGRESS ON
 )

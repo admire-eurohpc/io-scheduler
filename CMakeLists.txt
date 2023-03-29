@@ -159,6 +159,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Check for and/or download dependencies
 # ##############################################################################
 
+### srun is required in order to deploy `scord-ctl` and `cargo`
+find_program(SRUN srun REQUIRED)
+
 ### some dependencies don't provide CMake modules, but rely on pkg-config
 ### instead, make sure that pkg-config is available
 find_package(PkgConfig REQUIRED)

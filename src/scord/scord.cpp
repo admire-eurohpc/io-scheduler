@@ -23,189 +23,202 @@
  *****************************************************************************/
 
 #include <filesystem>
-#include <boost/program_options.hpp>
 #include <fmt/format.h>
-#include <fmt/ostream.h>
 #include <exception>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <CLI/CLI.hpp>
 
 #include <version.hpp>
 #include <net/server.hpp>
-#include <config/settings.hpp>
 #include "rpc_handlers.hpp"
-#include "env.hpp"
+#include "defaults.hpp"
 
 #include <agios.h>
+#include <ryml.hpp>
+#include <ryml_std.hpp>
 
 namespace fs = std::filesystem;
-namespace bpo = boost::program_options;
 using namespace std::literals;
 
-void
-print_version(const std::string& progname) {
-    fmt::print("{} {}\n", progname, scord::version_string);
-}
-
-void
-print_help(const std::string& progname,
-           const bpo::options_description& opt_desc) {
-    fmt::print("Usage: {} [options]\n\n", progname);
-    fmt::print("{}", opt_desc);
-}
-
-std::unordered_map<std::string, std::string>
-load_envs() {
-
-    std::unordered_map<std::string, std::string> envs;
-
-    if(const auto p = std::getenv(scord::env::LOG);
-       p && !std::string{p}.empty() && std::string{p} != "0") {
-        if(const auto log_file = std::getenv(scord::env::LOG_OUTPUT)) {
-            envs.emplace(scord::env::LOG_OUTPUT, log_file);
-        }
+class config_yaml : public CLI::Config {
+public:
+    std::string
+    to_config(const CLI::App*, bool, bool, std::string) const final {
+        return {};
     }
 
-    return envs;
-}
+    std::vector<CLI::ConfigItem>
+    parse_node(const ryml::ConstNodeRef& node,
+               const std::string& parent_name = "",
+               const std::vector<std::string>& prefix = {}) const {
+        std::vector<CLI::ConfigItem> results;
+
+        if(node.is_map()) {
+            for(const auto& c : node.children()) {
+                auto copy_prefix = prefix;
+                if(!parent_name.empty()) {
+                    copy_prefix.push_back(parent_name);
+                }
+
+                std::string name;
+                if(c.has_key()) {
+                    ryml::from_chars(c.key(), &name);
+                }
+
+                const auto sub_results = parse_node(c, name, copy_prefix);
+                results.insert(results.end(), sub_results.begin(),
+                               sub_results.end());
+            }
+            return results;
+        }
+
+        if(!parent_name.empty()) {
+            auto& res = results.emplace_back();
+            res.name = parent_name;
+            res.parents = prefix;
+
+            if(node.is_seq()) {
+                for(const auto& c : node.children()) {
+                    if(c.has_val()) {
+                        std::string value{c.val().data(), c.val().size()};
+                        res.inputs.push_back(value);
+                    }
+                }
+                return results;
+            }
+
+            if(node.is_keyval()) {
+                std::string value{node.val().data(), node.val().size()};
+                res.inputs = {value};
+                return results;
+            }
+        }
+
+        throw CLI::ConversionError("Missing name");
+    }
+
+    std::vector<CLI::ConfigItem>
+    from_config(std::istream& input) const final {
+        std::string input_str{std::istreambuf_iterator<char>(input),
+                              std::istreambuf_iterator<char>()};
+        ryml::Tree tree = ryml::parse_in_arena(ryml::to_csubstr(input_str));
+        return parse_node(tree.crootref());
+    }
+};
+
 
 int
 main(int argc, char* argv[]) {
 
-    scord::config::settings cfg;
+    struct {
+        bool foreground = !scord::config::defaults::daemonize;
+        scord::logger_type log_type = scord::logger_type::console_color;
+        std::optional<fs::path> output_file;
+        std::optional<fs::path> rundir;
+        std::optional<std::string> address;
+    } cli_args;
 
-    // define the command line options allowed
-    bpo::options_description opt_desc("Options");
-    opt_desc.add_options()
-            // run in foreground
-            (",f",
-             bpo::bool_switch()->default_value(false)->notifier(
-                     [&](const bool& flag_value) {
-                         cfg.daemonize(!flag_value);
-                     }),
-             "foreground operation")
+    const auto progname = fs::path{argv[0]}.filename().string();
 
-            // force logging messages to the console
-            ("force-console,C",
-             bpo::value<std::string>()
-                     ->implicit_value("")
-                     ->zero_tokens()
-                     ->notifier([&](const std::string&) {
-                         cfg.log_file(fs::path{});
-                         cfg.use_console(true);
-                     }),
-             "override any logging options defined in configuration files and "
-             "send all daemon output to the console")
+    CLI::App app{"scord - An orchestrator for HPC I/O activity", progname};
+    app.config_formatter(std::make_shared<config_yaml>());
 
-            // use provided configuration file instead of the system-wide
-            // configuration file defined when building the daemon
-            ("config-file,c",
-             bpo::value<fs::path>()
-                     ->value_name("FILENAME")
-                     ->implicit_value("")
-                     ->notifier([&](const std::string& filename) {
-                         cfg.config_file(filename);
-                     }),
-             "override the system-wide configuration file with FILENAME")
+    app.add_flag("-f,--foreground", cli_args.foreground, "Run in foreground");
+    app.add_flag_callback(
+            "-C,--force-console",
+            [&]() {
+                cli_args.log_type = scord::logger_type::console_color;
+                cli_args.output_file = std::nullopt;
+            },
+            "Override any logging options defined in the configuration file "
+            "and send all daemon output to the console");
 
-            // print the daemon version
-            ("version,v",
-             bpo::value<std::string>()->implicit_value("")->zero_tokens(),
-             "print version string")
+    app.set_config("-c,--config-file", scord::config::defaults::config_file,
+                   "Ignore the system-wide configuration file and use the "
+                   "configuration provided by FILENAME",
+                   /*config_required=*/true)
+            ->option_text("FILENAME")
+            ->check(CLI::ExistingFile);
 
-            // print help
-            ("help,h",
-             bpo::value<std::string>()->implicit_value("")->zero_tokens(),
-             "produce help message");
+    // force logging messages to file
+    app.add_option_function<std::string>(
+               "-o,--output",
+               [&](const std::string& val) {
+                   cli_args.log_type = scord::logger_type::file;
+                   cli_args.output_file = fs::path{val};
+               },
+               "Write any output to FILENAME console")
+            ->option_text("FILENAME")
+            ->envname("SCORD_LOG_OUTPUT")
+            ->excludes("-C");
 
-    // parse the command line
-    bpo::variables_map vm;
+    app.add_flag_callback(
+            "-v,--version",
+            [&]() {
+                fmt::print("{} {}\n", progname, scord::version_string);
+                std::exit(EXIT_SUCCESS);
+            },
+            "Print version string and exit");
 
-    try {
-        bpo::store(bpo::parse_command_line(argc, argv, opt_desc), vm);
+    // options accepted by configuration file
+    auto global_settings = app.add_subcommand("global_settings")
+                                   ->configurable(true)
+                                   ->group("");
+    global_settings->add_option_function<std::string>(
+            "--logfile", [&](const std::string& val) {
+                cli_args.log_type = scord::logger_type::file;
+                cli_args.output_file = fs::path{val};
+            });
+    global_settings->add_option("--rundir", cli_args.rundir);
+    global_settings->add_option("--address", cli_args.address);
 
-        // the --help and --version arguments are special, since we want
-        // to process them even if the global configuration file doesn't exist
-        if(vm.count("help")) {
-            print_help(cfg.progname(), opt_desc);
-            return EXIT_SUCCESS;
-        }
+    CLI11_PARSE(app, argc, argv);
 
-        if(vm.count("version")) {
-            print_version(cfg.progname());
-            return EXIT_SUCCESS;
-        }
-
-        const fs::path config_file = (vm.count("config-file") == 0)
-                                             ? cfg.config_file()
-                                             : vm["config-file"].as<fs::path>();
-
-        if(!fs::exists(config_file)) {
-            fmt::print(stderr,
-                       "Failed to access daemon configuration file {}\n",
-                       config_file);
-            return EXIT_FAILURE;
-        }
-
-        try {
-            cfg.load_from_file(config_file);
-        } catch(const std::exception& ex) {
-            fmt::print(stderr,
-                       "Failed reading daemon configuration file:\n"
-                       "    {}\n",
-                       ex.what());
-            return EXIT_FAILURE;
-        }
-
-        // override settings from the configuration file with settings
-        // from environment variables
-        const auto env_opts = load_envs();
-
-        if(const auto& it = env_opts.find(scord::env::LOG_OUTPUT);
-           it != env_opts.end()) {
-            cfg.log_file(it->second);
-        }
-
-        // calling notify() here basically invokes all define notifiers, thus
-        // overriding any configuration loaded from the global configuration
-        // file with its command-line counterparts if provided (for those
-        // options where this is available)
-        bpo::notify(vm);
-    } catch(const bpo::error& ex) {
-        fmt::print(stderr, "ERROR: {}\n\n", ex.what());
+    // ->required(true) doesn't work with configurable subcommands
+    if(!cli_args.address) {
+        fmt::print(stderr,
+                   "{}: error: required option 'address' missing "
+                   "from configuration file\n",
+                   progname);
         return EXIT_FAILURE;
     }
 
     try {
-        scord::network::server daemon(cfg);
+        scord::network::server srv(
+                progname, *cli_args.address, !cli_args.foreground,
+                cli_args.rundir.value_or(fs::current_path()));
 
-        // convenience macro to ensure the names of an RPC and its handler
-        // always match
+        srv.configure_logger(cli_args.log_type, cli_args.output_file);
+
+        // convenience macro to ensure the names of an RPC and
+        // its handler always match
 #define EXPAND(rpc_name) "ADM_" #rpc_name##s, scord::network::handlers::rpc_name
 
-        daemon.set_handler(EXPAND(ping));
-        daemon.set_handler(EXPAND(register_job));
-        daemon.set_handler(EXPAND(update_job));
-        daemon.set_handler(EXPAND(remove_job));
-        daemon.set_handler(EXPAND(register_adhoc_storage));
-        daemon.set_handler(EXPAND(update_adhoc_storage));
-        daemon.set_handler(EXPAND(remove_adhoc_storage));
-        daemon.set_handler(EXPAND(deploy_adhoc_storage));
-        daemon.set_handler(EXPAND(tear_down_adhoc_storage));
-        daemon.set_handler(EXPAND(register_pfs_storage));
-        daemon.set_handler(EXPAND(update_pfs_storage));
-        daemon.set_handler(EXPAND(remove_pfs_storage));
-        daemon.set_handler(EXPAND(transfer_datasets));
+        srv.set_handler(EXPAND(ping));
+        srv.set_handler(EXPAND(register_job));
+        srv.set_handler(EXPAND(update_job));
+        srv.set_handler(EXPAND(remove_job));
+        srv.set_handler(EXPAND(register_adhoc_storage));
+        srv.set_handler(EXPAND(update_adhoc_storage));
+        srv.set_handler(EXPAND(remove_adhoc_storage));
+        srv.set_handler(EXPAND(deploy_adhoc_storage));
+        srv.set_handler(EXPAND(tear_down_adhoc_storage));
+        srv.set_handler(EXPAND(register_pfs_storage));
+        srv.set_handler(EXPAND(update_pfs_storage));
+        srv.set_handler(EXPAND(remove_pfs_storage));
+        srv.set_handler(EXPAND(transfer_datasets));
 
 #undef EXPAND
 
-        return daemon.run();
+        return srv.run();
     } catch(const std::exception& ex) {
         fmt::print(stderr,
-                   "An unhandled exception reached the top of main(), "
-                   "{} will exit:\n  what():  {}\n",
-                   cfg.progname(), ex.what());
+                   "{}: error: an unhandled exception reached the top "
+                   "of main(), {} will exit:\n"
+                   "  what():  {}\n",
+                   progname, progname, ex.what());
         return EXIT_FAILURE;
     }
 }

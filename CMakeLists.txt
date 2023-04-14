@@ -220,29 +220,27 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(spdlog)
 set_target_properties(spdlog PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-### file_options: required for reading configuration files
-message(STATUS "[${PROJECT_NAME}] Downloading and building file_options")
+### rapidyaml: required for reading configuration files
+message(STATUS "[${PROJECT_NAME}] Downloading and building rapidyaml")
 FetchContent_Declare(
-  file_options
-  GIT_REPOSITORY https://storage.bsc.es/gitlab/utils/file_options
-  GIT_TAG bdb4f7f7f2dd731815241fc41afe6373df8f732a # v0.1.0-pre
+  ryml
+  GIT_REPOSITORY https://github.com/biojppm/rapidyaml.git
+  GIT_TAG b35ccb150282760cf5c2d316895cb86bd161ac89 #v0.5.0
+  GIT_SHALLOW OFF # ensure submodules are checked out
+)
+
+FetchContent_MakeAvailable(ryml)
+set_target_properties(ryml PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+### CLI11: used for parsing command-line options
+message(STATUS "[${PROJECT_NAME}] Searching for CLI11")
+FetchContent_Declare(cli11
+  GIT_REPOSITORY https://github.com/CLIUtils/CLI11
+  GIT_TAG 291c58789c031208f08f4f261a858b5b7083e8e2 # v2.3.2
   GIT_SHALLOW ON
   GIT_PROGRESS ON
 )
-
-FetchContent_MakeAvailable(file_options)
-
-### genopts: required for generating file_options schemas
-message(STATUS "[${PROJECT_NAME}] Downloading and building genopts")
-FetchContent_Declare(
-  genopts
-  GIT_REPOSITORY https://storage.bsc.es/gitlab/utils/genopts
-  GIT_TAG c456c2d8ec92f26d9074b123446261103e5c847c # v0.1.0-pre
-  GIT_SHALLOW ON
-  GIT_PROGRESS ON
-)
-
-FetchContent_MakeAvailable(genopts)
+FetchContent_MakeAvailable(cli11)
 
 ### expected: required for using tl::expected in the C++ library implementation
 ### until std::expected makes it to C++

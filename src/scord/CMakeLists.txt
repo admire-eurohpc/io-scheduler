@@ -25,8 +25,11 @@
 # scord daemon
 add_executable(scord)
 
-target_sources(scord PRIVATE scord.cpp rpc_handlers.hpp rpc_handlers.cpp
-  env.hpp job_manager.hpp adhoc_storage_manager.hpp pfs_storage_manager.hpp)
+target_sources(scord PRIVATE scord.cpp rpc_handlers.hpp
+  rpc_handlers.cpp job_manager.hpp adhoc_storage_manager.hpp
+  pfs_storage_manager.hpp ${CMAKE_CURRENT_BINARY_DIR}/defaults.hpp)
+
+configure_file(defaults.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/defaults.hpp @ONLY)
 
 target_include_directories(
   scord
@@ -36,16 +39,17 @@ target_include_directories(
 
 target_link_libraries(
   scord
-  PRIVATE common::config
-          common::logger
-          common::network::rpc_server
-          common::utils
-          common::abt_cxx
-          libscord_cxx_types
-          tl::expected
-          fmt::fmt
-          Boost::program_options
-          RedisPlusPlus::RedisPlusPlus
+  PRIVATE
+  common::logger
+  common::network::rpc_server
+  common::utils
+  common::abt_cxx
+  libscord_cxx_types
+  tl::expected
+  fmt::fmt
+  CLI11::CLI11
+  RedisPlusPlus::RedisPlusPlus
+  ryml::ryml
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

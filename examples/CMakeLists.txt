@@ -31,7 +31,6 @@ if(SCORD_BUILD_TESTS)
   file(MAKE_DIRECTORY ${TEST_DIRECTORY})
 
   set(TEST_ENV)
-  list(APPEND TEST_ENV SCORD_LOG=1)
   list(APPEND TEST_ENV SCORD_LOG_OUTPUT=${TEST_DIRECTORY}/scord_daemon.log)
 
   add_test(start_scord_daemon

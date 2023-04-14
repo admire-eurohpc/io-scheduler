@@ -26,7 +26,7 @@
 add_executable(scord-ctl)
 
 target_sources(
-  scord-ctl PRIVATE scord-ctl.cpp rpc_handlers.hpp rpc_handlers.cpp env.hpp
+  scord-ctl PRIVATE scord-ctl.cpp rpc_handlers.hpp rpc_handlers.cpp
 )
 
 target_include_directories(
@@ -36,8 +36,8 @@ target_include_directories(
 )
 
 target_link_libraries(
-  scord-ctl PRIVATE common::config common::logger common::network::rpc_server
-                    libscord_cxx_types fmt::fmt Boost::program_options
+  scord-ctl PRIVATE common::logger common::network::rpc_server
+                    libscord_cxx_types fmt::fmt CLI11::CLI11
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -28,8 +28,22 @@
 #include "logger.h"
 
 void
-logger_setup(const char* ident, const char* type, const char* log_file) {
-    scord::logger::create_global_logger(ident, type, log_file);
+logger_setup(const char* ident, logger_type type, const char* log_file) {
+    constexpr auto get_cxx_type = [](logger_type t) {
+        switch(t) {
+            case CONSOLE_LOGGER:
+                return scord::logger_type::console;
+            case CONSOLE_COLOR_LOGGER:
+                return scord::logger_type::console_color;
+            case FILE_LOGGER:
+                return scord::logger_type::file;
+            case SYSLOG_LOGGER:
+                return scord::logger_type::syslog;
+            default:
+                return scord::logger_type::console;
+        }
+    };
+    scord::logger::create_global_logger(ident, get_cxx_type(type), log_file);
 }
 
 void

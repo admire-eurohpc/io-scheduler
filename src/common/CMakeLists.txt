@@ -29,10 +29,6 @@ add_subdirectory(utils)
 target_include_directories(_utils INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(common::utils ALIAS _utils)
 
-add_subdirectory(config)
-target_include_directories(_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(common::config ALIAS _config)
-
 add_subdirectory(logger)
 target_include_directories(_logger INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(common::logger ALIAS _logger)

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -22,10 +22,18 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_CONFIG_HPP
-#define SCORD_CONFIG_HPP
 
-#include "defaults.hpp"
-#include "settings.hpp"
+#ifndef SCORD_DEFAULTS_HPP
+#define SCORD_DEFAULTS_HPP
 
-#endif /* SCORD_CONFIG_HPP */
+#include <filesystem>
+
+namespace scord::config::defaults {
+
+static constexpr bool daemonize{true};
+static const std::filesystem::path config_file{
+        "@CMAKE_INSTALL_FULL_SYSCONFDIR@/@CMAKE_PROJECT_NAME@.conf"};
+
+} // namespace scord::config::defaults
+
+#endif // SCORD_DEFAULTS_HPP

@@ -30,8 +30,10 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/syslog_sink.h>
 #include <fmt/ostream.h>
 #include <filesystem>
+#include <optional>
 #include <sstream>
 
 #include "macros.h"
@@ -50,36 +52,74 @@ namespace fs = std::filesystem;
 
 namespace scord {
 
+enum logger_type {
+    console,
+    console_color,
+    file,
+    syslog,
+};
+
+class logger_config {
+
+public:
+    logger_config() = default;
+
+    explicit logger_config(std::string ident, scord::logger_type type,
+                           std::optional<fs::path> log_file = {})
+        : m_ident(std::move(ident)), m_type(type),
+          m_log_file(std::move(log_file)) {}
+
+    const std::string&
+    ident() const {
+        return m_ident;
+    }
+
+    scord::logger_type
+    type() const {
+        return m_type;
+    }
+
+    const std::optional<fs::path>&
+    log_file() const {
+        return m_log_file;
+    }
+
+private:
+    std::string m_ident;
+    scord::logger_type m_type = console_color;
+    std::optional<fs::path> m_log_file;
+};
 
 class logger {
 
 public:
-    logger(const std::string& ident, const std::string& type,
+    logger(const std::string& ident, logger_type type,
            const fs::path& log_file = "") {
 
         try {
 
-            if(type == "console") {
-                m_internal_logger =
-                        spdlog::stdout_logger_mt<spdlog::async_factory>(ident);
-            } else if(type == "console color") {
-                m_internal_logger =
-                        spdlog::stdout_color_mt<spdlog::async_factory>(ident);
-            } else if(type == "file") {
-                m_internal_logger =
-                        spdlog::basic_logger_mt<spdlog::async_factory>(
-                                ident, log_file.string(), true);
-
-            }
-#ifdef SPDLOG_ENABLE_SYSLOG
-            else if(type == "syslog") {
-                m_internal_logger =
-                        spdlog::syslog_logger("syslog", ident, LOG_PID);
-            }
-#endif
-            else {
-                throw std::invalid_argument("Unknown logger type: '" + type +
-                                            "'");
+            switch(type) {
+                case console:
+                    m_internal_logger =
+                            spdlog::stdout_logger_mt<spdlog::async_factory>(
+                                    ident);
+                    break;
+                case console_color:
+                    m_internal_logger =
+                            spdlog::stdout_color_mt<spdlog::async_factory>(
+                                    ident);
+                    break;
+                case file:
+                    m_internal_logger =
+                            spdlog::basic_logger_mt<spdlog::async_factory>(
+                                    ident, log_file.string(), true);
+                    break;
+                case syslog:
+                    m_internal_logger =
+                            spdlog::syslog_logger_mt("syslog", ident, LOG_PID);
+                    break;
+                default:
+                    throw std::invalid_argument("Unknown logger type");
             }
 
             assert(m_internal_logger != nullptr);
@@ -122,7 +162,7 @@ public:
     operator=(logger&& /*other*/) = default;
 
     ~logger() {
-        spdlog::drop_all();
+        spdlog::shutdown();
     }
 
     // the following static functions can be used to interact

@@ -33,6 +33,12 @@ extern "C" {
 
 #define LOGGER_MSG_MAX_LEN 2048
 
+enum logger_type {
+    CONSOLE_LOGGER,
+    CONSOLE_COLOR_LOGGER,
+    FILE_LOGGER,
+    SYSLOG_LOGGER
+};
 enum logger_level { info, debug, warn, error, critical };
 
 /**
@@ -48,7 +54,7 @@ enum logger_level { info, debug, warn, error, critical };
  * @param log_file The path to the log file where messages should be written.
  */
 void
-setup_logger(const char* ident, const char* type, const char* log_file);
+setup_logger(const char* ident, enum logger_type type, const char* log_file);
 
 /**
  * Emit a message.

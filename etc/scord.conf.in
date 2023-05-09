@@ -1,26 +1,13 @@
 ## vim: set filetype=yaml:
 
 ## global service settings
-global_settings: [
-
-  # if true, dump log messages to syslog
-  use_syslog: false,
+global_settings:
 
   # log file
-  log_file: "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/@CMAKE_PROJECT_NAME@/@CMAKE_PROJECT_NAME@.log",
+  logfile: "@CMAKE_INSTALL_FULL_LOCALSTATEDIR@/@CMAKE_PROJECT_NAME@/@CMAKE_PROJECT_NAME@.log"
 
   # path to pidfile
-  pidfile: "@CMAKE_INSTALL_FULL_RUNSTATEDIR@/@CMAKE_PROJECT_NAME@/@CMAKE_PROJECT_NAME@.pid",
-
-  # transport protocol used for communication
-  transport_protocol: "@SCORD_TRANSPORT_PROTOCOL@",
+  rundir: "@CMAKE_INSTALL_FULL_RUNSTATEDIR@/@CMAKE_PROJECT_NAME@"
 
   # address to bind to
-  bind_address: "@SCORD_BIND_ADDRESS@",
-
-  # incoming port for remote connections
-  remote_port: @SCORD_BIND_PORT@,
-
-  # number of worker threads to serve I/O requests
-  workers: 4,
-]
+  address: "@SCORD_TRANSPORT_PROTOCOL@://@SCORD_BIND_ADDRESS@:@SCORD_BIND_PORT@"

@@ -127,7 +127,6 @@ and need to be available in the system:
 8.0/6.0 or later.
 - [CMake](https://cmake.org) 3.19 or later.
 - pkg-config 0.29.1 (earlier versions will probably work but haven't been tested).
-- [yaml-cpp](https://github.com/jbeder/yaml-cpp) version 0.6.2 and later.
 - [Margo](https://github.com/mochi-hpc/mochi-margo) version 0.9.8 and later, and its dependencies:
   - [Argobots](https://github.com/pmodels/argobots) version 1.1 or later.
   - [Mercury](https://github.com/mercury-hpc/mercury) version 2.0.1 or later.
@@ -150,8 +149,7 @@ build process.
 - [spdlog](https://github.com/gabime/spdlog) version 1.9.2 or later.
 - [Catch2](https://github.com/catchorg/Catch2) version 3.0.1 or later.
 - [tl/expected](https://github.com/TartanLlama/expected).
-- [file_options](https://storage.bsc.es/gitlab/utils/file_options).
-- [gen_opts](https://storage.bsc.es/gitlab/utils/genopts).
+- [Rapid YAML](https://github.com/biojppm/rapidyaml) version 0.5.0 and later.
 
 > **ℹ️** **Important**  
 Margo and Argobots use `pkg-config` to ensure they compile and link correctly

@@ -37,7 +37,6 @@
 #include <sys/prctl.h>
 #endif
 
-#include <config/settings.hpp>
 #include <logger/logger.hpp>
 #include <utils/signal_listener.hpp>
 #include "server.hpp"
@@ -45,6 +44,15 @@
 using namespace std::literals;
 
 namespace scord::network {
+
+server::server(std::string name, std::string address, bool daemonize,
+               fs::path rundir)
+    : m_name(std::move(name)), m_address(std::move(address)),
+      m_daemonize(daemonize), m_rundir(std::move(rundir)),
+      m_pidfile(daemonize ? std::make_optional(m_rundir / (m_name + ".pid"))
+                          : std::nullopt),
+      m_logger_config(m_name, scord::logger_type::console_color),
+      m_network_engine(m_address, THALLIUM_SERVER_MODE) {}
 
 server::~server() = default;
 
@@ -63,6 +71,7 @@ server::daemonize() {
      *  Manage signals
      */
 
+    using fork_event = scord::utils::signal_listener::fork_event;
     pid_t pid, sid;
 
     /* Check if this is already a daemon */
@@ -81,6 +90,7 @@ server::daemonize() {
     logger::destroy_global_logger();
 
     /* Fork off the parent process */
+    m_signal_listener.notify_fork(fork_event::fork_prepare);
     pid = fork();
 
     // re-initialize logging facilities (post-fork)
@@ -93,8 +103,11 @@ server::daemonize() {
 
     /* Parent returns to caller */
     if(pid != 0) {
+        m_signal_listener.notify_fork(fork_event::fork_parent);
         return pid;
     }
+
+    m_signal_listener.notify_fork(fork_event::fork_child);
 
     /* Become a session and process group leader with no controlling tty */
     if((sid = setsid()) < 0) {
@@ -142,7 +155,12 @@ server::daemonize() {
      */
     int pfd;
 
-    if((pfd = ::open(m_settings.pidfile().c_str(), O_RDWR | O_CREAT, 0640)) ==
+    if(!m_pidfile.has_value()) {
+        LOGGER_ERROR("Daemon lock file not specified");
+        exit(EXIT_FAILURE);
+    }
+
+    if((pfd = ::open(m_pidfile->string().c_str(), O_RDWR | O_CREAT, 0640)) ==
        -1) {
         LOGGER_ERRNO("Failed to create daemon lock file");
         exit(EXIT_FAILURE);
@@ -177,11 +195,6 @@ server::daemonize() {
     return 0;
 }
 
-config::settings
-server::get_configuration() const {
-    return m_settings;
-}
-
 void
 server::signal_handler(int signum) {
 
@@ -199,6 +212,7 @@ server::signal_handler(int signum) {
 
         case SIGHUP:
             LOGGER_WARN("A signal (SIGHUP) occurred.");
+            logger::get_global_logger()->flush();
             break;
 
         default:
@@ -209,29 +223,28 @@ server::signal_handler(int signum) {
 void
 server::init_logger() {
 
-    if(m_settings.use_console()) {
-        logger::create_global_logger(m_settings.progname(), "console color");
-        return;
+    switch(m_logger_config.type()) {
+        case console_color:
+            logger::create_global_logger(m_logger_config.ident(),
+                                         logger_type::console_color);
+            break;
+        case syslog:
+            logger::create_global_logger(m_logger_config.ident(),
+                                         logger_type::syslog);
+            break;
+        case file:
+            if(m_logger_config.log_file().has_value()) {
+                logger::create_global_logger(m_logger_config.ident(),
+                                             logger_type::file,
+                                             *m_logger_config.log_file());
+                break;
+            }
+            [[fallthrough]];
+        case console:
+            logger::create_global_logger(m_logger_config.ident(),
+                                         logger_type::console);
+            break;
     }
-
-    if(m_settings.use_syslog()) {
-        logger::create_global_logger(m_settings.progname(), "syslog");
-
-        if(!m_settings.daemonize()) {
-            fmt::print(stderr, "PSA: Output sent to syslog while in "
-                               "non-daemon mode\n");
-        }
-
-        return;
-    }
-
-    if(!m_settings.log_file().empty()) {
-        logger::create_global_logger(m_settings.progname(), "file",
-                                     m_settings.log_file());
-        return;
-    }
-
-    logger::create_global_logger(m_settings.progname(), "console color");
 }
 
 void
@@ -253,8 +266,8 @@ server::check_configuration() {}
 
 void
 server::print_greeting() {
-    const auto greeting = fmt::format("Starting {} daemon (pid {})",
-                                      m_settings.progname(), getpid());
+    const auto greeting =
+            fmt::format("Starting {} daemon (pid {})", m_name, getpid());
 
     LOGGER_INFO("{:=>{}}", "", greeting.size());
     LOGGER_INFO(greeting);
@@ -265,27 +278,24 @@ void
 server::print_configuration() {
     LOGGER_INFO("");
     LOGGER_INFO("[[ Configuration ]]");
-    LOGGER_INFO("  - running as daemon?: {}",
-                (m_settings.daemonize() ? "yes" : "no"));
+    LOGGER_INFO("  - running as daemon?: {}", m_daemonize ? "yes" : "no");
 
-    if(!m_settings.log_file().empty()) {
-        LOGGER_INFO("  - log file: {}", m_settings.log_file());
-        LOGGER_INFO("  - log file maximum size: {}",
-                    m_settings.log_file_max_size());
-    } else {
-        LOGGER_INFO("  - log file: none");
+    if(m_logger_config.log_file().has_value()) {
+        LOGGER_INFO("  - log file: {}", *m_logger_config.log_file());
     }
 
-    LOGGER_INFO("  - pidfile: {}", m_settings.pidfile());
-    LOGGER_INFO("  - port for remote requests: {}", m_settings.remote_port());
-    LOGGER_INFO("  - workers: {}", m_settings.workers_in_pool());
+    if(m_pidfile.has_value()) {
+        LOGGER_INFO("  - pidfile: {}", *m_pidfile);
+    }
+
+    LOGGER_INFO("  - address for remote requests: {}", m_address);
     LOGGER_INFO("");
 }
 
 void
 server::print_farewell() {
-    const auto farewell = fmt::format("Stopping {} daemon (pid {})",
-                                      m_settings.progname(), getpid());
+    const auto farewell =
+            fmt::format("Stopping {} daemon (pid {})", m_name, getpid());
 
     LOGGER_INFO("{:=>{}}", "", farewell.size());
     LOGGER_INFO(farewell);
@@ -309,9 +319,9 @@ server::run() {
 #endif
 
     // daemonize if needed
-    if(m_settings.daemonize() && daemonize() != 0) {
-        /* parent clean ups and exits, child continues */
-        teardown();
+    if(m_daemonize && daemonize() != 0) {
+        /* parent exits, child continues */
+        shutdown();
         return EXIT_SUCCESS;
     }
 
@@ -345,11 +355,16 @@ server::teardown() {
     LOGGER_INFO("* Stopping signal listener...");
     m_signal_listener.stop();
 
+    if(!m_daemonize || !m_pidfile) {
+        return;
+    }
+
+    LOGGER_INFO("* Removing pidfile...");
     std::error_code ec;
-    fs::remove(m_settings.pidfile(), ec);
+    fs::remove(*m_pidfile, ec);
 
     if(ec) {
-        LOGGER_ERROR("Failed to remove pidfile {}: {}", m_settings.pidfile(),
+        LOGGER_ERROR("Failed to remove pidfile {}: {}", *m_pidfile,
                      ec.message());
     }
 }

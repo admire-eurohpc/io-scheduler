@@ -29,7 +29,7 @@ target_sources(
   PRIVATE endpoint.cpp client.cpp
 )
 
-target_link_libraries(_rpc_client PUBLIC common::config common::logger thallium)
+target_link_libraries(_rpc_client PUBLIC common::logger thallium)
 set_property(TARGET _rpc_client PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_library(_rpc_server STATIC)
@@ -39,4 +39,4 @@ target_sources(
   PRIVATE server.cpp
 )
 
-target_link_libraries(_rpc_server PUBLIC common::config common::logger thallium)
+target_link_libraries(_rpc_server PUBLIC common::logger thallium)

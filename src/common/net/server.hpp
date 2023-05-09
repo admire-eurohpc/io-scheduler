@@ -25,7 +25,9 @@
 #ifndef SCORD_SERVER_HPP
 #define SCORD_SERVER_HPP
 
-#include <config/settings.hpp>
+#include <optional>
+#include <logger/logger.hpp>
+#include <utility>
 #include <utils/signal_listener.hpp>
 #include <thallium.hpp>
 #include <thallium/serialization/stl/string.hpp>
@@ -38,27 +40,18 @@ using request = thallium::request;
 class server {
 
 public:
-    template <typename... Handlers>
-    explicit server(config::settings cfg, Handlers&&... handlers)
-        : m_settings(std::move(cfg)) {
-
-        using namespace std::literals;
-
-        const std::string thallim_address =
-                m_settings.transport_protocol() + "://"s +
-                m_settings.bind_address() + ":"s +
-                std::to_string(m_settings.remote_port());
-
-        m_network_engine =
-                thallium::engine(thallim_address, THALLIUM_SERVER_MODE);
-
-        (set_handler(std::forward<Handlers>(handlers)), ...);
-    }
+    server(std::string name, std::string address, bool daemonize,
+           fs::path rundir);
 
     ~server();
 
-    config::settings
-    get_configuration() const;
+    template <typename... Args>
+    void
+    configure_logger(scord::logger_type type, Args&&... args) {
+        m_logger_config =
+                logger_config(m_name, type, std::forward<Args>(args)...);
+    }
+
     int
     run();
     void
@@ -95,7 +88,12 @@ private:
     print_farewell();
 
 private:
-    scord::config::settings m_settings;
+    std::string m_name;
+    std::string m_address;
+    bool m_daemonize;
+    fs::path m_rundir;
+    std::optional<fs::path> m_pidfile;
+    logger_config m_logger_config;
     thallium::engine m_network_engine;
     scord::utils::signal_listener m_signal_listener;
 };

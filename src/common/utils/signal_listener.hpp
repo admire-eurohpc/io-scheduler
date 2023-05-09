@@ -42,6 +42,8 @@ namespace ba = boost::asio;
 
 struct signal_listener {
 
+    using fork_event = ba::execution_context::fork_event;
+
     using SignalHandlerType = std::function<void(int)>;
 
     signal_listener() : m_ios(), m_signals(m_ios) {}
@@ -78,6 +80,11 @@ struct signal_listener {
             do_accept();
             m_ios.run();
         }).detach();
+    }
+
+    void
+    notify_fork(signal_listener::fork_event event) {
+        m_ios.notify_fork(event);
     }
 
     void

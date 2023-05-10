@@ -34,7 +34,7 @@ struct remote_procedure {
     }
 };
 
-namespace scord::network::handlers {
+namespace scord_ctl::network::handlers {
 
 void
 ping(const scord::network::request& req) {
@@ -59,4 +59,4 @@ ping(const scord::network::request& req) {
     req.respond(resp);
 }
 
-} // namespace scord::network::handlers
+} // namespace scord_ctl::network::handlers

@@ -85,7 +85,8 @@ main(int argc, char* argv[]) {
 
 // convenience macro to ensure the names of an RPC and its handler
 // always match
-#define EXPAND(rpc_name) "ADM_" #rpc_name##s, scord::network::handlers::rpc_name
+#define EXPAND(rpc_name)                                                       \
+    "ADM_" #rpc_name##s, scord_ctl::network::handlers::rpc_name
 
         srv.set_handler(EXPAND(ping));
 

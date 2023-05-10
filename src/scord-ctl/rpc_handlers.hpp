@@ -29,11 +29,11 @@
 #include <net/serialization.hpp>
 #include <scord/types.hpp>
 
-namespace scord::network::handlers {
+namespace scord_ctl::network::handlers {
 
 void
 ping(const scord::network::request& req);
 
-} // namespace scord::network::handlers
+} // namespace scord_ctl::network::handlers
 
 #endif // SCORD_CTL_RPC_HANDLERS_HPP

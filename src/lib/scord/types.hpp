@@ -96,7 +96,7 @@ struct error_code {
     template <typename Archive>
     void
     serialize(Archive&& ar) {
-        ar& m_value;
+        ar & m_value;
     }
 
 private:
@@ -212,7 +212,7 @@ struct adhoc_storage {
         template <typename Archive>
         void
         serialize(Archive&& ar) {
-            ar& m_nodes;
+            ar & m_nodes;
         }
 
     private:
@@ -243,10 +243,10 @@ struct adhoc_storage {
         template <class Archive>
         void
         serialize(Archive&& ar) {
-            ar& m_exec_mode;
-            ar& m_access_type;
-            ar& m_walltime;
-            ar& m_should_flush;
+            ar & m_exec_mode;
+            ar & m_access_type;
+            ar & m_walltime;
+            ar & m_should_flush;
         }
 
     private:
@@ -326,7 +326,7 @@ struct pfs_storage {
         template <class Archive>
         void
         serialize(Archive&& ar) {
-            ar& m_mount_point;
+            ar & m_mount_point;
         }
 
     private:
@@ -388,7 +388,7 @@ struct job {
         template <typename Archive>
         void
         serialize(Archive&& ar) {
-            ar& m_nodes;
+            ar & m_nodes;
         }
 
     private:
@@ -417,9 +417,9 @@ struct job {
         template <class Archive>
         void
         serialize(Archive& ar) {
-            ar& m_inputs;
-            ar& m_outputs;
-            ar& m_adhoc_storage;
+            ar & m_inputs;
+            ar & m_outputs;
+            ar & m_adhoc_storage;
         }
 
     private:

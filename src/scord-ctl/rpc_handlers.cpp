@@ -24,6 +24,7 @@
 
 #include <logger/logger.hpp>
 #include <net/request.hpp>
+#include <net/client.hpp>
 #include "rpc_handlers.hpp"
 
 struct remote_procedure {
@@ -38,6 +39,29 @@ namespace scord_ctl::network::handlers {
 
 void
 ping(const scord::network::request& req) {
+
+    using scord::network::generic_response;
+    using scord::network::get_address;
+
+    const auto rpc_id = remote_procedure::new_id();
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{}}",
+                rpc_id, std::quoted(__FUNCTION__),
+                std::quoted(get_address(req)));
+
+    const auto resp = generic_response{rpc_id, scord::error_code::success};
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                rpc_id, std::quoted(__FUNCTION__),
+                std::quoted(get_address(req)), scord::error_code::success);
+
+    req.respond(resp);
+}
+
+void
+deploy_adhoc_storage(const scord::network::request& req) {
 
     using scord::network::generic_response;
     using scord::network::get_address;

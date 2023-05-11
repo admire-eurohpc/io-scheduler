@@ -34,6 +34,9 @@ namespace scord_ctl::network::handlers {
 void
 ping(const scord::network::request& req);
 
+void
+deploy_adhoc_storage(const scord::network::request& req);
+
 } // namespace scord_ctl::network::handlers
 
 #endif // SCORD_CTL_RPC_HANDLERS_HPP

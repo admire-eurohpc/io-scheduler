@@ -287,7 +287,9 @@ job::resources::resources(ADM_job_resources_t res) {
     m_nodes.reserve(res->r_nodes->l_length);
 
     for(size_t i = 0; i < res->r_nodes->l_length; ++i) {
-        m_nodes.emplace_back(res->r_nodes->l_nodes[i].n_hostname);
+        m_nodes.emplace_back(res->r_nodes->l_nodes[i].n_hostname,
+                             static_cast<scord::node::type>(
+                                     res->r_nodes->l_nodes[i].n_type));
     }
 }
 

@@ -101,6 +101,10 @@ register_job(const scord::network::request& req,
             const auto adhoc_id = job_requirements.adhoc_storage()->id();
             auto& adhoc_manager = scord::adhoc_storage_manager::instance();
             ec = adhoc_manager.add_client_info(adhoc_id, job_info);
+
+            if(!ec) {
+                goto respond;
+            }
         }
 
         job_id = job_info->job().id();
@@ -110,6 +114,7 @@ register_job(const scord::network::request& req,
         ec = jm_result.error();
     }
 
+respond:
     const auto resp = response_with_id{rpc_id, ec, job_id};
 
     LOGGER_INFO("rpc id: {} name: {} to: {} <= "

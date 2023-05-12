@@ -658,6 +658,7 @@ public:
         ar(SCORD_SERIALIZATION_NVP(m_name));
         ar(SCORD_SERIALIZATION_NVP(m_id));
         ar(SCORD_SERIALIZATION_NVP(m_ctx));
+        ar(SCORD_SERIALIZATION_NVP(m_resources));
     }
 
     template <class Archive>
@@ -667,6 +668,7 @@ public:
         ar(SCORD_SERIALIZATION_NVP(m_name));
         ar(SCORD_SERIALIZATION_NVP(m_id));
         ar(SCORD_SERIALIZATION_NVP(m_ctx));
+        ar(SCORD_SERIALIZATION_NVP(m_resources));
     }
 
 

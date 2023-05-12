@@ -233,8 +233,6 @@ struct adhoc_storage {
         exec_mode() const;
         enum access_type
         access_type() const;
-        adhoc_storage::resources
-        resources() const;
         std::uint32_t
         walltime() const;
         bool
@@ -257,10 +255,6 @@ struct adhoc_storage {
     };
 
     adhoc_storage();
-    adhoc_storage(enum adhoc_storage::type type, std::string name,
-                  std::uint64_t id, execution_mode exec_mode,
-                  access_type access_type, adhoc_storage::resources res,
-                  std::uint32_t walltime, bool should_flush);
     explicit adhoc_storage(ADM_adhoc_storage_t storage);
     explicit operator ADM_adhoc_storage_t() const;
     adhoc_storage(enum adhoc_storage::type type, std::string name,

@@ -682,16 +682,6 @@ private:
 
 adhoc_storage::adhoc_storage() = default;
 
-adhoc_storage::adhoc_storage(enum adhoc_storage::type type, std::string name,
-                             std::uint64_t id, execution_mode exec_mode,
-                             access_type access_type,
-                             struct adhoc_storage::resources res,
-                             std::uint32_t walltime, bool should_flush)
-    : m_pimpl(std::make_unique<impl>(type, std::move(name), id,
-                                     adhoc_storage::ctx{exec_mode, access_type,
-                                                        walltime, should_flush},
-                                     std::move(res))) {}
-
 adhoc_storage::adhoc_storage(ADM_adhoc_storage_t st)
     : m_pimpl(std::make_unique<impl>(
               static_cast<enum adhoc_storage::type>(st->s_type), st->s_name,

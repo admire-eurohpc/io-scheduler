@@ -1,5 +1,33 @@
 #include "common.hpp"
 
+using std::string_literals::operator""s;
+
+cli_args
+process_args(int argc, char* argv[], const test_info& test_info) {
+
+    int required_args = 1;
+
+    if(test_info.requires_server) {
+        ++required_args;
+    }
+
+    if(test_info.requires_controller) {
+        ++required_args;
+    }
+
+    if(argc != required_args) {
+        fmt::print(stderr, "ERROR: missing arguments\n");
+        fmt::print(stderr, "Usage: {}{}{}\n", test_info.name,
+                   test_info.requires_server ? " <SERVER_ADDRESS>" : "",
+                   test_info.requires_controller ? " <CONTROLLER_ADDRESS>"
+                                                 : "");
+        exit(EXIT_FAILURE);
+    }
+
+    return cli_args{test_info.requires_server ? std::string{argv[1]} : ""s,
+                    test_info.requires_controller ? std::string{argv[2]} : ""s};
+}
+
 std::vector<scord::node>
 prepare_nodes(size_t n) {
     std::vector<scord::node> nodes;

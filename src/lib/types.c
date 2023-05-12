@@ -657,9 +657,14 @@ ADM_data_operation_destroy(ADM_data_operation_t op) {
 }
 
 ADM_adhoc_context_t
-ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,
+ADM_adhoc_context_create(const char* ctl_address, ADM_adhoc_mode_t exec_mode,
                          ADM_adhoc_access_t access_type, uint32_t walltime,
                          bool should_flush) {
+
+    if(!ctl_address) {
+        LOGGER_ERROR("The address to the controller cannot be NULL");
+        return NULL;
+    }
 
     struct adm_adhoc_context* adm_adhoc_context =
             (struct adm_adhoc_context*) malloc(sizeof(*adm_adhoc_context));
@@ -668,6 +673,12 @@ ADM_adhoc_context_create(ADM_adhoc_mode_t exec_mode,
         LOGGER_ERROR("Could not allocate ADM_adhoc_context_t");
         return NULL;
     }
+
+
+    size_t n = strlen(ctl_address);
+    adm_adhoc_context->c_ctl_address =
+            (const char*) calloc(n + 1, sizeof(char));
+    strcpy((char*) adm_adhoc_context->c_ctl_address, ctl_address);
 
     adm_adhoc_context->c_mode = exec_mode;
     adm_adhoc_context->c_access = access_type;

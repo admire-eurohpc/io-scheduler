@@ -2,7 +2,36 @@
 #define SCORD_COMMON_H
 
 #include <stdio.h>
+#include <string.h>
 #include "common.h"
+
+int
+process_args(int argc, char* argv[], test_info_t test_info, cli_args_t* args) {
+
+    int required_args = 1;
+
+    if(test_info.requires_server) {
+        ++required_args;
+    }
+
+    if(test_info.requires_controller) {
+        ++required_args;
+    }
+
+    if(argc != required_args) {
+        fprintf(stderr, "ERROR: missing arguments\n");
+        fprintf(stderr, "Usage: %s%s%s\n", test_info.name,
+                test_info.requires_server ? " <SERVER_ADDRESS>" : "",
+                test_info.requires_controller ? " <CONTROLLER_ADDRESS>" : "");
+        return -1;
+    }
+
+    args->server_address = test_info.requires_server ? argv[1] : NULL;
+    args->controller_address = test_info.requires_controller ? argv[2] : NULL;
+
+    return 0;
+}
+
 
 ADM_node_t*
 prepare_nodes(size_t n) {

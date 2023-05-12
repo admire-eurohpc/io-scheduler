@@ -3,6 +3,24 @@
 
 #include <scord/types.h>
 
+#define TESTNAME                                                               \
+    (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1   \
+                                      : __FILE__)
+
+typedef struct {
+    const char* name;
+    bool requires_server;
+    bool requires_controller;
+} test_info_t;
+
+typedef struct {
+    const char* server_address;
+    const char* controller_address;
+} cli_args_t;
+
+int
+process_args(int argc, char* argv[], test_info_t test_info, cli_args_t* args);
+
 ADM_node_t*
 prepare_nodes(size_t n);
 

@@ -22,16 +22,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-list(APPEND examples_cxx
-  # ping
-  ADM_ping
+list(APPEND cxx_examples_with_controller
   # job
   ADM_register_job ADM_update_job ADM_remove_job
   # adhoc storage
   ADM_register_adhoc_storage ADM_update_adhoc_storage ADM_remove_adhoc_storage
   ADM_deploy_adhoc_storage ADM_tear_down_adhoc_storage
-  # pfs storage
-  ADM_register_pfs_storage ADM_update_pfs_storage ADM_remove_pfs_storage
   # transfers
   ADM_transfer_datasets ADM_get_transfer_priority ADM_set_transfer_priority
   ADM_cancel_transfer ADM_get_pending_transfers
@@ -45,11 +41,18 @@ list(APPEND examples_cxx
   ADM_get_statistics ADM_set_dataset_information ADM_set_io_resources
   )
 
+list(APPEND cxx_examples_without_controller
+  # ping
+  ADM_ping
+  # pfs storage
+  ADM_register_pfs_storage ADM_update_pfs_storage ADM_remove_pfs_storage
+  )
+
 add_library(cxx_examples_common STATIC)
 target_sources(cxx_examples_common PUBLIC common.hpp PRIVATE common.cpp)
 target_link_libraries(cxx_examples_common libscord_cxx_types)
 
-foreach(example IN LISTS examples_cxx)
+foreach(example IN LISTS cxx_examples_with_controller cxx_examples_without_controller)
   add_executable(${example}_cxx)
   target_sources(${example}_cxx PRIVATE ${example}.cpp)
   target_link_libraries(${example}_cxx
@@ -57,10 +60,8 @@ foreach(example IN LISTS examples_cxx)
   set_target_properties(${example}_cxx PROPERTIES OUTPUT_NAME ${example})
 endforeach()
 
-set(CXX_TEST_ID 0)
-
 if(SCORD_BUILD_TESTS)
-  foreach(example IN LISTS examples_cxx)
+  foreach(example IN LISTS cxx_examples_with_controller)
 
     # prepare environment for the RPC test itself and its validation test
     set(TEST_NAME "${example}_cxx_test")
@@ -72,11 +73,38 @@ if(SCORD_BUILD_TESTS)
     list(APPEND TEST_ENV LIBSCORD_LOG_OUTPUT=${TEST_DIRECTORY}/libscord.log)
 
     add_test(run_${TEST_NAME} ${example}
-      ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
+      ${SCORD_ADDRESS_STRING}
+      ${SCORD_CTL_ADDRESS_STRING})
+    set_tests_properties(run_${TEST_NAME}
+      PROPERTIES FIXTURES_REQUIRED "scord_daemon;scord_ctl"
+      ENVIRONMENT "${TEST_ENV}")
+
+    add_test(validate_${TEST_NAME}
+      ${CMAKE_SOURCE_DIR}/ci/check_rpcs.py
+      ${TEST_DIRECTORY}/libscord.log
+      ${SCORD_TESTS_DIRECTORY}/scord_daemon/scord_daemon.log
+      ${example}
+      )
+    set_tests_properties(validate_${TEST_NAME}
+      PROPERTIES DEPENDS stop_scord_daemon
+      )
+  endforeach()
+
+  foreach(example IN LISTS cxx_examples_without_controller)
+
+    # prepare environment for the RPC test itself and its validation test
+    set(TEST_NAME "${example}_cxx_test")
+    set(TEST_DIRECTORY "${SCORD_TESTS_DIRECTORY}/${TEST_NAME}")
+    file(MAKE_DIRECTORY ${TEST_DIRECTORY})
+
+    set(TEST_ENV)
+    list(APPEND TEST_ENV LIBSCORD_LOG=1)
+    list(APPEND TEST_ENV LIBSCORD_LOG_OUTPUT=${TEST_DIRECTORY}/libscord.log)
+
+    add_test(run_${TEST_NAME} ${example} ${SCORD_ADDRESS_STRING})
     set_tests_properties(run_${TEST_NAME}
       PROPERTIES FIXTURES_REQUIRED scord_daemon
-      ENVIRONMENT "${TEST_ENV}"
-      )
+      ENVIRONMENT "${TEST_ENV}")
 
     add_test(validate_${TEST_NAME}
       ${CMAKE_SOURCE_DIR}/ci/check_rpcs.py

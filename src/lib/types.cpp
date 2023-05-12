@@ -561,22 +561,31 @@ adhoc_storage::resources::nodes() const {
     return m_nodes;
 }
 
-adhoc_storage::ctx::ctx(adhoc_storage::execution_mode exec_mode,
+adhoc_storage::ctx::ctx(std::string controller_address,
+                        adhoc_storage::execution_mode exec_mode,
                         adhoc_storage::access_type access_type,
                         std::uint32_t walltime, bool should_flush)
-    : m_exec_mode(exec_mode), m_access_type(access_type), m_walltime(walltime),
+    : m_controller_address(std::move(controller_address)),
+      m_exec_mode(exec_mode), m_access_type(access_type), m_walltime(walltime),
       m_should_flush(should_flush) {}
 
 adhoc_storage::ctx::ctx(ADM_adhoc_context_t ctx)
-    : adhoc_storage::ctx(static_cast<execution_mode>(ctx->c_mode),
+    : adhoc_storage::ctx(ctx->c_ctl_address,
+                         static_cast<execution_mode>(ctx->c_mode),
                          static_cast<enum access_type>(ctx->c_access),
                          ctx->c_walltime, ctx->c_should_bg_flush) {}
 
 adhoc_storage::ctx::operator ADM_adhoc_context_t() const {
     return ADM_adhoc_context_create(
+            m_controller_address.c_str(),
             static_cast<ADM_adhoc_mode_t>(m_exec_mode),
             static_cast<ADM_adhoc_access_t>(m_access_type), m_walltime,
             m_should_flush);
+}
+
+std::string
+adhoc_storage::ctx::controller_address() const {
+    return m_controller_address;
 }
 
 adhoc_storage::execution_mode

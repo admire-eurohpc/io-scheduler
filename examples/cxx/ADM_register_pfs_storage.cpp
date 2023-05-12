@@ -24,19 +24,21 @@
 
 #include <fmt/format.h>
 #include <scord/scord.hpp>
+#include "common.hpp"
 
 
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 2) {
-        fmt::print(stderr, "ERROR: no server address provided\n");
-        fmt::print(stderr,
-                   "Usage: ADM_register_pfs_storage <SERVER_ADDRESS>\n");
-        exit(EXIT_FAILURE);
-    }
+    test_info test_info{
+            .name = TESTNAME,
+            .requires_server = true,
+            .requires_controller = false,
+    };
 
-    scord::server server{"tcp", argv[1]};
+    const auto cli_args = process_args(argc, argv, test_info);
+
+    scord::server server{"tcp", cli_args.server_address};
 
     std::string pfs_name = "gpfs_scratch";
     std::string pfs_mount = "/gpfs/scratch";

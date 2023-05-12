@@ -34,13 +34,15 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 2) {
-        fmt::print(stderr, "ERROR: no server address provided\n");
-        fmt::print(stderr, "Usage: ADM_update_job <SERVER_ADDRESS>\n");
-        exit(EXIT_FAILURE);
-    }
+    test_info test_info{
+            .name = TESTNAME,
+            .requires_server = true,
+            .requires_controller = true,
+    };
 
-    scord::server server{"tcp", argv[1]};
+    const auto cli_args = process_args(argc, argv, test_info);
+
+    scord::server server{"tcp", cli_args.server_address};
 
     const auto job_nodes = prepare_nodes(NJOB_NODES);
     const auto new_job_nodes = prepare_nodes(NJOB_NODES * 2);
@@ -51,6 +53,7 @@ main(int argc, char* argv[]) {
     const auto gkfs_storage = scord::register_adhoc_storage(
             server, "foobar", scord::adhoc_storage::type::gekkofs,
             scord::adhoc_storage::ctx{
+                    cli_args.controller_address,
                     scord::adhoc_storage::execution_mode::separate_new,
                     scord::adhoc_storage::access_type::read_write, 100, false},
             scord::adhoc_storage::resources{adhoc_nodes});

@@ -165,6 +165,12 @@ public:
         spdlog::shutdown();
     }
 
+    static std::shared_ptr<logger>&
+    get_global_logger() {
+        static std::shared_ptr<logger> s_global_logger;
+        return s_global_logger;
+    }
+
     // the following member functions can be used to interact
     // with a specific logger instance
     inline void
@@ -291,26 +297,27 @@ private:
 // the following static functions can be used to interact
 // with a globally registered logger instance
 
-static inline std::shared_ptr<logger>&
-get_global_logger() {
-    static std::shared_ptr<logger> s_global_logger;
-    return s_global_logger;
-}
-
 template <typename... Args>
 static inline void
 create_global_logger(Args&&... args) {
-    get_global_logger() = std::make_shared<logger>(args...);
+    logger::get_global_logger() = std::make_shared<logger>(args...);
 }
 
 static inline void
 register_global_logger(logger&& lg) {
-    get_global_logger() = std::make_shared<logger>(std::move(lg));
+    logger::get_global_logger() = std::make_shared<logger>(std::move(lg));
 }
 
 static inline void
 destroy_global_logger() {
-    get_global_logger().reset();
+    logger::get_global_logger().reset();
+}
+
+static inline void
+flush_global_logger() {
+    if(logger::get_global_logger()) {
+        logger::get_global_logger()->flush();
+    }
 }
 
 

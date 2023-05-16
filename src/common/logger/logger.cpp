@@ -49,6 +49,8 @@ logger_setup(const char* ident, logger_type type, const char* log_file) {
 void
 logger_log(enum logger_level level, const char* fmt, ...) {
 
+    using logger::logger;
+
     if(const auto logger = logger::get_global_logger(); logger) {
 
         std::array<char, LOGGER_MSG_MAX_LEN> msg; // NOLINT
@@ -79,7 +81,9 @@ logger_log(enum logger_level level, const char* fmt, ...) {
 
 void
 logger_destroy() {
+    using logger::logger;
+
     if(logger::get_global_logger()) {
-        logger::destroy_global_logger();
+        ::logger::destroy_global_logger();
     }
 }

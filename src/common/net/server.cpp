@@ -213,7 +213,7 @@ server::signal_handler(int signum) {
 
         case SIGHUP:
             LOGGER_WARN("A signal (SIGHUP) occurred.");
-            logger::get_global_logger()->flush();
+            logger::flush_global_logger();
             break;
 
         default:

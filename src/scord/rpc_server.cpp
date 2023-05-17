@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -22,15 +22,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include <logger/logger.hpp>
+#include <scord/types.hpp>
 #include <net/request.hpp>
-#include "rpc_handlers.hpp"
-#include "job_manager.hpp"
-#include "adhoc_storage_manager.hpp"
-#include "pfs_storage_manager.hpp"
+#include <net/serialization.hpp>
+#include "rpc_server.hpp"
 
-// Process running
-#include <unistd.h>
+// required for ::waitpid()
+#include <sys/types.h>
 #include <sys/wait.h>
 
 using namespace std::literals;
@@ -43,13 +41,38 @@ struct remote_procedure {
     }
 };
 
-namespace scord::network::handlers {
+namespace scord {
+
+rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
+                       std::filesystem::path rundir)
+    : server::server(std::move(name), std::move(address), std::move(daemonize),
+                     std::move(rundir)),
+      provider::provider(m_network_engine, 0) {
+
+#define EXPAND(rpc_name) "ADM_" #rpc_name##s, &rpc_server::rpc_name
+
+    provider::define(EXPAND(ping));
+    provider::define(EXPAND(register_job));
+    provider::define(EXPAND(update_job));
+    provider::define(EXPAND(remove_job));
+    provider::define(EXPAND(register_adhoc_storage));
+    provider::define(EXPAND(update_adhoc_storage));
+    provider::define(EXPAND(remove_adhoc_storage));
+    provider::define(EXPAND(deploy_adhoc_storage));
+    provider::define(EXPAND(tear_down_adhoc_storage));
+    provider::define(EXPAND(register_pfs_storage));
+    provider::define(EXPAND(update_pfs_storage));
+    provider::define(EXPAND(remove_pfs_storage));
+    provider::define(EXPAND(transfer_datasets));
+
+#undef EXPAND
+}
 
 void
-ping(const scord::network::request& req) {
+rpc_server::ping(const network::request& req) {
 
-    using scord::network::generic_response;
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -69,12 +92,13 @@ ping(const scord::network::request& req) {
 }
 
 void
-register_job(const scord::network::request& req,
-             const scord::job::resources& job_resources,
-             const scord::job::requirements& job_requirements,
-             scord::slurm_job_id slurm_id) {
+rpc_server::register_job(const network::request& req,
+                         const scord::job::resources& job_resources,
+                         const scord::job::requirements& job_requirements,
+                         scord::slurm_job_id slurm_id) {
 
-    using scord::network::get_address;
+    using network::get_address;
+    using network::response_with_id;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -87,10 +111,9 @@ register_job(const scord::network::request& req,
 
     scord::error_code ec;
     std::optional<scord::job_id> job_id;
-    auto& jm = scord::job_manager::instance();
 
     if(const auto jm_result =
-               jm.create(slurm_id, job_resources, job_requirements);
+               m_job_manager.create(slurm_id, job_resources, job_requirements);
        jm_result.has_value()) {
 
         const auto& job_info = jm_result.value();
@@ -99,8 +122,7 @@ register_job(const scord::network::request& req,
         // adhoc_storage instance (if registered)
         if(job_requirements.adhoc_storage()) {
             const auto adhoc_id = job_requirements.adhoc_storage()->id();
-            auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-            ec = adhoc_manager.add_client_info(adhoc_id, job_info);
+            ec = m_adhoc_manager.add_client_info(adhoc_id, job_info);
 
             if(!ec) {
                 goto respond;
@@ -126,10 +148,11 @@ respond:
 }
 
 void
-update_job(const request& req, scord::job_id job_id,
-           const scord::job::resources& new_resources) {
+rpc_server::update_job(const network::request& req, scord::job_id job_id,
+                       const scord::job::resources& new_resources) {
 
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -139,8 +162,7 @@ update_job(const request& req, scord::job_id job_id,
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 job_id, new_resources);
 
-    auto& jm = scord::job_manager::instance();
-    const auto ec = jm.update(job_id, new_resources);
+    const auto ec = m_job_manager.update(job_id, new_resources);
 
     if(!ec) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error updating job: {}\"", rpc_id,
@@ -158,9 +180,10 @@ update_job(const request& req, scord::job_id job_id,
 }
 
 void
-remove_job(const request& req, scord::job_id job_id) {
+rpc_server::remove_job(const network::request& req, scord::job_id job_id) {
 
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -171,8 +194,7 @@ remove_job(const request& req, scord::job_id job_id) {
                 job_id);
 
     scord::error_code ec;
-    auto& jm = scord::job_manager::instance();
-    const auto jm_result = jm.remove(job_id);
+    const auto jm_result = m_job_manager.remove(job_id);
 
     if(jm_result) {
         // if the job was using an adhoc storage instance, inform the
@@ -181,8 +203,7 @@ remove_job(const request& req, scord::job_id job_id) {
 
         if(const auto adhoc_storage = job_info->requirements()->adhoc_storage();
            adhoc_storage.has_value()) {
-            auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-            ec = adhoc_manager.remove_client_info(adhoc_storage->id());
+            ec = m_adhoc_manager.remove_client_info(adhoc_storage->id());
         }
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"", rpc_id,
@@ -201,12 +222,14 @@ remove_job(const request& req, scord::job_id job_id) {
 }
 
 void
-register_adhoc_storage(const request& req, const std::string& name,
-                       enum scord::adhoc_storage::type type,
-                       const scord::adhoc_storage::ctx& ctx,
-                       const scord::adhoc_storage::resources& resources) {
+rpc_server::register_adhoc_storage(
+        const network::request& req, const std::string& name,
+        enum scord::adhoc_storage::type type,
+        const scord::adhoc_storage::ctx& ctx,
+        const scord::adhoc_storage::resources& resources) {
 
-    using scord::network::get_address;
+    using network::get_address;
+    using network::response_with_id;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -219,9 +242,9 @@ register_adhoc_storage(const request& req, const std::string& name,
 
     scord::error_code ec;
     std::optional<std::uint64_t> adhoc_id;
-    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
 
-    if(const auto am_result = adhoc_manager.create(type, name, ctx, resources);
+    if(const auto am_result =
+               m_adhoc_manager.create(type, name, ctx, resources);
        am_result.has_value()) {
         const auto& adhoc_storage_info = am_result.value();
         adhoc_id = adhoc_storage_info->adhoc_storage().id();
@@ -243,10 +266,12 @@ register_adhoc_storage(const request& req, const std::string& name,
 }
 
 void
-update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
-                     const scord::adhoc_storage::resources& new_resources) {
+rpc_server::update_adhoc_storage(
+        const network::request& req, std::uint64_t adhoc_id,
+        const scord::adhoc_storage::resources& new_resources) {
 
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -256,8 +281,7 @@ update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 adhoc_id, new_resources);
 
-    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-    const auto ec = adhoc_manager.update(adhoc_id, new_resources);
+    const auto ec = m_adhoc_manager.update(adhoc_id, new_resources);
 
     if(!ec) {
         LOGGER_ERROR(
@@ -276,9 +300,11 @@ update_adhoc_storage(const request& req, std::uint64_t adhoc_id,
 }
 
 void
-remove_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
+rpc_server::remove_adhoc_storage(const network::request& req,
+                                 std::uint64_t adhoc_id) {
 
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -288,8 +314,7 @@ remove_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 adhoc_id);
 
-    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
-    scord::error_code ec = adhoc_manager.remove(adhoc_id);
+    scord::error_code ec = m_adhoc_manager.remove(adhoc_id);
 
     if(!ec) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"", rpc_id,
@@ -307,9 +332,11 @@ remove_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
 }
 
 void
-deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
+rpc_server::deploy_adhoc_storage(const network::request& req,
+                                 std::uint64_t adhoc_id) {
 
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -320,9 +347,8 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
                 adhoc_id);
 
     auto ec = scord::error_code::success;
-    auto& adhoc_manager = scord::adhoc_storage_manager::instance();
 
-    if(const auto am_result = adhoc_manager.find(adhoc_id);
+    if(const auto am_result = m_adhoc_manager.find(adhoc_id);
        am_result.has_value()) {
         const auto& storage_info = am_result.value();
         const auto adhoc_storage = storage_info->adhoc_storage();
@@ -370,7 +396,7 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
                 }
                 default: {
                     int wstatus = 0;
-                    pid_t retwait = waitpid(pid, &wstatus, 0);
+                    pid_t retwait = ::waitpid(pid, &wstatus, 0);
                     if(retwait == -1) {
                         LOGGER_ERROR(
                                 "rpc id: {} error_msg: \"Error waitpid code: {}\"",
@@ -407,10 +433,11 @@ deploy_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
 }
 
 void
-tear_down_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
+rpc_server::tear_down_adhoc_storage(const network::request& req,
+                                    std::uint64_t adhoc_id) {
 
-    using scord::network::generic_response;
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -433,11 +460,13 @@ tear_down_adhoc_storage(const request& req, std::uint64_t adhoc_id) {
 }
 
 void
-register_pfs_storage(const request& req, const std::string& name,
-                     enum scord::pfs_storage::type type,
-                     const scord::pfs_storage::ctx& ctx) {
+rpc_server::register_pfs_storage(const network::request& req,
+                                 const std::string& name,
+                                 enum scord::pfs_storage::type type,
+                                 const scord::pfs_storage::ctx& ctx) {
 
-    using scord::network::get_address;
+    using network::get_address;
+    using network::response_with_id;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -449,9 +478,8 @@ register_pfs_storage(const request& req, const std::string& name,
 
     scord::error_code ec;
     std::optional<std::uint64_t> pfs_id = 0;
-    auto& pfs_manager = scord::pfs_storage_manager::instance();
 
-    if(const auto pm_result = pfs_manager.create(type, name, ctx);
+    if(const auto pm_result = m_pfs_manager.create(type, name, ctx);
        pm_result.has_value()) {
         const auto& adhoc_storage_info = pm_result.value();
         pfs_id = adhoc_storage_info->pfs_storage().id();
@@ -472,10 +500,12 @@ register_pfs_storage(const request& req, const std::string& name,
 }
 
 void
-update_pfs_storage(const request& req, std::uint64_t pfs_id,
-                   const scord::pfs_storage::ctx& new_ctx) {
+rpc_server::update_pfs_storage(const network::request& req,
+                               std::uint64_t pfs_id,
+                               const scord::pfs_storage::ctx& new_ctx) {
 
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -485,8 +515,7 @@ update_pfs_storage(const request& req, std::uint64_t pfs_id,
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 pfs_id, new_ctx);
 
-    auto& pfs_manager = scord::pfs_storage_manager::instance();
-    const auto ec = pfs_manager.update(pfs_id, new_ctx);
+    const auto ec = m_pfs_manager.update(pfs_id, new_ctx);
 
     if(!ec) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error updating pfs_storage: {}\"",
@@ -504,9 +533,11 @@ update_pfs_storage(const request& req, std::uint64_t pfs_id,
 }
 
 void
-remove_pfs_storage(const request& req, std::uint64_t pfs_id) {
+rpc_server::remove_pfs_storage(const network::request& req,
+                               std::uint64_t pfs_id) {
 
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -516,8 +547,7 @@ remove_pfs_storage(const request& req, std::uint64_t pfs_id) {
                 rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
                 pfs_id);
 
-    auto& pfs_manager = scord::pfs_storage_manager::instance();
-    scord::error_code ec = pfs_manager.remove(pfs_id);
+    scord::error_code ec = m_pfs_manager.remove(pfs_id);
 
     if(!ec) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error removing pfs storage: {}\"",
@@ -535,13 +565,14 @@ remove_pfs_storage(const request& req, std::uint64_t pfs_id) {
 }
 
 void
-transfer_datasets(const request& req, scord::job_id job_id,
-                  const std::vector<scord::dataset>& sources,
-                  const std::vector<scord::dataset>& targets,
-                  const std::vector<scord::qos::limit>& limits,
-                  enum scord::transfer::mapping mapping) {
+rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
+                              const std::vector<scord::dataset>& sources,
+                              const std::vector<scord::dataset>& targets,
+                              const std::vector<scord::qos::limit>& limits,
+                              enum scord::transfer::mapping mapping) {
 
-    using scord::network::get_address;
+    using network::get_address;
+    using network::response_with_id;
 
     const auto rpc_name = "ADM_"s + __FUNCTION__;
     const auto rpc_id = remote_procedure::new_id();
@@ -570,4 +601,4 @@ transfer_datasets(const request& req, scord::job_id job_id,
     req.respond(resp);
 }
 
-} // namespace scord::network::handlers
+} // namespace scord

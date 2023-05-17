@@ -173,20 +173,20 @@ node::serialize(Archive& ar) {
 //  we must also explicitly instantiate our template functions for
 //  serialization in the desired archives
 template void
-node::impl::save<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&) const;
+node::impl::save<network::serialization::output_archive>(
+        network::serialization::output_archive&) const;
 
 template void
-node::impl::load<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+node::impl::load<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 template void
-node::serialize<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&);
+node::serialize<network::serialization::output_archive>(
+        network::serialization::output_archive&);
 
 template void
-node::serialize<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+node::serialize<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 class job::impl {
 
@@ -426,20 +426,20 @@ transfer::serialize(Archive& ar) {
 //  we must also explicitly instantiate our template functions for
 //  serialization in the desired archives
 template void
-transfer::impl::save<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&) const;
+transfer::impl::save<network::serialization::output_archive>(
+        network::serialization::output_archive&) const;
 
 template void
-transfer::impl::load<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+transfer::impl::load<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 template void
-transfer::serialize<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&);
+transfer::serialize<network::serialization::output_archive>(
+        network::serialization::output_archive&);
 
 template void
-transfer::serialize<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+transfer::serialize<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 class dataset::impl {
 public:
@@ -513,20 +513,20 @@ dataset::serialize(Archive& ar) {
 //  we must also explicitly instantiate our template functions for
 //  serialization in the desired archives
 template void
-dataset::impl::save<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&) const;
+dataset::impl::save<network::serialization::output_archive>(
+        network::serialization::output_archive&) const;
 
 template void
-dataset::impl::load<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+dataset::impl::load<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 template void
-dataset::serialize<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&);
+dataset::serialize<network::serialization::output_archive>(
+        network::serialization::output_archive&);
 
 template void
-dataset::serialize<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+dataset::serialize<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 adhoc_storage::resources::resources(std::vector<scord::node> nodes)
     : m_nodes(std::move(nodes)) {}
@@ -771,20 +771,20 @@ adhoc_storage::serialize(Archive& ar) {
 //  we must also explicitly instantiate our template functions for
 //  serialization in the desired archives
 template void
-adhoc_storage::impl::save<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&) const;
+adhoc_storage::impl::save<network::serialization::output_archive>(
+        network::serialization::output_archive&) const;
 
 template void
-adhoc_storage::impl::load<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+adhoc_storage::impl::load<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 template void
-adhoc_storage::serialize<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&);
+adhoc_storage::serialize<network::serialization::output_archive>(
+        network::serialization::output_archive&);
 
 template void
-adhoc_storage::serialize<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+adhoc_storage::serialize<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 adhoc_storage::~adhoc_storage() = default;
 
@@ -944,20 +944,20 @@ pfs_storage::serialize(Archive& ar) {
 //  we must also explicitly instantiate our template functions for
 //  serialization in the desired archives
 template void
-pfs_storage::impl::save<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&) const;
+pfs_storage::impl::save<network::serialization::output_archive>(
+        network::serialization::output_archive&) const;
 
 template void
-pfs_storage::impl::load<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+pfs_storage::impl::load<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 template void
-pfs_storage::serialize<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&);
+pfs_storage::serialize<network::serialization::output_archive>(
+        network::serialization::output_archive&);
 
 template void
-pfs_storage::serialize<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+pfs_storage::serialize<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 namespace qos {
 
@@ -1093,20 +1093,20 @@ entity::serialize(Archive& ar) {
 //  we must also explicitly instantiate our template functions for
 //  serialization in the desired archives
 template void
-entity::impl::save<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&) const;
+entity::impl::save<network::serialization::output_archive>(
+        network::serialization::output_archive&) const;
 
 template void
-entity::impl::load<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+entity::impl::load<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 template void
-entity::serialize<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&);
+entity::serialize<network::serialization::output_archive>(
+        network::serialization::output_archive&);
 
 template void
-entity::serialize<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+entity::serialize<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 class limit::impl {
 
@@ -1221,20 +1221,20 @@ limit::serialize(Archive& ar) {
 //  we must also explicitly instantiate our template functions for
 //  serialization in the desired archives
 template void
-limit::impl::save<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&) const;
+limit::impl::save<network::serialization::output_archive>(
+        network::serialization::output_archive&) const;
 
 template void
-limit::impl::load<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+limit::impl::load<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 template void
-limit::serialize<scord::network::serialization::output_archive>(
-        scord::network::serialization::output_archive&);
+limit::serialize<network::serialization::output_archive>(
+        network::serialization::output_archive&);
 
 template void
-limit::serialize<scord::network::serialization::input_archive>(
-        scord::network::serialization::input_archive&);
+limit::serialize<network::serialization::input_archive>(
+        network::serialization::input_archive&);
 
 } // namespace qos
 

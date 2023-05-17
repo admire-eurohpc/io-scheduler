@@ -28,7 +28,6 @@
 #include <scord/types.hpp>
 #include <scord/internal_types.hpp>
 #include <utility>
-#include <utils/utils.hpp>
 #include <unordered_map>
 #include <abt_cxx/shared_mutex.hpp>
 #include <tl/expected.hpp>
@@ -37,7 +36,7 @@
 
 namespace scord {
 
-struct pfs_storage_manager : scord::utils::singleton<pfs_storage_manager> {
+struct pfs_storage_manager {
 
     tl::expected<std::shared_ptr<scord::internal::pfs_storage_info>,
                  scord::error_code>
@@ -117,9 +116,6 @@ struct pfs_storage_manager : scord::utils::singleton<pfs_storage_manager> {
     }
 
 private:
-    friend class scord::utils::singleton<pfs_storage_manager>;
-    pfs_storage_manager() = default;
-
     mutable abt::shared_mutex m_pfs_storages_mutex;
     std::unordered_map<std::uint64_t,
                        std::shared_ptr<scord::internal::pfs_storage_info>>

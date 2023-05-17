@@ -22,14 +22,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_ENDPOINT_HPP
-#define SCORD_ENDPOINT_HPP
+#ifndef NETWORK_ENDPOINT_HPP
+#define NETWORK_ENDPOINT_HPP
 
 #include <thallium.hpp>
 #include <optional>
 #include <logger/logger.hpp>
 
-namespace scord::network {
+namespace network {
 
 class endpoint {
 
@@ -69,6 +69,6 @@ private:
     thallium::endpoint m_endpoint;
 };
 
-} // namespace scord::network
+} // namespace network
 
-#endif // SCORD_ENDPOINT_HPP
+#endif // NETWORK_ENDPOINT_HPP

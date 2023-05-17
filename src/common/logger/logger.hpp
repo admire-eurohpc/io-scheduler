@@ -50,7 +50,7 @@ ptr(const T* p) {
 
 namespace fs = std::filesystem;
 
-namespace scord {
+namespace logger {
 
 enum logger_type {
     console,
@@ -64,7 +64,7 @@ class logger_config {
 public:
     logger_config() = default;
 
-    explicit logger_config(std::string ident, scord::logger_type type,
+    explicit logger_config(std::string ident, logger_type type,
                            std::optional<fs::path> log_file = {})
         : m_ident(std::move(ident)), m_type(type),
           m_log_file(std::move(log_file)) {}
@@ -74,7 +74,7 @@ public:
         return m_ident;
     }
 
-    scord::logger_type
+    logger_type
     type() const {
         return m_type;
     }
@@ -86,7 +86,7 @@ public:
 
 private:
     std::string m_ident;
-    scord::logger_type m_type = console_color;
+    logger_type m_type = console_color;
     std::optional<fs::path> m_log_file;
 };
 
@@ -163,30 +163,6 @@ public:
 
     ~logger() {
         spdlog::shutdown();
-    }
-
-    // the following static functions can be used to interact
-    // with a globally registered logger instance
-
-    template <typename... Args>
-    static inline void
-    create_global_logger(Args&&... args) {
-        global_logger() = std::make_shared<logger>(args...);
-    }
-
-    static inline void
-    register_global_logger(logger&& lg) {
-        global_logger() = std::make_shared<logger>(std::move(lg));
-    }
-
-    static inline std::shared_ptr<logger>&
-    get_global_logger() {
-        return global_logger();
-    }
-
-    static inline void
-    destroy_global_logger() {
-        global_logger().reset();
     }
 
     // the following member functions can be used to interact
@@ -308,17 +284,36 @@ public:
     }
 
 private:
-    static std::shared_ptr<logger>&
-    global_logger() {
-        static std::shared_ptr<logger> s_global_logger;
-        return s_global_logger;
-    }
-
-private:
     std::shared_ptr<spdlog::logger> m_internal_logger;
     std::string m_type;
 };
 
-} // namespace scord
+// the following static functions can be used to interact
+// with a globally registered logger instance
+
+static inline std::shared_ptr<logger>&
+get_global_logger() {
+    static std::shared_ptr<logger> s_global_logger;
+    return s_global_logger;
+}
+
+template <typename... Args>
+static inline void
+create_global_logger(Args&&... args) {
+    get_global_logger() = std::make_shared<logger>(args...);
+}
+
+static inline void
+register_global_logger(logger&& lg) {
+    get_global_logger() = std::make_shared<logger>(std::move(lg));
+}
+
+static inline void
+destroy_global_logger() {
+    get_global_logger().reset();
+}
+
+
+} // namespace logger
 
 #endif /* SCORD_LOGGER_HPP */

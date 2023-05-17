@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -31,8 +31,7 @@
 #include <CLI/CLI.hpp>
 
 #include <version.hpp>
-#include <net/server.hpp>
-#include "rpc_handlers.hpp"
+#include "rpc_server.hpp"
 
 namespace fs = std::filesystem;
 using namespace std::literals;
@@ -76,22 +75,12 @@ main(int argc, char* argv[]) {
     CLI11_PARSE(app, argc, argv);
 
     try {
-        scord::network::server srv(progname, cli_args.address, false,
-                                   fs::current_path());
+        scord_ctl::rpc_server srv(progname, cli_args.address, false,
+                                  fs::current_path());
         if(cli_args.output_file) {
-            srv.configure_logger(scord::logger_type::file,
+            srv.configure_logger(logger::logger_type::file,
                                  *cli_args.output_file);
         }
-
-// convenience macro to ensure the names of an RPC and its handler
-// always match
-#define EXPAND(rpc_name)                                                       \
-    "ADM_" #rpc_name##s, scord_ctl::network::handlers::rpc_name
-
-        srv.set_handler(EXPAND(ping));
-
-#undef EXPAND
-
         return srv.run();
     } catch(const std::exception& ex) {
         fmt::print(stderr,

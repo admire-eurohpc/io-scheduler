@@ -49,7 +49,7 @@ namespace scord::detail {
 scord::error_code
 ping(const server& srv) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -65,7 +65,7 @@ ping(const server& srv) {
         if(const auto call_rv = endp.call("ADM_"s + __FUNCTION__);
            call_rv.has_value()) {
 
-            const scord::network::generic_response resp{call_rv.value()};
+            const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -87,7 +87,7 @@ register_job(const server& srv, const job::resources& job_resources,
              const job::requirements& job_requirements,
              scord::slurm_job_id slurm_id) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -107,7 +107,7 @@ register_job(const server& srv, const job::resources& job_resources,
                                           job_requirements, slurm_id);
            call_rv.has_value()) {
 
-            const scord::network::response_with_id resp{call_rv.value()};
+            const network::response_with_id resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -132,7 +132,7 @@ scord::error_code
 update_job(const server& srv, const job& job,
            const job::resources& new_resources) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -150,7 +150,7 @@ update_job(const server& srv, const job& job,
                    endp.call("ADM_"s + __FUNCTION__, job.id(), new_resources);
            call_rv.has_value()) {
 
-            const scord::network::generic_response resp{call_rv.value()};
+            const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -169,7 +169,7 @@ update_job(const server& srv, const job& job,
 scord::error_code
 remove_job(const server& srv, const job& job) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -185,7 +185,7 @@ remove_job(const server& srv, const job& job) {
         if(const auto& call_rv = endp.call("ADM_"s + __FUNCTION__, job.id());
            call_rv.has_value()) {
 
-            const scord::network::generic_response resp{call_rv.value()};
+            const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -207,7 +207,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
                        const adhoc_storage::ctx& ctx,
                        const adhoc_storage::resources& resources) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -226,7 +226,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
                                            ctx, resources);
            call_rv.has_value()) {
 
-            const scord::network::response_with_id resp{call_rv.value()};
+            const network::response_with_id resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -252,7 +252,7 @@ scord::error_code
 update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
                      const adhoc_storage::resources& new_resources) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -270,7 +270,7 @@ update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
                                            adhoc_storage.id(), new_resources);
            call_rv.has_value()) {
 
-            const scord::network::generic_response resp{call_rv.value()};
+            const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -290,7 +290,7 @@ update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
 scord::error_code
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -307,7 +307,7 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
                    endp.call("ADM_"s + __FUNCTION__, adhoc_storage.id());
            call_rv.has_value()) {
 
-            const scord::network::generic_response resp{call_rv.value()};
+            const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -328,7 +328,7 @@ tl::expected<scord::pfs_storage, scord::error_code>
 register_pfs_storage(const server& srv, const std::string& name,
                      enum pfs_storage::type type, const pfs_storage::ctx& ctx) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -345,7 +345,7 @@ register_pfs_storage(const server& srv, const std::string& name,
                    endp.call("ADM_"s + __FUNCTION__, name, type, ctx);
            call_rv.has_value()) {
 
-            const scord::network::response_with_id resp{call_rv.value()};
+            const network::response_with_id resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -370,7 +370,7 @@ scord::error_code
 update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
                    const scord::pfs_storage::ctx& new_ctx) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -388,7 +388,7 @@ update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
                    endp.call("ADM_"s + __FUNCTION__, pfs_storage.id(), new_ctx);
            call_rv.has_value()) {
 
-            const scord::network::generic_response resp{call_rv.value()};
+            const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -408,7 +408,7 @@ update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
 scord::error_code
 remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -425,7 +425,7 @@ remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
                    endp.call("ADM_"s + __FUNCTION__, pfs_storage.id());
            call_rv.has_value()) {
 
-            const scord::network::generic_response resp{call_rv.value()};
+            const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -445,7 +445,7 @@ remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
 scord::error_code
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -462,7 +462,7 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
                    endp.call("ADM_"s + __FUNCTION__, adhoc_storage.id());
            call_rv.has_value()) {
 
-            const scord::network::generic_response resp{call_rv.value()};
+            const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -482,7 +482,7 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 scord::error_code
 tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -499,7 +499,7 @@ tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
                    endp.call("ADM_"s + __FUNCTION__, adhoc_storage.id());
            call_rv.has_value()) {
 
-            const scord::network::generic_response resp{call_rv.value()};
+            const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "
@@ -523,7 +523,7 @@ transfer_datasets(const server& srv, const job& job,
                   const std::vector<qos::limit>& limits,
                   transfer::mapping mapping) {
 
-    scord::network::client rpc_client{srv.protocol()};
+    network::client rpc_client{srv.protocol()};
 
     const auto rpc_id = ::api::remote_procedure::new_id();
 
@@ -542,7 +542,7 @@ transfer_datasets(const server& srv, const job& job,
                                            sources, targets, limits, mapping);
            call_rv.has_value()) {
 
-            const scord::network::response_with_id resp{call_rv.value()};
+            const network::response_with_id resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                         "rpc id: {} name: {} from: {} <= "

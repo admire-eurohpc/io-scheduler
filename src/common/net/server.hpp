@@ -22,8 +22,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_SERVER_HPP
-#define SCORD_SERVER_HPP
+#ifndef SCORD_RPC_SERVER
+#define SCORD_RPC_SERVER
 
 #include <optional>
 #include <logger/logger.hpp>
@@ -33,9 +33,12 @@
 #include <thallium/serialization/stl/string.hpp>
 #include <thallium/serialization/stl/vector.hpp>
 
-namespace scord::network {
+namespace network {
 
 using request = thallium::request;
+
+template <typename T>
+using provider = thallium::provider<T>;
 
 class server {
 
@@ -47,9 +50,9 @@ public:
 
     template <typename... Args>
     void
-    configure_logger(scord::logger_type type, Args&&... args) {
-        m_logger_config =
-                logger_config(m_name, type, std::forward<Args>(args)...);
+    configure_logger(logger::logger_type type, Args&&... args) {
+        m_logger_config = logger::logger_config(m_name, type,
+                                                std::forward<Args>(args)...);
     }
 
     int
@@ -93,11 +96,15 @@ private:
     bool m_daemonize;
     fs::path m_rundir;
     std::optional<fs::path> m_pidfile;
-    logger_config m_logger_config;
+    logger::logger_config m_logger_config;
+
+protected:
     thallium::engine m_network_engine;
+
+private:
     scord::utils::signal_listener m_signal_listener;
 };
 
-} // namespace scord::network
+} // namespace network
 
-#endif // SCORD_SERVER_HPP
+#endif // SCORD_RPC_SERVER

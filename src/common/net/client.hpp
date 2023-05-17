@@ -22,13 +22,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_CLIENT_HPP
-#define SCORD_CLIENT_HPP
+#ifndef NETWORK_CLIENT_HPP
+#define NETWORK_CLIENT_HPP
 
 #include <optional>
 #include <thallium.hpp>
 
-namespace scord::network {
+namespace network {
 
 class endpoint;
 
@@ -45,6 +45,6 @@ private:
     std::shared_ptr<thallium::engine> m_engine;
 };
 
-} // namespace scord::network
+} // namespace network
 
-#endif // SCORD_CLIENT_HPP
+#endif // NETWORK_CLIENT_HPP

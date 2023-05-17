@@ -25,10 +25,10 @@
 # scord daemon
 add_executable(scord)
 
-target_sources(scord PRIVATE scord.cpp rpc_handlers.hpp
-  rpc_handlers.cpp job_manager.hpp adhoc_storage_manager.hpp
+target_sources(scord PRIVATE scord.cpp
+  job_manager.hpp adhoc_storage_manager.hpp
   pfs_storage_manager.hpp ${CMAKE_CURRENT_BINARY_DIR}/defaults.hpp
-  internal_types.hpp internal_types.cpp)
+  internal_types.hpp internal_types.cpp rpc_server.hpp rpc_server.cpp)
 
 configure_file(defaults.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/defaults.hpp @ONLY)
 

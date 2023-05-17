@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -31,8 +31,7 @@
 #include <CLI/CLI.hpp>
 
 #include <version.hpp>
-#include <net/server.hpp>
-#include "rpc_handlers.hpp"
+#include "rpc_server.hpp"
 #include "defaults.hpp"
 
 #include <agios.h>
@@ -108,13 +107,12 @@ public:
     }
 };
 
-
 int
 main(int argc, char* argv[]) {
 
     struct {
         bool foreground = !scord::config::defaults::daemonize;
-        scord::logger_type log_type = scord::logger_type::console_color;
+        logger::logger_type log_type = logger::logger_type::console_color;
         std::optional<fs::path> output_file;
         std::optional<fs::path> rundir;
         std::optional<std::string> address;
@@ -129,7 +127,7 @@ main(int argc, char* argv[]) {
     app.add_flag_callback(
             "-C,--force-console",
             [&]() {
-                cli_args.log_type = scord::logger_type::console_color;
+                cli_args.log_type = logger::logger_type::console_color;
                 cli_args.output_file = std::nullopt;
             },
             "Override any logging options defined in the configuration file "
@@ -146,7 +144,7 @@ main(int argc, char* argv[]) {
     app.add_option_function<std::string>(
                "-o,--output",
                [&](const std::string& val) {
-                   cli_args.log_type = scord::logger_type::file;
+                   cli_args.log_type = logger::logger_type::file;
                    cli_args.output_file = fs::path{val};
                },
                "Write any output to FILENAME console")
@@ -168,7 +166,7 @@ main(int argc, char* argv[]) {
                                    ->group("");
     global_settings->add_option_function<std::string>(
             "--logfile", [&](const std::string& val) {
-                cli_args.log_type = scord::logger_type::file;
+                cli_args.log_type = logger::logger_type::file;
                 cli_args.output_file = fs::path{val};
             });
     global_settings->add_option("--rundir", cli_args.rundir);
@@ -186,32 +184,9 @@ main(int argc, char* argv[]) {
     }
 
     try {
-        scord::network::server srv(
-                progname, *cli_args.address, !cli_args.foreground,
-                cli_args.rundir.value_or(fs::current_path()));
-
+        scord::rpc_server srv(progname, *cli_args.address, !cli_args.foreground,
+                              cli_args.rundir.value_or(fs::current_path()));
         srv.configure_logger(cli_args.log_type, cli_args.output_file);
-
-        // convenience macro to ensure the names of an RPC and
-        // its handler always match
-#define EXPAND(rpc_name) "ADM_" #rpc_name##s, scord::network::handlers::rpc_name
-
-        srv.set_handler(EXPAND(ping));
-        srv.set_handler(EXPAND(register_job));
-        srv.set_handler(EXPAND(update_job));
-        srv.set_handler(EXPAND(remove_job));
-        srv.set_handler(EXPAND(register_adhoc_storage));
-        srv.set_handler(EXPAND(update_adhoc_storage));
-        srv.set_handler(EXPAND(remove_adhoc_storage));
-        srv.set_handler(EXPAND(deploy_adhoc_storage));
-        srv.set_handler(EXPAND(tear_down_adhoc_storage));
-        srv.set_handler(EXPAND(register_pfs_storage));
-        srv.set_handler(EXPAND(update_pfs_storage));
-        srv.set_handler(EXPAND(remove_pfs_storage));
-        srv.set_handler(EXPAND(transfer_datasets));
-
-#undef EXPAND
-
         return srv.run();
     } catch(const std::exception& ex) {
         fmt::print(stderr,

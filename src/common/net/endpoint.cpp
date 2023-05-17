@@ -26,7 +26,7 @@
 
 #include <utility>
 
-namespace scord::network {
+namespace network {
 
 endpoint::endpoint(std::shared_ptr<thallium::engine> engine,
                    thallium::endpoint endpoint)
@@ -37,4 +37,4 @@ endpoint::address() const {
     return m_endpoint;
 }
 
-} // namespace scord::network
+} // namespace network

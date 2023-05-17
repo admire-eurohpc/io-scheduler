@@ -29,7 +29,7 @@
 
 using namespace std::literals;
 
-namespace scord::network {
+namespace network {
 
 
 client::client(const std::string& protocol)
@@ -56,4 +56,4 @@ client::self_address() const noexcept {
     }
 }
 
-} // namespace scord::network
+} // namespace network

@@ -40,10 +40,11 @@
 #include <logger/logger.hpp>
 #include <utils/signal_listener.hpp>
 #include "server.hpp"
+#include "endpoint.hpp"
 
 using namespace std::literals;
 
-namespace scord::network {
+namespace network {
 
 server::server(std::string name, std::string address, bool daemonize,
                fs::path rundir)
@@ -51,7 +52,7 @@ server::server(std::string name, std::string address, bool daemonize,
       m_daemonize(daemonize), m_rundir(std::move(rundir)),
       m_pidfile(daemonize ? std::make_optional(m_rundir / (m_name + ".pid"))
                           : std::nullopt),
-      m_logger_config(m_name, scord::logger_type::console_color),
+      m_logger_config(m_name, logger::logger_type::console_color),
       m_network_engine(m_address, THALLIUM_SERVER_MODE) {}
 
 server::~server() = default;
@@ -224,25 +225,25 @@ void
 server::init_logger() {
 
     switch(m_logger_config.type()) {
-        case console_color:
+        case logger::logger_type::console_color:
             logger::create_global_logger(m_logger_config.ident(),
-                                         logger_type::console_color);
+                                         logger::logger_type::console_color);
             break;
-        case syslog:
+        case logger::logger_type::syslog:
             logger::create_global_logger(m_logger_config.ident(),
-                                         logger_type::syslog);
+                                         logger::logger_type::syslog);
             break;
-        case file:
+        case logger::logger_type::file:
             if(m_logger_config.log_file().has_value()) {
                 logger::create_global_logger(m_logger_config.ident(),
-                                             logger_type::file,
+                                             logger::logger_type::file,
                                              *m_logger_config.log_file());
                 break;
             }
             [[fallthrough]];
-        case console:
+        case logger::logger_type::console:
             logger::create_global_logger(m_logger_config.ident(),
-                                         logger_type::console);
+                                         logger::logger_type::console);
             break;
     }
 }
@@ -380,4 +381,4 @@ server::shutdown() {
     m_network_engine.finalize();
 }
 
-} // namespace scord::network
+} // namespace network

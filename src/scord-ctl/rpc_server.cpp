@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -22,10 +22,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include <logger/logger.hpp>
 #include <net/request.hpp>
-#include <net/client.hpp>
-#include "rpc_handlers.hpp"
+#include <net/serialization.hpp>
+#include "rpc_server.hpp"
+
+using namespace std::literals;
 
 struct remote_procedure {
     static std::uint64_t
@@ -35,13 +36,50 @@ struct remote_procedure {
     }
 };
 
-namespace scord_ctl::network::handlers {
+namespace scord_ctl {
+
+rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
+                       std::filesystem::path rundir)
+    : server::server(std::move(name), std::move(address), std::move(daemonize),
+                     std::move(rundir)),
+      provider::provider(m_network_engine, 0) {
+
+#define EXPAND(rpc_name) "ADM_" #rpc_name##s, &rpc_server::rpc_name
+
+    provider::define(EXPAND(ping));
+    provider::define(EXPAND(deploy_adhoc_storage));
+
+#undef EXPAND
+}
 
 void
-ping(const scord::network::request& req) {
+rpc_server::ping(const network::request& req) {
 
-    using scord::network::generic_response;
-    using scord::network::get_address;
+    using network::generic_response;
+    using network::get_address;
+
+    const auto rpc_name = "ADM_"s + __FUNCTION__;
+    const auto rpc_id = remote_procedure::new_id();
+
+    LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                "body: {{}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)));
+
+    const auto resp = generic_response{rpc_id, scord::error_code::success};
+
+    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
+                "body: {{retval: {}}}",
+                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+                scord::error_code::success);
+
+    req.respond(resp);
+}
+
+void
+rpc_server::deploy_adhoc_storage(const network::request& req) {
+
+    using network::generic_response;
+    using network::get_address;
 
     const auto rpc_id = remote_procedure::new_id();
 
@@ -60,27 +98,4 @@ ping(const scord::network::request& req) {
     req.respond(resp);
 }
 
-void
-deploy_adhoc_storage(const scord::network::request& req) {
-
-    using scord::network::generic_response;
-    using scord::network::get_address;
-
-    const auto rpc_id = remote_procedure::new_id();
-
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{}}",
-                rpc_id, std::quoted(__FUNCTION__),
-                std::quoted(get_address(req)));
-
-    const auto resp = generic_response{rpc_id, scord::error_code::success};
-
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(__FUNCTION__),
-                std::quoted(get_address(req)), scord::error_code::success);
-
-    req.respond(resp);
-}
-
-} // namespace scord_ctl::network::handlers
+} // namespace scord_ctl

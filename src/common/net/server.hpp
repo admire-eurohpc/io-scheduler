@@ -35,6 +35,8 @@
 
 namespace network {
 
+class endpoint;
+
 using request = thallium::request;
 
 template <typename T>
@@ -54,6 +56,12 @@ public:
         m_logger_config = logger::logger_config(m_name, type,
                                                 std::forward<Args>(args)...);
     }
+
+    std::optional<endpoint>
+    lookup(const std::string& address) noexcept;
+
+    std::string
+    self_address() const noexcept;
 
     int
     run();

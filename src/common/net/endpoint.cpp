@@ -28,9 +28,8 @@
 
 namespace network {
 
-endpoint::endpoint(std::shared_ptr<thallium::engine> engine,
-                   thallium::endpoint endpoint)
-    : m_engine(std::move(engine)), m_endpoint(std::move(endpoint)) {}
+endpoint::endpoint(thallium::engine& engine, thallium::endpoint endpoint)
+    : m_engine(engine), m_endpoint(std::move(endpoint)) {}
 
 std::string
 endpoint::address() const {

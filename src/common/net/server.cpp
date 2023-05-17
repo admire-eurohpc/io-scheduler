@@ -303,6 +303,26 @@ server::print_farewell() {
     LOGGER_INFO("{:=>{}}", "", farewell.size());
 }
 
+std::optional<endpoint>
+server::lookup(const std::string& address) noexcept {
+    try {
+        return endpoint{m_network_engine, m_network_engine.lookup(address)};
+    } catch(const std::exception& ex) {
+        LOGGER_ERROR("server::lookup() failed: {}", ex.what());
+        return std::nullopt;
+    }
+}
+
+std::string
+server::self_address() const noexcept {
+    try {
+        return m_network_engine.self();
+    } catch(const std::exception& ex) {
+        LOGGER_ERROR("server::self_address() failed: {}", ex.what());
+        return "unknown"s;
+    }
+}
+
 int
 server::run() {
 

@@ -35,8 +35,8 @@ set_property(TARGET _rpc_client PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_library(_rpc_server STATIC)
 target_sources(
   _rpc_server
-  INTERFACE server.hpp request.hpp serialization.hpp
-  PRIVATE server.cpp
+  INTERFACE endpoint.hpp server.hpp request.hpp serialization.hpp
+  PRIVATE server.cpp endpoint.cpp
 )
 
 target_link_libraries(_rpc_server PUBLIC common::logger thallium)

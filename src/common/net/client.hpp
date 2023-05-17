@@ -42,7 +42,7 @@ public:
     self_address() const noexcept;
 
 private:
-    std::shared_ptr<thallium::engine> m_engine;
+    thallium::engine m_engine;
 };
 
 } // namespace network

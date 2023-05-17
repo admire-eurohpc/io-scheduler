@@ -27,6 +27,7 @@
 #define SCORD_CTL_RPC_SERVER_HPP
 
 #include <net/server.hpp>
+#include <scord/types.hpp>
 
 namespace scord_ctl {
 
@@ -42,7 +43,11 @@ private:
     ping(const network::request& req);
 
     void
-    deploy_adhoc_storage(const network::request& req);
+    deploy_adhoc_storage(
+            const network::request& req,
+            enum scord::adhoc_storage::type adhoc_type,
+            const scord::adhoc_storage::ctx& adhoc_ctx,
+            const scord::adhoc_storage::resources& adhoc_resources);
 };
 
 } // namespace scord_ctl

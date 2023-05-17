@@ -24,12 +24,9 @@
 
 #include <scord/types.hpp>
 #include <net/request.hpp>
+#include <net/endpoint.hpp>
 #include <net/serialization.hpp>
 #include "rpc_server.hpp"
-
-// required for ::waitpid()
-#include <sys/types.h>
-#include <sys/wait.h>
 
 using namespace std::literals;
 
@@ -348,72 +345,38 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
 
     auto ec = scord::error_code::success;
 
+    // contact the adhoc controller and ask it to deploy the adhoc storage
     if(const auto am_result = m_adhoc_manager.find(adhoc_id);
        am_result.has_value()) {
-        const auto& storage_info = am_result.value();
-        const auto adhoc_storage = storage_info->adhoc_storage();
+        const auto& adhoc_info = am_result.value();
+        const auto adhoc_storage = adhoc_info->adhoc_storage();
 
-        if(adhoc_storage.type() == scord::adhoc_storage::type::gekkofs) {
-            const auto adhoc_ctx = adhoc_storage.context();
-            /* Number of nodes */
-            const std::string nodes = std::to_string(
-                    adhoc_storage.get_resources().nodes().size());
+        if(const auto lookup_rv =
+                   lookup(adhoc_storage.context().controller_address());
+           lookup_rv.has_value()) {
+            const auto& endp = lookup_rv.value();
 
-            /* Walltime */
-            const std::string walltime = std::to_string(adhoc_ctx.walltime());
+            LOGGER_INFO("rpc id: {} name: {} from: {} => "
+                        "body: {{type: {}, ctx: {}, resources: {}}}",
+                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                        std::quoted(self_address()), adhoc_storage.type(),
+                        adhoc_storage.context(), adhoc_storage.get_resources());
 
-            /* Launch script */
-            switch(const auto pid = fork()) {
-                case 0: {
-                    std::vector<const char*> args;
-                    args.push_back("gkfs");
-                    // args.push_back("-c");
-                    // args.push_back("gkfs.conf");
-                    args.push_back("-n");
-                    args.push_back(nodes.c_str());
-                    // args.push_back("-w");
-                    // args.push_back(walltime.c_str());
-                    args.push_back("--srun");
-                    args.push_back("start");
-                    args.push_back(NULL);
-                    std::vector<const char*> env;
-                    env.push_back(NULL);
+            if(const auto call_rv = endp.call(
+                       "ADM_"s + __FUNCTION__, adhoc_storage.type(),
+                       adhoc_storage.context(), adhoc_storage.get_resources());
+               call_rv.has_value()) {
 
-                    execvpe("gkfs", const_cast<char* const*>(args.data()),
-                            const_cast<char* const*>(env.data()));
-                    LOGGER_INFO(
-                            "ADM_deploy_adhoc_storage() script didn't execute");
-                    exit(EXIT_FAILURE);
-                    break;
-                }
-                case -1: {
-                    ec = scord::error_code::other;
-                    LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
-                                 "body: {{retval: {}}}",
-                                 rpc_id, std::quoted(rpc_name),
-                                 std::quoted(get_address(req)), ec);
-                    break;
-                }
-                default: {
-                    int wstatus = 0;
-                    pid_t retwait = ::waitpid(pid, &wstatus, 0);
-                    if(retwait == -1) {
-                        LOGGER_ERROR(
-                                "rpc id: {} error_msg: \"Error waitpid code: {}\"",
-                                rpc_id, retwait);
-                        ec = scord::error_code::other;
-                    } else {
-                        if(WEXITSTATUS(wstatus) != 0) {
-                            ec = scord::error_code::other;
-                        } else {
-                            ec = scord::error_code::success;
-                        }
-                    }
-                    break;
-                }
+                const network::generic_response resp{call_rv.value()};
+                ec = resp.error_code();
+
+                LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                            "rpc id: {} name: {} from: {} <= "
+                            "body: {{retval: {}}} [op_id: {}]",
+                            rpc_id, std::quoted("ADM_"s + __FUNCTION__),
+                            std::quoted(endp.address()), ec, resp.op_id());
             }
         }
-
     } else {
         ec = am_result.error();
         LOGGER_ERROR("rpc id: {} name: {} to: {} <= "

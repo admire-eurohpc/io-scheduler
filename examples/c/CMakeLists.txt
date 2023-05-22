@@ -80,9 +80,12 @@ if(SCORD_BUILD_TESTS)
 
     add_test(validate_${TEST_NAME}
       ${CMAKE_SOURCE_DIR}/ci/check_rpcs.py
+      ${example}
       ${TEST_DIRECTORY}/libscord.log
       ${SCORD_TESTS_DIRECTORY}/scord_daemon/scord_daemon.log
-      ${example}
+      ${SCORD_ADDRESS_STRING}
+      ${SCORD_TESTS_DIRECTORY}/scord_daemon/scord_ctl.log
+      ${SCORD_CTL_ADDRESS_STRING}
       )
     set_tests_properties(validate_${TEST_NAME}
       PROPERTIES DEPENDS stop_scord_daemon
@@ -107,9 +110,10 @@ if(SCORD_BUILD_TESTS)
 
     add_test(validate_${TEST_NAME}
       ${CMAKE_SOURCE_DIR}/ci/check_rpcs.py
+      ${example}
       ${TEST_DIRECTORY}/libscord.log
       ${SCORD_TESTS_DIRECTORY}/scord_daemon/scord_daemon.log
-      ${example}
+      ${SCORD_ADDRESS_STRING}
       )
     set_tests_properties(validate_${TEST_NAME}
       PROPERTIES DEPENDS stop_scord_daemon

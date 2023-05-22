@@ -27,6 +27,7 @@
 #include <net/endpoint.hpp>
 #include <net/request.hpp>
 #include <net/serialization.hpp>
+#include <net/utilities.hpp>
 #include <scord/types.hpp>
 #include "impl.hpp"
 
@@ -46,33 +47,28 @@ struct remote_procedure {
 
 namespace scord::detail {
 
+#define RPC_NAME() ("ADM_"s + __FUNCTION__)
+
 scord::error_code
 ping(const server& srv) {
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()));
+        LOGGER_INFO("rpc {:<} body: {{}}", rpc);
 
-        if(const auto call_rv = endp.call("ADM_"s + __FUNCTION__);
-           call_rv.has_value()) {
+        if(const auto call_rv = endp.call(rpc.name()); call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
 
             return resp.error_code();
         }
@@ -89,32 +85,25 @@ register_job(const server& srv, const job::resources& job_resources,
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO(
-                "rpc id: {} name: {} from: {} => "
-                "body: {{job_resources: {}, job_requirements: {}, slurm_id: "
-                "{}}}",
-                rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                std::quoted(rpc_client.self_address()), job_resources,
-                job_requirements, slurm_id);
+        LOGGER_INFO("rpc {:<} body: {{job_resources: {}, job_requirements: {}, "
+                    "slurm_id: {}}}",
+                    rpc, job_resources, job_requirements, slurm_id);
 
-        if(const auto call_rv = endp.call("ADM_"s + __FUNCTION__, job_resources,
+        if(const auto call_rv = endp.call(rpc.name(), job_resources,
                                           job_requirements, slurm_id);
            call_rv.has_value()) {
 
             const network::response_with_id resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}, job_id: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.value(), resp.op_id());
+                        "rpc {:>} body: {{retval: {}, job_id: {}}} [op_id: {}]",
+                        rpc, resp.error_code(), resp.value(), resp.op_id());
 
             if(const auto ec = resp.error_code(); !ec) {
                 return tl::make_unexpected(resp.error_code());
@@ -134,30 +123,23 @@ update_job(const server& srv, const job& job,
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{job_id: {}, new_resources: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), job.id(),
-                    new_resources);
+        LOGGER_INFO("rpc {:<} body: {{job_id: {}, new_resources: {}}}", rpc,
+                    job.id(), new_resources);
 
-        if(const auto& call_rv =
-                   endp.call("ADM_"s + __FUNCTION__, job.id(), new_resources);
+        if(const auto& call_rv = endp.call(rpc.name(), job.id(), new_resources);
            call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
             return resp.error_code();
         }
     }
@@ -171,28 +153,22 @@ remove_job(const server& srv, const job& job) {
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{job_id: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), job.id());
+        LOGGER_INFO("rpc {:<} body: {{job_id: {}}}", rpc, job.id());
 
-        if(const auto& call_rv = endp.call("ADM_"s + __FUNCTION__, job.id());
+        if(const auto& call_rv = endp.call(rpc.name(), job.id());
            call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
             return resp.error_code();
         }
     }
@@ -209,31 +185,26 @@ register_adhoc_storage(const server& srv, const std::string& name,
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{name: {}, type: {}, adhoc_ctx: {}, "
+        LOGGER_INFO("rpc {:<} body: {{name: {}, type: {}, adhoc_ctx: {}, "
                     "adhoc_resources: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), name, type, ctx,
-                    resources);
+                    rpc, name, type, ctx, resources);
 
-        if(const auto& call_rv = endp.call("ADM_"s + __FUNCTION__, name, type,
-                                           ctx, resources);
+        if(const auto& call_rv =
+                   endp.call(rpc.name(), name, type, ctx, resources);
            call_rv.has_value()) {
 
             const network::response_with_id resp{call_rv.value()};
 
-            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}, adhoc_id: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.value(), resp.op_id());
+            LOGGER_EVAL(
+                    resp.error_code(), INFO, ERROR,
+                    "rpc {:>} body: {{retval: {}, adhoc_id: {}}} [op_id: {}]",
+                    rpc, resp.error_code(), resp.value(), resp.op_id());
 
             if(const auto ec = resp.error_code(); !ec) {
                 return tl::make_unexpected(ec);
@@ -254,30 +225,24 @@ update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{adhoc_id: {}, new_resources: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), adhoc_storage.id(),
-                    new_resources);
+        LOGGER_INFO("rpc {:<} body: {{adhoc_id: {}, new_resources: {}}}", rpc,
+                    adhoc_storage.id(), new_resources);
 
-        if(const auto& call_rv = endp.call("ADM_"s + __FUNCTION__,
-                                           adhoc_storage.id(), new_resources);
+        if(const auto& call_rv =
+                   endp.call(rpc.name(), adhoc_storage.id(), new_resources);
            call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
 
             return resp.error_code();
         }
@@ -292,29 +257,22 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{adhoc_id: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), adhoc_storage.id());
+        LOGGER_INFO("rpc {:<} body: {{adhoc_id: {}}}", rpc, adhoc_storage.id());
 
-        if(const auto& call_rv =
-                   endp.call("ADM_"s + __FUNCTION__, adhoc_storage.id());
+        if(const auto& call_rv = endp.call(rpc.name(), adhoc_storage.id());
            call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
 
             return resp.error_code();
         }
@@ -330,29 +288,23 @@ register_pfs_storage(const server& srv, const std::string& name,
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{name: {}, type: {}, pfs_ctx: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), name, type, ctx);
+        LOGGER_INFO("rpc {:<} body: {{name: {}, type: {}, pfs_ctx: {}}}", rpc,
+                    name, type, ctx);
 
-        if(const auto& call_rv =
-                   endp.call("ADM_"s + __FUNCTION__, name, type, ctx);
+        if(const auto& call_rv = endp.call(rpc.name(), name, type, ctx);
            call_rv.has_value()) {
 
             const network::response_with_id resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}, pfs_id: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.value(), resp.op_id());
+                        "rpc {:>} body: {{retval: {}, pfs_id: {}}} [op_id: {}]",
+                        rpc, resp.error_code(), resp.value(), resp.op_id());
 
             if(const auto ec = resp.error_code(); !ec) {
                 return tl::make_unexpected(ec);
@@ -372,30 +324,24 @@ update_pfs_storage(const server& srv, const pfs_storage& pfs_storage,
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{pfs_id: {}, new_ctx: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), pfs_storage.id(),
-                    new_ctx);
+        LOGGER_INFO("rpc {:<} body: {{pfs_id: {}, new_ctx: {}}}", rpc,
+                    pfs_storage.id(), new_ctx);
 
         if(const auto& call_rv =
-                   endp.call("ADM_"s + __FUNCTION__, pfs_storage.id(), new_ctx);
+                   endp.call(rpc.name(), pfs_storage.id(), new_ctx);
            call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
 
             return resp.error_code();
         }
@@ -410,29 +356,22 @@ remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{pfs_id: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), pfs_storage.id());
+        LOGGER_INFO("rpc {:<} body: {{pfs_id: {}}}", rpc, pfs_storage.id());
 
-        if(const auto& call_rv =
-                   endp.call("ADM_"s + __FUNCTION__, pfs_storage.id());
+        if(const auto& call_rv = endp.call(rpc.name(), pfs_storage.id());
            call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
 
             return resp.error_code();
         }
@@ -447,29 +386,22 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{adhoc_id: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), adhoc_storage.id());
+        LOGGER_INFO("rpc {:<} body: {{adhoc_id: {}}}", rpc, adhoc_storage.id());
 
-        if(const auto& call_rv =
-                   endp.call("ADM_"s + __FUNCTION__, adhoc_storage.id());
+        if(const auto& call_rv = endp.call(rpc.name(), adhoc_storage.id());
            call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
 
             return resp.error_code();
         }
@@ -484,29 +416,22 @@ tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{adhoc_id: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), adhoc_storage.id());
+        LOGGER_INFO("rpc {:<} body: {{adhoc_id: {}}}", rpc, adhoc_storage.id());
 
-        if(const auto call_rv =
-                   endp.call("ADM_"s + __FUNCTION__, adhoc_storage.id());
+        if(const auto call_rv = endp.call(rpc.name(), adhoc_storage.id());
            call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.op_id());
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
 
             return resp.error_code();
         }
@@ -525,31 +450,25 @@ transfer_datasets(const server& srv, const job& job,
 
     network::client rpc_client{srv.protocol()};
 
-    const auto rpc_id = ::api::remote_procedure::new_id();
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
 
     if(const auto& lookup_rv = rpc_client.lookup(srv.address());
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                    "body: {{job_id: {}, sources: {}, targets: {}, limits: {}, "
-                    "mapping: {}}}",
-                    rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                    std::quoted(rpc_client.self_address()), job.id(), sources,
-                    targets, limits, mapping);
+        LOGGER_INFO("rpc {:<} body: {{job_id: {}, sources: {}, targets: {}, "
+                    "limits: {}, mapping: {}}}",
+                    rpc, job.id(), sources, targets, limits, mapping);
 
-        if(const auto& call_rv = endp.call("ADM_"s + __FUNCTION__, job.id(),
-                                           sources, targets, limits, mapping);
+        if(const auto& call_rv = endp.call(rpc.name(), job.id(), sources,
+                                           targets, limits, mapping);
            call_rv.has_value()) {
 
             const network::response_with_id resp{call_rv.value()};
 
             LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc id: {} name: {} from: {} <= "
-                        "body: {{retval: {}, tx_id: {}}} [op_id: {}]",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(endp.address()), resp.error_code(),
-                        resp.value(), resp.op_id());
+                        "rpc {:>} body: {{retval: {}, tx_id: {}}} [op_id: {}]",
+                        rpc, resp.error_code(), resp.value(), resp.op_id());
 
             if(const auto ec = resp.error_code(); !ec) {
                 return tl::make_unexpected(ec);

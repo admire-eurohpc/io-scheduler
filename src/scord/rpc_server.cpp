@@ -26,17 +26,10 @@
 #include <net/request.hpp>
 #include <net/endpoint.hpp>
 #include <net/serialization.hpp>
+#include <net/utilities.hpp>
 #include "rpc_server.hpp"
 
 using namespace std::literals;
-
-struct remote_procedure {
-    static std::uint64_t
-    new_id() {
-        static std::atomic_uint64_t current_id;
-        return current_id++;
-    }
-};
 
 namespace scord {
 
@@ -65,24 +58,22 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
 #undef EXPAND
 }
 
+#define RPC_NAME() ("ADM_"s + __FUNCTION__)
+
 void
 rpc_server::ping(const network::request& req) {
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)));
+    LOGGER_INFO("rpc {:>} body: {{}}", rpc);
 
-    const auto resp = generic_response{rpc_id, scord::error_code::success};
+    const auto resp = generic_response{rpc.id(), scord::error_code::success};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc,
                 scord::error_code::success);
 
     req.respond(resp);
@@ -96,15 +87,13 @@ rpc_server::register_job(const network::request& req,
 
     using network::get_address;
     using network::response_with_id;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job_resources: {}, job_requirements: {}, slurm_id: "
-                "{}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                job_resources, job_requirements, slurm_id);
+    LOGGER_INFO("rpc {:>} body: {{job_resources: {}, job_requirements: {}, "
+                "slurm_id: {}}}",
+                rpc, job_resources, job_requirements, slurm_id);
 
     scord::error_code ec;
     std::optional<scord::job_id> job_id;
@@ -128,18 +117,15 @@ rpc_server::register_job(const network::request& req,
 
         job_id = job_info->job().id();
     } else {
-        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating job: {}\"", rpc_id,
-                     jm_result.error());
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating job: {}\"",
+                     rpc.id(), jm_result.error());
         ec = jm_result.error();
     }
 
 respond:
-    const auto resp = response_with_id{rpc_id, ec, job_id};
+    const auto resp = response_with_id{rpc.id(), ec, job_id};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}, job_id: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec, job_id);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}, job_id: {}}}", rpc, ec, job_id);
 
     req.respond(resp);
 }
@@ -150,28 +136,23 @@ rpc_server::update_job(const network::request& req, scord::job_id job_id,
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job_id: {}, new_resources: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                job_id, new_resources);
+    LOGGER_INFO("rpc {:>} body: {{job_id: {}, new_resources: {}}}", rpc, job_id,
+                new_resources);
 
     const auto ec = m_job_manager.update(job_id, new_resources);
 
     if(!ec) {
-        LOGGER_ERROR("rpc id: {} error_msg: \"Error updating job: {}\"", rpc_id,
-                     ec);
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error updating job: {}\"",
+                     rpc.id(), ec);
     }
 
-    const auto resp = generic_response{rpc_id, ec};
+    const auto resp = generic_response{rpc.id(), ec};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
 
     req.respond(resp);
 }
@@ -181,14 +162,11 @@ rpc_server::remove_job(const network::request& req, scord::job_id job_id) {
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{job_id: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                job_id);
+    LOGGER_INFO("rpc {:>} body: {{job_id: {}}}", rpc, job_id);
 
     scord::error_code ec;
     const auto jm_result = m_job_manager.remove(job_id);
@@ -203,17 +181,14 @@ rpc_server::remove_job(const network::request& req, scord::job_id job_id) {
             ec = m_adhoc_manager.remove_client_info(adhoc_storage->id());
         }
     } else {
-        LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"", rpc_id,
-                     job_id);
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"",
+                     rpc.id(), job_id);
         ec = jm_result.error();
     }
 
-    const auto resp = generic_response{rpc_id, ec};
+    const auto resp = generic_response{rpc.id(), ec};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
 
     req.respond(resp);
 }
@@ -227,15 +202,13 @@ rpc_server::register_adhoc_storage(
 
     using network::get_address;
     using network::response_with_id;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{name: {}, type: {}, adhoc_ctx: {}, "
+    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, adhoc_ctx: {}, "
                 "adhoc_resources: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                name, type, ctx, resources);
+                rpc, name, type, ctx, resources);
 
     scord::error_code ec;
     std::optional<std::uint64_t> adhoc_id;
@@ -248,16 +221,14 @@ rpc_server::register_adhoc_storage(
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error creating adhoc_storage: "
                      "{}\"",
-                     rpc_id, am_result.error());
+                     rpc.id(), am_result.error());
         ec = am_result.error();
     }
 
-    const auto resp = response_with_id{rpc_id, ec, adhoc_id};
+    const auto resp = response_with_id{rpc.id(), ec, adhoc_id};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}, adhoc_id: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec, adhoc_id);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}, adhoc_id: {}}}", rpc, ec,
+                adhoc_id);
 
     req.respond(resp);
 }
@@ -269,13 +240,11 @@ rpc_server::update_adhoc_storage(
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_id: {}, new_resources: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+    LOGGER_INFO("rpc {:>} body: {{adhoc_id: {}, new_resources: {}}}", rpc,
                 adhoc_id, new_resources);
 
     const auto ec = m_adhoc_manager.update(adhoc_id, new_resources);
@@ -283,15 +252,12 @@ rpc_server::update_adhoc_storage(
     if(!ec) {
         LOGGER_ERROR(
                 "rpc id: {} error_msg: \"Error updating adhoc_storage: {}\"",
-                rpc_id, ec);
+                rpc.id(), ec);
     }
 
-    const auto resp = generic_response{rpc_id, ec};
+    const auto resp = generic_response{rpc.id(), ec};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
 
     req.respond(resp);
 }
@@ -302,28 +268,22 @@ rpc_server::remove_adhoc_storage(const network::request& req,
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_id: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                adhoc_id);
+    LOGGER_INFO("rpc {:>} body: {{adhoc_id: {}}}", rpc, adhoc_id);
 
     scord::error_code ec = m_adhoc_manager.remove(adhoc_id);
 
     if(!ec) {
-        LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"", rpc_id,
-                     adhoc_id);
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error removing job: {}\"",
+                     rpc.id(), adhoc_id);
     }
 
-    const auto resp = generic_response{rpc_id, ec};
+    const auto resp = generic_response{rpc.id(), ec};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
 
     req.respond(resp);
 }
@@ -334,14 +294,11 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_id: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                adhoc_id);
+    LOGGER_INFO("rpc {:>} body: {{adhoc_id: {}}}", rpc, adhoc_id);
 
     auto ec = scord::error_code::success;
 
@@ -356,41 +313,37 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
            lookup_rv.has_value()) {
             const auto& endp = lookup_rv.value();
 
-            LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                        "body: {{type: {}, ctx: {}, resources: {}}}",
-                        rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                        std::quoted(self_address()), adhoc_storage.type(),
+            const auto child_rpc =
+                    rpc.add_child(adhoc_storage.context().controller_address());
+
+            LOGGER_INFO("rpc {:<} body: {{type: {}, ctx: {}, resources: {}}}",
+                        child_rpc, adhoc_storage.type(),
                         adhoc_storage.context(), adhoc_storage.get_resources());
 
-            if(const auto call_rv = endp.call(
-                       "ADM_"s + __FUNCTION__, adhoc_storage.type(),
-                       adhoc_storage.context(), adhoc_storage.get_resources());
+            if(const auto call_rv = endp.call(rpc.name(), adhoc_storage.type(),
+                                              adhoc_storage.context(),
+                                              adhoc_storage.get_resources());
                call_rv.has_value()) {
 
                 const network::generic_response resp{call_rv.value()};
                 ec = resp.error_code();
 
                 LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                            "rpc id: {} name: {} from: {} <= "
-                            "body: {{retval: {}}} [op_id: {}]",
-                            rpc_id, std::quoted("ADM_"s + __FUNCTION__),
-                            std::quoted(endp.address()), ec, resp.op_id());
+                            "rpc {:>} body: {{retval: {}}} [op_id: {}]",
+                            child_rpc, ec, resp.op_id());
+            } else {
+                ec = error_code::snafu;
+                LOGGER_ERROR("rpc call failed");
             }
         }
     } else {
         ec = am_result.error();
-        LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
-                     "body: {{retval: {}}}",
-                     rpc_id, std::quoted(rpc_name),
-                     std::quoted(get_address(req)), ec);
+        LOGGER_ERROR("rpc {:<} body: {{retval: {}}}", rpc, ec);
     }
 
-    const auto resp = generic_response{rpc_id, ec};
+    const auto resp = generic_response{rpc.id(), ec};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
 
     req.respond(resp);
 }
@@ -401,22 +354,17 @@ rpc_server::tear_down_adhoc_storage(const network::request& req,
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{adhoc_id: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                adhoc_id);
+    LOGGER_INFO("rpc {:>} body: {{adhoc_id: {}}}", rpc, adhoc_id);
 
     // TODO: actually tear down the adhoc storage instance
 
-    const auto resp = generic_response{rpc_id, scord::error_code::success};
+    const auto resp = generic_response{rpc.id(), scord::error_code::success};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc,
                 scord::error_code::success);
 
     req.respond(resp);
@@ -430,14 +378,12 @@ rpc_server::register_pfs_storage(const network::request& req,
 
     using network::get_address;
     using network::response_with_id;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{name: {}, type: {}, pfs_ctx: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                name, type, ctx);
+    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, pfs_ctx: {}}}", rpc, name,
+                type, ctx);
 
     scord::error_code ec;
     std::optional<std::uint64_t> pfs_id = 0;
@@ -448,16 +394,13 @@ rpc_server::register_pfs_storage(const network::request& req,
         pfs_id = adhoc_storage_info->pfs_storage().id();
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error creating pfs_storage: {}\"",
-                     rpc_id, pm_result.error());
+                     rpc.id(), pm_result.error());
         ec = pm_result.error();
     }
 
-    const auto resp = response_with_id{rpc_id, ec, pfs_id};
+    const auto resp = response_with_id{rpc.id(), ec, pfs_id};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} => "
-                "body: {{retval: {}, pfs_id: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec, pfs_id);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}, pfs_id: {}}}", rpc, ec, pfs_id);
 
     req.respond(resp);
 }
@@ -469,28 +412,23 @@ rpc_server::update_pfs_storage(const network::request& req,
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{pfs_id: {}, new_ctx: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                pfs_id, new_ctx);
+    LOGGER_INFO("rpc {:>} body: {{pfs_id: {}, new_ctx: {}}}", rpc, pfs_id,
+                new_ctx);
 
     const auto ec = m_pfs_manager.update(pfs_id, new_ctx);
 
     if(!ec) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error updating pfs_storage: {}\"",
-                     rpc_id, ec);
+                     rpc.id(), ec);
     }
 
-    const auto resp = generic_response{rpc_id, ec};
+    const auto resp = generic_response{rpc.id(), ec};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} => "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
 
     req.respond(resp);
 }
@@ -501,28 +439,22 @@ rpc_server::remove_pfs_storage(const network::request& req,
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{pfs_id: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                pfs_id);
+    LOGGER_INFO("rpc {:>} body: {{pfs_id: {}}}", rpc, pfs_id);
 
     scord::error_code ec = m_pfs_manager.remove(pfs_id);
 
     if(!ec) {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error removing pfs storage: {}\"",
-                     rpc_id, pfs_id);
+                     rpc.id(), pfs_id);
     }
 
-    const auto resp = generic_response{rpc_id, ec};
+    const auto resp = generic_response{rpc.id(), ec};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
 
     req.respond(resp);
 }
@@ -536,15 +468,13 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
 
     using network::get_address;
     using network::response_with_id;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO(
-            "rpc id: {} name: {} from: {} => "
-            "body: {{job_id: {}, sources: {}, targets: {}, limits: {}, mapping: {}}}",
-            rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-            job_id, sources, targets, limits, mapping);
+    LOGGER_INFO("rpc {:>} body: {{job_id: {}, sources: {}, targets: {}, "
+                "limits: {}, mapping: {}}}",
+                rpc, job_id, sources, targets, limits, mapping);
 
     scord::error_code ec;
 
@@ -554,12 +484,9 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
     // actually request it
     tx_id = 42;
 
-    const auto resp = response_with_id{rpc_id, ec, tx_id};
+    const auto resp = response_with_id{rpc.id(), ec, tx_id};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}, tx_id: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec, tx_id);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc, ec, tx_id);
 
     req.respond(resp);
 }

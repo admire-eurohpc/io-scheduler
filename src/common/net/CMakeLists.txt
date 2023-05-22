@@ -25,7 +25,7 @@
 add_library(_rpc_client STATIC)
 target_sources(
   _rpc_client
-  INTERFACE endpoint.hpp client.hpp request.hpp serialization.hpp
+  INTERFACE endpoint.hpp client.hpp request.hpp serialization.hpp utilities.hpp
   PRIVATE endpoint.cpp client.cpp
 )
 
@@ -35,7 +35,7 @@ set_property(TARGET _rpc_client PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_library(_rpc_server STATIC)
 target_sources(
   _rpc_server
-  INTERFACE endpoint.hpp server.hpp request.hpp serialization.hpp
+  INTERFACE endpoint.hpp server.hpp request.hpp serialization.hpp utilities.hpp
   PRIVATE server.cpp endpoint.cpp
 )
 

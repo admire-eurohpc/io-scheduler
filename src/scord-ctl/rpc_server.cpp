@@ -24,6 +24,7 @@
 
 #include <net/request.hpp>
 #include <net/serialization.hpp>
+#include <net/utilities.hpp>
 #include "rpc_server.hpp"
 
 // required for ::waitpid()
@@ -31,14 +32,6 @@
 #include <sys/wait.h>
 
 using namespace std::literals;
-
-struct remote_procedure {
-    static std::uint64_t
-    new_id() {
-        static std::atomic_uint64_t current_id;
-        return current_id++;
-    }
-};
 
 namespace scord_ctl {
 
@@ -56,24 +49,22 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
 #undef EXPAND
 }
 
+#define RPC_NAME() ("ADM_"s + __FUNCTION__)
+
 void
 rpc_server::ping(const network::request& req) {
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)));
+    LOGGER_INFO("rpc {:>} body: {{}}", rpc);
 
-    const auto resp = generic_response{rpc_id, scord::error_code::success};
+    const auto resp = generic_response{rpc.id(), scord::error_code::success};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc,
                 scord::error_code::success);
 
     req.respond(resp);
@@ -88,15 +79,12 @@ rpc_server::deploy_adhoc_storage(
 
     using network::generic_response;
     using network::get_address;
+    using network::rpc_info;
 
-    const auto rpc_name = "ADM_"s + __FUNCTION__;
-    const auto rpc_id = remote_procedure::new_id();
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc id: {} name: {} from: {} => "
-                "body: {{type: {}, ctx: {}, resources: {}}}",
-                rpc_id, std::quoted(__FUNCTION__),
-                std::quoted(get_address(req)), adhoc_type, adhoc_ctx,
-                adhoc_resources);
+    LOGGER_INFO("rpc {:>} body: {{type: {}, ctx: {}, resources: {}}}", rpc,
+                adhoc_type, adhoc_ctx, adhoc_resources);
 
     auto ec = scord::error_code::success;
 
@@ -133,10 +121,7 @@ rpc_server::deploy_adhoc_storage(
             }
             case -1: {
                 ec = scord::error_code::other;
-                LOGGER_ERROR("rpc id: {} name: {} to: {} <= "
-                             "body: {{retval: {}}}",
-                             rpc_id, std::quoted(rpc_name),
-                             std::quoted(get_address(req)), ec);
+                LOGGER_ERROR("rpc {:<} body: {{retval: {}}}", rpc, ec);
                 break;
             }
             default: {
@@ -145,7 +130,7 @@ rpc_server::deploy_adhoc_storage(
                 if(retwait == -1) {
                     LOGGER_ERROR(
                             "rpc id: {} error_msg: \"Error waitpid code: {}\"",
-                            rpc_id, retwait);
+                            rpc.id(), retwait);
                     ec = scord::error_code::other;
                 } else {
                     if(WEXITSTATUS(wstatus) != 0) {
@@ -159,12 +144,9 @@ rpc_server::deploy_adhoc_storage(
         }
     }
 
-    const auto resp = generic_response{rpc_id, ec};
+    const auto resp = generic_response{rpc.id(), ec};
 
-    LOGGER_INFO("rpc id: {} name: {} to: {} <= "
-                "body: {{retval: {}}}",
-                rpc_id, std::quoted(rpc_name), std::quoted(get_address(req)),
-                ec);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
 
     req.respond(resp);
 }

@@ -28,7 +28,6 @@
 #include <scord/types.hpp>
 #include <atomic>
 #include <utility>
-#include <utils/utils.hpp>
 #include <unordered_map>
 #include <tl/expected.hpp>
 #include <logger/logger.hpp>
@@ -37,8 +36,7 @@
 
 namespace scord {
 
-
-struct job_manager : scord::utils::singleton<job_manager> {
+struct job_manager {
 
     tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
     create(scord::slurm_job_id slurm_id, scord::job::resources job_resources,
@@ -112,9 +110,6 @@ struct job_manager : scord::utils::singleton<job_manager> {
     }
 
 private:
-    friend class scord::utils::singleton<job_manager>;
-    job_manager() = default;
-
     mutable abt::shared_mutex m_jobs_mutex;
     std::unordered_map<scord::job_id,
                        std::shared_ptr<scord::internal::job_info>>

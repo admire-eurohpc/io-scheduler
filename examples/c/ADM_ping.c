@@ -26,17 +26,23 @@
 #include <stdio.h>
 #include <scord/scord.h>
 #include <assert.h>
+#include "common.h"
 
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 2) {
-        fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_ping <SERVER_ADDRESS>\n");
+    test_info_t test_info = {
+            .name = TESTNAME,
+            .requires_server = true,
+            .requires_controller = false,
+    };
+
+    cli_args_t cli_args;
+    if(process_args(argc, argv, test_info, &cli_args)) {
         exit(EXIT_FAILURE);
     }
 
-    ADM_server_t server = ADM_server_create("tcp", argv[1]);
+    ADM_server_t server = ADM_server_create("tcp", cli_args.server_address);
 
     ADM_return_t ret = ADM_ping(server);
 

@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <cassert>
+#include <vector>
 #include <abt.h>
 #include <fmt/format.h>
 

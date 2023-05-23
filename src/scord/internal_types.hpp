@@ -26,27 +26,22 @@
 #ifndef SCORD_INTERNAL_TYPES_HPP
 #define SCORD_INTERNAL_TYPES_HPP
 
-#include <abt_cxx/shared_mutex.hpp>
+#include <optional>
+#include <logger/logger.hpp>
+#include <scord/types.hpp>
 
 namespace scord::internal {
 
 struct job_info {
-    explicit job_info(scord::job job) : m_job(std::move(job)) {}
 
     job_info(scord::job job, scord::job::resources resources,
-             scord::job::requirements requirements)
-        : m_job(std::move(job)), m_resources(std::move(resources)),
-          m_requirements(std::move(requirements)) {}
+             scord::job::requirements requirements);
 
     scord::job
-    job() const {
-        return m_job;
-    }
+    job() const;
 
     std::optional<scord::job::resources>
-    resources() const {
-        return m_resources;
-    }
+    resources() const;
 
     std::optional<scord::job::requirements>
     requirements() const {
@@ -54,9 +49,7 @@ struct job_info {
     }
 
     void
-    update(scord::job::resources resources) {
-        m_resources = std::move(resources);
-    }
+    update(scord::job::resources resources);
 
     scord::job m_job;
     std::optional<scord::job::resources> m_resources;
@@ -65,46 +58,22 @@ struct job_info {
 
 struct adhoc_storage_info {
 
-    explicit adhoc_storage_info(scord::adhoc_storage adhoc_storage)
-        : m_adhoc_storage(std::move(adhoc_storage)) {}
+    explicit adhoc_storage_info(scord::adhoc_storage adhoc_storage);
 
     scord::adhoc_storage
-    adhoc_storage() const {
-        return m_adhoc_storage;
-    }
+    adhoc_storage() const;
 
     void
-    update(scord::adhoc_storage::resources new_resources) {
-        m_adhoc_storage.update(std::move(new_resources));
-    }
+    update(scord::adhoc_storage::resources new_resources);
 
     scord::error_code
-    add_client_info(std::shared_ptr<scord::internal::job_info> job_info) {
-
-        scord::abt::unique_lock lock(m_info_mutex);
-
-        if(m_client_info) {
-            LOGGER_ERROR("adhoc storage {} already has a client",
-                         m_adhoc_storage.id());
-            return error_code::adhoc_in_use;
-        }
-
-        m_client_info = std::move(job_info);
-
-        return error_code::success;
-    }
+    add_client_info(std::shared_ptr<scord::internal::job_info> job_info);
 
     void
-    remove_client_info() {
-        scord::abt::unique_lock lock(m_info_mutex);
-        m_client_info.reset();
-    }
+    remove_client_info();
 
     std::shared_ptr<scord::internal::job_info>
-    client_info() const {
-        scord::abt::shared_lock lock(m_info_mutex);
-        return m_client_info;
-    }
+    client_info() const;
 
     scord::adhoc_storage m_adhoc_storage;
     std::shared_ptr<scord::internal::job_info> m_client_info;
@@ -113,18 +82,13 @@ struct adhoc_storage_info {
 
 struct pfs_storage_info {
 
-    explicit pfs_storage_info(scord::pfs_storage pfs_storage)
-        : m_pfs_storage(std::move(pfs_storage)) {}
+    explicit pfs_storage_info(scord::pfs_storage pfs_storage);
 
     scord::pfs_storage
-    pfs_storage() const {
-        return m_pfs_storage;
-    }
+    pfs_storage() const;
 
     void
-    update(scord::pfs_storage::ctx pfs_context) {
-        m_pfs_storage.update(std::move(pfs_context));
-    }
+    update(scord::pfs_storage::ctx pfs_context);
 
     scord::pfs_storage m_pfs_storage;
     std::shared_ptr<scord::internal::job_info> m_client_info;

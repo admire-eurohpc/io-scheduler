@@ -40,10 +40,11 @@
 #include <logger/logger.hpp>
 #include <utils/signal_listener.hpp>
 #include "server.hpp"
+#include "endpoint.hpp"
 
 using namespace std::literals;
 
-namespace scord::network {
+namespace network {
 
 server::server(std::string name, std::string address, bool daemonize,
                fs::path rundir)
@@ -51,7 +52,7 @@ server::server(std::string name, std::string address, bool daemonize,
       m_daemonize(daemonize), m_rundir(std::move(rundir)),
       m_pidfile(daemonize ? std::make_optional(m_rundir / (m_name + ".pid"))
                           : std::nullopt),
-      m_logger_config(m_name, scord::logger_type::console_color),
+      m_logger_config(m_name, logger::logger_type::console_color),
       m_network_engine(m_address, THALLIUM_SERVER_MODE) {}
 
 server::~server() = default;
@@ -212,7 +213,7 @@ server::signal_handler(int signum) {
 
         case SIGHUP:
             LOGGER_WARN("A signal (SIGHUP) occurred.");
-            logger::get_global_logger()->flush();
+            logger::flush_global_logger();
             break;
 
         default:
@@ -224,25 +225,25 @@ void
 server::init_logger() {
 
     switch(m_logger_config.type()) {
-        case console_color:
+        case logger::logger_type::console_color:
             logger::create_global_logger(m_logger_config.ident(),
-                                         logger_type::console_color);
+                                         logger::logger_type::console_color);
             break;
-        case syslog:
+        case logger::logger_type::syslog:
             logger::create_global_logger(m_logger_config.ident(),
-                                         logger_type::syslog);
+                                         logger::logger_type::syslog);
             break;
-        case file:
+        case logger::logger_type::file:
             if(m_logger_config.log_file().has_value()) {
                 logger::create_global_logger(m_logger_config.ident(),
-                                             logger_type::file,
+                                             logger::logger_type::file,
                                              *m_logger_config.log_file());
                 break;
             }
             [[fallthrough]];
-        case console:
+        case logger::logger_type::console:
             logger::create_global_logger(m_logger_config.ident(),
-                                         logger_type::console);
+                                         logger::logger_type::console);
             break;
     }
 }
@@ -300,6 +301,26 @@ server::print_farewell() {
     LOGGER_INFO("{:=>{}}", "", farewell.size());
     LOGGER_INFO(farewell);
     LOGGER_INFO("{:=>{}}", "", farewell.size());
+}
+
+std::optional<endpoint>
+server::lookup(const std::string& address) noexcept {
+    try {
+        return endpoint{m_network_engine, m_network_engine.lookup(address)};
+    } catch(const std::exception& ex) {
+        LOGGER_ERROR("server::lookup() failed: {}", ex.what());
+        return std::nullopt;
+    }
+}
+
+std::string
+server::self_address() const noexcept {
+    try {
+        return m_network_engine.self();
+    } catch(const std::exception& ex) {
+        LOGGER_ERROR("server::self_address() failed: {}", ex.what());
+        return "unknown"s;
+    }
 }
 
 int
@@ -380,4 +401,4 @@ server::shutdown() {
     m_network_engine.finalize();
 }
 
-} // namespace scord::network
+} // namespace network

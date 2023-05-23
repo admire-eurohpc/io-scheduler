@@ -22,20 +22,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_ENDPOINT_HPP
-#define SCORD_ENDPOINT_HPP
+#ifndef NETWORK_ENDPOINT_HPP
+#define NETWORK_ENDPOINT_HPP
 
 #include <thallium.hpp>
 #include <optional>
 #include <logger/logger.hpp>
 
-namespace scord::network {
+namespace network {
 
 class endpoint {
 
 public:
-    endpoint(std::shared_ptr<thallium::engine> engine,
-             thallium::endpoint endpoint);
+    endpoint(thallium::engine& engine, thallium::endpoint endpoint);
 
     std::string
     address() const;
@@ -45,7 +44,7 @@ public:
     call(const std::string& rpc_name, Args&&... args) const {
 
         try {
-            const auto rpc = m_engine->define(rpc_name);
+            const auto rpc = m_engine.define(rpc_name);
             return std::make_optional(
                     rpc.on(m_endpoint)(std::forward<Args>(args)...));
         } catch(const std::exception& ex) {
@@ -65,10 +64,10 @@ public:
     }
 
 private:
-    std::shared_ptr<thallium::engine> m_engine;
+    mutable thallium::engine m_engine;
     thallium::endpoint m_endpoint;
 };
 
-} // namespace scord::network
+} // namespace network
 
-#endif // SCORD_ENDPOINT_HPP
+#endif // NETWORK_ENDPOINT_HPP

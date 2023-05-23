@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain
+ * Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain
  *
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
@@ -22,18 +22,34 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_CTL_RPC_HANDLERS_HPP
-#define SCORD_CTL_RPC_HANDLERS_HPP
 
-#include <net/request.hpp>
-#include <net/serialization.hpp>
+#ifndef SCORD_CTL_RPC_SERVER_HPP
+#define SCORD_CTL_RPC_SERVER_HPP
+
+#include <net/server.hpp>
 #include <scord/types.hpp>
 
-namespace scord::network::handlers {
+namespace scord_ctl {
 
-void
-ping(const scord::network::request& req);
+class rpc_server : public network::server,
+                   public network::provider<rpc_server> {
 
-} // namespace scord::network::handlers
+public:
+    rpc_server(std::string name, std::string address, bool daemonize,
+               std::filesystem::path rundir);
 
-#endif // SCORD_CTL_RPC_HANDLERS_HPP
+private:
+    void
+    ping(const network::request& req);
+
+    void
+    deploy_adhoc_storage(
+            const network::request& req,
+            enum scord::adhoc_storage::type adhoc_type,
+            const scord::adhoc_storage::ctx& adhoc_ctx,
+            const scord::adhoc_storage::resources& adhoc_resources);
+};
+
+} // namespace scord_ctl
+
+#endif // SCORD_SCORD_CTL_RPC_SERVER_HPP

@@ -28,7 +28,6 @@
 
 #include <scord/types.hpp>
 #include <utility>
-#include <utils/utils.hpp>
 #include <unordered_map>
 #include <abt_cxx/shared_mutex.hpp>
 #include <tl/expected.hpp>
@@ -38,7 +37,7 @@
 
 namespace scord {
 
-struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
+struct adhoc_storage_manager {
 
     tl::expected<std::shared_ptr<scord::internal::adhoc_storage_info>,
                  scord::error_code>
@@ -144,9 +143,6 @@ struct adhoc_storage_manager : scord::utils::singleton<adhoc_storage_manager> {
 
 
 private:
-    friend class scord::utils::singleton<adhoc_storage_manager>;
-    adhoc_storage_manager() = default;
-
     mutable abt::shared_mutex m_adhoc_storages_mutex;
     std::unordered_map<std::uint64_t,
                        std::shared_ptr<scord::internal::adhoc_storage_info>>

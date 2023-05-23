@@ -25,13 +25,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <scord/scord.h>
+#include "common.h"
 
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 2) {
-        fprintf(stderr, "ERROR: no server address provided\n");
-        fprintf(stderr, "Usage: ADM_register_pfs_storage <SERVER_ADDRESS>\n");
+    test_info_t test_info = {
+            .name = TESTNAME,
+            .requires_server = true,
+            .requires_controller = false,
+    };
+
+    cli_args_t cli_args;
+    if(process_args(argc, argv, test_info, &cli_args)) {
         exit(EXIT_FAILURE);
     }
 
@@ -62,7 +68,7 @@ main(int argc, char* argv[]) {
     // now ready. Let's actually contact the server:
 
     // 1. Find the server endpoint
-    if((server = ADM_server_create("tcp", argv[1])) == NULL) {
+    if((server = ADM_server_create("tcp", cli_args.server_address)) == NULL) {
         fprintf(stderr, "Fatal error creating server\n");
         goto cleanup;
     }

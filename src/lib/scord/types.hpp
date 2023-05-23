@@ -96,7 +96,7 @@ struct error_code {
     template <typename Archive>
     void
     serialize(Archive&& ar) {
-        ar& m_value;
+        ar & m_value;
     }
 
 private:
@@ -212,7 +212,7 @@ struct adhoc_storage {
         template <typename Archive>
         void
         serialize(Archive&& ar) {
-            ar& m_nodes;
+            ar & m_nodes;
         }
 
     private:
@@ -223,18 +223,18 @@ struct adhoc_storage {
 
         ctx() = default;
 
-        ctx(execution_mode exec_mode, access_type access_type,
-            std::uint32_t walltime, bool should_flush);
+        ctx(std::string controller_address, execution_mode exec_mode,
+            access_type access_type, std::uint32_t walltime, bool should_flush);
 
         explicit ctx(ADM_adhoc_context_t ctx);
         explicit operator ADM_adhoc_context_t() const;
 
+        std::string
+        controller_address() const;
         execution_mode
         exec_mode() const;
         enum access_type
         access_type() const;
-        adhoc_storage::resources
-        resources() const;
         std::uint32_t
         walltime() const;
         bool
@@ -243,13 +243,15 @@ struct adhoc_storage {
         template <class Archive>
         void
         serialize(Archive&& ar) {
-            ar& m_exec_mode;
-            ar& m_access_type;
-            ar& m_walltime;
-            ar& m_should_flush;
+            ar & m_controller_address;
+            ar & m_exec_mode;
+            ar & m_access_type;
+            ar & m_walltime;
+            ar & m_should_flush;
         }
 
     private:
+        std::string m_controller_address;
         execution_mode m_exec_mode;
         enum access_type m_access_type;
         std::uint32_t m_walltime;
@@ -257,10 +259,6 @@ struct adhoc_storage {
     };
 
     adhoc_storage();
-    adhoc_storage(enum adhoc_storage::type type, std::string name,
-                  std::uint64_t id, execution_mode exec_mode,
-                  access_type access_type, adhoc_storage::resources res,
-                  std::uint32_t walltime, bool should_flush);
     explicit adhoc_storage(ADM_adhoc_storage_t storage);
     explicit operator ADM_adhoc_storage_t() const;
     adhoc_storage(enum adhoc_storage::type type, std::string name,
@@ -326,7 +324,7 @@ struct pfs_storage {
         template <class Archive>
         void
         serialize(Archive&& ar) {
-            ar& m_mount_point;
+            ar & m_mount_point;
         }
 
     private:
@@ -388,7 +386,7 @@ struct job {
         template <typename Archive>
         void
         serialize(Archive&& ar) {
-            ar& m_nodes;
+            ar & m_nodes;
         }
 
     private:
@@ -417,9 +415,9 @@ struct job {
         template <class Archive>
         void
         serialize(Archive& ar) {
-            ar& m_inputs;
-            ar& m_outputs;
-            ar& m_adhoc_storage;
+            ar & m_inputs;
+            ar & m_outputs;
+            ar & m_adhoc_storage;
         }
 
     private:
@@ -820,10 +818,11 @@ struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
     auto
     format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const {
 
-        const auto str = fmt::format("{{execution_mode: {}, access_type: {}, "
-                                     "walltime: {}, should_flush: {}}}",
-                                     c.exec_mode(), c.access_type(),
-                                     c.walltime(), c.should_flush());
+        const auto str =
+                fmt::format("{{controller: {}, execution_mode: {}, "
+                            "access_type: {}, walltime: {}, should_flush: {}}}",
+                            std::quoted(c.controller_address()), c.exec_mode(),
+                            c.access_type(), c.walltime(), c.should_flush());
 
         return formatter<std::string_view>::format(str, ctx);
     }

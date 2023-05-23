@@ -22,8 +22,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_SERIALIZATION_HPP
-#define SCORD_SERIALIZATION_HPP
+#ifndef NETWORK_SERIALIZATION_HPP
+#define NETWORK_SERIALIZATION_HPP
 
 #include <cereal/cereal.hpp>
 #include <cereal/types/optional.hpp>
@@ -57,13 +57,13 @@ CEREAL_SAVE_FUNCTION_NAME(Archive& ar, const std::filesystem::path& in) {
 
 } // namespace cereal
 
-namespace scord::network::serialization {
+namespace network::serialization {
 
 #define SCORD_SERIALIZATION_NVP CEREAL_NVP
 
 using input_archive = thallium::proc_input_archive<>;
 using output_archive = thallium::proc_output_archive<>;
 
-} // namespace scord::network::serialization
+} // namespace network::serialization
 
-#endif // SCORD_SERIALIZATION_HPP
+#endif // NETWORK_SERIALIZATION_HPP

@@ -53,11 +53,11 @@ init_logger() {
         if(const auto p = std::getenv(scord::env::LOG);
            p && !std::string{p}.empty() && std::string{p} != "0") {
             if(const auto log_file = std::getenv(scord::env::LOG_OUTPUT)) {
-                scord::logger::create_global_logger(
-                        "libscord", scord::logger_type::file, log_file);
+                logger::create_global_logger(
+                        "libscord", logger::logger_type::file, log_file);
             } else {
-                scord::logger::create_global_logger(
-                        "libscord", scord::logger_type::console_color);
+                logger::create_global_logger(
+                        "libscord", logger::logger_type::console_color);
             }
         }
     } catch(const std::exception& ex) {

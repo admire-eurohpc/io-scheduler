@@ -33,6 +33,9 @@ if(SCORD_BUILD_TESTS)
   set(TEST_ENV)
   list(APPEND TEST_ENV SCORD_LOG_OUTPUT=${TEST_DIRECTORY}/scord_daemon.log)
 
+  set(SCORD_ADDRESS_STRING
+    ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
+
   add_test(start_scord_daemon
     ${CMAKE_SOURCE_DIR}/scripts/runner.sh start scord.pid
            ${CMAKE_BINARY_DIR}/src/scord/scord -f
@@ -48,6 +51,27 @@ if(SCORD_BUILD_TESTS)
 
   set_tests_properties(stop_scord_daemon PROPERTIES FIXTURES_CLEANUP
     scord_daemon)
+
+  set(SCORD_CTL_TRANSPORT_PROTOCOL ${SCORD_TRANSPORT_PROTOCOL})
+  set(SCORD_CTL_BIND_ADDRESS ${SCORD_BIND_ADDRESS})
+  math(EXPR SCORD_CTL_BIND_PORT "${SCORD_BIND_PORT} + 1")
+  set(SCORD_CTL_ADDRESS_STRING
+    ${SCORD_CTL_TRANSPORT_PROTOCOL}://${SCORD_CTL_BIND_ADDRESS}:${SCORD_CTL_BIND_PORT})
+
+  add_test(start_scord_ctl
+    ${CMAKE_SOURCE_DIR}/scripts/runner.sh start scord-ctl.pid
+    ${CMAKE_BINARY_DIR}/src/scord-ctl/scord-ctl -l ${SCORD_CTL_ADDRESS_STRING} -o ${TEST_DIRECTORY}/scord_ctl.log
+    )
+
+  set_tests_properties(start_scord_ctl
+    PROPERTIES FIXTURES_SETUP scord_ctl)
+
+  add_test(stop_scord_ctl
+    ${CMAKE_SOURCE_DIR}/scripts/runner.sh stop TERM scord-ctl.pid
+    )
+
+  set_tests_properties(stop_scord_ctl PROPERTIES FIXTURES_CLEANUP scord_ctl)
+
 endif()
 
 add_subdirectory(c)

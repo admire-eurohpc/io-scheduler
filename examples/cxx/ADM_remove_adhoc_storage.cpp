@@ -34,14 +34,15 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 2) {
-        fmt::print(stderr, "ERROR: no location provided\n");
-        fmt::print(stderr,
-                   "Usage: ADM_remove_adhoc_storage <SERVER_ADDRESS>\n");
-        exit(EXIT_FAILURE);
-    }
+    test_info test_info{
+            .name = TESTNAME,
+            .requires_server = true,
+            .requires_controller = true,
+    };
 
-    scord::server server{"tcp", argv[1]};
+    const auto cli_args = process_args(argc, argv, test_info);
+
+    scord::server server{"tcp", cli_args.server_address};
 
     const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
@@ -49,6 +50,7 @@ main(int argc, char* argv[]) {
 
     std::string name = "adhoc_storage_42";
     const auto adhoc_storage_ctx = scord::adhoc_storage::ctx{
+            cli_args.controller_address,
             scord::adhoc_storage::execution_mode::separate_new,
             scord::adhoc_storage::access_type::read_write, 100, false};
     const auto adhoc_resources = scord::adhoc_storage::resources{adhoc_nodes};

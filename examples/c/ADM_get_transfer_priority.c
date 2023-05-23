@@ -36,14 +36,19 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 2) {
-        fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_get_transfer_priority <SERVER_ADDRESS>\n");
+    test_info_t test_info = {
+            .name = TESTNAME,
+            .requires_server = true,
+            .requires_controller = true,
+    };
+
+    cli_args_t cli_args;
+    if(process_args(argc, argv, test_info, &cli_args)) {
         exit(EXIT_FAILURE);
     }
 
     int exit_status = EXIT_SUCCESS;
-    ADM_server_t server = ADM_server_create("tcp", argv[1]);
+    ADM_server_t server = ADM_server_create("tcp", cli_args.server_address);
 
     ADM_job_t job = NULL;
     ADM_node_t* job_nodes = prepare_nodes(NJOB_NODES);
@@ -64,7 +69,8 @@ main(int argc, char* argv[]) {
     assert(adhoc_resources);
 
     ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
-            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 100, false);
+            cli_args.controller_address, ADM_ADHOC_MODE_SEPARATE_NEW,
+            ADM_ADHOC_ACCESS_RDWR, 100, false);
     assert(ctx);
 
     const char* name = "adhoc_storage_42";

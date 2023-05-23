@@ -34,9 +34,14 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 2) {
-        fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_remove_adhoc_storage <SERVER_ADDRESS>\n");
+    test_info_t test_info = {
+            .name = TESTNAME,
+            .requires_server = true,
+            .requires_controller = true,
+    };
+
+    cli_args_t cli_args;
+    if(process_args(argc, argv, test_info, &cli_args)) {
         exit(EXIT_FAILURE);
     }
 
@@ -75,7 +80,8 @@ main(int argc, char* argv[]) {
     }
 
     // 3. the adhoc storage execution context
-    adhoc_ctx = ADM_adhoc_context_create(ADM_ADHOC_MODE_SEPARATE_NEW,
+    adhoc_ctx = ADM_adhoc_context_create(cli_args.controller_address,
+                                         ADM_ADHOC_MODE_SEPARATE_NEW,
                                          ADM_ADHOC_ACCESS_RDWR, 100, false);
 
     if(adhoc_ctx == NULL) {
@@ -88,7 +94,7 @@ main(int argc, char* argv[]) {
     // now ready. Let's actually contact the server:
 
     // 1. Find the server endpoint
-    if((server = ADM_server_create("tcp", argv[1])) == NULL) {
+    if((server = ADM_server_create("tcp", cli_args.server_address)) == NULL) {
         fprintf(stderr, "Fatal error creating server\n");
         goto cleanup;
     }

@@ -35,9 +35,14 @@
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 2) {
-        fprintf(stderr, "ERROR: no location provided\n");
-        fprintf(stderr, "Usage: ADM_register_job <SERVER_ADDRESS>\n");
+    test_info_t test_info = {
+            .name = TESTNAME,
+            .requires_server = true,
+            .requires_controller = true,
+    };
+
+    cli_args_t cli_args;
+    if(process_args(argc, argv, test_info, &cli_args)) {
         exit(EXIT_FAILURE);
     }
 
@@ -83,7 +88,8 @@ main(int argc, char* argv[]) {
     }
 
     // 3. the adhoc storage execution context
-    adhoc_ctx = ADM_adhoc_context_create(ADM_ADHOC_MODE_SEPARATE_NEW,
+    adhoc_ctx = ADM_adhoc_context_create(cli_args.controller_address,
+                                         ADM_ADHOC_MODE_SEPARATE_NEW,
                                          ADM_ADHOC_ACCESS_RDWR, 100, false);
 
     if(adhoc_ctx == NULL) {
@@ -96,15 +102,15 @@ main(int argc, char* argv[]) {
     // now ready. Let's actually contact the server:
 
     // 1. Find the server endpoint
-    if((server = ADM_server_create("tcp", argv[1])) == NULL) {
+    if((server = ADM_server_create("tcp", cli_args.server_address)) == NULL) {
         fprintf(stderr, "Fatal error creating server\n");
         goto cleanup;
     }
 
     // 2. Register the adhoc storage
-    if(ADM_register_adhoc_storage(server, adhoc_name, ADM_ADHOC_STORAGE_GEKKOFS,
-                                  adhoc_ctx, adhoc_resources,
-                                  &adhoc_storage) != ADM_SUCCESS) {
+    if((ret = ADM_register_adhoc_storage(
+                server, adhoc_name, ADM_ADHOC_STORAGE_GEKKOFS, adhoc_ctx,
+                adhoc_resources, &adhoc_storage)) != ADM_SUCCESS) {
         fprintf(stderr, "ADM_register_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));
         goto cleanup;
@@ -154,8 +160,8 @@ main(int argc, char* argv[]) {
 
     // All the information required by the ADM_register_job() API is now ready.
     // Let's actually contact the server:
-    if(ADM_register_job(server, job_resources, reqs, slurm_job_id, &job) !=
-       ADM_SUCCESS) {
+    if((ret = ADM_register_job(server, job_resources, reqs, slurm_job_id,
+                               &job)) != ADM_SUCCESS) {
         fprintf(stderr, "ADM_register_job() failed: %s\n", ADM_strerror(ret));
         goto cleanup;
     }

@@ -22,13 +22,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#ifndef SCORD_NET_REQUEST_HPP
-#define SCORD_NET_REQUEST_HPP
+#ifndef NETWORK_REQUEST_HPP
+#define NETWORK_REQUEST_HPP
 
 #include <thallium.hpp>
 #include <scord/types.hpp>
 
-namespace scord::network {
+namespace network {
 
 using request = thallium::request;
 
@@ -100,6 +100,6 @@ private:
 
 using response_with_id = response_with_value<std::uint64_t>;
 
-} // namespace scord::network
+} // namespace network
 
-#endif // SCORD_NET_REQUEST_HPP
+#endif // NETWORK_REQUEST_HPP

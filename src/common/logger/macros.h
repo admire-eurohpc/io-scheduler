@@ -31,7 +31,7 @@
 
 #define LOGGER_INFO(...)                                                       \
     do {                                                                       \
-        using scord::logger;                                                   \
+        using logger::logger;                                                  \
         if(logger::get_global_logger()) {                                      \
             logger::get_global_logger()->info(__VA_ARGS__);                    \
         }                                                                      \
@@ -42,7 +42,7 @@
 
 #define LOGGER_DEBUG(...)                                                      \
     do {                                                                       \
-        using scord::logger;                                                   \
+        using logger::logger;                                                  \
         if(logger::get_global_logger()) {                                      \
             logger::get_global_logger()->debug(__VA_ARGS__);                   \
         }                                                                      \
@@ -50,7 +50,7 @@
 
 #define LOGGER_FLUSH()                                                         \
     do {                                                                       \
-        using scord::logger;                                                   \
+        using logger::logger;                                                  \
         if(logger::get_global_logger()) {                                      \
             logger::get_global_logger()->flush();                              \
         }                                                                      \
@@ -69,7 +69,7 @@
 
 #define LOGGER_WARN(...)                                                       \
     do {                                                                       \
-        using scord::logger;                                                   \
+        using logger::logger;                                                  \
         if(logger::get_global_logger()) {                                      \
             logger::get_global_logger()->warn(__VA_ARGS__);                    \
         }                                                                      \
@@ -77,7 +77,7 @@
 
 #define LOGGER_ERROR(...)                                                      \
     do {                                                                       \
-        using scord::logger;                                                   \
+        using logger::logger;                                                  \
         if(logger::get_global_logger()) {                                      \
             logger::get_global_logger()->error(__VA_ARGS__);                   \
         }                                                                      \
@@ -85,7 +85,7 @@
 
 #define LOGGER_ERRNO(...)                                                      \
     do {                                                                       \
-        using scord::logger;                                                   \
+        using logger::logger;                                                  \
         if(logger::get_global_logger()) {                                      \
             logger::get_global_logger()->error_errno(__VA_ARGS__);             \
         }                                                                      \
@@ -93,7 +93,8 @@
 
 #define LOGGER_CRITICAL(...)                                                   \
     do {                                                                       \
-        using scord::logger;                                                   \
+        using logger::logger;                                                  \
+        using logger::logger;                                                  \
         if(logger::get_global_logger()) {                                      \
             logger::get_global_logger()->critical(__VA_ARGS__);                \
         }                                                                      \

@@ -32,24 +32,26 @@ logger_setup(const char* ident, logger_type type, const char* log_file) {
     constexpr auto get_cxx_type = [](logger_type t) {
         switch(t) {
             case CONSOLE_LOGGER:
-                return scord::logger_type::console;
+                return logger::logger_type::console;
             case CONSOLE_COLOR_LOGGER:
-                return scord::logger_type::console_color;
+                return logger::logger_type::console_color;
             case FILE_LOGGER:
-                return scord::logger_type::file;
+                return logger::logger_type::file;
             case SYSLOG_LOGGER:
-                return scord::logger_type::syslog;
+                return logger::logger_type::syslog;
             default:
-                return scord::logger_type::console;
+                return logger::logger_type::console;
         }
     };
-    scord::logger::create_global_logger(ident, get_cxx_type(type), log_file);
+    logger::create_global_logger(ident, get_cxx_type(type), log_file);
 }
 
 void
 logger_log(enum logger_level level, const char* fmt, ...) {
 
-    if(const auto logger = scord::logger::get_global_logger(); logger) {
+    using logger::logger;
+
+    if(const auto logger = logger::get_global_logger(); logger) {
 
         std::array<char, LOGGER_MSG_MAX_LEN> msg; // NOLINT
         va_list args;
@@ -79,7 +81,9 @@ logger_log(enum logger_level level, const char* fmt, ...) {
 
 void
 logger_destroy() {
-    if(scord::logger::get_global_logger()) {
-        scord::logger::destroy_global_logger();
+    using logger::logger;
+
+    if(logger::get_global_logger()) {
+        ::logger::destroy_global_logger();
     }
 }

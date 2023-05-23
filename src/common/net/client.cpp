@@ -29,17 +29,16 @@
 
 using namespace std::literals;
 
-namespace scord::network {
+namespace network {
 
 
 client::client(const std::string& protocol)
-    : m_engine(std::make_shared<thallium::engine>(protocol,
-                                                  THALLIUM_CLIENT_MODE)) {}
+    : m_engine(protocol, THALLIUM_CLIENT_MODE) {}
 
 std::optional<endpoint>
 client::lookup(const std::string& address) noexcept {
     try {
-        return endpoint{m_engine, m_engine->lookup(address)};
+        return endpoint{m_engine, m_engine.lookup(address)};
     } catch(const std::exception& ex) {
         LOGGER_ERROR("client::lookup() failed: {}", ex.what());
         return std::nullopt;
@@ -49,11 +48,11 @@ client::lookup(const std::string& address) noexcept {
 std::string
 client::self_address() const noexcept {
     try {
-        return m_engine->self();
+        return m_engine.self();
     } catch(const std::exception& ex) {
         LOGGER_ERROR("client::self_address() failed: {}", ex.what());
         return "unknown"s;
     }
 }
 
-} // namespace scord::network
+} // namespace network

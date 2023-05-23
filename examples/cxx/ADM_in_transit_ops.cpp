@@ -24,26 +24,28 @@
 
 #include <fmt/format.h>
 #include <engine.hpp>
-
+#include "common.hpp"
 
 int
 main(int argc, char* argv[]) {
 
-    if(argc != 2) {
-        fmt::print(stderr, "ERROR: no location provided\n");
-        fmt::print(stderr, "Usage: ADM_in_transit_ops <SERVER_ADDRESS>\n");
-        exit(EXIT_FAILURE);
-    }
+    test_info test_info{
+            .name = TESTNAME,
+            .requires_server = true,
+            .requires_controller = true,
+    };
+
+    const auto cli_args = process_args(argc, argv, test_info);
 
     scord::network::rpc_client rpc_client{"tcp"};
     rpc_client.register_rpcs();
 
-    auto endp = rpc_client.lookup(argv[1]);
+    auto endp = rpc_client.lookup(cli_args.server_address);
 
     fmt::print(
             stdout,
             "Calling ADM_in_transit_ops remote procedure on {} -> access method: {} ...\n",
-            argv[1], argv[2]);
+            cli_args.controller_address, argv[2]);
     ADM_in_transit_ops_in_t in;
     in.in_transit = argv[2];
     ADM_in_transit_ops_out_t out;

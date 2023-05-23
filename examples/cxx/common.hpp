@@ -4,6 +4,24 @@
 #include <vector>
 #include <scord/types.hpp>
 
+#define TESTNAME                                                               \
+    (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1   \
+                                      : __FILE__)
+
+struct test_info {
+    std::string name;
+    bool requires_server;
+    bool requires_controller;
+};
+
+struct cli_args {
+    std::string server_address;
+    std::string controller_address;
+};
+
+cli_args
+process_args(int argc, char* argv[], const test_info& test_info);
+
 std::vector<scord::node>
 prepare_nodes(size_t n);
 

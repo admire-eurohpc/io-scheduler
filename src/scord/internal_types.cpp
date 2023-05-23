@@ -22,8 +22,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
+#include <logger/logger.hpp>
 #include <abt_cxx/shared_mutex.hpp>
-#include <algorithm>
 #include "internal_types.hpp"
 
 

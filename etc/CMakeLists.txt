@@ -25,7 +25,7 @@
 configure_file(scord.conf.in scord.conf)
 
 # install the configuration file to sysconfdir (normally /etc)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/scord.conf
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/scord.conf scord-ctl.conf
         DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
 )
 

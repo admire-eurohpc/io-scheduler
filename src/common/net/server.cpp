@@ -263,7 +263,7 @@ server::install_signal_handlers() {
 }
 
 void
-server::check_configuration() {}
+server::check_configuration() const {}
 
 void
 server::print_greeting() {
@@ -276,7 +276,7 @@ server::print_greeting() {
 }
 
 void
-server::print_configuration() {
+server::print_configuration() const {
     LOGGER_INFO("");
     LOGGER_INFO("[[ Configuration ]]");
     LOGGER_INFO("  - running as daemon?: {}", m_daemonize ? "yes" : "no");

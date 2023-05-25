@@ -681,9 +681,26 @@ struct fmt::formatter<scord::node> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<enum scord::adhoc_storage::type>
-    : formatter<std::string_view> {
-    // parse is inherited from formatter<string_view>.
+struct fmt::formatter<enum scord::adhoc_storage::type> {
+
+    // Presentation format: 'f' - full, 'e' - enum
+    char m_presentation = 'f';
+
+    constexpr auto
+    parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+
+        auto it = ctx.begin(), end = ctx.end();
+        if(it != end && (*it == 'f' || *it == 'e')) {
+            m_presentation = *it++;
+        }
+
+        if(it != end && *it != '}') {
+            ctx.on_error("invalid format");
+        }
+
+        return it;
+    }
+
     template <typename FormatContext>
     auto
     format(const enum scord::adhoc_storage::type& t, FormatContext& ctx) const {
@@ -693,20 +710,24 @@ struct fmt::formatter<enum scord::adhoc_storage::type>
 
         switch(t) {
             case adhoc_storage::type::gekkofs:
-                name = "ADM_ADHOC_STORAGE_GEKKOFS";
+                name = m_presentation == 'f' ? "ADM_ADHOC_STORAGE_GEKKOFS"
+                                             : "gekkofs";
                 break;
             case adhoc_storage::type::dataclay:
-                name = "ADM_ADHOC_STORAGE_DATACLAY";
+                name = m_presentation == 'f' ? "ADM_ADHOC_STORAGE_DATACLAY"
+                                             : "dataclay";
                 break;
             case adhoc_storage::type::expand:
-                name = "ADM_ADHOC_STORAGE_EXPAND";
+                name = m_presentation == 'f' ? "ADM_ADHOC_STORAGE_EXPAND"
+                                             : "expand";
                 break;
             case adhoc_storage::type::hercules:
-                name = "ADM_ADHOC_STORAGE_HERCULES";
+                name = m_presentation == 'f' ? "ADM_ADHOC_STORAGE_HERCULES"
+                                             : "hercules";
                 break;
         }
 
-        return formatter<std::string_view>::format(name, ctx);
+        return format_to(ctx.out(), "{}", name);
     }
 };
 

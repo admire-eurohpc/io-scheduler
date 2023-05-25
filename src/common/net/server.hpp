@@ -83,20 +83,21 @@ private:
     daemonize();
     void
     signal_handler(int);
-
     void
     init_logger();
     void
     install_signal_handlers();
-
-    void
-    check_configuration();
     void
     print_greeting();
     void
-    print_configuration();
-    void
     print_farewell();
+
+protected:
+    virtual void
+    check_configuration() const;
+
+    virtual void
+    print_configuration() const;
 
 private:
     std::string m_name;

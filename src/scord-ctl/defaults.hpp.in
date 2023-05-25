@@ -23,42 +23,16 @@
  *****************************************************************************/
 
 
-#ifndef SCORD_CTL_RPC_SERVER_HPP
-#define SCORD_CTL_RPC_SERVER_HPP
+#ifndef SCORD_CTL_DEFAULTS_HPP
+#define SCORD_CTL_DEFAULTS_HPP
 
-#include <net/server.hpp>
-#include <scord/types.hpp>
-#include "config_file.hpp"
+#include <filesystem>
 
-namespace scord_ctl {
+namespace scord_ctl::config::defaults {
 
-class rpc_server : public network::server,
-                   public network::provider<rpc_server> {
+static const std::filesystem::path config_file{
+        "@CMAKE_INSTALL_FULL_SYSCONFDIR@/scord-ctl.conf"};
 
-public:
-    rpc_server(std::string name, std::string address, bool daemonize,
-               std::filesystem::path rundir);
+} // namespace scord_ctl::config::defaults
 
-    void
-    set_config(std::optional<config::config_file> config);
-
-    void
-    print_configuration() const final;
-
-private:
-    void
-    ping(const network::request& req);
-
-    void
-    deploy_adhoc_storage(
-            const network::request& req,
-            enum scord::adhoc_storage::type adhoc_type,
-            const scord::adhoc_storage::ctx& adhoc_ctx,
-            const scord::adhoc_storage::resources& adhoc_resources);
-
-    std::optional<config::config_file> m_config;
-};
-
-} // namespace scord_ctl
-
-#endif // SCORD_SCORD_CTL_RPC_SERVER_HPP
+#endif // SCORD_DEFAULTS_HPP

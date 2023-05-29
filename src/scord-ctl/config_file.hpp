@@ -192,7 +192,12 @@ private:
     command m_shutdown_command;
 };
 
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 11
+typedef enum scord::adhoc_storage::type adhoc_storage_type;
+#else
 using adhoc_storage_type = enum scord::adhoc_storage::type;
+#endif
+
 using adhoc_storage_config_map =
         std::unordered_map<adhoc_storage_type, adhoc_storage_config>;
 

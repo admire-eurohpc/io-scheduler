@@ -27,6 +27,7 @@
 #include <fmt/ostream.h>
 #include <fstream>
 #include <regex>
+#include <ranges>
 #include "config_file.hpp"
 
 namespace {
@@ -333,7 +334,7 @@ command::env() const {
     return m_env;
 }
 
-std::string
+command
 command::eval(const std::string& adhoc_id,
               const std::filesystem::path& adhoc_directory,
               const std::vector<std::string>& adhoc_nodes) const {
@@ -378,7 +379,22 @@ command::eval(const std::string& adhoc_id,
 
     result += m_cmdline.substr(last_pos, m_cmdline.length() - last_pos);
 
-    return result;
+    return command{result, m_env};
+}
+
+std::vector<std::string>
+command::as_vector() const {
+    std::vector<std::string> tmp;
+
+    for(auto&& r : std::views::split(m_cmdline, ' ') |
+                           std::views::transform([](auto&& v) -> std::string {
+                               auto c = v | std::views::common;
+                               return std::string{c.begin(), c.end()};
+                           })) {
+        tmp.emplace_back(std::move(r));
+    }
+
+    return tmp;
 }
 
 

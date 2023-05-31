@@ -135,18 +135,30 @@ public:
     env() const;
 
     /**
-     * @brief Substitute the keywords in the command line template with the
-     * appropriate values and produce the command line to be executed.
+     * @brief Return a copy of the current `command` where all the keywords in
+     * its command line template have been replaced with string
+     * representations of the arguments provided.
      *
      * @param adhoc_id The ID of the adhoc storage system.
      * @param adhoc_directory The directory where the adhoc storage will run.
      * @param adhoc_nodes The nodes where the adhoc storage will run.
-     * @return The evaluated command line.
+     * @return The evaluated command.
      */
-    std::string
+    command
     eval(const std::string& adhoc_id,
          const std::filesystem::path& adhoc_directory,
          const std::vector<std::string>& adhoc_nodes) const;
+
+    /**
+     * @brief Get the command line to be executed as a vector of strings. The
+     * command line is split on spaces with each string in the resulting
+     * vector being a token in the command line.
+     *
+     * @return The command line to be executed as a vector of strings.
+     */
+    std::vector<std::string>
+    as_vector() const;
+
 
 private:
     std::string m_cmdline;

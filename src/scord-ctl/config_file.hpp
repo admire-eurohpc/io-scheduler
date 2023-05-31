@@ -59,11 +59,20 @@ public:
 
     /**
      * @brief Get the environment variables as a vector of strings.
+     * Each string is of the form `key=value`.
      *
      * @return The environment variables as a vector of strings.
      */
     std::vector<std::string>
     as_vector() const;
+
+    /**
+     * @brief Get the number of environment variables.
+     *
+     * @return The number of environment variables.
+     */
+    std::size_t
+    size() const;
 
     /**
      * @brief Get an iterator to the beginning of the environment variables.

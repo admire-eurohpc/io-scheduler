@@ -295,8 +295,19 @@ environment::get(const std::string& key) const {
 
 std::vector<std::string>
 environment::as_vector() const {
-    // TODO
-    return {};
+
+    std::vector<std::string> tmp;
+    tmp.reserve(m_env.size());
+    for(const auto& [key, value] : m_env) {
+        tmp.emplace_back(fmt::format("{}={}", key, value));
+    }
+
+    return tmp;
+}
+
+std::size_t
+environment::size() const {
+    return m_env.size();
 }
 
 std::unordered_map<std::string, std::string>::const_iterator

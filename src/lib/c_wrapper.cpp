@@ -152,13 +152,32 @@ ADM_remove_adhoc_storage(ADM_server_t server,
 }
 
 ADM_return_t
-ADM_deploy_adhoc_storage(ADM_server_t server,
-                         ADM_adhoc_storage_t adhoc_storage) {
+ADM_deploy_adhoc_storage(ADM_server_t server, ADM_adhoc_storage_t adhoc_storage,
+                         char** adhoc_storage_path) {
 
     const scord::server srv{server};
 
-    return scord::detail::deploy_adhoc_storage(
+    const auto rv = scord::detail::deploy_adhoc_storage(
             srv, scord::adhoc_storage{adhoc_storage});
+
+    if(!rv) {
+        *adhoc_storage_path = nullptr;
+        return rv.error();
+    }
+
+    const auto s = rv.value().string();
+    char* buf = static_cast<char*>(std::malloc(s.size() + 1));
+
+    if(!buf) {
+        *adhoc_storage_path = nullptr;
+        return ADM_ENOMEM;
+    }
+
+    s.copy(buf, s.size());
+    buf[s.size()] = '\0';
+    *adhoc_storage_path = buf;
+
+    return ADM_SUCCESS;
 }
 
 ADM_return_t

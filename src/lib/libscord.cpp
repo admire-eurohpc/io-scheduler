@@ -289,15 +289,15 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     }
 }
 
-void
+std::string
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
-
-    const auto ec = detail::deploy_adhoc_storage(srv, adhoc_storage);
-
-    if(!ec) {
-        throw std::runtime_error(fmt::format(
-                "ADM_deploy_adhoc_storage() error: {}", ec.message()));
-    }
+    return detail::deploy_adhoc_storage(srv, adhoc_storage)
+            .or_else([](auto ec) {
+                throw std::runtime_error(fmt::format(
+                        "ADM_deploy_adhoc_storage() error: {}", ec.message()));
+            })
+            .transform([](auto&& path) { return path.string(); })
+            .value();
 }
 
 void

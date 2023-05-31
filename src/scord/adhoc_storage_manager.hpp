@@ -32,8 +32,43 @@
 #include <abt_cxx/shared_mutex.hpp>
 #include <tl/expected.hpp>
 #include <atomic>
+#include <random>
 #include <logger/logger.hpp>
 #include "internal_types.hpp"
+
+namespace {
+
+[[nodiscard]] std::string
+generate_adhoc_uuid(enum scord::adhoc_storage::type adhoc_type) {
+
+    using namespace std::literals;
+
+    /**
+     * @brief Generate a random string of the given length.
+     *
+     * @param length The length of the string to generate.
+     *
+     * @return A random string of the given length.
+     */
+    const auto generate_random_string = [](int length = 32) -> std::string {
+        constexpr auto dice = []() {
+            constexpr auto chars =
+                    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"sv;
+            thread_local std::mt19937 generator{std::random_device{}()};
+            std::uniform_int_distribution<> distribution(0, chars.length() - 1);
+            return chars.at(distribution(generator));
+        };
+
+        std::string result;
+        result.reserve(length);
+        std::ranges::generate_n(std::back_inserter(result), length, dice);
+        return result;
+    };
+
+    return fmt::format("{:e}-{}", adhoc_type, generate_random_string());
+}
+
+} // namespace
 
 namespace scord {
 
@@ -54,6 +89,7 @@ struct adhoc_storage_manager {
            it == m_adhoc_storages.end()) {
             const auto& [it_adhoc, inserted] = m_adhoc_storages.emplace(
                     id, std::make_shared<scord::internal::adhoc_storage_info>(
+                                ::generate_adhoc_uuid(type),
                                 scord::adhoc_storage{type, name, id, ctx,
                                                      resources}));
 

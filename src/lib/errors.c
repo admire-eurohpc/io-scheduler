@@ -32,9 +32,12 @@ const char* const adm_errlist[ADM_ERR_MAX + 1] = {
         [ADM_EEXISTS] = "Entity already exists",
         [ADM_ENOENT] = "Entity does not exist",
         [ADM_EADHOC_BUSY] = "Adhoc storage already in use",
-
+        [ADM_EADHOC_TYPE_UNSUPPORTED] = "Unsupported adhoc storage type",
+        [ADM_EADHOC_DIR_CREATE_FAILED] =
+                "Cannot create adhoc storage directory",
+        [ADM_EADHOC_DIR_EXISTS] = "Adhoc storage directory already exists",
+        [ADM_ESUBPROCESS_ERROR] = "Subprocess error",
         [ADM_EOTHER] = "Undetermined error",
-
 
         /* fallback */
         [ADM_ERR_MAX] = "Unknown error",

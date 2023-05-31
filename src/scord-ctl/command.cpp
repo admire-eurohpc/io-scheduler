@@ -1,7 +1,39 @@
 #include <ranges>
 #include <regex>
 #include <cassert>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <logger/logger.hpp>
 #include "command.hpp"
+
+
+namespace {
+/**
+ * @brief Convert a vector of strings into a vector of C strings.
+ * The returned vector is null-terminated.
+ *
+ * @note The const char* stored into the resulting vector are valid only as
+ * long as the input vector is not modified or destroyed. The caller is
+ * responsible for ensuring this.
+ *
+ * @param v Vector of strings.
+ *
+ * @return Vector of C strings.
+ */
+[[nodiscard]] std::unique_ptr<const char*[]>
+as_char_array(const std::vector<std::string>& v) {
+
+    auto tmp = std::make_unique<const char*[]>(v.size() + 1);
+    tmp[v.size()] = nullptr;
+
+    for(const auto i : std::views::iota(0u, v.size())) {
+        tmp[i] = v[i].c_str();
+    }
+
+    return tmp;
+}
+
+} // namespace
 
 namespace scord_ctl {
 
@@ -116,6 +148,77 @@ command::as_vector() const {
     }
 
     return tmp;
+}
+
+void
+command::exec() const {
+
+    const auto envs = m_env.value_or(environment{}).as_vector();
+    const auto args = this->as_vector();
+
+    const auto argv = ::as_char_array(args);
+    const auto envp = ::as_char_array(envs);
+
+    switch(const auto pid = ::fork()) {
+        case 0: {
+            ::execvpe(argv[0], const_cast<char* const*>(argv.get()),
+                      const_cast<char* const*>(envp.get()));
+            // We cannot use the default logger in the child process because it
+            // is not fork-safe, and even though we received a copy of the
+            // global logger, it is not valid because the child process does
+            // not have the same threads as the parent process.
+            // Instead, we create a new logger with the same configuration as
+            // the global logger, and use it to log the error. This new logger
+            // must be synchronous to avoid issues with accessing the
+            // (existing but invalid) internal thread pool of the global logger.
+            const auto msg = fmt::format("Failed to execute command: {}",
+                                         ::strerror(errno));
+            if(const auto logger = logger::get_default_logger(); logger) {
+                auto cfg = logger->config();
+                logger::sync_logger lg{cfg};
+                lg.error("{}", msg);
+            } else {
+                fmt::print(stderr, "{}", msg);
+            }
+
+            // We cannot call ::exit() here because it will attempt to destruct
+            // the global logger, and as we mentioned the global logger in
+            // the child process contains the same information as the global
+            // logger of the parent process, but without the proper threads
+            // (since fork() only copies the calling thread). Thus, attempting
+            // to call its destructor will end up hanging the process while it
+            // tries to join() a non-existing thread. Instead, we call ::_exit()
+            // which will terminate the process without calling any functions
+            // registered with atexit() or similar. This is safe because we know
+            // the process is about to be destroyed anyway...
+            ::_exit(EXIT_FAILURE);
+        }
+        case -1:
+            throw std::runtime_error{fmt::format(
+                    "Failed to create subprocess: {}", ::strerror(errno))};
+        default: {
+            int wstatus = 0;
+            do {
+                if(const auto retwait = ::waitpid(pid, &wstatus, 0);
+                   retwait == -1) {
+                    throw std::runtime_error{
+                            fmt::format("Failed to wait for subprocess: {}",
+                                        ::strerror(errno))};
+                }
+
+                if(!WIFEXITED(wstatus)) {
+                    throw std::runtime_error{
+                            "Subprocess did not exit normally"};
+                }
+
+                if(WEXITSTATUS(wstatus) != 0) {
+                    throw std::runtime_error{
+                            fmt::format("Subprocess exited with status {}",
+                                        WEXITSTATUS(wstatus))};
+                }
+            } while(!WIFEXITED(wstatus));
+        }
+    }
 }
 
 } // namespace scord_ctl

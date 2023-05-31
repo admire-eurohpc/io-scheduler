@@ -51,9 +51,8 @@ private:
 
     void
     deploy_adhoc_storage(
-            const network::request& req,
+            const network::request& req, const std::string& adhoc_uuid,
             enum scord::adhoc_storage::type adhoc_type,
-            const scord::adhoc_storage::ctx& adhoc_ctx,
             const scord::adhoc_storage::resources& adhoc_resources);
 
     std::optional<config::config_file> m_config;

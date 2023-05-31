@@ -49,6 +49,10 @@ typedef enum {
     ADM_EEXISTS,
     ADM_ENOENT,
     ADM_EADHOC_BUSY,
+    ADM_EADHOC_TYPE_UNSUPPORTED,
+    ADM_EADHOC_DIR_CREATE_FAILED,
+    ADM_EADHOC_DIR_EXISTS,
+    ADM_ESUBPROCESS_ERROR,
     ADM_EOTHER,
     ADM_ERR_MAX = 512
 } ADM_return_t;
@@ -495,8 +499,7 @@ ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res);
  * @return A valid ADM_ADHOC_CONTEXT if successful. NULL otherwise.
  */
 ADM_adhoc_context_t
-ADM_adhoc_context_create(const char* ctl_address,
-                         ADM_adhoc_mode_t exec_mode,
+ADM_adhoc_context_create(const char* ctl_address, ADM_adhoc_mode_t exec_mode,
                          ADM_adhoc_access_t access_type, uint32_t walltime,
                          bool should_flush);
 

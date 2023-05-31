@@ -59,7 +59,7 @@ update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
 scord::error_code
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
-scord::error_code
+tl::expected<std::filesystem::path, scord::error_code>
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 scord::error_code

@@ -84,6 +84,11 @@ public:
     }
 
     constexpr auto
+    value_or(Value&& default_value) const noexcept {
+        return m_value.value_or(std::move(default_value));
+    }
+
+    constexpr auto
     has_value() const noexcept {
         return m_value.has_value();
     }

@@ -31,32 +31,29 @@
 
 #define LOGGER_INFO(...)                                                       \
     do {                                                                       \
-        using logger::logger;                                                  \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->info(__VA_ARGS__);                    \
+        if(logger::get_default_logger()) {                                     \
+            logger::get_default_logger()->info(__VA_ARGS__);                   \
         }                                                                      \
     } while(0);
 
 
-#ifdef __LOGGER_ENABLE_DEBUG__
+#ifdef LOGGER_ENABLE_DEBUG
 
 #define LOGGER_DEBUG(...)                                                      \
     do {                                                                       \
-        using logger::logger;                                                  \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->debug(__VA_ARGS__);                   \
+        if(logger::get_default_logger()) {                                     \
+            logger::get_default_logger()->debug(__VA_ARGS__);                  \
         }                                                                      \
     } while(0);
 
 #define LOGGER_FLUSH()                                                         \
     do {                                                                       \
-        using logger::logger;                                                  \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->flush();                              \
+        if(logger::get_default_logger()) {                                     \
+            logger::get_default_logger()->flush();                             \
         }                                                                      \
     } while(0);
 
-#else // ! __LOGGER_ENABLE_DEBUG__
+#else // ! LOGGER_ENABLE_DEBUG
 
 #define LOGGER_DEBUG(...)                                                      \
     do {                                                                       \
@@ -65,38 +62,33 @@
     do {                                                                       \
     } while(0);
 
-#endif // __LOGGER_ENABLE_DEBUG__
+#endif // LOGGER_ENABLE_DEBUG
 
 #define LOGGER_WARN(...)                                                       \
     do {                                                                       \
-        using logger::logger;                                                  \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->warn(__VA_ARGS__);                    \
+        if(logger::get_default_logger()) {                                     \
+            logger::get_default_logger()->warn(__VA_ARGS__);                   \
         }                                                                      \
     } while(0);
 
 #define LOGGER_ERROR(...)                                                      \
     do {                                                                       \
-        using logger::logger;                                                  \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->error(__VA_ARGS__);                   \
+        if(logger::get_default_logger()) {                                     \
+            logger::get_default_logger()->error(__VA_ARGS__);                  \
         }                                                                      \
     } while(0);
 
 #define LOGGER_ERRNO(...)                                                      \
     do {                                                                       \
-        using logger::logger;                                                  \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->error_errno(__VA_ARGS__);             \
+        if(logger::get_default_logger()) {                                     \
+            logger::get_default_logger()->error_errno(__VA_ARGS__);            \
         }                                                                      \
     } while(0);
 
 #define LOGGER_CRITICAL(...)                                                   \
     do {                                                                       \
-        using logger::logger;                                                  \
-        using logger::logger;                                                  \
-        if(logger::get_global_logger()) {                                      \
-            logger::get_global_logger()->critical(__VA_ARGS__);                \
+        if(logger::get_default_logger()) {                                     \
+            logger::get_default_logger()->critical(__VA_ARGS__);               \
         }                                                                      \
     } while(0);
 
@@ -136,7 +128,7 @@
 
 #define LOGGER_INFO(fmt, ...) LOGGER_LOG(info, fmt, ##__VA_ARGS__);
 
-#ifdef __LOGGER_ENABLE_DEBUG__
+#ifdef LOGGER_ENABLE_DEBUG
 #define LOGGER_DEBUG(fmt, ...) LOGGER_LOG(debug, fmt, ##__VA_ARGS__);
 #endif
 

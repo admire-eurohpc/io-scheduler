@@ -48,17 +48,18 @@ void
 init_logger() {
 
     try {
-
-
         if(const auto p = std::getenv(scord::env::LOG);
            p && !std::string{p}.empty() && std::string{p} != "0") {
-            if(const auto log_file = std::getenv(scord::env::LOG_OUTPUT)) {
-                logger::create_global_logger(
-                        "libscord", logger::logger_type::file, log_file);
-            } else {
-                logger::create_global_logger(
-                        "libscord", logger::logger_type::console_color);
+
+            if(const auto log_file = std::getenv(scord::env::LOG_OUTPUT);
+               log_file) {
+                logger::create_default_logger(logger::logger_config{
+                        "libscord", logger::logger_type::file, log_file});
+                return;
             }
+
+            logger::create_default_logger(logger::logger_config{
+                    "libscord", logger::logger_type::console_color});
         }
     } catch(const std::exception& ex) {
         std::cerr << fmt::format("WARNING: Error initializing logger: {}",

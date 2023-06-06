@@ -299,7 +299,7 @@ find_package(RedisPlusPlus 1.3.3 REQUIRED)
 # set compile flags
 add_compile_options("-Wall" "-Wextra" "-Werror" "$<$<CONFIG:RELEASE>:-O3>")
 add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:SCORD_DEBUG_BUILD>")
-add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:__LOGGER_ENABLE_DEBUG__>")
+add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:LOGGER_ENABLE_DEBUG>")
 
 add_subdirectory(etc)
 add_subdirectory(src)

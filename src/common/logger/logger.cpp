@@ -22,13 +22,25 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
+#include <spdlog/spdlog.h>
+#include <spdlog/async.h>
+#include <spdlog/sinks/stdout_sinks.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/syslog_sink.h>
+#include <utility>
 #include <utils/utils.hpp>
 #include <cstdarg>
 #include "logger.hpp"
 #include "logger.h"
 
+////////////////////////////////////////////////////////////////////////////////
+// Function implementations for the C API
+////////////////////////////////////////////////////////////////////////////////
+
 void
 logger_setup(const char* ident, logger_type type, const char* log_file) {
+
     constexpr auto get_cxx_type = [](logger_type t) {
         switch(t) {
             case CONSOLE_LOGGER:
@@ -43,15 +55,17 @@ logger_setup(const char* ident, logger_type type, const char* log_file) {
                 return logger::logger_type::console;
         }
     };
-    logger::create_global_logger(ident, get_cxx_type(type), log_file);
+
+    logger::create_default_logger(
+            logger::logger_config{ident, get_cxx_type(type), log_file});
 }
 
 void
 logger_log(enum logger_level level, const char* fmt, ...) {
 
-    using logger::logger;
+    using logger::logger_base;
 
-    if(const auto logger = logger::get_global_logger(); logger) {
+    if(const auto logger = logger_base::get_default_logger(); logger) {
 
         std::array<char, LOGGER_MSG_MAX_LEN> msg; // NOLINT
         va_list args;
@@ -81,9 +95,128 @@ logger_log(enum logger_level level, const char* fmt, ...) {
 
 void
 logger_destroy() {
-    using logger::logger;
+    using logger::logger_base;
 
-    if(logger::get_global_logger()) {
-        ::logger::destroy_global_logger();
+    if(logger_base::get_default_logger()) {
+        ::logger::destroy_default_logger();
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Function implementations for the C++ API
+////////////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+/**
+ * @brief Creates a logger of the given type.
+ *
+ * @tparam Logger Type of the logger to create.
+ * @param config Configuration for the logger.
+ * @return std::shared_ptr<spdlog::logger> Pointer to the created logger.
+ */
+template <typename Logger>
+std::shared_ptr<spdlog::logger>
+create_logger(const logger::logger_config& config)
+        requires(std::is_same_v<Logger, logger::sync_logger> ||
+                 std::is_same_v<Logger, logger::async_logger>) {
+
+    const auto create_helper = [&config]() {
+        switch(config.type()) {
+            case logger::console: {
+                if constexpr(std::is_same_v<Logger, logger::sync_logger>) {
+                    return spdlog::stdout_logger_st(config.ident());
+                }
+                return spdlog::stdout_logger_mt<spdlog::async_factory>(
+                        config.ident());
+            }
+            case logger::console_color:
+                if constexpr(std::is_same_v<Logger, logger::sync_logger>) {
+                    return spdlog::stdout_color_st(config.ident());
+                }
+                return spdlog::stdout_color_mt<spdlog::async_factory>(
+                        config.ident());
+            case logger::file:
+                if constexpr(std::is_same_v<Logger, logger::sync_logger>) {
+                    return spdlog::basic_logger_st(
+                            config.ident(), config.log_file().value_or(""),
+                            true);
+                }
+                return spdlog::basic_logger_mt<spdlog::async_factory>(
+                        config.ident(), config.log_file().value_or(""), true);
+            case logger::syslog:
+                if constexpr(std::is_same_v<Logger, logger::sync_logger>) {
+                    return spdlog::syslog_logger_st("syslog", config.ident(),
+                                                    LOG_PID);
+                }
+                return spdlog::syslog_logger_mt("syslog", config.ident(),
+                                                LOG_PID);
+            default:
+                throw std::invalid_argument("Unknown logger type");
+        }
+    };
+
+    try {
+        auto logger = create_helper();
+        assert(logger != nullptr);
+        logger->set_pattern(logger::default_pattern);
+
+#ifdef LOGGER_ENABLE_DEBUG
+        logger->set_level(spdlog::level::debug);
+#endif
+        spdlog::drop_all();
+        return logger;
+    } catch(const spdlog::spdlog_ex& ex) {
+        throw std::runtime_error("logger initialization failed: " +
+                                 std::string(ex.what()));
+    }
+}
+
+} // namespace
+
+namespace logger {
+
+logger_base::logger_base(logger::logger_config config)
+    : m_config(std::move(config)),
+      m_internal_logger(::create_logger<async_logger>(m_config)) {}
+
+const logger_config&
+logger_base::config() const {
+    return m_config;
+}
+
+std::shared_ptr<logger_base>&
+logger_base::get_default_logger() {
+    static std::shared_ptr<logger_base> s_global_logger;
+    return s_global_logger;
+}
+
+void
+logger_base::enable_debug() const {
+    m_internal_logger->set_level(spdlog::level::debug);
+}
+
+void
+logger_base::flush() {
+    m_internal_logger->flush();
+}
+
+async_logger::async_logger(const logger_config& config) : logger_base(config) {
+    try {
+        m_internal_logger = ::create_logger<async_logger>(config);
+    } catch(const spdlog::spdlog_ex& ex) {
+        throw std::runtime_error("logger initialization failed: " +
+                                 std::string(ex.what()));
+    }
+}
+
+sync_logger::sync_logger(const logger_config& config) : logger_base(config) {
+    try {
+        m_internal_logger = ::create_logger<sync_logger>(config);
+    } catch(const spdlog::spdlog_ex& ex) {
+        throw std::runtime_error("logger initialization failed: " +
+                                 std::string(ex.what()));
+    }
+}
+
+} // namespace logger

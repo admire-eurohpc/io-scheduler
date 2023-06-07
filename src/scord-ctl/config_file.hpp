@@ -247,4 +247,23 @@ private:
 
 } // namespace scord_ctl::config
 
+/**
+ * @brief Formatter for `scord_ctl::config::command`.
+ */
+template <>
+struct fmt::formatter<scord_ctl::config::command> {
+    template <typename ParseContext>
+    constexpr auto
+    parse(ParseContext& ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto
+    format(const scord_ctl::config::command& cmd, FormatContext& ctx) {
+        return fmt::format_to(ctx.out(), "{}", cmd.cmdline());
+    }
+};
+
+
 #endif // SCORD_CONFIG_HPP

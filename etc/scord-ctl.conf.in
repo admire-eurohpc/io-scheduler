@@ -24,14 +24,17 @@ config:
         #    `working_directory` and automatically removed after the adhoc
         #    instance has been shut down.
         #  * ADHOC_ID: - A unique ID for the adhoc instance.
-        command: script.sh start
+        command: @CMAKE_INSTALL_FULL_SYSCONFDIR@/@PROJECT_NAME@/gekkofs.sh
+                    start
                     --hosts {ADHOC_NODES}
                     --workdir {ADHOC_DIRECTORY}
                     --datadir {ADHOC_DIRECTORY}/data
                     --mountdir {ADHOC_DIRECTORY}/mnt
       shutdown:
         environment:
-        command: script.sh stop --workdir {ADHOC_DIRECTORY}
+        command: @CMAKE_INSTALL_FULL_SYSCONFDIR@/@PROJECT_NAME@/gekkofs.sh
+                    stop
+                    --workdir {ADHOC_DIRECTORY}
 
 
 # default storage tiers made available to applications

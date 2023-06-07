@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021, Barcelona Supercomputing Center (BSC), Spain                 #
+# Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain            #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,21 +22,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_subdirectory(deploy_scripts)
+list(APPEND ADHOC_SCRIPTS "${CMAKE_CURRENT_SOURCE_DIR}/gekkofs.sh")
 
-configure_file(scord.conf.in scord.conf)
-configure_file(scord-ctl.conf.in scord-ctl.conf @ONLY)
-
-# install the configuration file to sysconfdir (normally /etc)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/scord.conf
-              ${CMAKE_CURRENT_BINARY_DIR}/scord-ctl.conf
-        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
-)
-
-# create empty 'scord' directories for logs and pidfiles in the appropriate
-# locations (e.g. /var/run/scord/, /var/log/scord/, etc.
+# install adhoc scripts to `<sysconfdir>/scord` (normally /etc/scord)
 install(
-  DIRECTORY
-  DESTINATION ${CMAKE_INSTALL_RUNSTATEDIR}/${CMAKE_PROJECT_NAME}
-  DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/log/${CMAKE_PROJECT_NAME}
+  FILES ${ADHOC_SCRIPTS}
+  DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}
+  PERMISSIONS
+    OWNER_EXECUTE OWNER_WRITE OWNER_READ
+    GROUP_EXECUTE GROUP_READ
+    WORLD_EXECUTE WORLD_READ
 )

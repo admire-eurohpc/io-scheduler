@@ -49,6 +49,47 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
 #undef EXPAND
 }
 
+void
+rpc_server::set_config(std::optional<config::config_file> config) {
+    m_config = std::move(config);
+}
+
+void
+rpc_server::print_configuration() const {
+
+    server::print_configuration();
+
+    if(!m_config || m_config->adhoc_storage_configs().empty()) {
+        return;
+    }
+
+    const auto print_command = [](const auto& command) {
+        LOGGER_INFO("        - environment:");
+
+        if(const auto& env = command.env(); env.has_value()) {
+            for(const auto& [k, v] : *env) {
+                LOGGER_INFO("          - {} = {}", k, std::quoted(v));
+            }
+        }
+
+        LOGGER_INFO("        - command:");
+        LOGGER_INFO("            {}", std::quoted(command.cmdline()));
+    };
+
+    LOGGER_INFO("  - adhoc storage configurations:");
+
+    for(const auto& [type, adhoc_cfg] : m_config->adhoc_storage_configs()) {
+        LOGGER_INFO("    * {:e}:", type);
+        LOGGER_INFO("      - workdir: {}", adhoc_cfg.working_directory());
+        LOGGER_INFO("      - startup:");
+        print_command(adhoc_cfg.startup_command());
+        LOGGER_INFO("      - shutdown:");
+        print_command(adhoc_cfg.shutdown_command());
+    }
+    LOGGER_INFO("");
+}
+
+
 #define RPC_NAME() ("ADM_"s + __FUNCTION__)
 
 void

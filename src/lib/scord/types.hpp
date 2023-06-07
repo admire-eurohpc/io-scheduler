@@ -645,6 +645,18 @@ struct fmt::formatter<scord::dataset> : formatter<std::string_view> {
 };
 
 template <>
+struct fmt::formatter<std::vector<scord::dataset>>
+    : fmt::formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::vector<scord::dataset>& v, FormatContext& ctx) const {
+        const auto str = fmt::format("[{}]", fmt::join(v, ", "));
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
 struct fmt::formatter<scord::node::type> : fmt::formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
@@ -681,9 +693,76 @@ struct fmt::formatter<scord::node> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<enum scord::adhoc_storage::type>
-    : formatter<std::string_view> {
+struct fmt::formatter<std::vector<scord::node>>
+    : fmt::formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::vector<scord::node>& v, FormatContext& ctx) const {
+        const auto str = fmt::format("[{}]", fmt::join(v, ", "));
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<scord::transfer::mapping> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const scord::transfer::mapping& m, FormatContext& ctx) const {
+
+        using mapping = scord::transfer::mapping;
+
+        std::string_view name = "unknown";
+
+        switch(m) {
+            case mapping::one_to_one:
+                name = "ADM_MAPPING_ONE_TO_ONE";
+                break;
+            case mapping::one_to_n:
+                name = "ADM_MAPPING_ONE_TO_N";
+                break;
+            case mapping::n_to_n:
+                name = "ADM_MAPPING_N_TO_N";
+                break;
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<scord::transfer> : fmt::formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const scord::transfer& tx, FormatContext& ctx) const {
+        const auto str = fmt::format("{{id: {}}}", tx.id());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<enum scord::adhoc_storage::type> {
+
+    // Presentation format: 'f' - full, 'e' - enum
+    char m_presentation = 'f';
+
+    constexpr auto
+    parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+
+        auto it = ctx.begin(), end = ctx.end();
+        if(it != end && (*it == 'f' || *it == 'e')) {
+            m_presentation = *it++;
+        }
+
+        if(it != end && *it != '}') {
+            ctx.on_error("invalid format");
+        }
+
+        return it;
+    }
+
     template <typename FormatContext>
     auto
     format(const enum scord::adhoc_storage::type& t, FormatContext& ctx) const {
@@ -693,20 +772,24 @@ struct fmt::formatter<enum scord::adhoc_storage::type>
 
         switch(t) {
             case adhoc_storage::type::gekkofs:
-                name = "ADM_ADHOC_STORAGE_GEKKOFS";
+                name = m_presentation == 'f' ? "ADM_ADHOC_STORAGE_GEKKOFS"
+                                             : "gekkofs";
                 break;
             case adhoc_storage::type::dataclay:
-                name = "ADM_ADHOC_STORAGE_DATACLAY";
+                name = m_presentation == 'f' ? "ADM_ADHOC_STORAGE_DATACLAY"
+                                             : "dataclay";
                 break;
             case adhoc_storage::type::expand:
-                name = "ADM_ADHOC_STORAGE_EXPAND";
+                name = m_presentation == 'f' ? "ADM_ADHOC_STORAGE_EXPAND"
+                                             : "expand";
                 break;
             case adhoc_storage::type::hercules:
-                name = "ADM_ADHOC_STORAGE_HERCULES";
+                name = m_presentation == 'f' ? "ADM_ADHOC_STORAGE_HERCULES"
+                                             : "hercules";
                 break;
         }
 
-        return formatter<std::string_view>::format(name, ctx);
+        return format_to(ctx.out(), "{}", name);
     }
 };
 
@@ -771,6 +854,20 @@ struct fmt::formatter<scord::adhoc_storage::access_type>
     }
 };
 
+template <>
+struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const {
+        return format_to(ctx.out(),
+                         "{{controller: {}, execution_mode: {}, "
+                         "access_type: {}, walltime: {}, should_flush: {}}}",
+                         std::quoted(c.controller_address()), c.exec_mode(),
+                         c.access_type(), c.walltime(), c.should_flush());
+    }
+};
+
 template <typename T>
 struct fmt::formatter<std::optional<T>> : formatter<std::string_view> {
 
@@ -810,24 +907,6 @@ struct fmt::formatter<scord::adhoc_storage::resources>
     }
 };
 
-
-template <>
-struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
-    // parse is inherited from formatter<string_view>.
-    template <typename FormatContext>
-    auto
-    format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const {
-
-        const auto str =
-                fmt::format("{{controller: {}, execution_mode: {}, "
-                            "access_type: {}, walltime: {}, should_flush: {}}}",
-                            std::quoted(c.controller_address()), c.exec_mode(),
-                            c.access_type(), c.walltime(), c.should_flush());
-
-        return formatter<std::string_view>::format(str, ctx);
-    }
-};
-
 template <>
 struct fmt::formatter<enum scord::pfs_storage::type>
     : formatter<std::string_view> {
@@ -853,23 +932,23 @@ struct fmt::formatter<enum scord::pfs_storage::type>
 };
 
 template <>
-struct fmt::formatter<scord::pfs_storage> : formatter<std::string_view> {
-    // parse is inherited from formatter<string_view>.
-    template <typename FormatContext>
-    auto
-    format(const scord::pfs_storage& s, FormatContext& ctx) const {
-        const auto str = fmt::format("{{context: {}}}", s.context());
-        return formatter<std::string_view>::format(str, ctx);
-    }
-};
-
-template <>
 struct fmt::formatter<scord::pfs_storage::ctx> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
     format(const scord::pfs_storage::ctx& c, FormatContext& ctx) const {
         const auto str = fmt::format("{{mount_point: {}}}", c.mount_point());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<scord::pfs_storage> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const scord::pfs_storage& s, FormatContext& ctx) const {
+        const auto str = fmt::format("{{context: {}}}", s.context());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
@@ -1001,69 +1080,8 @@ struct fmt::formatter<scord::qos::limit> : formatter<std::string_view> {
 };
 
 template <>
-struct fmt::formatter<scord::transfer::mapping> : formatter<std::string_view> {
-    // parse is inherited from formatter<string_view>.
-    template <typename FormatContext>
-    auto
-    format(const scord::transfer::mapping& m, FormatContext& ctx) const {
-
-        using mapping = scord::transfer::mapping;
-
-        std::string_view name = "unknown";
-
-        switch(m) {
-            case mapping::one_to_one:
-                name = "ADM_MAPPING_ONE_TO_ONE";
-                break;
-            case mapping::one_to_n:
-                name = "ADM_MAPPING_ONE_TO_N";
-                break;
-            case mapping::n_to_n:
-                name = "ADM_MAPPING_N_TO_N";
-                break;
-        }
-
-        return formatter<std::string_view>::format(name, ctx);
-    }
-};
-
-template <>
-struct fmt::formatter<scord::transfer> : formatter<std::string_view> {
-    // parse is inherited from formatter<string_view>.
-    template <typename FormatContext>
-    auto
-    format(const scord::transfer& tx, FormatContext& ctx) const {
-        const auto str = fmt::format("{{id: {}}}", tx.id());
-        return formatter<std::string_view>::format(str, ctx);
-    }
-};
-
-template <>
-struct fmt::formatter<std::vector<scord::node>> : formatter<std::string_view> {
-    // parse is inherited from formatter<string_view>.
-    template <typename FormatContext>
-    auto
-    format(const std::vector<scord::node>& v, FormatContext& ctx) const {
-        const auto str = fmt::format("[{}]", fmt::join(v, ", "));
-        return formatter<std::string_view>::format(str, ctx);
-    }
-};
-
-template <>
-struct fmt::formatter<std::vector<scord::dataset>>
-    : formatter<std::string_view> {
-    // parse is inherited from formatter<string_view>.
-    template <typename FormatContext>
-    auto
-    format(const std::vector<scord::dataset>& v, FormatContext& ctx) const {
-        const auto str = fmt::format("[{}]", fmt::join(v, ", "));
-        return formatter<std::string_view>::format(str, ctx);
-    }
-};
-
-template <>
 struct fmt::formatter<std::vector<scord::qos::limit>>
-    : formatter<std::string_view> {
+    : fmt::formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto

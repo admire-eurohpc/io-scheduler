@@ -29,13 +29,16 @@
 #include <cstdlib>
 #include <string>
 #include <CLI/CLI.hpp>
+#include <ryml.hpp>
+#include <ryml_std.hpp>
 
 #include <version.hpp>
 #include "rpc_server.hpp"
+#include "config_file.hpp"
+#include "defaults.hpp"
 
 namespace fs = std::filesystem;
 using namespace std::literals;
-
 
 int
 main(int argc, char* argv[]) {
@@ -64,6 +67,13 @@ main(int argc, char* argv[]) {
             ->option_text("ADDRESS")
             ->required();
 
+    app.set_config("-c,--config-file", scord_ctl::config::defaults::config_file,
+                   "Ignore the system-wide configuration file and use the "
+                   "configuration provided by FILENAME",
+                   /*config_required=*/true)
+            ->option_text("FILENAME")
+            ->check(CLI::ExistingFile);
+
     app.add_flag_function(
             "-v,--version",
             [&](auto /*count*/) {
@@ -75,13 +85,23 @@ main(int argc, char* argv[]) {
     CLI11_PARSE(app, argc, argv);
 
     try {
+        // load configuration file for general information about
+        // the daemon, such as the supported storage tiers
+        const auto config = scord_ctl::config::config_file(
+                app.get_config_ptr()->as<fs::path>());
+
         scord_ctl::rpc_server srv(progname, cli_args.address, false,
                                   fs::current_path());
         if(cli_args.output_file) {
             srv.configure_logger(logger::logger_type::file,
                                  *cli_args.output_file);
         }
+
+        srv.set_config(config);
         return srv.run();
+    } catch(const std::runtime_error& ex) {
+        fmt::print(stderr, "ERROR: {}\n", ex.what());
+        return EXIT_FAILURE;
     } catch(const std::exception& ex) {
         fmt::print(stderr,
                    "An unhandled exception reached the top of main(), "

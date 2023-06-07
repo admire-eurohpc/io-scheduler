@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright 2021-2022, Barcelona Supercomputing Center (BSC), Spain            #
+# Copyright 2021-2023, Barcelona Supercomputing Center (BSC), Spain            #
 #                                                                              #
 # This software was partially supported by the EuroHPC-funded project ADMIRE   #
 #   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
@@ -22,26 +22,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-# scord-ctl daemon
-add_executable(scord-ctl)
+list(APPEND ADHOC_SCRIPTS "${CMAKE_CURRENT_SOURCE_DIR}/gekkofs.sh")
 
-target_sources(
-  scord-ctl PRIVATE scord_ctl.cpp rpc_server.cpp rpc_server.hpp
-  ${CMAKE_CURRENT_BINARY_DIR}/defaults.hpp config_file.hpp config_file.cpp
-  command.hpp command.cpp
+# install adhoc scripts to `<sysconfdir>/scord` (normally /etc/scord)
+install(
+  FILES ${ADHOC_SCRIPTS}
+  DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}
+  PERMISSIONS
+    OWNER_EXECUTE OWNER_WRITE OWNER_READ
+    GROUP_EXECUTE GROUP_READ
+    WORLD_EXECUTE WORLD_READ
 )
-
-configure_file(defaults.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/defaults.hpp @ONLY)
-
-target_include_directories(
-  scord-ctl
-  PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE ${CMAKE_BINARY_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}
-)
-
-target_link_libraries(
-  scord-ctl PRIVATE common::logger common::network::rpc_server
-                    libscord_cxx_types fmt::fmt CLI11::CLI11 ryml::ryml
-)
-
-install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -56,7 +56,7 @@ gcc-debug:
       - build/src/scord/scord
       - build/src/scord-ctl/scord-ctl
 
-clang:
+.clang:
   stage: build
   parallel:
     matrix:

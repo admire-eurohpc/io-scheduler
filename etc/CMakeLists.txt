@@ -22,10 +22,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
+add_subdirectory(deploy_scripts)
+
 configure_file(scord.conf.in scord.conf)
+configure_file(scord-ctl.conf.in scord-ctl.conf @ONLY)
 
 # install the configuration file to sysconfdir (normally /etc)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/scord.conf
+              ${CMAKE_CURRENT_BINARY_DIR}/scord-ctl.conf
         DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
 )
 

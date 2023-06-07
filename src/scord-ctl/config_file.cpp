@@ -44,6 +44,23 @@ to_string(ryml::csubstr str) {
     return str.has_str() ? std::string{str.data(), str.size()} : std::string{};
 }
 
+void
+validate_command(const std::string& cmdline) {
+
+    using std::filesystem::path;
+    const auto command_path = path{cmdline.substr(0, cmdline.find(' '))};
+
+    if(!command_path.is_absolute()) {
+        throw std::runtime_error{fmt::format(
+                "Command {} is not an absolute path", command_path)};
+    }
+
+    if(!exists(command_path)) {
+        throw std::runtime_error{
+                fmt::format("Command {} does not exist", command_path)};
+    }
+}
+
 // hash function for ryml::csubstr
 constexpr auto hash = [](const ryml::csubstr& key) {
     std::string tmp{key.data(), key.size()};
@@ -135,6 +152,7 @@ parse_command_node(const ryml::ConstNodeRef& node) {
                 throw std::runtime_error{"`command` key cannot be empty"};
             }
             cmdline = ::to_string(child.val());
+            ::validate_command(cmdline);
         } else {
             fmt::print(stderr, "WARNING: Unknown key: '{}'. Ignored.\n",
                        child.key());

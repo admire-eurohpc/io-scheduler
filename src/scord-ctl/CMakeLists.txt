@@ -28,6 +28,7 @@ add_executable(scord-ctl)
 target_sources(
   scord-ctl PRIVATE scord_ctl.cpp rpc_server.cpp rpc_server.hpp
   ${CMAKE_CURRENT_BINARY_DIR}/defaults.hpp config_file.hpp config_file.cpp
+  command.hpp command.cpp
 )
 
 configure_file(defaults.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/defaults.hpp @ONLY)

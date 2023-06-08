@@ -43,6 +43,7 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
 
     provider::define(EXPAND(ping));
     provider::define(EXPAND(deploy_adhoc_storage));
+    provider::define(EXPAND(terminate_adhoc_storage));
 
 #undef EXPAND
 }
@@ -191,6 +192,62 @@ respond:
     LOGGER_INFO("rpc {:<} body: {{retval: {}, adhoc_dir: {}}}", rpc, ec,
                 adhoc_dir.value_or(std::filesystem::path{}));
 
+    req.respond(resp);
+}
+
+void
+rpc_server::terminate_adhoc_storage(
+        const network::request& req, const std::string& adhoc_uuid,
+        enum scord::adhoc_storage::type adhoc_type) {
+
+    using network::generic_response;
+    using network::get_address;
+    using network::rpc_info;
+
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+
+    LOGGER_INFO("rpc {:>} body: {{uuid: {}, type: {}}}", rpc,
+                std::quoted(adhoc_uuid), adhoc_type);
+
+    auto ec = scord::error_code::success;
+
+    if(!m_config.has_value() || m_config->adhoc_storage_configs().empty()) {
+        LOGGER_WARN("No adhoc storage configurations available");
+        ec = scord::error_code::snafu;
+        goto respond;
+    }
+
+    if(const auto it = m_config->adhoc_storage_configs().find(adhoc_type);
+       it != m_config->adhoc_storage_configs().end()) {
+
+        const auto& adhoc_cfg = it->second;
+        const auto adhoc_dir = adhoc_cfg.working_directory() / adhoc_uuid;
+
+        // 1. Construct the shutdown command for the adhoc storage instance
+        const auto cmd =
+                adhoc_cfg.shutdown_command().eval(adhoc_uuid, adhoc_dir, {});
+
+        // 2. Execute the shutdown command
+        try {
+            LOGGER_DEBUG("[{}] exec: {}", adhoc_uuid, cmd);
+            cmd.exec();
+        } catch(const std::exception& ex) {
+            LOGGER_ERROR("[{}] Failed to execute shutdown command: {}",
+                         adhoc_uuid, ex.what());
+            ec = scord::error_code::subprocess_error;
+        }
+
+    } else {
+        LOGGER_WARN(
+                "Failed to find adhoc storage configuration for type '{:e}'",
+                adhoc_type);
+        ec = scord::error_code::adhoc_type_unsupported;
+        goto respond;
+    }
+
+respond:
+    const generic_response resp{rpc.id(), ec};
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
     req.respond(resp);
 }
 

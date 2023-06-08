@@ -74,6 +74,15 @@ class response_with_value : public generic_response {
 public:
     constexpr response_with_value() noexcept = default;
 
+    constexpr response_with_value(std::uint64_t op_id,
+                                  scord::error_code ec) noexcept
+        : generic_response(op_id, ec) {}
+
+    constexpr response_with_value(std::uint64_t op_id, scord::error_code ec,
+                                  Value value) noexcept
+        : generic_response(op_id, ec), m_value(std::move(value)) {}
+
+
     constexpr response_with_value(std::uint64_t op_id, scord::error_code ec,
                                   std::optional<Value> value) noexcept
         : generic_response(op_id, ec), m_value(std::move(value)) {}

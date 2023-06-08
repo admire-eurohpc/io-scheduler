@@ -102,9 +102,9 @@ main(int argc, char* argv[]) {
     }
 
     // 2. Register the adhoc storage
-    if(ADM_register_adhoc_storage(
-               server, adhoc_name, ADM_ADHOC_STORAGE_DATACLAY, adhoc_ctx,
-               adhoc_resources, &adhoc_storage) != ADM_SUCCESS) {
+    if(ADM_register_adhoc_storage(server, adhoc_name, ADM_ADHOC_STORAGE_GEKKOFS,
+                                  adhoc_ctx, adhoc_resources,
+                                  &adhoc_storage) != ADM_SUCCESS) {
         fprintf(stderr, "ADM_register_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));
         goto cleanup;
@@ -133,9 +133,9 @@ main(int argc, char* argv[]) {
     }
 
     // We can noe request the tear down of the adhoc storage
-    if((ret = ADM_tear_down_adhoc_storage(server, adhoc_storage)) !=
+    if((ret = ADM_terminate_adhoc_storage(server, adhoc_storage)) !=
        ADM_SUCCESS) {
-        fprintf(stderr, "ADM_tear_down_adhoc_storage() failed: %s\n",
+        fprintf(stderr, "ADM_terminate_adhoc_storage() failed: %s\n",
                 ADM_strerror(ret));
         goto cleanup;
     }

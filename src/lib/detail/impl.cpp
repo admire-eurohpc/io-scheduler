@@ -419,7 +419,7 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 }
 
 scord::error_code
-tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
+terminate_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
     network::client rpc_client{srv.protocol()};
 

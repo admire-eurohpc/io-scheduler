@@ -181,10 +181,10 @@ ADM_deploy_adhoc_storage(ADM_server_t server, ADM_adhoc_storage_t adhoc_storage,
 }
 
 ADM_return_t
-ADM_tear_down_adhoc_storage(ADM_server_t server,
+ADM_terminate_adhoc_storage(ADM_server_t server,
                             ADM_adhoc_storage_t adhoc_storage) {
 
-    return scord::detail::tear_down_adhoc_storage(
+    return scord::detail::terminate_adhoc_storage(
             scord::server{server}, scord::adhoc_storage{adhoc_storage});
 }
 

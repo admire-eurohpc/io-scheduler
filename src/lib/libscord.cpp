@@ -301,9 +301,9 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 }
 
 void
-tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
+terminate_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
-    const auto ec = detail::tear_down_adhoc_storage(srv, adhoc_storage);
+    const auto ec = detail::terminate_adhoc_storage(srv, adhoc_storage);
 
     if(!ec) {
         throw std::runtime_error(fmt::format(

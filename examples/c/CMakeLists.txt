@@ -27,7 +27,7 @@ list(APPEND c_examples_with_controller
   ADM_register_job ADM_update_job ADM_remove_job
   # adhoc storage
   ADM_register_adhoc_storage ADM_update_adhoc_storage ADM_remove_adhoc_storage
-  ADM_deploy_adhoc_storage ADM_tear_down_adhoc_storage
+  ADM_deploy_adhoc_storage ADM_terminate_adhoc_storage
   # transfers
   ADM_transfer_datasets ADM_get_transfer_priority ADM_set_transfer_priority
   ADM_cancel_transfer ADM_get_pending_transfers

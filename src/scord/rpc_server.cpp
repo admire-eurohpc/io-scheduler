@@ -49,7 +49,7 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
     provider::define(EXPAND(update_adhoc_storage));
     provider::define(EXPAND(remove_adhoc_storage));
     provider::define(EXPAND(deploy_adhoc_storage));
-    provider::define(EXPAND(tear_down_adhoc_storage));
+    provider::define(EXPAND(terminate_adhoc_storage));
     provider::define(EXPAND(register_pfs_storage));
     provider::define(EXPAND(update_pfs_storage));
     provider::define(EXPAND(remove_pfs_storage));
@@ -368,24 +368,70 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
 }
 
 void
-rpc_server::tear_down_adhoc_storage(const network::request& req,
+rpc_server::terminate_adhoc_storage(const network::request& req,
                                     std::uint64_t adhoc_id) {
 
     using network::generic_response;
     using network::get_address;
     using network::rpc_info;
 
+    using response_type = generic_response;
+
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
     LOGGER_INFO("rpc {:>} body: {{adhoc_id: {}}}", rpc, adhoc_id);
 
-    // TODO: actually tear down the adhoc storage instance
+    /**
+     * @brief Helper lambda to contact the adhoc controller and prompt it to
+     * terminate an adhoc storage instance
+     * @param adhoc_storage The relevant `adhoc_storage` object with
+     * information about the instance to terminate.
+     * @return
+     */
+    const auto terminate_helper = [&](const auto& adhoc_info) -> error_code {
+        assert(adhoc_info);
+        const auto adhoc_storage = adhoc_info->adhoc_storage();
+        const auto endp = lookup(adhoc_storage.context().controller_address());
 
-    const auto resp = generic_response{rpc.id(), scord::error_code::success};
+        if(!endp) {
+            LOGGER_ERROR("endpoint lookup failed");
+            return error_code::snafu;
+        }
 
+        const auto child_rpc =
+                rpc.add_child(adhoc_storage.context().controller_address());
+
+        LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}}}", child_rpc,
+                    std::quoted(adhoc_info->uuid()), adhoc_storage.type());
+
+        if(const auto call_rv = endp->call(rpc.name(), adhoc_info->uuid(),
+                                           adhoc_storage.type());
+           call_rv.has_value()) {
+
+            const response_type resp{call_rv.value()};
+
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", child_rpc,
+                        resp.error_code(), resp.op_id());
+
+            return resp.error_code();
+        }
+
+        LOGGER_ERROR("rpc call failed");
+        return error_code::snafu;
+    };
+
+    const error_code ec =
+            m_adhoc_manager.find(adhoc_id)
+                    .or_else([](auto&&) {
+                        LOGGER_ERROR("adhoc storage instance not found");
+                    })
+                    .transform(terminate_helper)
+                    .value();
+
+    const auto resp = response_type{rpc.id(), ec};
     LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc,
                 scord::error_code::success);
-
     req.respond(resp);
 }
 

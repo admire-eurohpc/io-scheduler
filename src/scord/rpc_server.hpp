@@ -74,7 +74,7 @@ private:
     deploy_adhoc_storage(const network::request& req, std::uint64_t adhoc_id);
 
     void
-    tear_down_adhoc_storage(const network::request& req,
+    terminate_adhoc_storage(const network::request& req,
                             std::uint64_t adhoc_id);
 
     void

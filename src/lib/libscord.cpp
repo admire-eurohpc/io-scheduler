@@ -48,17 +48,18 @@ void
 init_logger() {
 
     try {
-
-
         if(const auto p = std::getenv(scord::env::LOG);
            p && !std::string{p}.empty() && std::string{p} != "0") {
-            if(const auto log_file = std::getenv(scord::env::LOG_OUTPUT)) {
-                logger::create_global_logger(
-                        "libscord", logger::logger_type::file, log_file);
-            } else {
-                logger::create_global_logger(
-                        "libscord", logger::logger_type::console_color);
+
+            if(const auto log_file = std::getenv(scord::env::LOG_OUTPUT);
+               log_file) {
+                logger::create_default_logger(logger::logger_config{
+                        "libscord", logger::logger_type::file, log_file});
+                return;
             }
+
+            logger::create_default_logger(logger::logger_config{
+                    "libscord", logger::logger_type::console_color});
         }
     } catch(const std::exception& ex) {
         std::cerr << fmt::format("WARNING: Error initializing logger: {}",
@@ -288,21 +289,21 @@ remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
     }
 }
 
-void
+std::string
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
-
-    const auto ec = detail::deploy_adhoc_storage(srv, adhoc_storage);
-
-    if(!ec) {
-        throw std::runtime_error(fmt::format(
-                "ADM_deploy_adhoc_storage() error: {}", ec.message()));
-    }
+    return detail::deploy_adhoc_storage(srv, adhoc_storage)
+            .or_else([](auto ec) {
+                throw std::runtime_error(fmt::format(
+                        "ADM_deploy_adhoc_storage() error: {}", ec.message()));
+            })
+            .transform([](auto&& path) { return path.string(); })
+            .value();
 }
 
 void
-tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
+terminate_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
-    const auto ec = detail::tear_down_adhoc_storage(srv, adhoc_storage);
+    const auto ec = detail::terminate_adhoc_storage(srv, adhoc_storage);
 
     if(!ec) {
         throw std::runtime_error(fmt::format(

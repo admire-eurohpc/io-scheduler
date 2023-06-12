@@ -70,11 +70,11 @@ update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
 void
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
-void
+std::string
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 void
-tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
+terminate_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 scord::pfs_storage
 register_pfs_storage(const server& srv, const std::string& name,

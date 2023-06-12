@@ -25,12 +25,7 @@
 #ifndef SCORD_LOGGER_HPP
 #define SCORD_LOGGER_HPP
 
-#include <spdlog/spdlog.h>
-#include <spdlog/async.h>
-#include <spdlog/sinks/stdout_sinks.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/syslog_sink.h>
+#include <spdlog/logger.h>
 #include <fmt/ostream.h>
 #include <filesystem>
 #include <optional>
@@ -48,8 +43,6 @@ ptr(const T* p) {
 } // namespace fmt
 #endif // FMT_VERSION
 
-namespace fs = std::filesystem;
-
 namespace logger {
 
 enum logger_type {
@@ -65,7 +58,7 @@ public:
     logger_config() = default;
 
     explicit logger_config(std::string ident, logger_type type,
-                           std::optional<fs::path> log_file = {})
+                           std::optional<std::filesystem::path> log_file = {})
         : m_ident(std::move(ident)), m_type(type),
           m_log_file(std::move(log_file)) {}
 
@@ -79,7 +72,7 @@ public:
         return m_type;
     }
 
-    const std::optional<fs::path>&
+    const std::optional<std::filesystem::path>&
     log_file() const {
         return m_log_file;
     }
@@ -87,101 +80,91 @@ public:
 private:
     std::string m_ident;
     logger_type m_type = console_color;
-    std::optional<fs::path> m_log_file;
+    std::optional<std::filesystem::path> m_log_file;
 };
 
-class logger {
+
+/**
+ * @brief The default log pattern
+ *
+ * This is the default log pattern used by the logger.
+ * It can be used to create new loggers with the same
+ * configuration.
+ *
+ * The default log pattern is:
+ *
+ * @code
+ * %^[%Y-%m-%d %T.%f] [%n] [%t] [%l]%$ %v
+ * @endcode
+ *
+ * The output of the default log pattern is:
+ *
+ * @code
+ * [2021-01-01 00:00:00.000000] [scord] [12345] [info] Message
+ * @endcode
+ *
+ * Where:
+ * - 2021-01-01 00:00:00.000000 is the current date and time
+ * - scord is the name of the logger
+ * - 12345 is the thread id
+ * - info is the log level
+ * - Message is the log message
+ *
+ * The following format specifiers are available:
+ *   %Y - Year in 4 digits
+ *   %m - month 1-12
+ *   %d - day 1-31
+ *   %T - ISO 8601 time format (HH:MM:SS)
+ *   %f - microsecond part of the current second
+ *   %E - epoch (microseconds precision)
+ *   %n - logger's name
+ *   %t - thread id
+ *   %l - log level
+ *   %v - message
+ */
+static constexpr auto default_pattern =
+        "%^[%Y-%m-%d %T.%f] [%n] [%t] [%l]%$ %v";
+
+/**
+ * @brief The logger_base class
+ *
+ * This class is a wrapper around spdlog::logger, and provides common
+ * functionality to all the logger implementations. It also provides a
+ * default logger that can be used by the rest of the code by using the
+ * static member function get_default_logger().
+ *
+ * @note This class should not be used directly. It is intended to serve as a
+ *     base class for the different logger implementations.
+ */
+class logger_base {
+
+protected:
+    logger_base() = default;
+    explicit logger_base(logger_config config);
 
 public:
-    logger(const std::string& ident, logger_type type,
-           const fs::path& log_file = "") {
+    logger_base(const logger_base& /*rhs*/) = delete;
+    logger_base&
+    operator=(const logger_base& /*rhs*/) = delete;
 
-        try {
+protected:
+    logger_base(logger_base&& /*other*/) = default;
+    logger_base&
+    operator=(logger_base&& /*other*/) = default;
+    ~logger_base() = default;
 
-            switch(type) {
-                case console:
-                    m_internal_logger =
-                            spdlog::stdout_logger_mt<spdlog::async_factory>(
-                                    ident);
-                    break;
-                case console_color:
-                    m_internal_logger =
-                            spdlog::stdout_color_mt<spdlog::async_factory>(
-                                    ident);
-                    break;
-                case file:
-                    m_internal_logger =
-                            spdlog::basic_logger_mt<spdlog::async_factory>(
-                                    ident, log_file.string(), true);
-                    break;
-                case syslog:
-                    m_internal_logger =
-                            spdlog::syslog_logger_mt("syslog", ident, LOG_PID);
-                    break;
-                default:
-                    throw std::invalid_argument("Unknown logger type");
-            }
+public:
+    const logger_config&
+    config() const;
 
-            assert(m_internal_logger != nullptr);
+    static std::shared_ptr<logger_base>&
+    get_default_logger();
 
-            // %Y - Year in 4 digits
-            // %m - month 1-12
-            // %d - day 1-31
-            // %T - ISO 8601 time format (HH:MM:SS)
-            // %f - microsecond part of the current second
-            // %E - epoch (microseconds precision)
-            // %n - logger's name
-            // %t - thread id
-            // %l - log level
-            // %v - message
-            // m_internal_logger->set_pattern("[%Y-%m-%d %T.%f] [%E] [%n] [%t]
-            // [%l] %v");
-            m_internal_logger->set_pattern(
-                    "%^[%Y-%m-%d %T.%f] [%n] [%t] [%l]%$ %v");
+    void
+    enable_debug() const;
 
-#ifdef __LOGGER_ENABLE_DEBUG__
-            enable_debug();
-#endif
-
-            spdlog::drop_all();
-
-            // globally register the logger so that it can be accessed
-            // using spdlog::get(logger_name)
-            // spdlog::register_logger(m_internal_logger);
-        } catch(const spdlog::spdlog_ex& ex) {
-            throw std::runtime_error("logger initialization failed: " +
-                                     std::string(ex.what()));
-        }
-    }
-
-    logger(const logger& /*rhs*/) = delete;
-    logger&
-    operator=(const logger& /*rhs*/) = delete;
-    logger(logger&& /*other*/) = default;
-    logger&
-    operator=(logger&& /*other*/) = default;
-
-    ~logger() {
-        spdlog::shutdown();
-    }
-
-    static std::shared_ptr<logger>&
-    get_global_logger() {
-        static std::shared_ptr<logger> s_global_logger;
-        return s_global_logger;
-    }
-
-    // the following member functions can be used to interact
-    // with a specific logger instance
-    inline void
-    enable_debug() const {
-        m_internal_logger->set_level(spdlog::level::debug);
-    }
-
-    inline void
-    flush() {
-        m_internal_logger->flush();
-    }
+    void
+    flush();
 
     template <typename... Args>
     inline void
@@ -207,7 +190,7 @@ public:
         m_internal_logger->error(fmt, std::forward<Args>(args)...);
     }
 
-    static inline std::string
+    [[maybe_unused]] static inline std::string
     errno_message(int errno_value) {
         // 1024 should be more than enough for most locales
         constexpr const std::size_t MAX_ERROR_MSG = 1024;
@@ -272,7 +255,7 @@ public:
     }
 
     template <typename... Args>
-    static inline std::string
+    [[deprecated]] [[maybe_unused]] static inline std::string
     build_message(Args&&... args) {
 
         // see:
@@ -289,37 +272,88 @@ public:
         return ss.str();
     }
 
-private:
+protected:
+    logger_config m_config;
     std::shared_ptr<spdlog::logger> m_internal_logger;
-    std::string m_type;
+};
+
+/**
+ * @brief Synchronous logger implementation
+ *
+ * This class is a wrapper around spdlog::logger. It provides
+ * a synchronous interface to the spdlog logger.
+ */
+class sync_logger : public logger_base {
+public:
+    explicit sync_logger(const logger_config& config);
+};
+
+/**
+ * @brief Asynchronous logger implementation
+ *
+ * This class is a wrapper around spdlog::async_logger. It
+ * provides an asynchronous interface to the spdlog logger.
+ */
+class async_logger : public logger_base {
+public:
+    explicit async_logger(const logger_config& config);
 };
 
 // the following static functions can be used to interact
-// with a globally registered logger instance
+// with a globally registered async logger instance
 
+/**
+ * @brief Create a default logger instance
+ *
+ * @tparam Args variadic template parameter pack for the logger constructor
+ * arguments
+ * @param args arguments for the logger constructor
+ */
 template <typename... Args>
 static inline void
-create_global_logger(Args&&... args) {
-    logger::get_global_logger() = std::make_shared<logger>(args...);
+create_default_logger(Args&&... args) {
+    async_logger::get_default_logger() =
+            std::make_shared<async_logger>(args...);
 }
 
-static inline void
-register_global_logger(logger&& lg) {
-    logger::get_global_logger() = std::make_shared<logger>(std::move(lg));
+/**
+ * @brief Register an existing logger instance as the default logger
+ *
+ * @param config logger configuration
+ */
+[[maybe_unused]] static inline void
+set_default_logger(async_logger&& lg) {
+    async_logger::get_default_logger() =
+            std::make_shared<async_logger>(std::move(lg));
 }
 
-static inline void
-destroy_global_logger() {
-    logger::get_global_logger().reset();
+/**
+ * @brief Destroy the default logger instance
+ */
+[[maybe_unused]] static inline void
+destroy_default_logger() {
+    async_logger::get_default_logger().reset();
 }
 
-static inline void
-flush_global_logger() {
-    if(logger::get_global_logger()) {
-        logger::get_global_logger()->flush();
+/**
+ * @brief Get the default logger instance
+ *
+ * @return A shared pointer to the default logger instance
+ */
+[[maybe_unused]] static inline auto
+get_default_logger() {
+    return async_logger::get_default_logger();
+}
+
+/**
+ * @brief Flush the default logger instance
+ */
+[[maybe_unused]] static inline void
+flush_default_logger() {
+    if(auto lg = async_logger::get_default_logger(); lg) {
+        lg->flush();
     }
 }
-
 
 } // namespace logger
 

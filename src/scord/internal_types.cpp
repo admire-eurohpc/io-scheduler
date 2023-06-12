@@ -49,12 +49,18 @@ job_info::update(scord::job::resources resources) {
     m_resources = std::move(resources);
 }
 
-adhoc_storage_info::adhoc_storage_info(scord::adhoc_storage adhoc_storage)
-    : m_adhoc_storage(std::move(adhoc_storage)) {}
+adhoc_storage_info::adhoc_storage_info(std::string uuid,
+                                       scord::adhoc_storage adhoc_storage)
+    : m_uuid(std::move(uuid)), m_adhoc_storage(std::move(adhoc_storage)) {}
 
-scord::adhoc_storage
+scord::adhoc_storage const&
 adhoc_storage_info::adhoc_storage() const {
     return m_adhoc_storage;
+}
+
+std::string const&
+adhoc_storage_info::uuid() const {
+    return m_uuid;
 }
 
 void

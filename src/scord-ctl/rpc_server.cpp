@@ -22,14 +22,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
+#include <ranges>
 #include <net/request.hpp>
 #include <net/serialization.hpp>
 #include <net/utilities.hpp>
 #include "rpc_server.hpp"
 
-// required for ::waitpid()
-#include <sys/types.h>
-#include <sys/wait.h>
 
 using namespace std::literals;
 
@@ -45,6 +43,7 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
 
     provider::define(EXPAND(ping));
     provider::define(EXPAND(deploy_adhoc_storage));
+    provider::define(EXPAND(terminate_adhoc_storage));
 
 #undef EXPAND
 }
@@ -113,10 +112,93 @@ rpc_server::ping(const network::request& req) {
 
 void
 rpc_server::deploy_adhoc_storage(
-        const network::request& req,
-        const enum scord::adhoc_storage::type adhoc_type,
-        const scord::adhoc_storage::ctx& adhoc_ctx,
+        const network::request& req, const std::string& adhoc_uuid,
+        enum scord::adhoc_storage::type adhoc_type,
         const scord::adhoc_storage::resources& adhoc_resources) {
+
+    using network::get_address;
+    using network::response_with_value;
+    using network::rpc_info;
+
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+    std::optional<std::filesystem::path> adhoc_dir;
+
+    LOGGER_INFO("rpc {:>} body: {{uuid: {}, type: {}, resources: {}}}", rpc,
+                std::quoted(adhoc_uuid), adhoc_type, adhoc_resources);
+
+    auto ec = scord::error_code::success;
+
+    if(!m_config.has_value() || m_config->adhoc_storage_configs().empty()) {
+        LOGGER_WARN("No adhoc storage configurations available");
+        ec = scord::error_code::snafu;
+        goto respond;
+    }
+
+    if(const auto it = m_config->adhoc_storage_configs().find(adhoc_type);
+       it != m_config->adhoc_storage_configs().end()) {
+        const auto& adhoc_cfg = it->second;
+
+        LOGGER_DEBUG("deploy \"{:e}\" (ID: {})", adhoc_type, adhoc_uuid);
+
+        // 1. Create a working directory for the adhoc storage instance
+        adhoc_dir = adhoc_cfg.working_directory() / adhoc_uuid;
+
+        LOGGER_DEBUG("[{}] mkdir {}", adhoc_uuid, adhoc_dir);
+        std::error_code err;
+
+        if(exists(*adhoc_dir)) {
+            LOGGER_ERROR("[{}] Adhoc directory {} already exists", adhoc_uuid,
+                         adhoc_cfg.working_directory());
+            ec = scord::error_code::adhoc_dir_exists;
+            goto respond;
+        }
+
+        if(!create_directories(*adhoc_dir, err)) {
+            LOGGER_ERROR("[{}] Failed to create adhoc directory {}: {}",
+                         adhoc_uuid, adhoc_cfg.working_directory(),
+                         err.message());
+            ec = scord::error_code::adhoc_dir_create_failed;
+            goto respond;
+        }
+
+        // 3. Construct the startup command for the adhoc storage instance
+        std::vector<std::string> hostnames;
+        std::ranges::transform(
+                adhoc_resources.nodes(), std::back_inserter(hostnames),
+                [](const auto& node) { return node.hostname(); });
+
+        const auto cmd = adhoc_cfg.startup_command().eval(
+                adhoc_uuid, *adhoc_dir, hostnames);
+
+        // 4. Execute the startup command
+        try {
+            LOGGER_DEBUG("[{}] exec: {}", adhoc_uuid, cmd);
+            cmd.exec();
+        } catch(const std::exception& ex) {
+            LOGGER_ERROR("[{}] Failed to execute startup command: {}",
+                         adhoc_uuid, ex.what());
+            ec = scord::error_code::subprocess_error;
+        }
+    } else {
+        LOGGER_WARN(
+                "Failed to find adhoc storage configuration for type '{:e}'",
+                adhoc_type);
+        ec = scord::error_code::adhoc_type_unsupported;
+    }
+
+respond:
+    const auto resp = response_with_value(rpc.id(), ec, adhoc_dir);
+
+    LOGGER_INFO("rpc {:<} body: {{retval: {}, adhoc_dir: {}}}", rpc, ec,
+                adhoc_dir.value_or(std::filesystem::path{}));
+
+    req.respond(resp);
+}
+
+void
+rpc_server::terminate_adhoc_storage(
+        const network::request& req, const std::string& adhoc_uuid,
+        enum scord::adhoc_storage::type adhoc_type) {
 
     using network::generic_response;
     using network::get_address;
@@ -124,71 +206,48 @@ rpc_server::deploy_adhoc_storage(
 
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc {:>} body: {{type: {}, ctx: {}, resources: {}}}", rpc,
-                adhoc_type, adhoc_ctx, adhoc_resources);
+    LOGGER_INFO("rpc {:>} body: {{uuid: {}, type: {}}}", rpc,
+                std::quoted(adhoc_uuid), adhoc_type);
 
     auto ec = scord::error_code::success;
 
-    if(adhoc_type == scord::adhoc_storage::type::gekkofs) {
-        /* Number of nodes */
-        const std::string nodes =
-                std::to_string(adhoc_resources.nodes().size());
-
-        /* Walltime */
-        const std::string walltime = std::to_string(adhoc_ctx.walltime());
-
-        /* Launch script */
-        switch(const auto pid = fork()) {
-            case 0: {
-                std::vector<const char*> args;
-                args.push_back("gkfs");
-                // args.push_back("-c");
-                // args.push_back("gkfs.conf");
-                args.push_back("-n");
-                args.push_back(nodes.c_str());
-                // args.push_back("-w");
-                // args.push_back(walltime.c_str());
-                args.push_back("--srun");
-                args.push_back("start");
-                args.push_back(NULL);
-                std::vector<const char*> env;
-                env.push_back(NULL);
-
-                execvpe("gkfs", const_cast<char* const*>(args.data()),
-                        const_cast<char* const*>(env.data()));
-                LOGGER_INFO("ADM_deploy_adhoc_storage() script didn't execute");
-                exit(EXIT_FAILURE);
-                break;
-            }
-            case -1: {
-                ec = scord::error_code::other;
-                LOGGER_ERROR("rpc {:<} body: {{retval: {}}}", rpc, ec);
-                break;
-            }
-            default: {
-                int wstatus = 0;
-                pid_t retwait = ::waitpid(pid, &wstatus, 0);
-                if(retwait == -1) {
-                    LOGGER_ERROR(
-                            "rpc id: {} error_msg: \"Error waitpid code: {}\"",
-                            rpc.id(), retwait);
-                    ec = scord::error_code::other;
-                } else {
-                    if(WEXITSTATUS(wstatus) != 0) {
-                        ec = scord::error_code::other;
-                    } else {
-                        ec = scord::error_code::success;
-                    }
-                }
-                break;
-            }
-        }
+    if(!m_config.has_value() || m_config->adhoc_storage_configs().empty()) {
+        LOGGER_WARN("No adhoc storage configurations available");
+        ec = scord::error_code::snafu;
+        goto respond;
     }
 
-    const auto resp = generic_response{rpc.id(), ec};
+    if(const auto it = m_config->adhoc_storage_configs().find(adhoc_type);
+       it != m_config->adhoc_storage_configs().end()) {
 
-    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
+        const auto& adhoc_cfg = it->second;
+        const auto adhoc_dir = adhoc_cfg.working_directory() / adhoc_uuid;
 
+        // 1. Construct the shutdown command for the adhoc storage instance
+        const auto cmd =
+                adhoc_cfg.shutdown_command().eval(adhoc_uuid, adhoc_dir, {});
+
+        // 2. Execute the shutdown command
+        try {
+            LOGGER_DEBUG("[{}] exec: {}", adhoc_uuid, cmd);
+            cmd.exec();
+        } catch(const std::exception& ex) {
+            LOGGER_ERROR("[{}] Failed to execute shutdown command: {}",
+                         adhoc_uuid, ex.what());
+            ec = scord::error_code::subprocess_error;
+        }
+
+    } else {
+        LOGGER_WARN(
+                "Failed to find adhoc storage configuration for type '{:e}'",
+                adhoc_type);
+        ec = scord::error_code::adhoc_type_unsupported;
+        goto respond;
+    }
+
+respond:
+    const generic_response resp{rpc.id(), ec};
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
     req.respond(resp);
 }
 

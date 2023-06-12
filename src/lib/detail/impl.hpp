@@ -59,11 +59,11 @@ update_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage,
 scord::error_code
 remove_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
-scord::error_code
+tl::expected<std::filesystem::path, scord::error_code>
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 scord::error_code
-tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
+terminate_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage);
 
 tl::expected<scord::pfs_storage, scord::error_code>
 register_pfs_storage(const server& srv, const std::string& name,

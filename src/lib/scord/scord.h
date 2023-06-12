@@ -148,18 +148,22 @@ ADM_remove_adhoc_storage(ADM_server_t server,
 /**
  * Initiate the deployment of an adhoc storage system instance.
  *
+ * @remark The caller is responsible for freeing the path returned in
+ * adhoc_storage_path.
+ *
  * @param[in] server The server to which the request is directed
- * @param[in] job An ADM_JOB identifying the originating job.
  * @param[in] adhoc_storage An ADM_STORAGE referring to the adhoc storage
  * instance of interest.
+ * @param[out] adhoc_storage_path A dynamically-allocated string that will
+ * be set to the path where the adhoc storage system data will be stored.
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_deploy_adhoc_storage(ADM_server_t server,
-                         ADM_adhoc_storage_t adhoc_storage);
+ADM_deploy_adhoc_storage(ADM_server_t server, ADM_adhoc_storage_t adhoc_storage,
+                         char** adhoc_storage_path);
 
 /**
- * Tear down a previously deployed adhoc storage system instance
+ * Terminate a previously deployed adhoc storage system instance
  *
  * @param[in] server The server to which the request is directed
  * @param[in] adhoc_storage An ADM_STORAGE referring to the adhoc storage
@@ -167,7 +171,7 @@ ADM_deploy_adhoc_storage(ADM_server_t server,
  * @return Returns ADM_SUCCESS if the remote procedure has completed
  */
 ADM_return_t
-ADM_tear_down_adhoc_storage(ADM_server_t server,
+ADM_terminate_adhoc_storage(ADM_server_t server,
                             ADM_adhoc_storage_t adhoc_storage);
 
 /**

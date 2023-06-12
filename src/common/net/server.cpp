@@ -47,7 +47,7 @@ using namespace std::literals;
 namespace network {
 
 server::server(std::string name, std::string address, bool daemonize,
-               fs::path rundir)
+               std::filesystem::path rundir)
     : m_name(std::move(name)), m_address(std::move(address)),
       m_daemonize(daemonize), m_rundir(std::move(rundir)),
       m_pidfile(daemonize ? std::make_optional(m_rundir / (m_name + ".pid"))
@@ -88,7 +88,7 @@ server::daemonize() {
     // this (and since we want to be able to output messages from all
     // processes), we destroy it now and recreate it post-fork() both in the
     // parent process and in the child.
-    logger::destroy_global_logger();
+    logger::destroy_default_logger();
 
     /* Fork off the parent process */
     m_signal_listener.notify_fork(fork_event::fork_prepare);
@@ -213,7 +213,7 @@ server::signal_handler(int signum) {
 
         case SIGHUP:
             LOGGER_WARN("A signal (SIGHUP) occurred.");
-            logger::flush_global_logger();
+            logger::flush_default_logger();
             break;
 
         default:
@@ -223,29 +223,7 @@ server::signal_handler(int signum) {
 
 void
 server::init_logger() {
-
-    switch(m_logger_config.type()) {
-        case logger::logger_type::console_color:
-            logger::create_global_logger(m_logger_config.ident(),
-                                         logger::logger_type::console_color);
-            break;
-        case logger::logger_type::syslog:
-            logger::create_global_logger(m_logger_config.ident(),
-                                         logger::logger_type::syslog);
-            break;
-        case logger::logger_type::file:
-            if(m_logger_config.log_file().has_value()) {
-                logger::create_global_logger(m_logger_config.ident(),
-                                             logger::logger_type::file,
-                                             *m_logger_config.log_file());
-                break;
-            }
-            [[fallthrough]];
-        case logger::logger_type::console:
-            logger::create_global_logger(m_logger_config.ident(),
-                                         logger::logger_type::console);
-            break;
-    }
+    logger::create_default_logger(m_logger_config);
 }
 
 void
@@ -382,7 +360,7 @@ server::teardown() {
 
     LOGGER_INFO("* Removing pidfile...");
     std::error_code ec;
-    fs::remove(*m_pidfile, ec);
+    std::filesystem::remove(*m_pidfile, ec);
 
     if(ec) {
         LOGGER_ERROR("Failed to remove pidfile {}: {}", *m_pidfile,

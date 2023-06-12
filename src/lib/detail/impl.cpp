@@ -381,8 +381,10 @@ remove_pfs_storage(const server& srv, const pfs_storage& pfs_storage) {
     return scord::error_code::other;
 }
 
-scord::error_code
+tl::expected<std::filesystem::path, scord::error_code>
 deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
+
+    using response_type = network::response_with_value<std::filesystem::path>;
 
     network::client rpc_client{srv.protocol()};
 
@@ -397,22 +399,27 @@ deploy_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
         if(const auto& call_rv = endp.call(rpc.name(), adhoc_storage.id());
            call_rv.has_value()) {
 
-            const network::generic_response resp{call_rv.value()};
+            const response_type resp{call_rv.value()};
 
-            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
-                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
-                        resp.error_code(), resp.op_id());
+            LOGGER_EVAL(
+                    resp.error_code(), INFO, ERROR,
+                    "rpc {:>} body: {{retval: {}, adhoc_dir: {}}} [op_id: {}]",
+                    rpc, resp.error_code(), resp.value(), resp.op_id());
 
-            return resp.error_code();
+            if(!resp.error_code()) {
+                return tl::make_unexpected(resp.error_code());
+            }
+
+            return resp.value();
         }
     }
 
     LOGGER_ERROR("rpc call failed");
-    return scord::error_code::other;
+    return tl::make_unexpected(scord::error_code::other);
 }
 
 scord::error_code
-tear_down_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
+terminate_adhoc_storage(const server& srv, const adhoc_storage& adhoc_storage) {
 
     network::client rpc_client{srv.protocol()};
 

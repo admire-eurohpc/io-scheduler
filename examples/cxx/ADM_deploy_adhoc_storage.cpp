@@ -57,14 +57,15 @@ main(int argc, char* argv[]) {
 
     try {
         const auto adhoc_storage = scord::register_adhoc_storage(
-                server, name, scord::adhoc_storage::type::dataclay,
+                server, name, scord::adhoc_storage::type::gekkofs,
                 adhoc_storage_ctx, adhoc_resources);
 
         fmt::print(stdout,
                    "ADM_register_adhoc_storage() remote procedure completed "
                    "successfully\n");
 
-        scord::deploy_adhoc_storage(server, adhoc_storage);
+        [[maybe_unused]] const auto adhoc_storage_path =
+                scord::deploy_adhoc_storage(server, adhoc_storage);
 
     } catch(const std::exception& e) {
         fmt::print(stderr,

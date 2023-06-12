@@ -58,10 +58,13 @@ struct job_info {
 
 struct adhoc_storage_info {
 
-    explicit adhoc_storage_info(scord::adhoc_storage adhoc_storage);
+    adhoc_storage_info(std::string uuid, scord::adhoc_storage adhoc_storage);
 
-    scord::adhoc_storage
+    scord::adhoc_storage const&
     adhoc_storage() const;
+
+    std::string const&
+    uuid() const;
 
     void
     update(scord::adhoc_storage::resources new_resources);
@@ -75,6 +78,7 @@ struct adhoc_storage_info {
     std::shared_ptr<scord::internal::job_info>
     client_info() const;
 
+    std::string m_uuid;
     scord::adhoc_storage m_adhoc_storage;
     std::shared_ptr<scord::internal::job_info> m_client_info;
     mutable scord::abt::shared_mutex m_info_mutex;

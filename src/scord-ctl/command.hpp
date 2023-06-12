@@ -162,6 +162,11 @@ public:
     std::vector<std::string>
     as_vector() const;
 
+    /**
+     * @brief Execute the command and wait for it to finish.
+     */
+    void
+    exec() const;
 
 private:
     std::string m_cmdline;

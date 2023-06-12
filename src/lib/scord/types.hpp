@@ -46,6 +46,10 @@ struct error_code {
     static const error_code entity_exists;
     static const error_code no_such_entity;
     static const error_code adhoc_in_use;
+    static const error_code adhoc_type_unsupported;
+    static const error_code adhoc_dir_create_failed;
+    static const error_code adhoc_dir_exists;
+    static const error_code subprocess_error;
     static const error_code other;
 
     constexpr error_code() : m_value(ADM_SUCCESS) {}
@@ -68,26 +72,27 @@ struct error_code {
 
     constexpr std::string_view
     name() const {
+        // clang-format off
+#define ADM_ERROR_CASE(x) case x: return #x
+#define ADM_ERROR_DEFAULT_MSG(x) default: return x
+        // clang-format on
         switch(m_value) {
-            case ADM_SUCCESS:
-                return "ADM_SUCCESS";
-            case ADM_ESNAFU:
-                return "ADM_ESNAFU";
-            case ADM_EBADARGS:
-                return "ADM_EBADARGS";
-            case ADM_ENOMEM:
-                return "ADM_ENOMEM";
-            case ADM_EEXISTS:
-                return "ADM_EEXISTS";
-            case ADM_ENOENT:
-                return "ADM_ENOENT";
-            case ADM_EADHOC_BUSY:
-                return "ADM_EADHOC_BUSY";
-            case ADM_EOTHER:
-                return "ADM_EOTHER";
-            default:
-                return "INVALID_ERROR_VALUE";
+            ADM_ERROR_CASE(ADM_SUCCESS);
+            ADM_ERROR_CASE(ADM_ESNAFU);
+            ADM_ERROR_CASE(ADM_EBADARGS);
+            ADM_ERROR_CASE(ADM_ENOMEM);
+            ADM_ERROR_CASE(ADM_EEXISTS);
+            ADM_ERROR_CASE(ADM_ENOENT);
+            ADM_ERROR_CASE(ADM_EADHOC_BUSY);
+            ADM_ERROR_CASE(ADM_EADHOC_TYPE_UNSUPPORTED);
+            ADM_ERROR_CASE(ADM_EADHOC_DIR_CREATE_FAILED);
+            ADM_ERROR_CASE(ADM_EADHOC_DIR_EXISTS);
+            ADM_ERROR_CASE(ADM_ESUBPROCESS_ERROR);
+            ADM_ERROR_CASE(ADM_EOTHER);
+            ADM_ERROR_DEFAULT_MSG("INVALID_ERROR_VALUE");
         }
+#undef ADM_ERROR_CASE
+#undef ADM_ERROR_DEFAULT_MSG
     }
 
     std::string_view
@@ -103,14 +108,20 @@ private:
     ADM_return_t m_value;
 };
 
-constexpr error_code error_code::success = error_code{ADM_SUCCESS};
-constexpr error_code error_code::snafu = error_code{ADM_ESNAFU};
-constexpr error_code error_code::bad_args = error_code{ADM_EBADARGS};
-constexpr error_code error_code::out_of_memory = error_code{ADM_ENOMEM};
-constexpr error_code error_code::entity_exists = error_code{ADM_EEXISTS};
-constexpr error_code error_code::no_such_entity = error_code{ADM_ENOENT};
-constexpr error_code error_code::adhoc_in_use = error_code{ADM_EADHOC_BUSY};
-constexpr error_code error_code::other = error_code{ADM_EOTHER};
+constexpr error_code error_code::success{ADM_SUCCESS};
+constexpr error_code error_code::snafu{ADM_ESNAFU};
+constexpr error_code error_code::bad_args{ADM_EBADARGS};
+constexpr error_code error_code::out_of_memory{ADM_ENOMEM};
+constexpr error_code error_code::entity_exists{ADM_EEXISTS};
+constexpr error_code error_code::no_such_entity{ADM_ENOENT};
+constexpr error_code error_code::adhoc_in_use{ADM_EADHOC_BUSY};
+constexpr error_code error_code::adhoc_type_unsupported{
+        ADM_EADHOC_TYPE_UNSUPPORTED};
+constexpr error_code error_code::adhoc_dir_create_failed{
+        ADM_EADHOC_DIR_CREATE_FAILED};
+constexpr error_code error_code::adhoc_dir_exists{ADM_EADHOC_DIR_EXISTS};
+constexpr error_code error_code::subprocess_error{ADM_ESUBPROCESS_ERROR};
+constexpr error_code error_code::other{ADM_EOTHER};
 
 using job_id = std::uint64_t;
 using slurm_job_id = std::uint64_t;

@@ -149,6 +149,14 @@ set(SCORD_BIND_PORT
   )
 message(STATUS "[${PROJECT_NAME}] server bind port: ${SCORD_BIND_PORT}")
 
+### controller bind port
+set(SCORD_CTL_BIND_PORT
+  "52001"
+  CACHE STRING
+  "Define the bind port for the ${PROJECT_NAME}-ctl controller (default: 52001)"
+  )
+message(STATUS "[${PROJECT_NAME}] server bind port: ${SCORD_CTL_BIND_PORT}")
+
 option(SCORD_BUILD_EXAMPLES "Build examples (disabled by default)" OFF)
 
 option(SCORD_BUILD_TESTS "Build tests (disabled by default)" OFF)
@@ -303,6 +311,7 @@ add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:LOGGER_ENABLE_DEBUG>")
 
 add_subdirectory(etc)
 add_subdirectory(src)
+add_subdirectory(plugins)
 
 if (SCORD_BUILD_EXAMPLES)
   add_subdirectory(examples)

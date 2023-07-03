@@ -64,8 +64,35 @@ static long adhoc_walltime = 0;
 static ADM_adhoc_mode_t adhoc_mode = 0;
 static char adhoc_id[ADHOCID_LEN] = {0};
 
+/* server-related options */
+typedef struct {
+    const char* addr;
+    const char* proto;
+    int port;
+    const char* prog;
+    const char* tmpdir;
+} scord_server_info_t;
+
+typedef struct {
+    scord_server_info_t scord_info;
+    scord_server_info_t scordctl_info;
+} scord_plugin_config_t;
+
+
+static scord_plugin_config_t default_cfg = {
+        .scord_info = {.addr = SCORD_SERVER_DEFAULT,
+                       .proto = SCORD_PROTO_DEFAULT,
+                       .port = SCORD_PORT_DEFAULT,
+                       .prog = NULL,
+                       .tmpdir = NULL},
+        .scordctl_info = {.addr = NULL,
+                          .proto = SCORDCTL_PROTO_DEFAULT,
+                          .port = SCORDCTL_PORT_DEFAULT,
+                          .prog = SCORDCTL_PROG_DEFAULT,
+                          .tmpdir = SCORDCTL_TMPDIR_DEFAULT}};
+
 static int
-process_opts(int val, const char* optarg, int remote);
+process_opts(int tag, const char* optarg, int remote);
 
 struct spank_option spank_opts[] = {
         {
@@ -86,13 +113,15 @@ struct spank_option spank_opts[] = {
          (spank_opt_cb_f) process_opts},
         SPANK_OPTIONS_TABLE_END};
 
-static int
+int
 process_opts(int tag, const char* optarg, int remote) {
     (void) remote;
 
+    slurm_debug("%s: %s() called", plugin_name, __func__);
+
     /* srun & sbatch/salloc */
     spank_context_t sctx = spank_context();
-    if(sctx != S_CTX_LOCAL && sctx != S_CTX_ALLOCATOR)
+    if(sctx != S_CTX_LOCAL && sctx != S_CTX_ALLOCATOR && sctx != S_CTX_REMOTE)
         return 0;
 
     /* if we're here some scord options were passed to the Slurm CLI */
@@ -152,6 +181,82 @@ process_opts(int tag, const char* optarg, int remote) {
     if(tag == TAG_CONTEXT_ID) {
         strncpy(adhoc_id, optarg, ADHOCID_LEN - 1);
         adhoc_id[ADHOCID_LEN - 1] = '\0';
+    }
+
+    return 0;
+}
+
+static int
+process_config(int ac, char** av, scord_plugin_config_t* cfg) {
+
+    typedef struct {
+        const char* name;
+        size_t len;
+        enum { TYPE_INT, TYPE_STR } type;
+        void* value;
+    } scord_option_t;
+
+#define EXPAND_SCORD_OPT(opt_name, type, ptr)                                  \
+    { opt_name, strlen(opt_name), type, ptr }
+
+    const scord_option_t scord_options[] = {
+            EXPAND_SCORD_OPT("scord_addr", TYPE_STR, &cfg->scord_info.addr),
+            EXPAND_SCORD_OPT("scord_proto", TYPE_STR, &cfg->scord_info.proto),
+            EXPAND_SCORD_OPT("scordctl_prog", TYPE_STR,
+                             &cfg->scordctl_info.prog),
+            EXPAND_SCORD_OPT("scordctl_port", TYPE_INT,
+                             &cfg->scordctl_info.port),
+            EXPAND_SCORD_OPT("scordctl_tmpdir", TYPE_STR,
+                             &cfg->scordctl_info.tmpdir),
+    };
+
+#undef EXPAND_SCORD_OPT
+
+    for(int i = 0; i < ac; i++) {
+
+        bool invalid_opt = true;
+
+        for(uint j = 0; j < sizeof(scord_options) / sizeof(scord_option_t);
+            j++) {
+
+            scord_option_t opt_desc = scord_options[j];
+
+            if(!strncmp(av[i], opt_desc.name, opt_desc.len)) {
+
+                switch(opt_desc.type) {
+                    case TYPE_INT: {
+                        char* endptr;
+                        int val = (int) strtol(av[i] + opt_desc.len + 1,
+                                               &endptr, 10);
+                        if(*endptr != '\0') {
+                            slurm_error("%s: invalid option value: %s",
+                                        plugin_name, av[i]);
+                            return -1;
+                        }
+
+                        *(int*) opt_desc.value = val;
+                        invalid_opt = false;
+                        break;
+                    }
+
+                    case TYPE_STR:
+                        *(char**) opt_desc.value = av[i] + opt_desc.len + 1;
+                        invalid_opt = false;
+                        break;
+
+                    default:
+                        slurm_error("%s: invalid option type: %d", plugin_name,
+                                    opt_desc.type);
+                        return -1;
+                }
+                break;
+            }
+        }
+
+        if(invalid_opt) {
+            slurm_error("%s: invalid option: %s", plugin_name, av[i]);
+            return -1;
+        }
     }
 
     return 0;
@@ -304,23 +409,14 @@ slurm_spank_local_user_init(spank_t sp, int ac, char** av) {
     const char* scord_addr = SCORD_SERVER_DEFAULT;
     const char* scord_proto = SCORD_PROTO_DEFAULT;
     const char* scordctl_bin = SCORDCTL_PROG_DEFAULT;
+    scord_plugin_config_t cfg = default_cfg;
 
-    for(int i = 0; i < ac; i++) {
-        if(!strncmp("scord_addr=", av[i], 11)) {
-            scord_addr = av[i] + 11;
-        } else if(!strncmp("scord_proto=", av[i], 12)) {
-            scord_proto = av[i] + 12;
-        } else if(!strncmp("scordctl_bin=", av[i], 13)) {
-            scordctl_bin = av[i] + 13;
-        } else {
-            slurm_error("slurmadmcli: invalid option: %s", av[i]);
-            return -1;
-        }
+    if(process_config(ac, av, &cfg) != 0) {
+        return -1;
     }
 
-    spank_err_t rc;
-
     /* get job id */
+    spank_err_t rc;
     uint32_t jobid;
     char sjobid[INT32_STR_LEN];
     if((rc = spank_get_item(sp, S_JOB_ID, &jobid)) != ESPANK_SUCCESS) {

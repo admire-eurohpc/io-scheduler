@@ -69,6 +69,7 @@ typedef struct adm_server* ADM_server_t;
 typedef enum {
     ADM_NODE_REGULAR,
     ADM_NODE_ADMINISTRATIVE,
+    ADM_NODE_INVALID
 } ADM_node_type_t;
 
 /** A node */
@@ -260,6 +261,24 @@ ADM_server_destroy(ADM_server_t server);
  */
 ADM_node_t
 ADM_node_create(const char* hostname, ADM_node_type_t type);
+
+/**
+ * Get the hostname of a node.
+ *
+ * @param[in] node A valid ADM_node_t
+ * @return The hostname of the node.
+ */
+const char*
+ADM_node_get_hostname(ADM_node_t node);
+
+/**
+ * Get the type of a node.
+ *
+ * @param[in] node A valid ADM_node_t
+ * @return The type of the node.
+ */
+ADM_node_type_t
+ADM_node_get_type(ADM_node_t node);
 
 /**
  * Destroy a node created by ADM_node_create().

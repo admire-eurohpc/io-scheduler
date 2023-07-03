@@ -44,4 +44,4 @@ target_link_libraries(
                     libscord_cxx_types fmt::fmt CLI11::CLI11 ryml::ryml
 )
 
-install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS scord-ctl DESTINATION ${CMAKE_INSTALL_BINDIR})

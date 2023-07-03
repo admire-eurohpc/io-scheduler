@@ -27,13 +27,20 @@ find_package(Slurm REQUIRED)
 
 add_library(slurm-plugin SHARED)
 
-target_sources(slurm-plugin PRIVATE slurmadmcli.c)
+get_target_property(SCORD_CTL_BIN scord-ctl SCORD_CTL_BINARY)
+
+configure_file(defaults.h.in defaults.h @ONLY)
+
+target_sources(
+  slurm-plugin PRIVATE slurmadmcli.c ${CMAKE_CURRENT_BINARY_DIR}/defaults.h
+)
 
 target_include_directories(
   slurm-plugin
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
 )
+
 target_link_libraries(slurm-plugin PUBLIC Slurm::Slurm libscord)
 
 set_target_properties(

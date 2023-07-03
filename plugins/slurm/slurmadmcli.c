@@ -6,6 +6,7 @@
 #include <slurm/spank.h>
 
 #include "admire.h"
+#include "defaults.h"
 
 /**
  * Slurm SPANK plugin to handle the ADMIRE adhoc storage CLI. Options are
@@ -17,9 +18,6 @@
  *   characters, including NULL byte
  **/
 
-#define SCORD_SERVER_DEFAULT "ofi+tcp://127.0.0.1:52000"
-#define SCORD_PROTO_DEFAULT  "ofi+tcp"
-#define SCORDCTL_BIN_DEFAULT  "scord-ctl"
 #define ADHOCID_LEN  64
 #define INT32_STR_LEN 16  /* 16 chars are enough to fit an int32 in decimal */
 
@@ -291,7 +289,7 @@ slurm_spank_local_user_init(spank_t sp, int ac, char **av)
 
 	const char *scord_addr = SCORD_SERVER_DEFAULT;
 	const char *scord_proto = SCORD_PROTO_DEFAULT;
-	const char *scordctl_bin = SCORDCTL_BIN_DEFAULT;
+	const char *scordctl_bin = SCORDCTL_PROG_DEFAULT;
 
 	for (int i = 0; i < ac; i++) {
 		if (!strncmp ("scord_addr=", av[i], 11)) {

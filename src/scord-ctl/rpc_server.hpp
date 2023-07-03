@@ -37,7 +37,8 @@ class rpc_server : public network::server,
 
 public:
     rpc_server(std::string name, std::string address, bool daemonize,
-               std::filesystem::path rundir);
+               std::filesystem::path rundir,
+               std::optional<std::filesystem::path> pidfile = {});
 
     void
     set_config(std::optional<config::config_file> config);

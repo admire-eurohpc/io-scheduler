@@ -34,9 +34,10 @@ using namespace std::literals;
 namespace scord_ctl {
 
 rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
-                       std::filesystem::path rundir)
+                       std::filesystem::path rundir,
+                       std::optional<std::filesystem::path> pidfile)
     : server::server(std::move(name), std::move(address), std::move(daemonize),
-                     std::move(rundir)),
+                     std::move(rundir), std::move(pidfile)),
       provider::provider(m_network_engine, 0) {
 
 #define EXPAND(rpc_name) "ADM_" #rpc_name##s, &rpc_server::rpc_name

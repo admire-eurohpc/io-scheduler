@@ -46,7 +46,8 @@ class server {
 
 public:
     server(std::string name, std::string address, bool daemonize,
-           std::filesystem::path rundir);
+           std::filesystem::path rundir,
+           std::optional<std::filesystem::path> pidfile = {});
 
     ~server();
 

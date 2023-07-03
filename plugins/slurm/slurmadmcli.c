@@ -31,7 +31,7 @@
 #include <slurm/slurm.h>
 #include <slurm/spank.h>
 
-#include "admire.h"
+#include <scord/scord.h>
 #include "defaults.h"
 
 /**
@@ -210,7 +210,7 @@ scord_register_job(const char *scord_proto, const char *scord_addr, const char *
 	size_t i = 0;
 	char *nodename;
 	while((nodename = slurm_hostlist_shift(hl))) {
-		nodes[i] = ADM_node_create(nodename);
+		nodes[i] = ADM_node_create(nodename, ADM_NODE_REGULAR);
 		if (!nodes[i]) {
 			slurm_error("slurmadmcli: scord node creation failed");
 			rc = -1;
@@ -237,22 +237,24 @@ scord_register_job(const char *scord_proto, const char *scord_addr, const char *
 	}
 
 	ADM_adhoc_context_t adhoc_ctx;
-	adhoc_ctx = ADM_adhoc_context_create(adhoc_mode,ADM_ADHOC_ACCESS_RDWR,
-										 adhoc_resources, adhoc_walltime, false);
-	if (!adhoc_ctx) {
-		slurm_error("slurmadmcli: adhoc_context creation failed");
+    adhoc_ctx = ADM_adhoc_context_create(
+            NULL, adhoc_mode, ADM_ADHOC_ACCESS_RDWR, adhoc_walltime, false);
+    if(!adhoc_ctx) {
+        slurm_error("slurmadmcli: adhoc_context creation failed");
 		rc = -1;
 		goto end;
 	}
 
-	ADM_storage_t adhoc_storage;
-	if (ADM_register_adhoc_storage(scord_server, "mystorage", ADM_STORAGE_GEKKOFS, adhoc_ctx, &adhoc_storage) != ADM_SUCCESS) {
-		slurm_error("slurmadmcli: adhoc_storage registration failed");
-		rc = -1;
-		goto end;
-	}
+    ADM_adhoc_storage_t adhoc_storage;
+    if(ADM_register_adhoc_storage(
+               scord_server, "mystorage", ADM_ADHOC_STORAGE_GEKKOFS, adhoc_ctx,
+               adhoc_resources, &adhoc_storage) != ADM_SUCCESS) {
+        slurm_error("slurmadmcli: adhoc_storage registration failed");
+        rc = -1;
+        goto end;
+    }
 
-	/* no inputs or outputs */
+    /* no inputs or outputs */
 	ADM_job_requirements_t scord_reqs;
 	scord_reqs = ADM_job_requirements_create(NULL, 0, NULL, 0, adhoc_storage);
 	if (!scord_reqs) {
@@ -268,18 +270,19 @@ scord_register_job(const char *scord_proto, const char *scord_addr, const char *
 		goto end;
 	}
 
-	if (ADM_deploy_adhoc_storage(scord_server, adhoc_storage) != ADM_SUCCESS) {
-		slurm_error("slurmadmcli: adhoc storage deployment failed");
-		rc = -1;
-		goto end;
-	}
+    if (ADM_deploy_adhoc_storage(scord_server, adhoc_storage, NULL) !=
+       ADM_SUCCESS) {
+        slurm_error("slurmadmcli: adhoc storage deployment failed");
+        rc = -1;
+        goto end;
+    }
 
 end:
 	slurm_hostlist_destroy(hl);
 	ADM_adhoc_resources_destroy(adhoc_resources);
 	ADM_remove_job(scord_server, scord_job);
 	ADM_job_requirements_destroy(scord_reqs);
-	ADM_storage_destroy(adhoc_storage);
+	ADM_adhoc_storage_destroy(adhoc_storage);
 	ADM_server_destroy(scord_server);
 	return rc;
 }

@@ -44,14 +44,51 @@
 
 using namespace std::literals;
 
+namespace {
+void
+write_pidfile(const std::filesystem::path& pidfile) {
+
+    int fd;
+
+    if((fd = ::open(pidfile.c_str(), O_RDWR | O_CREAT, 0640)) == -1) {
+        throw std::system_error(errno, std::system_category(),
+                                "Failed to create daemon lock file");
+    }
+
+    if(::lockf(fd, F_TLOCK, 0) < 0) {
+        throw std::system_error(errno, std::system_category(),
+                                "Failed to acquire lock on pidfile. Another "
+                                "instance of this daemon may already be "
+                                "running");
+    }
+
+    /* record pid in lockfile */
+    std::string pidstr(std::to_string(getpid()));
+
+    if(::write(fd, pidstr.c_str(), pidstr.length()) !=
+       static_cast<ssize_t>(pidstr.length())) {
+        throw std::system_error(errno, std::system_category(),
+                                "Failed to write pidfile");
+    }
+
+    /* flush changes */
+    ::fsync(fd);
+    ::fdatasync(fd);
+
+    ::close(fd);
+}
+} // namespace
+
 namespace network {
 
 server::server(std::string name, std::string address, bool daemonize,
-               std::filesystem::path rundir)
+               std::filesystem::path rundir,
+               std::optional<std::filesystem::path> pidfile)
+
     : m_name(std::move(name)), m_address(std::move(address)),
       m_daemonize(daemonize), m_rundir(std::move(rundir)),
       m_pidfile(daemonize ? std::make_optional(m_rundir / (m_name + ".pid"))
-                          : std::nullopt),
+                          : std::move(pidfile)),
       m_logger_config(m_name, logger::logger_type::console_color),
       m_network_engine(m_address, THALLIUM_SERVER_MODE) {}
 
@@ -150,39 +187,6 @@ server::daemonize() {
         exit(EXIT_FAILURE);
     }
 
-    /* Check if daemon already exists:
-     * First instance of the daemon will lock the file so that other
-     * instances understand that an instance is already running.
-     */
-    int pfd;
-
-    if(!m_pidfile.has_value()) {
-        LOGGER_ERROR("Daemon lock file not specified");
-        exit(EXIT_FAILURE);
-    }
-
-    if((pfd = ::open(m_pidfile->string().c_str(), O_RDWR | O_CREAT, 0640)) ==
-       -1) {
-        LOGGER_ERRNO("Failed to create daemon lock file");
-        exit(EXIT_FAILURE);
-    }
-
-    if(::lockf(pfd, F_TLOCK, 0) < 0) {
-        LOGGER_ERRNO("Failed to acquire lock on pidfile");
-        LOGGER_ERROR("Another instance of this daemon may already be running");
-        exit(EXIT_FAILURE);
-    }
-
-    /* record pid in lockfile */
-    std::string pidstr(std::to_string(getpid()));
-
-    if(::write(pfd, pidstr.c_str(), pidstr.length()) !=
-       static_cast<ssize_t>(pidstr.length())) {
-        LOGGER_ERRNO("Failed to write pidfile");
-        exit(EXIT_FAILURE);
-    }
-
-    ::close(pfd);
     ::close(dev_null);
 
     /* Manage signals */
@@ -324,6 +328,16 @@ server::run() {
         return EXIT_SUCCESS;
     }
 
+    // write pidfile if needed
+    if(m_pidfile.has_value()) {
+        try {
+            ::write_pidfile(m_pidfile.value());
+        } catch(const std::system_error& e) {
+            LOGGER_ERROR("Failed to create pidfile: {}", e.what());
+            return EXIT_FAILURE;
+        }
+    }
+
     // print useful information
     print_greeting();
     print_configuration();
@@ -354,7 +368,7 @@ server::teardown() {
     LOGGER_INFO("* Stopping signal listener...");
     m_signal_listener.stop();
 
-    if(!m_daemonize || !m_pidfile) {
+    if(!m_daemonize) {
         return;
     }
 

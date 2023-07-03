@@ -86,6 +86,26 @@ ADM_node_create(const char* hostname, ADM_node_type_t type) {
     return adm_node;
 }
 
+const char*
+ADM_node_get_hostname(ADM_node_t node) {
+    if(!node) {
+        LOGGER_ERROR("Invalid ADM_node_t");
+        return NULL;
+    }
+
+    return node->n_hostname;
+}
+
+ADM_node_type_t
+ADM_node_get_type(ADM_node_t node) {
+    if(!node) {
+        LOGGER_ERROR("Invalid ADM_node_t");
+        return ADM_NODE_INVALID;
+    }
+
+    return node->n_type;
+}
+
 ADM_node_t
 ADM_node_copy(ADM_node_t dst, const ADM_node_t src) {
 

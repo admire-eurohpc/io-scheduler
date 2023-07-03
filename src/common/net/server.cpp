@@ -271,7 +271,7 @@ server::print_configuration() const {
         LOGGER_INFO("  - pidfile: {}", *m_pidfile);
     }
 
-    LOGGER_INFO("  - address for remote requests: {}", m_address);
+    LOGGER_INFO("  - address for remote requests: {}", self_address());
     LOGGER_INFO("");
 }
 

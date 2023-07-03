@@ -57,3 +57,18 @@ install(
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
+
+configure_file(scord_common.sh.in scord_common.sh @ONLY)
+configure_file(scord_prolog.sh.in scord_prolog.sh @ONLY)
+configure_file(scord_epilog.sh.in scord_epilog.sh @ONLY)
+
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/scord_common.sh
+        ${CMAKE_CURRENT_BINARY_DIR}/scord_prolog.sh
+        ${CMAKE_CURRENT_BINARY_DIR}/scord_epilog.sh
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/slurm
+  PERMISSIONS
+    OWNER_EXECUTE OWNER_WRITE OWNER_READ
+    GROUP_EXECUTE GROUP_READ
+    WORLD_EXECUTE WORLD_READ
+)

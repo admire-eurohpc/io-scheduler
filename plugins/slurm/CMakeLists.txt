@@ -33,6 +33,7 @@ configure_file(defaults.h.in defaults.h @ONLY)
 
 target_sources(
   slurm-plugin PRIVATE slurmadmcli.c ${CMAKE_CURRENT_BINARY_DIR}/defaults.h
+                       utils.c utils.h
 )
 
 target_include_directories(

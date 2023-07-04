@@ -33,6 +33,7 @@
 
 #include <scord/scord.h>
 #include "defaults.h"
+#include "utils.h"
 
 /**
  * Slurm SPANK plugin to handle the ADMIRE adhoc storage CLI. Options are
@@ -263,119 +264,161 @@ process_config(int ac, char** av, scord_plugin_config_t* cfg) {
 }
 
 static int
-scord_register_job(const char* scord_proto, const char* scord_addr,
-                   const char* nodelist, uint32_t jobid) {
+scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
+                   uint32_t jobid) {
+
     int rc = 0;
+    int nnodes = 0;
 
-    ADM_server_t scord_server;
-    scord_server = ADM_server_create(scord_proto, scord_addr);
+    ADM_server_t scord_server = NULL;
+    ADM_node_t* nodes = NULL;
+    ADM_job_resources_t job_resources = NULL;
+    ADM_adhoc_resources_t adhoc_resources = NULL;
+    ADM_adhoc_context_t adhoc_ctx = NULL;
+    ADM_adhoc_storage_t adhoc_storage = NULL;
+    ADM_job_requirements_t scord_reqs = NULL;
+    ADM_job_t scord_job = NULL;
+    char* adhoc_path = NULL;
+
+    /* First determine the node on which to launch scord-ctl (typically the
+     * first node of the allocation)  */
+    ADM_node_t ctl_node = scord_nodelist_get_node(nodelist, 0);
+    cfg.scordctl_info.addr = margo_address_create(
+            cfg.scordctl_info.proto, ADM_node_get_hostname(ctl_node),
+            cfg.scordctl_info.port);
+
+    if(!cfg.scordctl_info.addr) {
+        slurm_error("%s: failed to compute address scordctl server",
+                    plugin_name);
+        return -1;
+    }
+
+    slurm_debug("%s: %s: scord_info:", plugin_name, __func__);
+    slurm_debug("%s: %s:   addr: \"%s\",", plugin_name, __func__,
+                cfg.scord_info.addr);
+    slurm_debug("%s: %s:   proto: \"%s\",", plugin_name, __func__,
+                cfg.scord_info.proto);
+    slurm_debug("%s: %s:   port: %d,", plugin_name, __func__,
+                cfg.scord_info.port);
+
+    slurm_debug("%s: %s: scordctl_info:", plugin_name, __func__);
+    slurm_debug("%s: %s:   addr: \"%s\",", plugin_name, __func__,
+                cfg.scordctl_info.addr);
+    slurm_debug("%s: %s:   proto: \"%s\",", plugin_name, __func__,
+                cfg.scordctl_info.proto);
+    slurm_debug("%s: %s:   port: %d,", plugin_name, __func__,
+                cfg.scordctl_info.port);
+
+    /* Register the job with the scord server */
+    scord_server = ADM_server_create(cfg.scord_info.proto, cfg.scord_info.addr);
     if(!scord_server) {
-        slurm_error("slurmadmcli: scord server creation failed");
+        slurm_error("%s: scord server creation failed", plugin_name);
         rc = -1;
         goto end;
     }
 
-    /* list of job nodes */
-    hostlist_t hl = slurm_hostlist_create(nodelist);
-    if(!hl) {
-        slurm_error("slurmadmcli: slurm_hostlist creation failed");
-        rc = -1;
-        goto end;
-    }
-
-    int nnodes = slurm_hostlist_count(hl);
+    nnodes = scord_nodelist_get_nodecount(nodelist);
     if(nnodes <= 0) {
-        slurm_error("slurmadmcli: wrong slurm_hostlist count");
+        slurm_error("%s: wrong scord_nodelist count", plugin_name);
         rc = -1;
         goto end;
     }
 
-    ADM_node_t* nodes = reallocarray(NULL, nnodes, sizeof(ADM_node_t));
+    nodes = scord_nodelist_get_nodes(nodelist);
     if(!nodes) {
-        slurm_error("slurmadmcli: out of memory");
+        slurm_error("%s: wrong scord_nodelist_nodes", plugin_name);
         rc = -1;
         goto end;
     }
 
-    size_t i = 0;
-    char* nodename;
-    while((nodename = slurm_hostlist_shift(hl))) {
-        nodes[i] = ADM_node_create(nodename, ADM_NODE_REGULAR);
-        if(!nodes[i]) {
-            slurm_error("slurmadmcli: scord node creation failed");
-            rc = -1;
-            goto end;
-        }
-        i++;
-    }
-
-    ADM_job_resources_t job_resources;
     job_resources = ADM_job_resources_create(nodes, nnodes);
     if(!job_resources) {
-        slurm_error("slurmadmcli: job_resources creation failed");
+        slurm_error("%s: job_resources creation failed", plugin_name);
         rc = -1;
         goto end;
     }
 
     /* take the ADHOC_NNODES first nodes for the adhoc */
-    ADM_adhoc_resources_t adhoc_resources;
     adhoc_resources = ADM_adhoc_resources_create(
             nodes, adhoc_nnodes < nnodes ? adhoc_nnodes : nnodes);
     if(!adhoc_resources) {
-        slurm_error("slurmadmcli: adhoc_resources creation failed");
+        slurm_error("%s: adhoc_resources creation failed", plugin_name);
         rc = -1;
         goto end;
     }
 
-    ADM_adhoc_context_t adhoc_ctx;
-    adhoc_ctx = ADM_adhoc_context_create(
-            NULL, adhoc_mode, ADM_ADHOC_ACCESS_RDWR, adhoc_walltime, false);
+    adhoc_ctx = ADM_adhoc_context_create(cfg.scordctl_info.addr, adhoc_mode,
+                                         ADM_ADHOC_ACCESS_RDWR, adhoc_walltime,
+                                         false);
     if(!adhoc_ctx) {
-        slurm_error("slurmadmcli: adhoc_context creation failed");
+        slurm_error("%s: adhoc_context creation failed", plugin_name);
         rc = -1;
         goto end;
     }
 
-    ADM_adhoc_storage_t adhoc_storage;
     if(ADM_register_adhoc_storage(
                scord_server, "mystorage", ADM_ADHOC_STORAGE_GEKKOFS, adhoc_ctx,
                adhoc_resources, &adhoc_storage) != ADM_SUCCESS) {
-        slurm_error("slurmadmcli: adhoc_storage registration failed");
+        slurm_error("%s: adhoc_storage registration failed", plugin_name);
         rc = -1;
         goto end;
     }
 
     /* no inputs or outputs */
-    ADM_job_requirements_t scord_reqs;
     scord_reqs = ADM_job_requirements_create(NULL, 0, NULL, 0, adhoc_storage);
     if(!scord_reqs) {
-        slurm_error("slurmadmcli: scord job_requirements creation");
+        slurm_error("%s: scord job_requirements creation", plugin_name);
         rc = -1;
         goto end;
     }
 
-    ADM_job_t scord_job;
     if(ADM_register_job(scord_server, job_resources, scord_reqs, jobid,
                         &scord_job) != ADM_SUCCESS) {
-        slurm_error("slurmadmcli: scord job registration failed");
+        slurm_error("%s: scord job registration failed", plugin_name);
         rc = -1;
         goto end;
     }
 
-    if(ADM_deploy_adhoc_storage(scord_server, adhoc_storage, NULL) !=
+    if(ADM_deploy_adhoc_storage(scord_server, adhoc_storage, &adhoc_path) !=
        ADM_SUCCESS) {
-        slurm_error("slurmadmcli: adhoc storage deployment failed");
+        slurm_error("%s: adhoc storage deployment failed", plugin_name);
         rc = -1;
         goto end;
     }
 
 end:
-    slurm_hostlist_destroy(hl);
-    ADM_adhoc_resources_destroy(adhoc_resources);
-    ADM_remove_job(scord_server, scord_job);
-    ADM_job_requirements_destroy(scord_reqs);
-    ADM_adhoc_storage_destroy(adhoc_storage);
-    ADM_server_destroy(scord_server);
+    if(adhoc_path) {
+        free(adhoc_path);
+    }
+
+    if(scord_job) {
+        ADM_remove_job(scord_server, scord_job);
+    }
+
+    if(scord_reqs) {
+        ADM_job_requirements_destroy(scord_reqs);
+    }
+
+    if(adhoc_storage) {
+        ADM_adhoc_storage_destroy(adhoc_storage);
+    }
+
+    if(adhoc_ctx) {
+        ADM_adhoc_context_destroy(adhoc_ctx);
+    }
+
+    if(adhoc_resources) {
+        ADM_adhoc_resources_destroy(adhoc_resources);
+    }
+
+    if(job_resources) {
+        ADM_job_resources_destroy(job_resources);
+    }
+
+    if(scord_server) {
+        ADM_server_destroy(scord_server);
+    }
+
     return rc;
 }
 
@@ -398,17 +441,55 @@ slurm_spank_init(spank_t sp, int ac, char** av) {
     return rc == ESPANK_SUCCESS ? 0 : -1;
 }
 
-
+/**
+ * Called in local context only after all options have been processed.
+ * This is called after the job ID and step IDs are available. This happens in
+ * `srun` after the allocation is made, but before tasks are launched.
+ *
+ * ┌-----------------------┐
+ * | Command | Context     |
+ * ├---------|-------------┤
+ * | srun    | S_CTX_LOCAL |
+ * └-----------------------┘
+ *
+ * Available in the following contexts:
+ *  S_CTX_LOCAL (srun)
+ */
 int
 slurm_spank_local_user_init(spank_t sp, int ac, char** av) {
+
     (void) sp;
+    (void) ac;
+    (void) av;
 
-    if(!scord_flag)
+    return 0;
+}
+
+/**
+ * Called after privileges are temporarily dropped. (remote context only)
+ *
+ * ┌------------------------┐
+ * | Command | Context      |
+ * ├---------|--------------┤
+ * | srun    | S_CTX_REMOTE |
+ * | salloc  | S_CTX_REMOTE |
+ * | sbatch  | S_CTX_REMOTE |
+ * └------------------------┘
+ *
+ * Available in the following contexts:
+ *  S_CTX_REMOTE (slurmstepd)
+ */
+int
+slurm_spank_user_init(spank_t sp, int ac, char** av) {
+
+    (void) sp;
+    (void) ac;
+    (void) av;
+
+    if(!scord_flag) {
         return 0;
+    }
 
-    const char* scord_addr = SCORD_SERVER_DEFAULT;
-    const char* scord_proto = SCORD_PROTO_DEFAULT;
-    const char* scordctl_bin = SCORDCTL_PROG_DEFAULT;
     scord_plugin_config_t cfg = default_cfg;
 
     if(process_config(ac, av, &cfg) != 0) {
@@ -418,47 +499,49 @@ slurm_spank_local_user_init(spank_t sp, int ac, char** av) {
     /* get job id */
     spank_err_t rc;
     uint32_t jobid;
-    char sjobid[INT32_STR_LEN];
+
     if((rc = spank_get_item(sp, S_JOB_ID, &jobid)) != ESPANK_SUCCESS) {
-        slurm_error("slurmadmcli: failed to get jobid: %s", spank_strerror(rc));
-        return -1;
-    }
-    if(snprintf(sjobid, INT32_STR_LEN, "%" PRIu32, jobid) < 0) {
-        slurm_error("slurmadmcli: failed to convert jobid");
+        slurm_error("%s: failed to get jobid: %s", plugin_name,
+                    spank_strerror(rc));
         return -1;
     }
 
-    /* get list of nodes. /!\ at this point env SLURM_NODELIST is
-       set, but not SLURM_JOB_NODELIST! */
-    const char* nodelist = getenv("SLURM_NODELIST");
+    slurm_debug("%s: %s: job id: %d", plugin_name, __func__, jobid);
+
+    /* list of job nodes */
+    hostlist_t hostlist = get_slurm_hostlist(sp);
+    if(!hostlist) {
+        slurm_error("%s: failed to retrieve hostlist", plugin_name);
+        return -1;
+    }
+
+    char buf[256];
+    slurm_hostlist_ranged_string(hostlist, sizeof(buf), buf);
+    slurm_debug("%s: %s: hostlist: %s", plugin_name, __func__, buf);
+
+    scord_nodelist_t nodelist = scord_nodelist_create(hostlist);
+
+    int ec;
+
     if(!nodelist) {
-        slurm_error("slurmadmcli: failed to get node list");
-        return -1;
+        slurm_error("%s: failed to create nodelist", plugin_name);
+        ec = -1;
+        goto cleanup;
     }
 
-
-    /* launch one scord-ctl task on one node in the allocation, let Slurm decide
-     * which */
-    pid_t pid;
-    if((pid = fork()) < 0) {
-        slurm_error("slurmadmcli: failed to start scord-ctl: %s",
-                    strerror(errno));
-        return -1;
-    } else if(pid == 0) {
-        char* argv[] = {"srun",
-                        "-N1",
-                        "-n1",
-                        "--overlap",
-                        "--cpu-bind=none",
-                        "--jobid",
-                        sjobid,
-                        (char* const) scordctl_bin,
-                        NULL};
-        execvp(argv[0], argv);
-        slurm_error("slurmadmcli: failed to srun scord-ctl: %s",
-                    strerror(errno));
-        return 0;
+    if((ec = scord_register_job(cfg, nodelist, jobid)) != 0) {
+        slurm_error("%s: failed to register job with scord", plugin_name);
+        ec = -1;
+        goto cleanup;
     }
 
-    return scord_register_job(scord_proto, scord_addr, nodelist, jobid);
+cleanup:
+    if(cfg.scordctl_info.addr) {
+        free((void*) cfg.scordctl_info.addr);
+    }
+
+    scord_nodelist_destroy(nodelist);
+    slurm_hostlist_destroy(hostlist);
+
+    return ec;
 }

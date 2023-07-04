@@ -422,6 +422,25 @@ end:
     return rc;
 }
 
+/**
+ * Called just after plugins are loaded. In remote context, this is just after
+ * job step is initialized. This function is called before any plugin option
+ * processing.
+ *
+ * ┌-----------------------┐
+ * | Command | Context     |
+ * ├---------|-------------┤
+ * | srun    | S_CTX_LOCAL |
+ * | salloc  | S_CTX_ALLOC |
+ * | sbatch  | S_CTX_ALLOC |
+ * └-----------------------┘
+ *
+ * Available in the following contexts:
+ *   S_CTX_LOCAL (srun)
+ *   S_CTX_ALLOCATOR (sbatch/salloc)
+ *   S_CTX_REMOTE (slurmstepd)
+ *   S_CTX_SLURMD (slurmd)
+ */
 int
 slurm_spank_init(spank_t sp, int ac, char** av) {
     (void) ac;
@@ -430,7 +449,10 @@ slurm_spank_init(spank_t sp, int ac, char** av) {
     spank_err_t rc = ESPANK_SUCCESS;
 
     spank_context_t sctx = spank_context();
-    if(sctx == S_CTX_LOCAL || sctx == S_CTX_ALLOCATOR) {
+    if(sctx == S_CTX_LOCAL || sctx == S_CTX_ALLOCATOR || sctx == S_CTX_REMOTE) {
+
+        slurm_debug("%s: %s() registering options", plugin_name, __func__);
+
         /* register adm/scord options */
         struct spank_option* opt = &spank_opts[0];
         while(opt->name) {

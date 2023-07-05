@@ -48,10 +48,12 @@
 #define ADHOCID_LEN   64
 #define INT32_STR_LEN 16 /* 16 chars are enough to fit an int32 in decimal */
 
-#define TAG_NNODES     1
-#define TAG_WALLTIME   2
-#define TAG_MODE       3
-#define TAG_CONTEXT_ID 4
+#define TAG_NNODES          0
+#define TAG_ADHOC_TYPE      1
+#define TAG_ADHOC_LOCAL     2
+#define TAG_ADHOC_OVERLAP   3
+#define TAG_ADHOC_REMOTE    4
+#define TAG_ADHOC_EXCLUSIVE 5
 
 // clang-format off
 SPANK_PLUGIN (admire-cli, 1)
@@ -63,6 +65,7 @@ static int scord_flag = 0;
 static long adhoc_nnodes = 0;
 static long adhoc_walltime = 0;
 static ADM_adhoc_mode_t adhoc_mode = 0;
+static ADM_adhoc_storage_type_t adhoc_type = 0;
 static char adhoc_id[ADHOCID_LEN] = {0};
 
 /* server-related options */
@@ -97,21 +100,57 @@ process_opts(int tag, const char* optarg, int remote);
 
 struct spank_option spank_opts[] = {
         {
-                "adm-adhoc-nodes", "[nnodes]",
-                "Dedicate [nnodes] to the ad-hoc storage",
+                "adm-adhoc", "type",
+                "Deploy an ad-hoc storage of type 'type' for this job. "
+                "Supported ad-hoc storages are: gekkofs, expand, hercules, and "
+                "dataclay.",
+                1,                            /* option takes an argument */
+                TAG_ADHOC_TYPE,               /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-adhoc-local", NULL,
+                "Deploy the requested ad-hoc storage on the same nodes as the "
+                "compute nodes. The ad-hoc nodes WILL NOT BE SHARED with the "
+                "application. This is the default behavior.",
+                0,                            /* option takes an argument */
+                TAG_ADHOC_LOCAL,              /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-adhoc-overlap", NULL,
+                "Deploy the requested ad-hoc storage on the same nodes as the "
+                "compute nodes. The ad-hoc nodes WILL BE SHARED with the "
+                "application.",
+                0,                            /* option takes an argument */
+                TAG_ADHOC_OVERLAP,            /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-adhoc-remote", "adhoc_id",
+                "Use an independent ad-hoc storage already running in its own"
+                "allocation. The service must have been previously deployed "
+                "with the `--adm-adhoc-exclusive` option.",
+                1,                            /* option takes an argument */
+                TAG_ADHOC_REMOTE,             /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-adhoc-exclusive", NULL,
+                "The job allocation will be used exclusively to deploy an "
+                "ad-hoc storage service.",
+                0,                            /* option takes an argument */
+                TAG_ADHOC_EXCLUSIVE,          /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-adhoc-nodes", "nnodes",
+                "In `local` and `overlap` modes, dedicate `nnodes` to the "
+                "ad-hoc storage service.",
                 1,                            /* option takes an argument */
                 TAG_NNODES,                   /* option tag */
                 (spank_opt_cb_f) process_opts /* callback  */
         },
-        {"adm-adhoc-walltime", "[walltime]",
-         "Reserve the ad-hoc storage for [walltime] seconds", 1, TAG_WALLTIME,
-         (spank_opt_cb_f) process_opts},
-        {"adm-adhoc-context", "[context]",
-         "Mode of operation for the ad-hoc storage: in_job:shared|dedicated | separate:new|existing",
-         1, TAG_MODE, (spank_opt_cb_f) process_opts},
-        {"adm-adhoc-context-id", "[context_id]",
-         "Context ID of the ad-hoc storage", 1, TAG_CONTEXT_ID,
-         (spank_opt_cb_f) process_opts},
         SPANK_OPTIONS_TABLE_END};
 
 int
@@ -128,63 +167,64 @@ process_opts(int tag, const char* optarg, int remote) {
     /* if we're here some scord options were passed to the Slurm CLI */
     scord_flag = 1;
 
-    if(tag == TAG_NNODES || tag == TAG_WALLTIME) {
-        long tmp;
-        char* endptr;
-        errno = 0;
+    switch(tag) {
+        case TAG_NNODES: {
+            char* endptr;
+            errno = 0;
 
-        tmp = strtol(optarg, &endptr, 0);
-        if(errno != 0 || endptr == optarg || *endptr != '\0' || tmp <= 0) {
-            return -1;
-        }
-
-        if(tag == TAG_NNODES) {
-            adhoc_nnodes = tmp;
-        }
-        if(tag == TAG_WALLTIME) {
-            adhoc_walltime = tmp;
-        }
-
-        return 0;
-    }
-
-    if(tag == TAG_MODE) {
-        char* col = strchr(optarg, ':');
-        int parsed = 0;
-
-        if(col) {
-            if(!strncmp(optarg, "in_job", 6)) {
-                if(!strncmp(col + 1, "shared", 6)) {
-                    adhoc_mode = ADM_ADHOC_MODE_IN_JOB_SHARED;
-                    parsed = 1;
-                }
-                if(!strncmp(col + 1, "dedicated", 9)) {
-                    adhoc_mode = ADM_ADHOC_MODE_IN_JOB_DEDICATED;
-                    parsed = 1;
-                }
-            } else if(!strncmp(optarg, "separate", 8)) {
-                if(!strncmp(col + 1, "new", 3)) {
-                    adhoc_mode = ADM_ADHOC_MODE_SEPARATE_NEW;
-                    parsed = 1;
-                }
-                if(!strncmp(col + 1, "existing", 8)) {
-                    adhoc_mode = ADM_ADHOC_MODE_SEPARATE_EXISTING;
-                    parsed = 1;
-                }
+            adhoc_nnodes = strtol(optarg, &endptr, 0);
+            if(errno != 0 || endptr == optarg || *endptr != '\0' ||
+               adhoc_nnodes <= 0) {
+                return -1;
             }
+
+            return 0;
         }
 
-        if(!parsed) {
+        case TAG_ADHOC_TYPE:
+            if(!strncmp(optarg, "gekkofs", strlen("gekkofs"))) {
+                adhoc_type = ADM_ADHOC_STORAGE_GEKKOFS;
+                return 0;
+            }
+
+            if(!strncmp(optarg, "expand", strlen("expand"))) {
+                adhoc_type = ADM_ADHOC_STORAGE_EXPAND;
+                return 0;
+            }
+
+            if(!strncmp(optarg, "hercules", strlen("hercules"))) {
+                adhoc_type = ADM_ADHOC_STORAGE_HERCULES;
+                return 0;
+            }
+
+            if(!strncmp(optarg, "dataclay", strlen("dataclay"))) {
+                adhoc_type = ADM_ADHOC_STORAGE_DATACLAY;
+                return 0;
+            }
+
             return -1;
-        }
-    }
 
-    if(tag == TAG_CONTEXT_ID) {
-        strncpy(adhoc_id, optarg, ADHOCID_LEN - 1);
-        adhoc_id[ADHOCID_LEN - 1] = '\0';
-    }
+        case TAG_ADHOC_LOCAL:
+            adhoc_mode = ADM_ADHOC_MODE_IN_JOB_DEDICATED;
+            return 0;
 
-    return 0;
+        case TAG_ADHOC_OVERLAP:
+            adhoc_mode = ADM_ADHOC_MODE_IN_JOB_SHARED;
+            return 0;
+
+        case TAG_ADHOC_EXCLUSIVE:
+            adhoc_mode = ADM_ADHOC_MODE_SEPARATE_NEW;
+            return 0;
+
+        case TAG_ADHOC_REMOTE:
+            adhoc_mode = ADM_ADHOC_MODE_SEPARATE_EXISTING;
+            strncpy(adhoc_id, optarg, ADHOCID_LEN - 1);
+            adhoc_id[ADHOCID_LEN - 1] = '\0';
+            return 0;
+
+        default:
+            return -1;
+    }
 }
 
 static int
@@ -356,9 +396,9 @@ scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
         goto end;
     }
 
-    if(ADM_register_adhoc_storage(
-               scord_server, "mystorage", ADM_ADHOC_STORAGE_GEKKOFS, adhoc_ctx,
-               adhoc_resources, &adhoc_storage) != ADM_SUCCESS) {
+    if(ADM_register_adhoc_storage(scord_server, "mystorage", adhoc_type,
+                                  adhoc_ctx, adhoc_resources,
+                                  &adhoc_storage) != ADM_SUCCESS) {
         slurm_error("%s: adhoc_storage registration failed", plugin_name);
         rc = -1;
         goto end;

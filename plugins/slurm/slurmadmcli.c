@@ -508,7 +508,25 @@ slurm_spank_user_init(spank_t sp, int ac, char** av) {
     (void) ac;
     (void) av;
 
+    /* No ADMIRE options were passed to the job, nothing to do here */
     if(!scord_flag) {
+        return 0;
+    }
+
+    /* Get relative for the node executing id. Job registration is only done
+     * by the node with ID 0 */
+    spank_err_t rc;
+    uint32_t nodeid;
+
+    if((rc = spank_get_item(sp, S_JOB_NODEID, &nodeid)) != ESPANK_SUCCESS) {
+        slurm_error("%s: failed to get node id: %s", plugin_name,
+                    spank_strerror(rc));
+        return -1;
+    }
+
+    slurm_debug("%s: %s: node id: %d", plugin_name, __func__, nodeid);
+
+    if(nodeid != 0) {
         return 0;
     }
 
@@ -519,7 +537,6 @@ slurm_spank_user_init(spank_t sp, int ac, char** av) {
     }
 
     /* get job id */
-    spank_err_t rc;
     uint32_t jobid;
 
     if((rc = spank_get_item(sp, S_JOB_ID, &jobid)) != ESPANK_SUCCESS) {

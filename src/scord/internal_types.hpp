@@ -98,6 +98,18 @@ struct pfs_storage_info {
     std::shared_ptr<scord::internal::job_info> m_client_info;
 };
 
+struct transfer_info {
+    explicit transfer_info(scord::transfer transfer,
+                           scord::internal::job_info client_info, float qos,
+                           std::string contact_point);
+
+    scord::transfer
+    transfer() const;
+
+    scord::transfer m_transfer;
+    std::shared_ptr<scord::internal::job_info> m_client_info;
+};
+
 } // namespace scord::internal
 
 #endif // SCORD_INTERNAL_TYPES_HPP

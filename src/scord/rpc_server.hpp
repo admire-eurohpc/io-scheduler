@@ -31,6 +31,7 @@
 #include "job_manager.hpp"
 #include "adhoc_storage_manager.hpp"
 #include "pfs_storage_manager.hpp"
+#include "transfer_manager.hpp"
 
 namespace scord {
 
@@ -96,9 +97,14 @@ private:
                       const std::vector<scord::qos::limit>& limits,
                       enum scord::transfer::mapping mapping);
 
+    void
+    transfer_status(const network::request& req, scord::job_id job_id,
+                 std::uint64_t cargo_id, float BW, float QoS);
+
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;
     pfs_storage_manager m_pfs_manager;
+    transfer_manager m_transfer_manager;
 };
 
 } // namespace scord

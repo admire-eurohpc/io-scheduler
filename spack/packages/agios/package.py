@@ -35,5 +35,5 @@ class Agios(CMakePackage):
     version('1.0', sha256='e8383a6ab0180ae8ba9bb2deb1c65d90c00583c3d6e77c70c415de8a98534efd')
 
     # general dependencies
-    depends_on('cmake@3.5', type='build')
+    depends_on('cmake@3.5:', type='build')
     depends_on('libconfig')

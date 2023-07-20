@@ -2,7 +2,9 @@
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
+import re
 
+from llnl.util import tty
 # ----------------------------------------------------------------------------
 # If you submit this package back to Spack as a pull request,
 # please first remove this boilerplate and all FIXME comments.
@@ -23,31 +25,35 @@
 from spack.package import *
 
 
+def is_mercury_address(value):
+    """a valid Mercury address"""
+    return re.match(r"^(ofi|ucx)\+tcp://[0-9a-zA-Z.]+:[0-9]+$", value)
+
+
 class Scord(CMakePackage):
     """A parallel data stager for malleable applications."""
 
     homepage = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler"
-    url = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/archive/v0.2.1/io-scheduler-v0.2.1.tar.bz2"
+    url = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/archive/v0" \
+          ".2.1/io-scheduler-v0.2.1.tar.bz2"
     git = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler.git"
 
     maintainers("alberto-miranda")
 
     # available versions
-    version("latest", branch="main")
-    version("0.2.0", sha256="61e0e2a10858e6a7027244f7b4609b64e03e8ef78ec080ef5536cacf7623ab42")
-    version("0.2.1", sha256="e0a2e7fb835544eace291fc94ea689e504a84a6a6ef3d28c6a098d16cc4a7000")
-    version("0.2.2", sha256="a336a96505158007fd64363e9c775ea8b24e9de984248724682fcb6e412f46fc")
-
+    version("main", branch="main")
+    version("0.2.0",
+            sha256="61e0e2a10858e6a7027244f7b4609b64e03e8ef78ec080ef5536cacf7623ab42")
+    version("0.2.1",
+            sha256="e0a2e7fb835544eace291fc94ea689e504a84a6a6ef3d28c6a098d16cc4a7000")
+    version("0.2.2",
+            sha256="a336a96505158007fd64363e9c775ea8b24e9de984248724682fcb6e412f46fc")
 
     # build variants
     variant('build_type',
             default='Release',
             description='CMake build type',
             values=('Debug', 'Release', 'RelWithDebInfo', 'ASan'))
-
-    variant('tests',
-            default=False,
-            description='Build and run tests for scord')
 
     variant("ofi",
             default=True,
@@ -59,6 +65,12 @@ class Scord(CMakePackage):
             when="@0.2.0:",
             description="Use UCX as transport library")
 
+    variant("address",
+            values=is_mercury_address,
+            default="ofi+tcp://127.0.0.1:52000",
+            when="@0.2.0:",
+            description="Specify the Mercury address where the `scord` server "
+                        "should listen for requests")
 
     # general dependencies
     depends_on("cmake@3.19", type='build')
@@ -82,12 +94,25 @@ class Scord(CMakePackage):
 
     def cmake_args(self):
         """Setup scord CMake arguments"""
-        cmake_args = [
-            self.define_from_variant('SCORD_BUILD_TESTS', 'tests')
+
+        args = [
+            self.define('SCORD_BUILD_TESTS', self.run_tests),
+            self.define('SCORD_BUILD_EXAMPLES', self.run_tests)
         ]
-        return cmake_args
+
+        if "address" in self.spec.variants:
+            protocol, tmp = self.spec.variants["address"].value.split("://")
+            host, port = tmp.split(":")
+
+            args.extend([
+                self.define('SCORD_TRANSPORT_PROTOCOL', protocol),
+                self.define('SCORD_BIND_ADDRESS', host),
+                self.define('SCORD_BIND_PORT', port)
+            ])
+
+        return args
 
     def check(self):
         """Run tests"""
         with working_dir(self.build_directory):
-            make("test", parallel=False)
+            ctest("--output-on-failure", parallel=False)

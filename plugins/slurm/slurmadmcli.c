@@ -48,12 +48,16 @@
 #define ADHOCID_LEN   64
 #define INT32_STR_LEN 16 /* 16 chars are enough to fit an int32 in decimal */
 
-#define TAG_NNODES          0
-#define TAG_ADHOC_TYPE      1
-#define TAG_ADHOC_LOCAL     2
-#define TAG_ADHOC_OVERLAP   3
-#define TAG_ADHOC_REMOTE    4
-#define TAG_ADHOC_EXCLUSIVE 5
+#define TAG_NNODES                0
+#define TAG_ADHOC_TYPE            1
+#define TAG_ADHOC_OVERLAP         2
+#define TAG_ADHOC_EXCLUSIVE       3
+#define TAG_ADHOC_DEDICATED       4
+#define TAG_ADHOC_REMOTE          5
+#define TAG_DATASET_INPUT         6
+#define TAG_DATASET_OUTPUT        7
+#define TAG_DATASET_EXPECT_OUTPUT 8
+#define TAG_DATASET_INOUT         9
 
 // clang-format off
 SPANK_PLUGIN (admire-cli, 1)
@@ -64,7 +68,7 @@ static int scord_flag = 0;
 /* scord adhoc options */
 static long adhoc_nnodes = 0;
 static long adhoc_walltime = 0;
-static ADM_adhoc_mode_t adhoc_mode = 0;
+static ADM_adhoc_mode_t adhoc_mode = ADM_ADHOC_MODE_IN_JOB_SHARED;
 static ADM_adhoc_storage_type_t adhoc_type = 0;
 static char adhoc_id[ADHOCID_LEN] = {0};
 
@@ -101,33 +105,53 @@ process_opts(int tag, const char* optarg, int remote);
 struct spank_option spank_opts[] = {
         {
                 "adm-adhoc", "type",
-                "Deploy an ad-hoc storage of type 'type' for this job. "
+                "Deploy an ad-hoc storage of type `type` for this job. "
                 "Supported ad-hoc storages are: gekkofs, expand, hercules, and "
-                "dataclay.",
+                "dataclay. By default, it implies `--adm-adhoc-overlap`, but "
+                "this behavior can be modified with the  "
+                "`--adm-adhoc-exclusive` or `--adm-adhoc-dedicated flags`.",
                 1,                            /* option takes an argument */
                 TAG_ADHOC_TYPE,               /* option tag */
                 (spank_opt_cb_f) process_opts /* callback  */
         },
         {
-                "adm-adhoc-local", NULL,
-                "Deploy the requested ad-hoc storage on the same nodes as the "
-                "compute nodes. The ad-hoc nodes WILL NOT BE SHARED with the "
-                "application. This is the default behavior.",
-                0,                            /* option takes an argument */
-                TAG_ADHOC_LOCAL,              /* option tag */
-                (spank_opt_cb_f) process_opts /* callback  */
-        },
-        {
                 "adm-adhoc-overlap", NULL,
                 "Deploy the requested ad-hoc storage on the same nodes as the "
-                "compute nodes. The ad-hoc nodes WILL BE SHARED with the "
-                "application.",
+                "compute nodes, but request ad-hoc nodes to BE SHARED "
+                "with the application. The number of nodes assigned to the "
+                "ad-hoc storage CAN be specified with the "
+                "`--adm-adhoc-nodes` option.",
                 0,                            /* option takes an argument */
                 TAG_ADHOC_OVERLAP,            /* option tag */
                 (spank_opt_cb_f) process_opts /* callback  */
         },
         {
-                "adm-adhoc-remote", "adhoc_id",
+                "adm-adhoc-exclusive", NULL,
+                "Deploy the requested ad-hoc storage on the same nodes as the "
+                "compute nodes, but request ad-hoc nodes to NOT BE SHARED "
+                "with the application. The number of nodes assigned to the "
+                "ad-hoc storage MUST be specified with the "
+                "`--adm-adhoc-nodes` option.",
+                0,                            /* option takes an argument */
+                TAG_ADHOC_EXCLUSIVE,          /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-adhoc-dedicated", NULL,
+                "Deploy the requested ad-hoc storage service will be deployed "
+                "in an independent job allocation and all the nodes in this "
+                "allocation will be available for it. A specific `adhoc-id` "
+                "will be generated for it and will be returned to the user "
+                "so that other jobs can refer to this deployed ad-hoc storage "
+                "service. In this mode, the resources assigned to the ad-hoc "
+                "storage service can be controlled with the normal Slurm "
+                "options.",
+                0,                            /* option takes an argument */
+                TAG_ADHOC_DEDICATED,          /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-adhoc-remote", "adhoc-id",
                 "Use an independent ad-hoc storage already running in its own"
                 "allocation. The service must have been previously deployed "
                 "with the `--adm-adhoc-exclusive` option.",
@@ -136,19 +160,55 @@ struct spank_option spank_opts[] = {
                 (spank_opt_cb_f) process_opts /* callback  */
         },
         {
-                "adm-adhoc-exclusive", NULL,
-                "The job allocation will be used exclusively to deploy an "
-                "ad-hoc storage service.",
-                0,                            /* option takes an argument */
-                TAG_ADHOC_EXCLUSIVE,          /* option tag */
+                "adm-adhoc-nodes", "nnodes",
+                "Dedicate `nnodes` to the ad-hoc storage service. Only "
+                "valid if paired with `--adm-adhoc-overlap` and "
+                "`--adm-adhoc-exclusive`. Ignored otherwise.",
+                1,                            /* option takes an argument */
+                TAG_NNODES,                   /* option tag */
                 (spank_opt_cb_f) process_opts /* callback  */
         },
         {
-                "adm-adhoc-nodes", "nnodes",
-                "In `local` and `overlap` modes, dedicate `nnodes` to the "
-                "ad-hoc storage service.",
+                "adm-input", "dataset-routing",
+                "Define datasets that should be transferred between the PFS "
+                "and the ad-hoc storage service. The `dataset-routing` is "
+                "defined as `ORIGIN-TIER:PATH TARGET-TIER:PATH`. For example,"
+                "to transfer the file `input000.dat` from the Lustre PFS to "
+                "the an on-demand GekkoFS ad-hoc storage service, the option "
+                "could be specified in the following manner: "
+                "  \"lustre:/input.dat gekkofs:/input.dat\"",
                 1,                            /* option takes an argument */
-                TAG_NNODES,                   /* option tag */
+                TAG_DATASET_INPUT,            /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-output", "dataset-routing",
+                "Define datasets that should be automatically transferred "
+                "between the ad-hoc storage system and the PFS. The ad-hoc "
+                "storage will guarantee that the dataset is not transferred "
+                "while there are processes accessing the file. The datasets "
+                "will be transferred before the job allocation finishes if at "
+                "all possible, but no hard guarantees are made.",
+                1,                            /* option takes an argument */
+                TAG_DATASET_OUTPUT,           /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-expect-output", "dataset-routing",
+                "Define datasets that are expected to be generated by the "
+                "application. When using this option, the application itself "
+                "MUST use the programmatic APIs defined in `scord-user.h`to "
+                "explicitly request the transfer of the datasets.",
+                1,                            /* option takes an argument */
+                TAG_DATASET_EXPECT_OUTPUT,    /* option tag */
+                (spank_opt_cb_f) process_opts /* callback  */
+        },
+        {
+                "adm-expect-inout", "dataset-routing",
+                "Define the datasets that should be transferred INTO "
+                "the ad-hoc storage AND BACK when finished.",
+                1,                            /* option takes an argument */
+                TAG_DATASET_INOUT,            /* option tag */
                 (spank_opt_cb_f) process_opts /* callback  */
         },
         SPANK_OPTIONS_TABLE_END};
@@ -204,15 +264,11 @@ process_opts(int tag, const char* optarg, int remote) {
 
             return -1;
 
-        case TAG_ADHOC_LOCAL:
+        case TAG_ADHOC_EXCLUSIVE:
             adhoc_mode = ADM_ADHOC_MODE_IN_JOB_DEDICATED;
             return 0;
 
-        case TAG_ADHOC_OVERLAP:
-            adhoc_mode = ADM_ADHOC_MODE_IN_JOB_SHARED;
-            return 0;
-
-        case TAG_ADHOC_EXCLUSIVE:
+        case TAG_ADHOC_DEDICATED:
             adhoc_mode = ADM_ADHOC_MODE_SEPARATE_NEW;
             return 0;
 

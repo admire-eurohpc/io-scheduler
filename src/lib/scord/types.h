@@ -25,14 +25,14 @@
 #ifndef SCORD_TYPES_H
 #define SCORD_TYPES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /******************************************************************************/
 /* Public type and struct definitions                                         */
@@ -53,6 +53,7 @@ typedef enum {
     ADM_EADHOC_DIR_CREATE_FAILED,
     ADM_EADHOC_DIR_EXISTS,
     ADM_ESUBPROCESS_ERROR,
+    ADM_ETIMEOUT,
     ADM_EOTHER,
     ADM_ERR_MAX = 512
 } ADM_return_t;
@@ -201,8 +202,20 @@ typedef enum {
     ADM_MAPPING_N_TO_N
 } ADM_transfer_mapping_t;
 
+/** A transfer state */
+typedef enum {
+    ADM_TRANSFER_QUEUED,
+    ADM_TRANSFER_RUNNING,
+    ADM_TRANSFER_FINISHED,
+    ADM_TRANSFER_FAILED,
+    ADM_TRANSFER_CANCELLED
+} ADM_transfer_state_t;
+
 /** A handle to a created transfer */
 typedef struct adm_transfer* ADM_transfer_t;
+
+/** A transfer status */
+typedef struct adm_transfer_status* ADM_transfer_status_t;
 
 /** A transfer priority */
 typedef int ADM_transfer_priority_t;

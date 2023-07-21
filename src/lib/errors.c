@@ -37,6 +37,7 @@ const char* const adm_errlist[ADM_ERR_MAX + 1] = {
                 "Cannot create adhoc storage directory",
         [ADM_EADHOC_DIR_EXISTS] = "Adhoc storage directory already exists",
         [ADM_ESUBPROCESS_ERROR] = "Subprocess error",
+        [ADM_ETIMEOUT] = "Timeout",
         [ADM_EOTHER] = "Undetermined error",
 
         /* fallback */

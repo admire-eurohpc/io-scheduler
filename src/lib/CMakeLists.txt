@@ -79,7 +79,7 @@ target_link_libraries(
 set_property(TARGET libscord_cxx_types PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 ################################################################################
-# Create a target for the actual library that will be used by clients
+# Create a target for the actual library that will be used by admin clients
 ################################################################################
 add_library(libscord SHARED)
 
@@ -107,8 +107,41 @@ target_link_libraries(
 
 set_target_properties(libscord PROPERTIES OUTPUT_NAME "scord")
 
+################################################################################
+# Create a target for the actual library that will be used by users
+################################################################################
+add_library(libscord-user SHARED)
+
+target_sources(
+  libscord-user
+  PUBLIC scord/scord-user.h
+  PRIVATE libscord-user.c
+)
+
+set(public_headers, "")
+list(APPEND public_headers "scord/scord-user.h")
+
+set_target_properties(libscord-user PROPERTIES PUBLIC_HEADER
+  "${public_headers}")
+
+target_include_directories(
+  libscord-user PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+
+target_link_libraries(
+  libscord-user
+  PRIVATE common::network::rpc_client
+  PUBLIC libscord_c_types
+)
+
+set_target_properties(libscord-user PROPERTIES OUTPUT_NAME "scord-user")
+
+################################################################################
+# Install the libraries
+################################################################################
 install(
-  TARGETS libscord libscord_c_types libscord_cxx_types
+  TARGETS libscord libscord-user libscord_c_types libscord_cxx_types
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}

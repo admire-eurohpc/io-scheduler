@@ -31,6 +31,8 @@ list(APPEND c_examples_with_controller
   # transfers
   ADM_transfer_datasets ADM_get_transfer_priority ADM_set_transfer_priority
   ADM_cancel_transfer ADM_get_pending_transfers
+  # transfers (user)
+  ADM_transfer_datasets_user
   # qos
   ADM_set_qos_constraints ADM_get_qos_constraints
   # data operations
@@ -55,7 +57,15 @@ target_link_libraries(c_examples_common libscord_c_types)
 foreach(example IN LISTS c_examples_with_controller c_examples_without_controller)
   add_executable(${example}_c)
   target_sources(${example}_c PRIVATE ${example}.c)
-  target_link_libraries(${example}_c PUBLIC libscord c_examples_common)
+
+  if (example MATCHES "^.*_user$")
+    target_link_libraries(${example}_c PUBLIC libscord-user)
+  else ()
+    target_link_libraries(${example}_c PUBLIC libscord)
+  endif ()
+
+  target_link_libraries(${example}_c PUBLIC c_examples_common)
+
   set_target_properties(${example}_c PROPERTIES OUTPUT_NAME ${example})
 endforeach()
 
@@ -91,6 +101,12 @@ if(SCORD_BUILD_TESTS)
       PROPERTIES DEPENDS stop_scord_daemon
       )
   endforeach()
+
+  # Disable until we have more than stubs for the user library
+  set_tests_properties(run_ADM_transfer_datasets_user_c_test
+    PROPERTIES DISABLED TRUE)
+  set_tests_properties(validate_ADM_transfer_datasets_user_c_test
+    PROPERTIES DISABLED TRUE)
 
   foreach(example IN LISTS c_examples_without_controller)
 

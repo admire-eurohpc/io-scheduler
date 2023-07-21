@@ -1,0 +1,13 @@
+## vim: set filetype=yaml:
+
+## global service settings
+global_settings:
+
+  # log file
+  logfile: "@TEST_DIRECTORY@/scord_daemon.log"
+
+  # path to pidfile
+  rundir: "@TEST_DIRECTORY@"
+
+  # address to bind to
+  address: "@SCORD_TRANSPORT_PROTOCOL@://@SCORD_BIND_ADDRESS@:@SCORD_BIND_PORT@"

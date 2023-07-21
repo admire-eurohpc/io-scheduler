@@ -30,20 +30,18 @@ if(SCORD_BUILD_TESTS)
   set(TEST_DIRECTORY "${SCORD_TESTS_DIRECTORY}/scord_daemon")
   file(MAKE_DIRECTORY ${TEST_DIRECTORY})
 
-  set(TEST_ENV)
-  list(APPEND TEST_ENV SCORD_LOG_OUTPUT=${TEST_DIRECTORY}/scord_daemon.log)
+  configure_file(scord.conf.in scord.conf)
 
   set(SCORD_ADDRESS_STRING
     ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
 
   add_test(start_scord_daemon
     ${CMAKE_SOURCE_DIR}/scripts/runner.sh start scord.pid
-           ${CMAKE_BINARY_DIR}/src/scord/scord -f
+           ${CMAKE_BINARY_DIR}/src/scord/scord -f -c ${CMAKE_CURRENT_BINARY_DIR}/scord.conf
   )
 
   set_tests_properties(start_scord_daemon
-    PROPERTIES FIXTURES_SETUP scord_daemon
-    ENVIRONMENT "${TEST_ENV}")
+    PROPERTIES FIXTURES_SETUP scord_daemon)
 
   add_test(stop_scord_daemon
     ${CMAKE_SOURCE_DIR}/scripts/runner.sh stop TERM scord.pid

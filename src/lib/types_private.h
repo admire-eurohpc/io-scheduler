@@ -70,6 +70,13 @@ struct adm_transfer {
     uint64_t t_id;
 };
 
+struct adm_transfer_status {
+    /** The transfer state */
+    ADM_transfer_state_t s_state;
+    /** The transfer error code */
+    ADM_return_t s_error;
+};
+
 struct adm_dataset_info {
     // TODO: undefined for now
     int32_t placeholder;

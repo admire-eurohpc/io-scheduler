@@ -110,4 +110,39 @@ pfs_storage_info::update(scord::pfs_storage::ctx pfs_context) {
     m_pfs_storage.update(std::move(pfs_context));
 }
 
+
+transfer_info::transfer_info(scord::transfer transfer, float qos,
+                             std::string contact_point, float obtained_bw)
+    : m_transfer(transfer), m_qos(qos),
+      m_contact_point(std::move(contact_point)), m_obtained_bw(obtained_bw) {}
+
+void
+transfer_info::update(float obtained_bw) {
+    m_obtained_bw = obtained_bw;
+}
+
+scord::transfer
+transfer_info::transfer() const {
+    return m_transfer;
+}
+
+std::string const&
+transfer_info::contact_point() const {
+    return m_contact_point;
+}
+
+float
+transfer_info::qos() const {
+    return m_qos;
+}
+
+float
+transfer_info::obtained_bw() const {
+    return m_obtained_bw;
+}
+
+void
+transfer_info::obtained_bw(float const obtained_bw) {
+    m_obtained_bw = obtained_bw;
+}
 } // namespace scord::internal

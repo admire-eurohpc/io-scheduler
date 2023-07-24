@@ -99,15 +99,32 @@ struct pfs_storage_info {
 };
 
 struct transfer_info {
-    explicit transfer_info(scord::transfer transfer,
-                           scord::internal::job_info client_info, float qos,
-                           std::string contact_point);
+    explicit transfer_info(scord::transfer transfer, float qos,
+                           std::string contact_point, float obtained_bw);
+
+    void
+    update(float obtained_bw);
 
     scord::transfer
     transfer() const;
 
+    std::string const&
+    contact_point() const;
+
+    float
+    qos() const;
+
+    float
+    obtained_bw() const;
+
+    void
+    obtained_bw(float obtained_bw);
+
+
     scord::transfer m_transfer;
-    std::shared_ptr<scord::internal::job_info> m_client_info;
+    float m_qos;
+    std::string m_contact_point;
+    float m_obtained_bw;
 };
 
 } // namespace scord::internal

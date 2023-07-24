@@ -38,79 +38,82 @@ namespace scord {
 
 struct transfer_manager {
 
-    tl::expected<std::shared_ptr<scord::internal::transfer_info>, scord::error_code>
-    create(scord::slurm_job_id slurm_id, scord::transfer_id tx_id, float qos) {
+    tl::expected<std::shared_ptr<scord::internal::transfer_info>,
+                 scord::error_code>
+    create(scord::transfer_id tx_id, std::string contact_point, float qos) {
 
         abt::unique_lock lock(m_transfer_mutex);
 
-        if(const auto it = m_transfer.find(id); it == m_transfer.end()) {
+        if(const auto it = m_transfer.find(tx_id); it == m_transfer.end()) {
             const auto& [it_transfer, inserted] = m_transfer.emplace(
-                    id,
+                    tx_id,
                     std::make_shared<scord::internal::transfer_info>(
-                            scord::transfer{id, slurm_id}, client_info, qos, ""));
-   explicit transfer_info(scord::transfer transfer,
-                           scord::internal::job_info client_info, float qos,
-                           std::string contact_point);
+                            scord::transfer(tx_id), qos, contact_point, -1));
+
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
                 return tl::make_unexpected(scord::error_code::snafu);
             }
 
-            return it_tranfer->second;
+            return it_transfer->second;
         }
 
-        LOGGER_ERROR("{}: Job '{}' already exists", __FUNCTION__, id);
+        LOGGER_ERROR("{}: Transfer '{}' already exists", __FUNCTION__, tx_id);
         return tl::make_unexpected(scord::error_code::entity_exists);
     }
 
     scord::error_code
-    update(scord::job_id id, scord::job::resources job_resources) {
+    update(scord::transfer_id id, float obtained_bw) {
 
-        abt::unique_lock lock(m_jobs_mutex);
+        abt::unique_lock lock(m_transfer_mutex);
 
-        if(const auto it = m_jobs.find(id); it != m_jobs.end()) {
-            const auto& current_job_info = it->second;
-            current_job_info->update(std::move(job_resources));
+        if(const auto it = m_transfer.find(id); it != m_transfer.end()) {
+            const auto& current_transfer_info = it->second;
+            current_transfer_info->update(obtained_bw);
             return scord::error_code::success;
         }
 
-        LOGGER_ERROR("{}: Job '{}' does not exist", __FUNCTION__, id);
+        LOGGER_ERROR("{}: Transfer '{}' does not exist", __FUNCTION__, id);
         return scord::error_code::no_such_entity;
     }
 
-    tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
-    find(scord::job_id id) {
+    tl::expected<std::shared_ptr<scord::internal::transfer_info>,
+                 scord::error_code>
+    find(scord::transfer_id id) {
 
-        abt::shared_lock lock(m_jobs_mutex);
+        abt::shared_lock lock(m_transfer_mutex);
 
-        if(auto it = m_jobs.find(id); it != m_jobs.end()) {
+        if(auto it = m_transfer.find(id); it != m_transfer.end()) {
             return it->second;
         }
 
-        LOGGER_ERROR("Job '{}' was not registered or was already deleted", id);
+        LOGGER_ERROR("Transfer '{}' was not registered or was already deleted",
+                     id);
         return tl::make_unexpected(scord::error_code::no_such_entity);
     }
 
-    tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
-    remove(scord::job_id id) {
+    tl::expected<std::shared_ptr<scord::internal::transfer_info>,
+                 scord::error_code>
+    remove(scord::transfer_id id) {
 
-        abt::unique_lock lock(m_jobs_mutex);
+        abt::unique_lock lock(m_transfer_mutex);
 
-        if(const auto it = m_jobs.find(id); it != m_jobs.end()) {
-            auto nh = m_jobs.extract(it);
+        if(const auto it = m_transfer.find(id); it != m_transfer.end()) {
+            auto nh = m_transfer.extract(it);
             return nh.mapped();
         }
 
-        LOGGER_ERROR("Job '{}' was not registered or was already deleted", id);
+        LOGGER_ERROR("Transfer '{}' was not registered or was already deleted",
+                     id);
 
         return tl::make_unexpected(scord::error_code::no_such_entity);
     }
 
 private:
-    mutable abt::shared_mutex m_cargo_mutex;
-    std::unordered_map<scord::job_id,
-                       std::shared_ptr<scord::internal::job_info>>
-            m_jobs;
+    mutable abt::shared_mutex m_transfer_mutex;
+    std::unordered_map<scord::transfer_id,
+                       std::shared_ptr<scord::internal::transfer_info>>
+            m_transfer;
 };
 
 } // namespace scord

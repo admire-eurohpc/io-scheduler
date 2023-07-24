@@ -49,7 +49,7 @@ struct transfer_manager {
 
         abt::unique_lock lock(m_transfer_mutex);
 
-        if(const auto it = m_transfer.find(id); it == m_transfer.end()) {
+        if(const auto it = m_transfer.find(tx_id); it == m_transfer.end()) {
             const auto& [it_transfer, inserted] = m_transfer.emplace(
                     id, std::make_shared<
                                 internal::transfer_metadata<TransferHandle>>(

@@ -45,7 +45,8 @@ main(int argc, char* argv[]) {
     fmt::print(
             stdout,
             "Calling ADM_in_transit_ops remote procedure on {} -> access method: {} ...\n",
-            cli_args.controller_address, argv[2]);
+            cli_args.controller_address, 
+            argv[2]);
     ADM_in_transit_ops_in_t in;
     in.in_transit = argv[2];
     ADM_in_transit_ops_out_t out;

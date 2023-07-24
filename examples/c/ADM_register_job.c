@@ -63,6 +63,8 @@ main(int argc, char* argv[]) {
     ADM_dataset_route_t* outputs = NULL;
     ADM_dataset_route_t* expected_outputs = NULL;
 
+    // stager information
+    
     // Let's prepare all the information required by the API calls.
     // ADM_register_job() often requires an adhoc storage to have been
     // registered onto the system, so let's prepare first the data required

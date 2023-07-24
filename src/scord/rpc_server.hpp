@@ -26,6 +26,7 @@
 #define SCORD_RPC_SERVER_HPP
 
 #include <string>
+#include <vector>
 #include <filesystem>
 #include <net/server.hpp>
 #include "job_manager.hpp"
@@ -108,6 +109,39 @@ private:
     void
     transfer_update(const network::request& req, uint64_t transfer_id,
                     float obtained_bw);
+
+    /**
+     * @brief Function that schedules transfers
+     *
+     * @param arg , is a pointer to rpc_server to access structures.
+     */
+    static void
+    scheduler_runnable(void* arg);
+    /**
+     * @brief Starts the scheduler thread for transfers
+     *
+     */
+    void
+    start_scheduler();
+
+    job_manager m_job_manager;
+    adhoc_storage_manager m_adhoc_manager;
+    pfs_storage_manager m_pfs_manager;
+    transfer_manager m_transfer_manager;
+
+
+public:
+    /**
+     * @brief Generates scheduling information, a set of pairs (contact point,
+     * and action)
+     *
+     * It causes a lock-unlock of the transfer_manager structure.
+     *
+     * @return a vector with a string contact_point and an action encoded in a
+     * integer (-1, or 1)
+     */
+    std::vector<std::pair<std::string, int>>
+    scheduler_update();
 
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;

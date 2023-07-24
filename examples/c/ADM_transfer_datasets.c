@@ -69,6 +69,8 @@ main(int argc, char* argv[]) {
             ADM_adhoc_resources_create(adhoc_nodes, NADHOC_NODES);
     assert(adhoc_resources);
 
+    
+
     ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
             cli_args.controller_address, cli_args.data_stager_address,
             ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 100, false);

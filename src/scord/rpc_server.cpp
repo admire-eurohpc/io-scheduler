@@ -29,6 +29,7 @@
 #include <net/utilities.hpp>
 #include <cargo/cargo.hpp>
 #include "rpc_server.hpp"
+#include <abt_cxx/shared_mutex.hpp>
 
 template <typename T, typename E>
 constexpr std::optional<T>
@@ -756,9 +757,29 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
                 "rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc,
                 resp.error_code(), resp.value_or_none());
 
+    // TODO: create a transfer in transfer manager
+    // We need the contact point, and different qos
+
+    if(const auto transfer_result =
+               m_transfer_manager.create(tx_id.value(), stager_address, limits);
+       !transfer_result.has_value()) {
+        LOGGER_ERROR(
+                "rpc id: {} error_msg: \"Error creating transfer_storage: {}\"",
+                rpc.id(), transfer_result.error());
+        ec = transfer_result.error();
+    }
+
+
     req.respond(resp);
 }
 
+void
+rpc_server::start_scheduler() {
+
+    thallium::xstream es = thallium::xstream::self();
+    thallium::managed<thallium::thread> th =
+            es.make_thread([this]() { scheduler_runnable((void*) this); });
+}
 
 void
 rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
@@ -775,15 +796,9 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
 
     scord::error_code ec;
 
-    // TODO: generate a global ID for the transfer and contact Cargo to
-    // actually request it
-
     const auto resp = response_with_id{rpc.id(), ec, transfer_id};
 
     LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
-
-    // TODO: create a transfer in transfer manager
-    // We need the contact point, and different qos
 
     ec = m_transfer_manager.update(transfer_id, obtained_bw);
     if(ec.no_such_entity) {
@@ -791,9 +806,60 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
                 "rpc id: {} error_msg: \"Error updating transfer_storage\"",
                 rpc.id());
     }
-
-
     req.respond(resp);
+    // Wake Up Scheduling thread, as the status has changed
+    start_scheduler();
+}
+
+void
+rpc_server::scheduler_runnable(void* arg) {
+    scord::rpc_server* server = ((scord::rpc_server*) arg);
+
+    auto scheduling = server->scheduler_update();
+    LOGGER_INFO("Internal Size: {}", scheduling.size());
+    // Call expand/shrink with the info
+}
+
+
+std::vector<std::pair<std::string, int>>
+rpc_server::scheduler_update() {
+    std::vector<std::pair<std::string, int>> return_set;
+    const auto threshold = 0.1f;
+    m_transfer_manager.lock();
+    const auto transfer = m_transfer_manager.transfer();
+
+    for(const auto& tr_unit : transfer) {
+        const auto tr_info = tr_unit.second.get();
+        auto bw = tr_info->obtained_bw();
+        if(bw == -1) {
+            continue;
+        }
+
+        LOGGER_DEBUG("update for unit {} - {} >? {}", tr_unit.first,
+                     tr_info->qos().front().value(), bw);
+
+        auto qos = tr_info->qos().front().value();
+        if(bw + bw * threshold > qos) {
+            // Send decrease / slow signal to cargo
+            LOGGER_DEBUG("Action for unit {} --> Decrease {}", tr_unit.first,
+                         tr_info->contact_point());
+            std::pair<std::string, int> entity =
+                    std::make_pair(tr_info->contact_point(), -1);
+            return_set.push_back(entity);
+
+        } else if(bw - bw * threshold < qos) {
+            // Send increase / speed up signal to cargo
+            LOGGER_DEBUG("Action for unit {} --> Increase {}", tr_unit.first,
+                         tr_info->contact_point());
+            std::pair<std::string, int> entity =
+                    std::make_pair(tr_info->contact_point(), +1);
+            return_set.push_back(entity);
+        }
+        // Remove from next computations
+        tr_info->obtained_bw(-1);
+    }
+    m_transfer_manager.unlock();
+    return return_set;
 }
 
 

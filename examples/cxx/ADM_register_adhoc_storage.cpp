@@ -48,7 +48,7 @@ main(int argc, char* argv[]) {
     const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
     const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
-
+     
     std::string name = "adhoc_storage_42";
     const auto adhoc_storage_ctx = scord::adhoc_storage::ctx{
             cli_args.controller_address,

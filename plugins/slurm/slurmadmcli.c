@@ -459,6 +459,10 @@ scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
             cfg.scordctl_info.proto, ADM_node_get_hostname(ctl_node),
             cfg.scordctl_info.port);
 
+    cfg.cargo_info.addr = margo_address_create(cfg.cargo_info.proto,
+                                               ADM_node_get_hostname(ctl_node),
+                                               cfg.cargo_info.port);
+
     if(!cfg.scordctl_info.addr) {
         slurm_error("%s: failed to compute address scordctl server",
                     plugin_name);
@@ -480,6 +484,15 @@ scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
                 cfg.scord_info.port);
 
     slurm_debug("%s: %s: scordctl_info:", plugin_name, __func__);
+    slurm_debug("%s: %s:   addr: \"%s\",", plugin_name, __func__,
+                cfg.cargo_info.addr);
+    slurm_debug("%s: %s:   proto: \"%s\",", plugin_name, __func__,
+                cfg.cargo_info.proto);
+    slurm_debug("%s: %s:   port: %d,", plugin_name, __func__,
+                cfg.cargo_info.port);
+
+
+    slurm_debug("%s: %s: cargo_info:", plugin_name, __func__);
     slurm_debug("%s: %s:   addr: \"%s\",", plugin_name, __func__,
                 cfg.scordctl_info.addr);
     slurm_debug("%s: %s:   proto: \"%s\",", plugin_name, __func__,

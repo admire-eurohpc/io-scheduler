@@ -530,4 +530,36 @@ transfer_datasets(const server& srv, const job& job,
     return tl::make_unexpected(scord::error_code::other);
 }
 
+
+scord::error_code
+transfer_update(const server& srv, scord::transfer transfer,
+                float obtained_bw) {
+
+    network::client rpc_client{srv.protocol()};
+
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
+
+    if(const auto& lookup_rv = rpc_client.lookup(srv.address());
+       lookup_rv.has_value()) {
+        const auto& endp = lookup_rv.value();
+
+        LOGGER_INFO("rpc {:<} body: {{transfer_id: {}}}", rpc, transfer.id());
+
+        if(const auto& call_rv = endp.call(rpc.name(), transfer, obtained_bw);
+           call_rv.has_value()) {
+
+            const network::generic_response resp{call_rv.value()};
+
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", rpc,
+                        resp.error_code(), resp.op_id());
+
+            return resp.error_code();
+        }
+    }
+
+    LOGGER_ERROR("rpc call failed");
+    return scord::error_code::other;
+}
+
 } // namespace scord::detail

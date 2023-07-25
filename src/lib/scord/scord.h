@@ -251,6 +251,19 @@ ADM_transfer_datasets(ADM_server_t server, ADM_job_t job,
                       ADM_qos_limit_t limits[], size_t limits_len,
                       ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer);
 
+/**
+ * Sets the obtained bw for the transfer operation
+ *
+ * @param[in] server The server to which the request is directed
+ * @param[in] transfer An ADM_TRANSFER identifying the originating transfer.
+ * @param[in] obtained_bw a float indicating the obtained bandwidth
+ *
+ * @return Returns if the remote procedure has been completed
+ * successfully or not.
+ */
+ADM_return_t
+ADM_transfer_update(ADM_server_t server, ADM_transfer_t transfer,
+                    float obtained_bw);
 
 /**
  * Sets information for the dataset identified by resource_id.

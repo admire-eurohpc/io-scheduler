@@ -99,7 +99,8 @@ struct pfs_storage_info {
 };
 
 struct transfer_info {
-    explicit transfer_info(scord::transfer transfer, float qos,
+    explicit transfer_info(scord::transfer transfer,
+                           std::vector<scord::qos::limit>,
                            std::string contact_point, float obtained_bw);
 
     void
@@ -111,7 +112,7 @@ struct transfer_info {
     std::string const&
     contact_point() const;
 
-    float
+    std::vector<scord::qos::limit>
     qos() const;
 
     float
@@ -122,7 +123,7 @@ struct transfer_info {
 
 
     scord::transfer m_transfer;
-    float m_qos;
+    std::vector<scord::qos::limit> m_qos;
     std::string m_contact_point;
     float m_obtained_bw;
 };

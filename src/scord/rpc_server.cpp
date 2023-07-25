@@ -544,6 +544,7 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
     scord::error_code ec;
 
     std::optional<std::uint64_t> tx_id;
+    std::string contact_point = "ofi+tcp://127.0.0.1:22222";
 
     // TODO: generate a global ID for the transfer and contact Cargo to
     // actually request it
@@ -553,7 +554,59 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
 
     LOGGER_INFO("rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc, ec, tx_id);
 
+    // TODO: create a transfer in transfer manager
+    // We need the contact point, and different qos
+
+    if(const auto transfer_result =
+               m_transfer_manager.create(tx_id.value(), contact_point, limits);
+       !transfer_result.has_value()) {
+        LOGGER_ERROR(
+                "rpc id: {} error_msg: \"Error creating transfer_storage: {}\"",
+                rpc.id(), transfer_result.error());
+        ec = transfer_result.error();
+    }
+
+
     req.respond(resp);
 }
+
+
+void
+rpc_server::transfer_update(const network::request& req,
+                            scord::transfer transfer, float obtained_bw) {
+
+    using network::get_address;
+    using network::response_with_id;
+    using network::rpc_info;
+
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+
+    LOGGER_INFO("rpc {:>} body: {{transfer_id: {}, obtained_bw: {}}}", rpc,
+                transfer.id(), obtained_bw);
+
+    scord::error_code ec;
+
+    // TODO: generate a global ID for the transfer and contact Cargo to
+    // actually request it
+
+    const auto resp = response_with_id{rpc.id(), ec, transfer.id()};
+
+    LOGGER_INFO("rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc, ec,
+                transfer.id());
+
+    // TODO: create a transfer in transfer manager
+    // We need the contact point, and different qos
+
+    ec = m_transfer_manager.update(transfer.id(), obtained_bw);
+    if(ec.no_such_entity) {
+        LOGGER_ERROR(
+                "rpc id: {} error_msg: \"Error updating transfer_storage\"",
+                rpc.id());
+    }
+
+
+    req.respond(resp);
+}
+
 
 } // namespace scord

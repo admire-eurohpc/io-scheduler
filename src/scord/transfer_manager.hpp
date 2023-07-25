@@ -40,7 +40,8 @@ struct transfer_manager {
 
     tl::expected<std::shared_ptr<scord::internal::transfer_info>,
                  scord::error_code>
-    create(scord::transfer_id tx_id, std::string contact_point, float qos) {
+    create(scord::transfer_id tx_id, std::string contact_point,
+           std::vector<scord::qos::limit> limits) {
 
         abt::unique_lock lock(m_transfer_mutex);
 
@@ -48,7 +49,7 @@ struct transfer_manager {
             const auto& [it_transfer, inserted] = m_transfer.emplace(
                     tx_id,
                     std::make_shared<scord::internal::transfer_info>(
-                            scord::transfer(tx_id), qos, contact_point, -1));
+                            scord::transfer(tx_id), limits, contact_point, -1));
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);

@@ -368,6 +368,20 @@ transfer_datasets(const server& srv, const job& job,
     return rv.value();
 }
 
+
+void
+transfer_update(const server& srv, scord::transfer transfer,
+                float obtained_bw) {
+
+    const auto ec = detail::transfer_update(srv, transfer, obtained_bw);
+
+    if(!ec) {
+        throw std::runtime_error(
+                fmt::format("ADM_transfer_update() error: {}", ec.message()));
+    }
+}
+
+
 ADM_return_t
 set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
                         ADM_dataset_info_t info) {

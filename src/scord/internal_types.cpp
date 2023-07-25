@@ -111,7 +111,8 @@ pfs_storage_info::update(scord::pfs_storage::ctx pfs_context) {
 }
 
 
-transfer_info::transfer_info(scord::transfer transfer, float qos,
+transfer_info::transfer_info(scord::transfer transfer,
+                             std::vector<scord::qos::limit> qos,
                              std::string contact_point, float obtained_bw)
     : m_transfer(transfer), m_qos(qos),
       m_contact_point(std::move(contact_point)), m_obtained_bw(obtained_bw) {}
@@ -131,7 +132,7 @@ transfer_info::contact_point() const {
     return m_contact_point;
 }
 
-float
+std::vector<scord::qos::limit>
 transfer_info::qos() const {
     return m_qos;
 }

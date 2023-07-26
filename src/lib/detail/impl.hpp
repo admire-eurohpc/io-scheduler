@@ -84,7 +84,7 @@ transfer_datasets(const server& srv, const job& job,
                   transfer::mapping mapping);
 
 scord::error_code
-transfer_update(const server& srv, scord::transfer transfer, float obtained_bw);
+transfer_update(const server& srv, uint64_t transfer_id, float obtained_bw);
 
 
 } // namespace scord::detail

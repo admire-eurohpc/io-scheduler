@@ -98,7 +98,7 @@ private:
                       enum scord::transfer::mapping mapping);
 
     void
-    transfer_update(const network::request& req, scord::transfer transfer,
+    transfer_update(const network::request& req, uint64_t transfer_id,
                     float obtained_bw);
 
     job_manager m_job_manager;

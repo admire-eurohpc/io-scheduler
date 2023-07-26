@@ -491,8 +491,7 @@ transfer_datasets(const server& srv, const job& job,
 
 
 scord::error_code
-transfer_update(const server& srv, scord::transfer transfer,
-                float obtained_bw) {
+transfer_update(const server& srv, uint64_t transfer_id, float obtained_bw) {
 
     network::client rpc_client{srv.protocol()};
 
@@ -502,9 +501,10 @@ transfer_update(const server& srv, scord::transfer transfer,
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc {:<} body: {{transfer_id: {}}}", rpc, transfer.id());
+        LOGGER_INFO("rpc {:<} body: {{transfer_id: {}}}", rpc, transfer_id);
 
-        if(const auto& call_rv = endp.call(rpc.name(), transfer, obtained_bw);
+        if(const auto& call_rv =
+                   endp.call(rpc.name(), transfer_id, obtained_bw);
            call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};

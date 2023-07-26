@@ -19,7 +19,7 @@ RPC_NAMES = {
     'ADM_remove_pfs_storage',
     'ADM_transfer_datasets', 'ADM_get_transfer_priority',
     'ADM_set_transfer_priority', 'ADM_cancel_transfer',
-    'ADM_get_pending_transfers',
+    'ADM_get_pending_transfers', 'ADM_transfer_update',
     'ADM_set_qos_constraints', 'ADM_get_qos_constraints',
     'ADM_define_data_operation', 'ADM_connect_data_operation',
     'ADM_finalize_data_operation',

@@ -77,7 +77,7 @@ main(int argc, char* argv[]) {
                 server, job, sources, targets, qos_limits, mapping);
 
 
-        scord::transfer_update(server, transfer, 10.0f);
+        scord::transfer_update(server, transfer.id(), 10.0f);
         fmt::print(stdout, "ADM_transfer_update remote procedure completed "
                            "successfully\n");
         exit(EXIT_SUCCESS);

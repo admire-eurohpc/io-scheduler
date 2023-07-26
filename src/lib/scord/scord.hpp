@@ -96,7 +96,7 @@ transfer_datasets(const server& srv, const job& job,
                   transfer::mapping mapping);
 
 void
-transfer_update(const server& srv, scord::transfer transfer, float obtained_bw);
+transfer_update(const server& srv, uint64_t transfer_id, float obtained_bw);
 
 ADM_return_t
 set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,

@@ -592,8 +592,7 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
 
     const auto resp = response_with_id{rpc.id(), ec, transfer_id};
 
-    LOGGER_INFO("rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc, ec,
-                transfer_id);
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
 
     // TODO: create a transfer in transfer manager
     // We need the contact point, and different qos

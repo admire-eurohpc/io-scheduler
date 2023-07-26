@@ -78,7 +78,7 @@ main(int argc, char* argv[]) {
 
 
         scord::transfer_update(server, transfer.id(), 10.0f);
-        fmt::print(stdout, "ADM_transfer_update remote procedure completed "
+        fmt::print(stdout, "ADM_transfer_update() remote procedure completed "
                            "successfully\n");
         exit(EXIT_SUCCESS);
     } catch(const std::exception& e) {

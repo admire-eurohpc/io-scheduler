@@ -34,6 +34,8 @@ RUN apt-get update && \
         python3-venv \
         # redis-plus-plus dependencies \
         libhiredis-dev \
+        # Slurm plugin dependencies \
+        libslurm-dev \
         # tests dependencies \
         python3-pip && \
     ### install cmake 3.23.1 ###################################################

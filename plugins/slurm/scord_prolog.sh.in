@@ -1,0 +1,123 @@
+#!/bin/bash
+################################################################################
+# Copyright 2022-2023, Inria, France.                                          #
+# Copyright 2023, Barcelona Supercomputing Center (BSC), Spain.                #
+# All rights reserved.                                                         #
+#                                                                              #
+# This software was partially supported by the EuroHPC-funded project ADMIRE   #
+#   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
+#                                                                              #
+# This file is part of scord.                                                  #
+#                                                                              #
+# scord is free software: you can redistribute it and/or modify                #
+# it under the terms of the GNU General Public License as published by         #
+# the Free Software Foundation, either version 3 of the License, or            #
+# (at your option) any later version.                                          #
+#                                                                              #
+# scord is distributed in the hope that it will be useful,                     #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
+# GNU General Public License for more details.                                 #
+#                                                                              #
+# You should have received a copy of the GNU General Public License            #
+# along with scord.  If not, see <https://www.gnu.org/licenses/>.              #
+#                                                                              #
+# SPDX-License-Identifier: GPL-3.0-or-later                                    #
+################################################################################
+
+
+# This is a prolog script for SLURM that starts the SCORD adhoc controller
+# for the job. It is meant to be used with the SCORD SLURM plugin.
+# The script is executed as the user that submitted the job. The script
+# creates a temporary directory for the job and starts the adhoc controller
+# in the background. The PID of the adhoc controller is stored in a file
+# in the temporary directory.
+
+source @CMAKE_INSTALL_FULL_DATADIR@/@PROJECT_NAME@/slurm/scord_common.sh
+
+# determine the temporary directory to use for the prolog logs
+if [[ -n "$TMPDIR" ]]; then
+  PROLOG_TMPDIR="$TMPDIR"
+else
+  PROLOG_TMPDIR="/tmp"
+fi
+
+# redirect stdout and stderr to a log file in $PROLOG_TMPDIR
+exec &>"$PROLOG_TMPDIR/scord_prolog.$SLURM_JOB_ID.log"
+# print out all commands
+set -x
+# print out the value of all variables
+env
+
+# if no ADMIRE CLI options were specified, we don't need to do anything
+if ! compgen -v SPANK__SLURM_SPANK_OPTION_admire_cli_; then
+  echo "SCORD SLURM plugin not requested. Exiting."
+  exit 0
+fi
+
+# find out some information about the job and where we are running
+HOSTNAME=$(hostname -s)
+declare -a hostnames
+get_nodelist hostnames "$SLURM_NODELIST"
+
+# create a temporary directory for the job and redirect both stdout and stderr
+# to a log file within it
+WORKDIR="$PROLOG_TMPDIR/$SLURM_JOB_USER/$SLURM_JOBID"
+if [ ! -d "$WORKDIR" ]; then
+  run_as "$SLURM_JOB_USER" mkdir -p "$WORKDIR"
+fi
+
+if ((${#hostnames[@]} == 0)); then
+  echo "No hostnames found for job $SLURM_JOB_ID. Weird."
+  exit 0
+fi
+
+# only run on the first node of the allocation (scord-ctl will always be
+# started on the first node of the allocation)
+if [[ "$HOSTNAME" != "${hostnames[0]}" ]]; then
+  exit 0
+fi
+
+# find out the IP address of the first node of the allocation
+declare -a addrs
+if ! get_addrs addrs "$HOSTNAME" v4; then
+  echo "Error searching IP addresses for $HOSTNAME."
+  exit 1
+fi
+
+if ((${#addrs[@]} == 0)); then
+  echo "No addresses found."
+  exit 1
+fi
+
+ADDRESS=$(echo "${addrs[@]}" | awk '{ print $1; exit }')
+
+# now that we have a specific working directory, move the previous log file
+# into $WORKDIR so that we have all messages in one place (since the file is
+# still open by the shell, the move operation will not affect where the
+# messages are written)
+mv "$PROLOG_TMPDIR/scord_prolog.$SLURM_JOB_ID.log" "$WORKDIR/scord_prolog.log"
+
+# start the adhoc controller in the background and store its PID in a file
+echo "Starting adhoc controller for job $SLURM_JOB_ID (user: $SLURM_JOB_USER)"
+run_as "$SLURM_JOB_USER" \
+  "$SCORDCTL_PROGRAM" \
+  --listen "$SCORDCTL_PROTO://$ADDRESS:$SCORDCTL_PORT" \
+  --output "$WORKDIR/scord-ctl.log" \
+  --pidfile "$WORKDIR/scord-ctl.pid" \
+  '&'
+
+# TODO: this doesn't work for background processes
+# shellcheck disable=SC2181
+if [[ $? -ne 0 ]]; then
+  echo "Failed to start adhoc controller"
+  exit 1
+fi
+
+# give some time to ensure that the PID file has been created
+sleep 0.5s
+PID=$(<"$WORKDIR/scord-ctl.pid")
+
+echo "Adhoc controller started successfully (PID: $PID)"
+
+exit 0

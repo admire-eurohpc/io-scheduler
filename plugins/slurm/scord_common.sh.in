@@ -1,0 +1,155 @@
+################################################################################
+# Copyright 2022-2023, Inria, France.                                          #
+# Copyright 2023, Barcelona Supercomputing Center (BSC), Spain.                #
+# All rights reserved.                                                         #
+#                                                                              #
+# This software was partially supported by the EuroHPC-funded project ADMIRE   #
+#   (Project ID: 956748, https://www.admire-eurohpc.eu).                       #
+#                                                                              #
+# This file is part of scord.                                                  #
+#                                                                              #
+# scord is free software: you can redistribute it and/or modify                #
+# it under the terms of the GNU General Public License as published by         #
+# the Free Software Foundation, either version 3 of the License, or            #
+# (at your option) any later version.                                          #
+#                                                                              #
+# scord is distributed in the hope that it will be useful,                     #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
+# GNU General Public License for more details.                                 #
+#                                                                              #
+# You should have received a copy of the GNU General Public License            #
+# along with scord.  If not, see <https://www.gnu.org/licenses/>.              #
+#                                                                              #
+# SPDX-License-Identifier: GPL-3.0-or-later                                    #
+################################################################################
+
+# Run a command as a user
+#   Usage: run_as <username> <command>
+#   Example:
+#     run_as root mkdir /root/test
+#     run_as root "mkdir /root/test && chown root:root /root/test"
+function run_as {
+  local username=$1
+  shift
+
+  if [[ -z "$*" ]]; then
+    echo "No command specified"
+    return 1
+  fi
+
+  if ! id -u "$username" &>/dev/null; then
+    echo "User '$username' does not exist"
+    return 1
+  fi
+
+  if [[ "$USER" == "$username" ]]; then
+    echo "Already running as user '$username'"
+    ${SHELL} -c "$*"
+    return 0
+  fi
+
+  if su "$username" -c "$*"; then
+    return 0
+  fi
+
+  echo "Failed to run '$*' as user '$username'"
+  return 1
+}
+
+# Get the list of hosts associated with a list of hostnames
+#   Usage: get_hostlist <out_var> <hostnames>
+#   Example:
+#     declare hl
+#     get_hostlist hl tux1,tux3,tux4,snoo1,snoo2
+#     echo "$hl"  # tux[1,3-4],snoo[1-2]
+function get_hostlist {
+
+  if [[ -z "$1" ]]; then
+    echo "No output variable specified"
+    return 1
+  fi
+
+  if [[ -z "$2" ]]; then
+    echo "No hostlist specified"
+    return 1
+  fi
+
+  local -n rv=$1
+  rv=$(scontrol show hostlist "$2")
+}
+
+# Get the list of hostnames associated with a hostlist
+#   Usage: get_nodelist <out_array> <nodelist>
+#   Example:
+#     declare -a hn
+#     get_nodelist hn tux[1,3-4],snoo[1-2]
+#     echo "${hn[0]}"  # tux1
+#     echo "${hn[@]}"  # tux1 tux3 tux4 snoo1 snoo2
+function get_nodelist {
+
+  if [[ -z "$1" ]]; then
+    echo "No output array specified"
+    return 1
+  fi
+
+  if [[ -z "$2" ]]; then
+    echo "No hostlist specified"
+    return 1
+  fi
+
+  local -n rv=$1
+  # shellcheck disable=SC2034
+  readarray -t rv < <(scontrol show hostnames "$2")
+}
+
+# Get the list of IP addresses associated with a hostname
+#   Usage: get_addrs <out_array> <hostname>
+#   Example:
+#     declare -a addrs
+#     get_addrs addrs tux1
+#     echo "${addrs[0]}"  # 192.18.0.7
+function get_addrs {
+
+  if [[ -z "$1" ]]; then
+    echo >&2 "No output array specified"
+    return 1
+  fi
+
+  if [[ -z "$2" ]]; then
+    echo >&2 "No hostname specified"
+    return 1
+  fi
+
+  local db="ahosts"
+
+  if [[ -n "$3" ]]; then
+    case "$3" in
+    v4 | V4)
+      db+="v4"
+      ;;
+    v6 | V6)
+      db+="v6"
+      ;;
+    "") ;;
+
+    *)
+      echo >&2 "Invalid address family requested: $3"
+      return 1
+      ;;
+
+    esac
+  fi
+
+  local -n out=$1
+  local hostname=$2
+
+  # shellcheck disable=SC2034
+  readarray -t out < <(getent $db "$hostname")
+  return 0
+}
+
+# shellcheck disable=SC2034
+export SCORDCTL_PROGRAM="@SCORD_CTL_BIN@"
+export SCORDCTL_PROTO="@SCORD_TRANSPORT_PROTOCOL@"
+export SCORDCTL_PORT="@SCORD_CTL_BIND_PORT@"

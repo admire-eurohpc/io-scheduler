@@ -246,11 +246,11 @@ ADM_transfer_datasets(ADM_server_t server, ADM_job_t job,
 }
 
 ADM_return_t
-ADM_transfer_update(ADM_server_t server, ADM_transfer_t transfer,
+ADM_transfer_update(ADM_server_t server, uint64_t transfer_id,
                     float obtained_bw) {
 
-    return scord::detail::transfer_update(
-            scord::server{server}, scord::transfer{transfer}, obtained_bw);
+    return scord::detail::transfer_update(scord::server{server}, transfer_id,
+                                          obtained_bw);
 }
 
 

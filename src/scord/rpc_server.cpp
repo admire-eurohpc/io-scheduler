@@ -65,6 +65,7 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
     provider::define(EXPAND(update_pfs_storage));
     provider::define(EXPAND(remove_pfs_storage));
     provider::define(EXPAND(transfer_datasets));
+    provider::define(EXPAND(transfer_update));
 
 #undef EXPAND
 }
@@ -773,8 +774,8 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
 
 
 void
-rpc_server::transfer_update(const network::request& req,
-                            scord::transfer transfer, float obtained_bw) {
+rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
+                            float obtained_bw) {
 
     using network::get_address;
     using network::response_with_id;
@@ -783,22 +784,22 @@ rpc_server::transfer_update(const network::request& req,
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
     LOGGER_INFO("rpc {:>} body: {{transfer_id: {}, obtained_bw: {}}}", rpc,
-                transfer.id(), obtained_bw);
+                transfer_id, obtained_bw);
 
     scord::error_code ec;
 
     // TODO: generate a global ID for the transfer and contact Cargo to
     // actually request it
 
-    const auto resp = response_with_id{rpc.id(), ec, transfer.id()};
+    const auto resp = response_with_id{rpc.id(), ec, transfer_id};
 
     LOGGER_INFO("rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc, ec,
-                transfer.id());
+                transfer_id);
 
     // TODO: create a transfer in transfer manager
     // We need the contact point, and different qos
 
-    ec = m_transfer_manager.update(transfer.id(), obtained_bw);
+    ec = m_transfer_manager.update(transfer_id, obtained_bw);
     if(ec.no_such_entity) {
         LOGGER_ERROR(
                 "rpc id: {} error_msg: \"Error updating transfer_storage\"",

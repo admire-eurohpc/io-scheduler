@@ -379,10 +379,9 @@ transfer_datasets(const server& srv, const job& job,
 
 
 void
-transfer_update(const server& srv, scord::transfer transfer,
-                float obtained_bw) {
+transfer_update(const server& srv, uint64_t transfer_id, float obtained_bw) {
 
-    const auto ec = detail::transfer_update(srv, transfer, obtained_bw);
+    const auto ec = detail::transfer_update(srv, transfer_id, obtained_bw);
 
     if(!ec) {
         throw std::runtime_error(

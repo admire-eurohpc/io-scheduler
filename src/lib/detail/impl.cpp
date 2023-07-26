@@ -542,7 +542,8 @@ transfer_update(const server& srv, uint64_t transfer_id, float obtained_bw) {
        lookup_rv.has_value()) {
         const auto& endp = lookup_rv.value();
 
-        LOGGER_INFO("rpc {:<} body: {{transfer_id: {}}}", rpc, transfer_id);
+        LOGGER_INFO("rpc {:<} body: {{transfer_id: {}, obtained_bw: {}}}", rpc,
+                    transfer_id, obtained_bw);
 
         if(const auto& call_rv =
                    endp.call(rpc.name(), transfer_id, obtained_bw);

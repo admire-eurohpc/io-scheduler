@@ -28,6 +28,7 @@
 #include <net/serialization.hpp>
 #include <net/utilities.hpp>
 #include "rpc_server.hpp"
+#include <abt_cxx/shared_mutex.hpp>
 
 using namespace std::literals;
 
@@ -604,8 +605,42 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
                 rpc.id());
     }
 
-
     req.respond(resp);
+}
+
+std::vector<std::pair<std::string, int>>
+rpc_server::scheduler_update() {
+    std::vector<std::pair<std::string, int>> return_set;
+    const auto threshold = 0.1f;
+    m_transfer_manager.lock();
+    const auto transfer = m_transfer_manager.transfer();
+    // lock needed
+    for(const auto& tr_unit : transfer) {
+        LOGGER_DEBUG("scheduling update for unit {}", tr_unit.first);
+        const auto tr_info = tr_unit.second.get();
+        LOGGER_DEBUG("update for unit {} - {} >? {}", tr_unit.first,
+                     tr_info->qos().front().value(), tr_info->obtained_bw());
+        auto bw = tr_info->obtained_bw();
+        auto qos = tr_info->qos().front().value();
+        if(bw + bw * threshold > qos) {
+            // Send decrease / slow signal to cargo
+            LOGGER_DEBUG("Action for unit {} --> Decrease", tr_unit.first,
+                         tr_info->contact_point());
+            std::pair<std::string, int> entity =
+                    std::make_pair(tr_info->contact_point(), -1);
+            return_set.push_back(entity);
+
+        } else if(bw - bw * threshold < qos) {
+            // Send increase / speed up signal to cargo
+            LOGGER_DEBUG("Action for unit {} --> Increase", tr_unit.first,
+                         tr_info->contact_point());
+            std::pair<std::string, int> entity =
+                    std::make_pair(tr_info->contact_point(), +1);
+            return_set.push_back(entity);
+        }
+    }
+    m_transfer_manager.unlock();
+    return return_set;
 }
 
 

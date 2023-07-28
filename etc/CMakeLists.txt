@@ -22,8 +22,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-add_subdirectory(deploy_scripts)
-
 configure_file(scord.conf.in scord.conf)
 configure_file(scord-ctl.conf.in scord-ctl.conf @ONLY)
 

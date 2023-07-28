@@ -22,4 +22,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
+add_subdirectory(adhoc_services.d)
 add_subdirectory(slurm)

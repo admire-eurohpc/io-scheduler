@@ -45,7 +45,8 @@ function run() {
     fi
   fi
 
-  "$@" 2>/dev/null 1>/dev/null 0</dev/null &
+  "$@" 2>runner.$$.err 1>runner.$$.out 0</dev/null &
+
   pid=$!
   echo $pid >"$pidfile"
   sleep 1
@@ -54,6 +55,11 @@ function run() {
     echo "Process $pid does not seem to exist." >&2
     echo "The program below may not exist or may have crashed while starting:" >&2
     echo "  $*" >&2
+    echo " STDOUT: " >&2
+    cat "runner.$$.out" >&2
+    echo " STDERR: " >&2
+    cat "runner.$$.err" >&2
+    rm runner.$$.out runner.$$.err
     exit 1
   fi
 
@@ -80,6 +86,7 @@ function stop() {
 
   if pkill "-$signal" --pidfile "$pidfile"; then
     rm "$pidfile"
+    rm runner.$$.out runner.$$.err
     exit 0
   fi
   exit 1

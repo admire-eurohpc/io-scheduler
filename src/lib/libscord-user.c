@@ -4,20 +4,20 @@
  * This software was partially supported by the EuroHPC-funded project ADMIRE
  *   (Project ID: 956748, https://www.admire-eurohpc.eu).
  *
- * This file is part of scord.
+ * This file is part of the scord API.
  *
- * scord is free software: you can redistribute it and/or modify
+ * The scord API is free software: you can redistribute it and/or modify
  * it under the terms of the Lesser GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * scord is distributed in the hope that it will be useful,
+ * The scord API is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the Lesser GNU General Public License
- * along with scord.  If not, see <https://www.gnu.org/licenses/>.
+ * along with the scord API.  If not, see <https://www.gnu.org/licenses/>.
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *****************************************************************************/

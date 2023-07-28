@@ -1,6 +1,6 @@
 # Compilation of scord and execution of tests
 
-image: bscstorage/scord:0.2.0-wip
+image: bscstorage/scord:0.3.0
 
 stages:
   - build

@@ -1,4 +1,4 @@
-FROM debian:testing-slim
+FROM debian:bullseye-slim
 
 LABEL Description="Debian-based environment suitable to build scord"
 
@@ -15,9 +15,8 @@ RUN apt-get update && \
         automake \
         gcc \
         g++ \
-        g++-11 \
-        vim \
-        gdb \
+        clang \
+        libc++-dev \
         procps \
         # AGIOS dependencies
         libconfig-dev \
@@ -35,6 +34,8 @@ RUN apt-get update && \
         python3-venv \
         # redis-plus-plus dependencies \
         libhiredis-dev \
+        # Slurm plugin dependencies \
+        libslurm-dev \
         # tests dependencies \
         python3-pip && \
     ### install cmake 3.23.1 ###################################################
@@ -77,7 +78,7 @@ RUN apt-get update && \
     cd deps/argobots && \
     ./autogen.sh && \
     mkdir build && cd build && \
-    CFLAGS="-ggdb3 -O0" ../configure --prefix=${DEPS_INSTALL_PATH} && \
+    ../configure --prefix=${DEPS_INSTALL_PATH} && \
     make install -j && \
     cd .. && rm -rf build && cd && \
     cd deps/libfabric && \
@@ -85,7 +86,7 @@ RUN apt-get update && \
     ### libfabric
     ./autogen.sh && \
     mkdir build && cd build && \
-    CFLAGS="-ggdb3 -O0" ../configure --prefix=${DEPS_INSTALL_PATH} && \
+    ../configure --prefix=${DEPS_INSTALL_PATH} && \
     make install -j && \
     cd .. && rm -rf build && cd && \
     \
@@ -99,7 +100,7 @@ RUN apt-get update && \
           -DBUILD_SHARED_LIBS:BOOL=ON \
           -DNA_USE_OFI:BOOL=ON  \
           -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-          -DCMAKE_BUILD_TYPE:STRING=Debug  \
+          -DCMAKE_BUILD_TYPE:STRING=Release  \
           .. && \
     make install -j && \
     cd .. && rm -rf build && cd && \
@@ -116,7 +117,7 @@ RUN apt-get update && \
     cd deps/mochi-margo && \
     ./prepare.sh && \
     mkdir build && cd build && \
-    CFLAGS="-ggdb3 -O0" ../configure --prefix=${DEPS_INSTALL_PATH} && \
+    ../configure --prefix=${DEPS_INSTALL_PATH} && \
     make -j install && \
     cd .. && rm -rf build && cd && \
     \
@@ -124,7 +125,7 @@ RUN apt-get update && \
     cd deps/redis-plus-plus && \
     mkdir build && cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_PATH} \
-          -DCMAKE_BUILD_TYPE:STRING=Debug \
+          -DCMAKE_BUILD_TYPE:STRING=Release \
           .. && \
     make install -j && \
     cd .. && rm -rf build && cd && \
@@ -133,7 +134,7 @@ RUN apt-get update && \
     cd deps/agios && \
     mkdir build && cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_PATH} \
-          -DCMAKE_BUILD_TYPE:STRING=Debug \
+          -DCMAKE_BUILD_TYPE:STRING=Release \
           .. && \
     make install -j && \
     cd .. && rm -rf build && cd && \
@@ -141,7 +142,7 @@ RUN apt-get update && \
     ### cereal
     cd deps/cereal && \
     mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE:STRING=Debug  \
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release  \
           -DBUILD_DOC:BOOL=OFF \
           -DBUILD_SANDBOX:BOOL=OFF  \
           -DBUILD_TESTS:BOOL=OFF \
@@ -155,7 +156,7 @@ RUN apt-get update && \
     cd deps/mochi-thallium && \
     mkdir build && cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_PATH}  \
-          -DCMAKE_BUILD_TYPE:STRING=Debug  \
+          -DCMAKE_BUILD_TYPE:STRING=Release  \
           .. && \
     make -j install && \
     cd .. && rm -rf build && cd && \

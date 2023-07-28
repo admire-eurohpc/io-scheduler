@@ -51,6 +51,7 @@ gcc-debug:
       - compiled/bin/
       - compiled/etc/
       - compiled/lib/
+      - compiled/share/
       - build/examples/
       - build/tests/
       - build/src/scord/scord

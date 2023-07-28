@@ -14,7 +14,7 @@ config:
         environment:
           VAR0: value0
           VAR1: value1
-        # The command that scord-ctl will use to start an adhoc instance of
+        # The command that `scord-ctl` will use to start an adhoc instance of
         # this type. The following variables are supported that will be
         # automatically replaced by scord-ctl if found between curly braces:
         #  * ADHOC_NODES: A comma separated list of valid job hostnames that
@@ -24,7 +24,7 @@ config:
         #    `working_directory` and automatically removed after the adhoc
         #    instance has been shut down.
         #  * ADHOC_ID: - A unique ID for the adhoc instance.
-        command: @CMAKE_INSTALL_FULL_SYSCONFDIR@/@PROJECT_NAME@/gekkofs.sh
+        command: @CMAKE_INSTALL_FULL_DATADIR@/@PROJECT_NAME@/adhoc_services.d/gekkofs.sh
                     start
                     --hosts {ADHOC_NODES}
                     --workdir {ADHOC_DIRECTORY}
@@ -32,7 +32,7 @@ config:
                     --mountdir {ADHOC_DIRECTORY}/mnt
       shutdown:
         environment:
-        command: @CMAKE_INSTALL_FULL_SYSCONFDIR@/@PROJECT_NAME@/gekkofs.sh
+        command: @CMAKE_INSTALL_FULL_DATADIR@/@PROJECT_NAME@/adhoc_services.d/gekkofs.sh
                     stop
                     --workdir {ADHOC_DIRECTORY}
 

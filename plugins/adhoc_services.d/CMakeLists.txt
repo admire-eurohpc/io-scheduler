@@ -24,10 +24,13 @@
 
 list(APPEND ADHOC_SCRIPTS "${CMAKE_CURRENT_SOURCE_DIR}/gekkofs.sh")
 
-# install adhoc scripts to `<sysconfdir>/scord` (normally /etc/scord)
+# install adhoc scripts to `<datadir>/scord/adhoc_services.d/`
+# (normally /usr/share/scord/adhoc_services.d/)
+get_filename_component(INSTALL_DESTINATION ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
 install(
   FILES ${ADHOC_SCRIPTS}
-  DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}
+  DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/${PROJECT_NAME}/${INSTALL_DESTINATION}
   PERMISSIONS
     OWNER_EXECUTE OWNER_WRITE OWNER_READ
     GROUP_EXECUTE GROUP_READ

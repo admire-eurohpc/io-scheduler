@@ -54,6 +54,7 @@ gcc-debug:
       - compiled/share/
       - build/examples/
       - build/tests/
+      - build/plugins/adhoc_services.d/*.sh
       - build/src/scord/scord
       - build/src/scord-ctl/scord-ctl
 

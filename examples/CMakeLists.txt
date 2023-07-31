@@ -31,6 +31,7 @@ if(SCORD_BUILD_TESTS)
   file(MAKE_DIRECTORY ${TEST_DIRECTORY})
 
   configure_file(scord.conf.in scord.conf)
+  configure_file(scord-ctl.conf.in scord-ctl.conf)
 
   set(SCORD_ADDRESS_STRING
     ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
@@ -57,8 +58,11 @@ if(SCORD_BUILD_TESTS)
 
   add_test(start_scord_ctl
     ${CMAKE_SOURCE_DIR}/scripts/runner.sh start scord-ctl.pid
-    ${CMAKE_BINARY_DIR}/src/scord-ctl/scord-ctl -l ${SCORD_CTL_ADDRESS_STRING} -o ${TEST_DIRECTORY}/scord_ctl.log
-    )
+        ${CMAKE_BINARY_DIR}/src/scord-ctl/scord-ctl
+            -c ${CMAKE_CURRENT_BINARY_DIR}/scord-ctl.conf
+            -l ${SCORD_CTL_ADDRESS_STRING}
+            -o ${TEST_DIRECTORY}/scord_ctl.log
+  )
 
   set_tests_properties(start_scord_ctl
     PROPERTIES FIXTURES_SETUP scord_ctl)

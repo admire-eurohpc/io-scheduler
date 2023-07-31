@@ -24,6 +24,15 @@
 
 list(APPEND ADHOC_SCRIPTS "${CMAKE_CURRENT_SOURCE_DIR}/gekkofs.sh")
 
+# copy adhoc scripts to the build directory so that they can be used  by tests
+foreach (ADHOC_SCRIPT ${ADHOC_SCRIPTS})
+  get_filename_component(ADHOC_SCRIPT_NAME ${ADHOC_SCRIPT} NAME)
+  configure_file(${ADHOC_SCRIPT} ${CMAKE_CURRENT_BINARY_DIR}/${ADHOC_SCRIPT_NAME} @ONLY
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                     GROUP_READ GROUP_EXECUTE
+                     WORLD_READ WORLD_EXECUTE)
+endforeach()
+
 # install adhoc scripts to `<datadir>/scord/adhoc_services.d/`
 # (normally /usr/share/scord/adhoc_services.d/)
 get_filename_component(INSTALL_DESTINATION ${CMAKE_CURRENT_SOURCE_DIR} NAME)

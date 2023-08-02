@@ -102,7 +102,27 @@ private:
     transfer_update(const network::request& req, uint64_t transfer_id,
                     float obtained_bw);
 
+    /**
+     * @brief Function that schedules transfers
+     *
+     * @param arg , is a pointer to rpc_server to access structures.
+     */
+    static void
+    scheduler_runnable(void* arg);
+    /**
+     * @brief Starts the scheduler thread for transfers
+     *
+     */
+    void
+    start_scheduler();
 
+    job_manager m_job_manager;
+    adhoc_storage_manager m_adhoc_manager;
+    pfs_storage_manager m_pfs_manager;
+    transfer_manager m_transfer_manager;
+
+
+public:
     /**
      * @brief Generates scheduling information, a set of pairs (contact point,
      * and action)
@@ -115,10 +135,9 @@ private:
     std::vector<std::pair<std::string, int>>
     scheduler_update();
 
-    job_manager m_job_manager;
-    adhoc_storage_manager m_adhoc_manager;
-    pfs_storage_manager m_pfs_manager;
-    transfer_manager m_transfer_manager;
+    std::atomic<bool> m_executing;
+    ABT_mutex self_progress_mutex;
+    ABT_cond self_progress_cond;
 };
 
 } // namespace scord

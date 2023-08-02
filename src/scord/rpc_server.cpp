@@ -30,6 +30,7 @@
 #include "rpc_server.hpp"
 #include <abt_cxx/shared_mutex.hpp>
 
+
 using namespace std::literals;
 
 namespace scord {
@@ -572,6 +573,50 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
     req.respond(resp);
 }
 
+void
+rpc_server::start_scheduler() {
+    if(!m_executing) {
+        ABT_mutex_create(&self_progress_mutex);
+        ABT_cond_create(&self_progress_cond);
+        ABT_mutex_lock(self_progress_mutex);
+
+        // Create ULT thread
+        auto res = ABT_initialized();
+        LOGGER_INFO("ABT already init ? {} {}", res, ABT_SUCCESS);
+
+        if(res != ABT_SUCCESS) {
+            LOGGER_ERROR("ABT Not initialized");
+        } else {
+            // Create a new thread
+
+            [[maybe_unused]] ABT_xstream* xstreams =
+                    (ABT_xstream*) malloc(sizeof(ABT_xstream) * 1);
+            [[maybe_unused]] ABT_pool* pools =
+                    (ABT_pool*) malloc(sizeof(ABT_pool) * 1);
+            [[maybe_unused]] ABT_sched* scheds =
+                    (ABT_sched*) malloc(sizeof(ABT_sched) * 1);
+            [[maybe_unused]] ABT_thread* threads =
+                    (ABT_thread*) malloc(sizeof(ABT_thread) * 1);
+
+
+            ABT_pool_create_basic(ABT_POOL_FIFO, ABT_POOL_ACCESS_MPMC, ABT_TRUE,
+                                  pools);
+
+
+            ABT_sched_create_basic(ABT_SCHED_DEFAULT, 1, pools,
+                                   ABT_SCHED_CONFIG_NULL, scheds);
+
+
+            ABT_xstream_self(xstreams);
+            ABT_xstream_get_main_pools(*xstreams, 1, pools);
+
+            m_executing = true;
+            ABT_thread_create(*pools, scheduler_runnable, (void*) this,
+                              ABT_THREAD_ATTR_NULL, threads);
+            ABT_mutex_unlock(self_progress_mutex);
+        }
+    }
+}
 
 void
 rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
@@ -581,6 +626,8 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
     using network::response_with_id;
     using network::rpc_info;
 
+    start_scheduler();
+
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
     LOGGER_INFO("rpc {:>} body: {{transfer_id: {}, obtained_bw: {}}}", rpc,
@@ -588,15 +635,9 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
 
     scord::error_code ec;
 
-    // TODO: generate a global ID for the transfer and contact Cargo to
-    // actually request it
-
     const auto resp = response_with_id{rpc.id(), ec, transfer_id};
 
     LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
-
-    // TODO: create a transfer in transfer manager
-    // We need the contact point, and different qos
 
     ec = m_transfer_manager.update(transfer_id, obtained_bw);
     if(ec.no_such_entity) {
@@ -604,9 +645,29 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
                 "rpc id: {} error_msg: \"Error updating transfer_storage\"",
                 rpc.id());
     }
-
     req.respond(resp);
+    // Wake Up Scheduling thread, as the status has changed
+    ABT_cond_broadcast(self_progress_cond);
 }
+
+void
+rpc_server::scheduler_runnable([[maybe_unused]] void* arg) {
+    scord::rpc_server* server = ((scord::rpc_server*) arg);
+    ABT_mutex_lock(server->self_progress_mutex);
+    while(server->m_executing) {
+        ABT_cond_wait(server->self_progress_cond, server->self_progress_mutex);
+        if(!server->m_executing) {
+            break;
+        }
+        auto scheduling = server->scheduler_update();
+        LOGGER_INFO("Internal Size: {}", scheduling.size());
+        // Call expand/shrink with the info
+    }
+    ABT_mutex_unlock(server->self_progress_mutex);
+    ABT_mutex_free(&server->self_progress_mutex);
+    ABT_cond_free(&server->self_progress_cond);
+}
+
 
 std::vector<std::pair<std::string, int>>
 rpc_server::scheduler_update() {
@@ -614,13 +675,17 @@ rpc_server::scheduler_update() {
     const auto threshold = 0.1f;
     m_transfer_manager.lock();
     const auto transfer = m_transfer_manager.transfer();
-    // lock needed
+
     for(const auto& tr_unit : transfer) {
-        LOGGER_DEBUG("scheduling update for unit {}", tr_unit.first);
         const auto tr_info = tr_unit.second.get();
-        LOGGER_DEBUG("update for unit {} - {} >? {}", tr_unit.first,
-                     tr_info->qos().front().value(), tr_info->obtained_bw());
         auto bw = tr_info->obtained_bw();
+        if(bw == -1) {
+            continue;
+        }
+
+        LOGGER_DEBUG("update for unit {} - {} >? {}", tr_unit.first,
+                     tr_info->qos().front().value(), bw);
+
         auto qos = tr_info->qos().front().value();
         if(bw + bw * threshold > qos) {
             // Send decrease / slow signal to cargo
@@ -638,8 +703,15 @@ rpc_server::scheduler_update() {
                     std::make_pair(tr_info->contact_point(), +1);
             return_set.push_back(entity);
         }
+        // Remove from next computations
+        tr_info->obtained_bw(-1);
     }
     m_transfer_manager.unlock();
+    // If we do not have anything to do... just close the thread.
+    if(return_set.empty()) {
+        m_executing = false;
+        ABT_cond_broadcast(self_progress_cond);
+    }
     return return_set;
 }
 

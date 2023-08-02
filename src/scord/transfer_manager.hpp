@@ -93,21 +93,21 @@ struct transfer_manager {
         return tl::make_unexpected(scord::error_code::no_such_entity);
     }
 
-    tl::expected<std::shared_ptr<scord::internal::transfer_info>,
-                 scord::error_code>
+    scord::error_code
     remove(scord::transfer_id id) {
 
         abt::unique_lock lock(m_transfer_mutex);
 
-        if(const auto it = m_transfer.find(id); it != m_transfer.end()) {
-            auto nh = m_transfer.extract(it);
-            return nh.mapped();
+        if(m_transfer.count(id) != 0) {
+            m_transfer.erase(id);
+            return scord::error_code::success;
         }
+
 
         LOGGER_ERROR("Transfer '{}' was not registered or was already deleted",
                      id);
 
-        return tl::make_unexpected(scord::error_code::no_such_entity);
+        return scord::error_code::no_such_entity;
     }
 
     std::unordered_map<scord::transfer_id,

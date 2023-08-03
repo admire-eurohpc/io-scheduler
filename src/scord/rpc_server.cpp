@@ -59,6 +59,7 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
     provider::define(EXPAND(transfer_update));
 
 #undef EXPAND
+    ABT_mutex_create(&self_progress_mutex);
 }
 
 #define RPC_NAME() ("ADM_"s + __FUNCTION__)
@@ -575,47 +576,32 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
 
 void
 rpc_server::start_scheduler() {
-    if(!m_executing) {
-        ABT_mutex_create(&self_progress_mutex);
-        ABT_cond_create(&self_progress_cond);
-        ABT_mutex_lock(self_progress_mutex);
-
-        // Create ULT thread
-        auto res = ABT_initialized();
-        LOGGER_INFO("ABT already init ? {} {}", res, ABT_SUCCESS);
-
-        if(res != ABT_SUCCESS) {
-            LOGGER_ERROR("ABT Not initialized");
-        } else {
-            // Create a new thread
-
-            [[maybe_unused]] ABT_xstream* xstreams =
-                    (ABT_xstream*) malloc(sizeof(ABT_xstream) * 1);
-            [[maybe_unused]] ABT_pool* pools =
-                    (ABT_pool*) malloc(sizeof(ABT_pool) * 1);
-            [[maybe_unused]] ABT_sched* scheds =
-                    (ABT_sched*) malloc(sizeof(ABT_sched) * 1);
-            [[maybe_unused]] ABT_thread* threads =
-                    (ABT_thread*) malloc(sizeof(ABT_thread) * 1);
 
 
-            ABT_pool_create_basic(ABT_POOL_FIFO, ABT_POOL_ACCESS_MPMC, ABT_TRUE,
-                                  pools);
+    ABT_mutex_lock(self_progress_mutex);
 
+    // Create ULT thread
+    auto res = ABT_initialized();
+    LOGGER_INFO("ABT already init ? {} {}", res, ABT_SUCCESS);
 
-            ABT_sched_create_basic(ABT_SCHED_DEFAULT, 1, pools,
-                                   ABT_SCHED_CONFIG_NULL, scheds);
+    if(res == ABT_SUCCESS) {
+        // Create a new thread
 
+        ABT_xstream* xstream = nullptr;
+        ABT_pool* pool = nullptr;
 
-            ABT_xstream_self(xstreams);
-            ABT_xstream_get_main_pools(*xstreams, 1, pools);
+        ABT_thread* threads = (ABT_thread*) malloc(sizeof(ABT_thread) * 1);
 
-            m_executing = true;
-            ABT_thread_create(*pools, scheduler_runnable, (void*) this,
-                              ABT_THREAD_ATTR_NULL, threads);
-            ABT_mutex_unlock(self_progress_mutex);
-        }
+        ABT_xstream_self(xstream);
+        ABT_xstream_get_main_pools(*xstream, 1, pool);
+
+        ABT_thread_create(*pool, scheduler_runnable, (void*) this,
+                          ABT_THREAD_ATTR_NULL, threads);
+
+    } else {
+        LOGGER_ERROR("ABT Not initialized");
     }
+    ABT_mutex_unlock(self_progress_mutex);
 }
 
 void
@@ -625,8 +611,6 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
     using network::get_address;
     using network::response_with_id;
     using network::rpc_info;
-
-    start_scheduler();
 
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
@@ -647,25 +631,17 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
     }
     req.respond(resp);
     // Wake Up Scheduling thread, as the status has changed
-    ABT_cond_broadcast(self_progress_cond);
+    start_scheduler();
 }
 
 void
-rpc_server::scheduler_runnable([[maybe_unused]] void* arg) {
+rpc_server::scheduler_runnable(void* arg) {
     scord::rpc_server* server = ((scord::rpc_server*) arg);
     ABT_mutex_lock(server->self_progress_mutex);
-    while(server->m_executing) {
-        ABT_cond_wait(server->self_progress_cond, server->self_progress_mutex);
-        if(!server->m_executing) {
-            break;
-        }
-        auto scheduling = server->scheduler_update();
-        LOGGER_INFO("Internal Size: {}", scheduling.size());
-        // Call expand/shrink with the info
-    }
+    auto scheduling = server->scheduler_update();
+    LOGGER_INFO("Internal Size: {}", scheduling.size());
+    // Call expand/shrink with the info
     ABT_mutex_unlock(server->self_progress_mutex);
-    ABT_mutex_free(&server->self_progress_mutex);
-    ABT_cond_free(&server->self_progress_cond);
 }
 
 
@@ -707,11 +683,6 @@ rpc_server::scheduler_update() {
         tr_info->obtained_bw(-1);
     }
     m_transfer_manager.unlock();
-    // If we do not have anything to do... just close the thread.
-    if(return_set.empty()) {
-        m_executing = false;
-        ABT_cond_broadcast(self_progress_cond);
-    }
     return return_set;
 }
 

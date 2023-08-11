@@ -59,7 +59,6 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
     provider::define(EXPAND(transfer_update));
 
 #undef EXPAND
-    ABT_mutex_create(&self_progress_mutex);
 }
 
 #define RPC_NAME() ("ADM_"s + __FUNCTION__)
@@ -577,31 +576,9 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
 void
 rpc_server::start_scheduler() {
 
-
-    ABT_mutex_lock(self_progress_mutex);
-
-    // Create ULT thread
-    auto res = ABT_initialized();
-    LOGGER_INFO("ABT already init ? {} {}", res, ABT_SUCCESS);
-
-    if(res == ABT_SUCCESS) {
-        // Create a new thread
-
-        ABT_xstream* xstream = nullptr;
-        ABT_pool* pool = nullptr;
-
-        ABT_thread* threads = (ABT_thread*) malloc(sizeof(ABT_thread) * 1);
-
-        ABT_xstream_self(xstream);
-        ABT_xstream_get_main_pools(*xstream, 1, pool);
-
-        ABT_thread_create(*pool, scheduler_runnable, (void*) this,
-                          ABT_THREAD_ATTR_NULL, threads);
-
-    } else {
-        LOGGER_ERROR("ABT Not initialized");
-    }
-    ABT_mutex_unlock(self_progress_mutex);
+    thallium::xstream es = thallium::xstream::self();
+    thallium::managed<thallium::thread> th =
+            es.make_thread([this]() { scheduler_runnable((void*) this); });
 }
 
 void
@@ -637,11 +614,10 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
 void
 rpc_server::scheduler_runnable(void* arg) {
     scord::rpc_server* server = ((scord::rpc_server*) arg);
-    ABT_mutex_lock(server->self_progress_mutex);
+
     auto scheduling = server->scheduler_update();
     LOGGER_INFO("Internal Size: {}", scheduling.size());
     // Call expand/shrink with the info
-    ABT_mutex_unlock(server->self_progress_mutex);
 }
 
 

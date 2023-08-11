@@ -135,7 +135,6 @@ public:
     std::vector<std::pair<std::string, int>>
     scheduler_update();
 
-    ABT_mutex self_progress_mutex;
 };
 
 } // namespace scord

@@ -42,6 +42,7 @@ class rpc_server : public network::server,
 public:
     rpc_server(std::string name, std::string address, bool daemonize,
                std::filesystem::path rundir);
+    ~rpc_server();
 
 private:
     void
@@ -113,14 +114,14 @@ private:
      * @brief Starts the scheduler thread for transfers
      *
      */
-    void
+    thallium::managed<thallium::thread>
     start_scheduler();
 
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;
     pfs_storage_manager m_pfs_manager;
     transfer_manager m_transfer_manager;
-
+    thallium::managed<thallium::thread> m_scheduler;
 
 public:
     /**
@@ -135,6 +136,9 @@ public:
     std::vector<std::pair<std::string, int>>
     scheduler_update();
 
+    std::atomic<int8_t> m_running;
+    thallium::mutex m_scheduler_mutex;
+    thallium::condition_variable m_scheduler_cond;
 };
 
 } // namespace scord

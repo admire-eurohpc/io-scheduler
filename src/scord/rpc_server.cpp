@@ -59,8 +59,13 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
     provider::define(EXPAND(transfer_update));
 
 #undef EXPAND
+    start_scheduler();
 }
 
+rpc_server::~rpc_server() {
+    m_running = false;
+    m_scheduler_cond.notify_one();
+}
 #define RPC_NAME() ("ADM_"s + __FUNCTION__)
 
 void
@@ -573,12 +578,12 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
     req.respond(resp);
 }
 
-void
+thallium::managed<thallium::thread>
 rpc_server::start_scheduler() {
 
     thallium::xstream es = thallium::xstream::self();
-    thallium::managed<thallium::thread> th =
-            es.make_thread([this]() { scheduler_runnable((void*) this); });
+    m_running = true;
+    return es.make_thread([this]() { scheduler_runnable((void*) this); });
 }
 
 void
@@ -607,17 +612,19 @@ rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
                 rpc.id());
     }
     req.respond(resp);
-    // Wake Up Scheduling thread, as the status has changed
-    start_scheduler();
+    m_scheduler_cond.notify_one();
 }
 
 void
 rpc_server::scheduler_runnable(void* arg) {
     scord::rpc_server* server = ((scord::rpc_server*) arg);
-
-    auto scheduling = server->scheduler_update();
-    LOGGER_INFO("Internal Size: {}", scheduling.size());
-    // Call expand/shrink with the info
+    auto lock = std::unique_lock(server->m_scheduler_mutex);
+    while(server->m_running) {
+        auto scheduling = server->scheduler_update();
+        LOGGER_INFO("Internal Size: {}", scheduling.size());
+        // Call expand/shrink with the info
+        server->m_scheduler_cond.wait(lock);
+    }
 }
 
 
@@ -661,6 +668,5 @@ rpc_server::scheduler_update() {
     m_transfer_manager.unlock();
     return return_set;
 }
-
 
 } // namespace scord

@@ -139,6 +139,7 @@ public:
     std::atomic<int8_t> m_running;
     thallium::mutex m_scheduler_mutex;
     thallium::condition_variable m_scheduler_cond;
+    thallium::managed<thallium::thread> thr;
 };
 
 } // namespace scord

@@ -59,12 +59,13 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
     provider::define(EXPAND(transfer_update));
 
 #undef EXPAND
-    start_scheduler();
+    thr = start_scheduler();
 }
 
 rpc_server::~rpc_server() {
     m_running = false;
     m_scheduler_cond.notify_one();
+    thr->join();
 }
 #define RPC_NAME() ("ADM_"s + __FUNCTION__)
 
@@ -625,6 +626,7 @@ rpc_server::scheduler_runnable(void* arg) {
         // Call expand/shrink with the info
         server->m_scheduler_cond.wait(lock);
     }
+    LOGGER_INFO("Stoping Thread");
 }
 
 

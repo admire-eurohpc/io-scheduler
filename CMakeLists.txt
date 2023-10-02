@@ -299,6 +299,10 @@ mark_variables_as_advanced(REGEX "^(FETCHCONTENT|fmt|FMT|spdlog|SPDLOG)_.*$")
 message(STATUS "[${PROJECT_NAME}] Checking for Redis Plus Plus")
 find_package(RedisPlusPlus 1.3.3 REQUIRED)
 
+### Cargo: required for transferring datasets between storage tiers
+message(STATUS "[${PROJECT_NAME}] Checking for Cargo")
+find_package(Cargo 0.2.0 REQUIRED)
+
 
 # ##############################################################################
 # Process subdirectories

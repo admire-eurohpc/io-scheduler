@@ -271,8 +271,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(expected)
 
-pkg_check_modules(LIBCONFIG IMPORTED_TARGET libconfig>=1.4.9)
-
 if (SCORD_BUILD_TESTS)
 
   enable_testing()

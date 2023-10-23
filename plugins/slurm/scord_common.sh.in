@@ -103,6 +103,34 @@ function get_nodelist {
   readarray -t rv < <(scontrol show hostnames "$2")
 }
 
+# Get the list of hostnames associated with a hostlist as a CSV string
+#   Usage: get_nodelist_as_csv <out_var> <nodelist>
+#   Example:
+#     declare hn
+#     get_nodelist_as_csv hn_csv tux[1,3-4],snoo[1-2]
+#     echo "${hn_csv}"  # tux1,tux3,tux4,snoo1,snoo2
+function get_nodelist_as_csv {
+
+  if [[ -z "$1" ]]; then
+    echo "No output array specified"
+    return 1
+  fi
+
+  if [[ -z "$2" ]]; then
+    echo "No hostlist specified"
+    return 1
+  fi
+
+  local -n rv=$1
+  declare -a hn
+  if ! get_nodelist hn "$2"; then
+    return 1
+  fi
+  # shellcheck disable=SC2034
+  printf -v rv "%s," "${hn[@]}"
+  rv="${rv%,}"
+}
+
 # Get the list of IP addresses associated with a hostname
 #   Usage: get_addrs <out_array> <hostname>
 #   Example:
@@ -153,3 +181,4 @@ function get_addrs {
 export SCORDCTL_PROGRAM="@SCORD_CTL_BIN@"
 export SCORDCTL_PROTO="@SCORD_TRANSPORT_PROTOCOL@"
 export SCORDCTL_PORT="@SCORD_CTL_BIND_PORT@"
+export CARGO_PORT="@CARGO_PORT@"

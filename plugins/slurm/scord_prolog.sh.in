@@ -25,7 +25,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-
 # This is a prolog script for SLURM that starts the SCORD adhoc controller
 # for the job. It is meant to be used with the SCORD SLURM plugin.
 # The script is executed as the user that submitted the job. The script
@@ -59,10 +58,12 @@ fi
 HOSTNAME=$(hostname -s)
 declare -a hostnames
 get_nodelist hostnames "$SLURM_NODELIST"
+declare hostnames_csv
+get_nodelist_as_csv hostnames_csv "$SLURM_NODELIST"
 
 # create a temporary directory for the job and redirect both stdout and stderr
 # to a log file within it
-WORKDIR="$PROLOG_TMPDIR/$SLURM_JOB_USER/$SLURM_JOBID"
+WORKDIR="$PROLOG_TMPDIR/$SLURM_JOB_USER/$SLURM_JOB_ID"
 if [ ! -d "$WORKDIR" ]; then
   run_as "$SLURM_JOB_USER" mkdir -p "$WORKDIR"
 fi
@@ -72,8 +73,8 @@ if ((${#hostnames[@]} == 0)); then
   exit 0
 fi
 
-# only run on the first node of the allocation (scord-ctl will always be
-# started on the first node of the allocation)
+# only run on the first node of the allocation (both scord-ctl and Cargo
+# are always started on the first node of the allocation)
 if [[ "$HOSTNAME" != "${hostnames[0]}" ]]; then
   exit 0
 fi
@@ -90,7 +91,7 @@ if ((${#addrs[@]} == 0)); then
   exit 1
 fi
 
-ADDRESS=$(echo "${addrs[@]}" | awk '{ print $1; exit }')
+ADDRESS=$(echo "${addrs[0]}" | awk '{ print $1; exit }')
 
 # now that we have a specific working directory, move the previous log file
 # into $WORKDIR so that we have all messages in one place (since the file is
@@ -98,7 +99,11 @@ ADDRESS=$(echo "${addrs[@]}" | awk '{ print $1; exit }')
 # messages are written)
 mv "$PROLOG_TMPDIR/scord_prolog.$SLURM_JOB_ID.log" "$WORKDIR/scord_prolog.log"
 
-# start the adhoc controller in the background and store its PID in a file
+################################################################################
+# Start the scorc-ctl adhoc controller.
+#
+# in the background and store its PID in a
+# file
 echo "Starting adhoc controller for job $SLURM_JOB_ID (user: $SLURM_JOB_USER)"
 run_as "$SLURM_JOB_USER" \
   "$SCORDCTL_PROGRAM" \
@@ -119,5 +124,80 @@ sleep 0.5s
 PID=$(<"$WORKDIR/scord-ctl.pid")
 
 echo "Adhoc controller started successfully (PID: $PID)"
+
+################################################################################
+# Start the Cargo data stager.
+
+# N.B.: Since Slurm doesn't allow programs in the prolog to survive beyond
+# their parent script, we start the data stager as a systemd (user-level)
+# service. Care must, thus, be taken to ensure that the service is stopped
+# when the job finishes.
+echo "Starting Cargo data stager for job $SLURM_JOB_ID (user: $SLURM_JOB_USER)"
+
+if [[ -z $SLURM_JOB_ID || -z $SLURM_JOB_UID ]]; then
+  echo "Missing required environment variables" >&2
+  exit 1
+fi
+
+# Step 1: Find (or create) the user's directory where configurations can be
+# stored (note that $HOME is not set when this prolog script is being executed).
+# shellcheck disable=SC2016
+USER_HOME=$(run_as "$SLURM_JOB_USER" echo '$HOME')
+USER_CONFIG_DIRECTORY="${XDG_CONFIG_HOME:-$USER_HOME/.config}"
+CARGO_CONFIG_DIRECTORY="$USER_CONFIG_DIRECTORY/cargo"
+SYSTEMD_USER_DIRECTORY="$USER_CONFIG_DIRECTORY/systemd/user"
+
+[[ ! -d "$USER_CONFIG_DIRECTORY" ]] && run_as "$SLURM_JOB_USER"  mkdir -p "$USER_CONFIG_DIRECTORY"
+[[ ! -d "$CARGO_CONFIG_DIRECTORY" ]] && run_as "$SLURM_JOB_USER" mkdir -p "$CARGO_CONFIG_DIRECTORY"
+[[ ! -d "$SYSTEMD_USER_DIRECTORY" ]] && run_as "$SLURM_JOB_USER" mkdir -p "$SYSTEMD_USER_DIRECTORY"
+
+# Step2: Copy the service file provided by Cargo to the user's configuration
+# directory so that systemd can find it.
+CARGO_SERVICE_FILE="@CARGO_DATA_INSTALL_DIR@/cargo@.service"
+
+if [[ ! -f "$CARGO_SERVICE_FILE" ]]; then
+  echo "Cargo service file not found: $CARGO_SERVICE_FILE"
+  echo "Please check your Cargo installation"
+  exit 1
+fi
+
+if ! run_as "$SLURM_JOB_USER" cp "$CARGO_SERVICE_FILE" "$SYSTEMD_USER_DIRECTORY"; then
+  exit 1
+fi
+
+# Step 3: Create a configuration file for the Cargo user-level service
+# required by this job.
+# Each Cargo user-level service must be configured for its job and identified
+# by a unique ID. We use the job ID and user ID to generate a unique ID
+# for this service instance. Since systemd doesn't allow to easily parameterize
+# a service file, we use a template service file (`cargo@.service`) and
+# generate a specific configuration file each Cargo service.
+CARGO_ID=$(echo "cargo_$SLURM_JOB_ID.$SLURM_JOB_UID" | sha256sum | awk '{ print $1 }')
+CARGO_CONFIG_FILE=$CARGO_CONFIG_DIRECTORY/$CARGO_ID.cfg
+CARGO_NUM_NODES=1 #TODO: ask scord
+CARGO_MASTER_ADDRESS="$SCORDCTL_PROTO://$ADDRESS:$CARGO_PORT"
+CARGO_INSTANCE_NAME=$(systemd-escape --template cargo@.service "$CARGO_ID")
+
+cat <<EOT >>"$CARGO_CONFIG_FILE"
+CARGO_ID=$CARGO_ID
+CARGO_HOSTS=$hostnames_csv
+CARGO_NUM_NODES=$CARGO_NUM_NODES
+CARGO_ADDRESS=$CARGO_MASTER_ADDRESS
+EOT
+
+chown "$SLURM_JOB_USER":"$SLURM_JOB_GROUP" "$CARGO_CONFIG_FILE"
+
+if ! run_as "$SLURM_JOB_USER" systemctl --user start "$CARGO_INSTANCE_NAME"; then
+  exit 1
+fi
+
+sleep 1s
+
+if ! run_as "$SLURM_JOB_USER" systemctl --user is-active --quiet "$CARGO_INSTANCE_NAME"; then
+  echo "Cargo data stager failed to start"
+  exit 1
+fi
+
+echo "Cargo data stager started successfully"
 
 exit 0

@@ -54,7 +54,7 @@ get_nodelist hostnames "$SLURM_NODELIST"
 
 # create a temporary directory for the job and redirect both stdout and stderr
 # to a log file within it
-WORKDIR="$EPILOG_TMPDIR/$SLURM_JOB_USER/$SLURM_JOBID"
+WORKDIR="$EPILOG_TMPDIR/$SLURM_JOB_USER/$SLURM_JOB_ID"
 if [ ! -d "$WORKDIR" ]; then
   run_as "$SLURM_JOB_USER" mkdir -p "$WORKDIR"
 fi
@@ -77,7 +77,42 @@ if [[ "$HOSTNAME" != "${hostnames[0]}" ]]; then
 fi
 
 echo "Shutting down adhoc controller for job $SLURM_JOB_ID (user: $SLURM_JOB_USER)"
-PIDFILE="$EPILOG_TMPDIR/$SLURM_JOB_USER/$SLURM_JOBID/scord-ctl.pid"
+PIDFILE="$EPILOG_TMPDIR/$SLURM_JOB_USER/$SLURM_JOB_ID/scord-ctl.pid"
 if [[ -f "$PIDFILE" ]]; then
   kill -TERM "$(<"$PIDFILE")"
+fi
+
+# find out the IP address of the first node of the allocation
+declare -a addrs
+if ! get_addrs addrs "$HOSTNAME" v4; then
+  echo "Error searching IP addresses for $HOSTNAME."
+  exit 1
+fi
+
+if ((${#addrs[@]} == 0)); then
+  echo "No addresses found."
+  exit 1
+fi
+
+if [[ -z $SLURM_JOB_ID || -z $SLURM_JOB_UID ]]; then
+  echo "Missing required environment variables" >&2
+  exit 1
+fi
+
+# shellcheck disable=SC2016
+USER_HOME=$(run_as "$SLURM_JOB_USER" echo '$HOME')
+CONFIG_DIRECTORY="${XDG_CONFIG_HOME:-$USER_HOME/.config}/cargo"
+
+CARGO_ID=$(echo "cargo_$SLURM_JOB_ID.$SLURM_JOB_UID" | sha256sum | awk '{ print $1 }')
+CARGO_CONFIG_FILE=$CONFIG_DIRECTORY/$CARGO_ID.cfg
+CARGO_SERVICE_NAME=$(systemd-escape --template cargo@.service "$CARGO_ID")
+
+echo "Shutting down Cargo data stager for job $SLURM_JOB_ID (user: $SLURM_JOB_USER)"
+
+if ! run_as "$SLURM_JOB_USER" systemctl --user stop "$CARGO_SERVICE_NAME"; then
+  exit 1
+fi
+
+if [[ -e "$CARGO_CONFIG_FILE" ]]; then
+  rm "$CARGO_CONFIG_FILE"
 fi

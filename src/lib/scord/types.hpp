@@ -128,8 +128,8 @@ using slurm_job_id = std::uint64_t;
 using transfer_id = std::uint64_t;
 
 namespace internal {
-struct job_info;
-struct adhoc_storage_info;
+struct job_metadata;
+struct adhoc_storage_metadata;
 } // namespace internal
 
 struct server {

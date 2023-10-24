@@ -102,20 +102,20 @@ rpc_server::register_job(const network::request& req,
                m_job_manager.create(slurm_id, job_resources, job_requirements);
        jm_result.has_value()) {
 
-        const auto& job_info = jm_result.value();
+        const auto& job_metadata = jm_result.value();
 
         // if the job requires an adhoc storage instance, inform the appropriate
         // adhoc_storage instance (if registered)
         if(job_requirements.adhoc_storage()) {
             const auto adhoc_id = job_requirements.adhoc_storage()->id();
-            ec = m_adhoc_manager.add_client_info(adhoc_id, job_info);
+            ec = m_adhoc_manager.add_client_info(adhoc_id, job_metadata);
 
             if(!ec) {
                 goto respond;
             }
         }
 
-        job_id = job_info->job().id();
+        job_id = job_metadata->job().id();
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error creating job: {}\"",
                      rpc.id(), jm_result.error());
@@ -174,9 +174,10 @@ rpc_server::remove_job(const network::request& req, scord::job_id job_id) {
     if(jm_result) {
         // if the job was using an adhoc storage instance, inform the
         // appropriate adhoc_storage that the job is no longer its client
-        const auto& job_info = jm_result.value();
+        const auto& job_metadata = jm_result.value();
 
-        if(const auto adhoc_storage = job_info->requirements()->adhoc_storage();
+        if(const auto adhoc_storage =
+                   job_metadata->requirements()->adhoc_storage();
            adhoc_storage.has_value()) {
             ec = m_adhoc_manager.remove_client_info(adhoc_storage->id());
         }
@@ -309,10 +310,10 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
      * information about the instance to deploy.
      * @return
      */
-    const auto deploy_helper = [&](const auto& adhoc_info)
+    const auto deploy_helper = [&](const auto& adhoc_metadata)
             -> tl::expected<std::filesystem::path, error_code> {
-        assert(adhoc_info);
-        const auto adhoc_storage = adhoc_info->adhoc_storage();
+        assert(adhoc_metadata);
+        const auto adhoc_storage = adhoc_metadata->adhoc_storage();
         const auto endp = lookup(adhoc_storage.context().controller_address());
 
         if(!endp) {
@@ -324,10 +325,10 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
                 rpc.add_child(adhoc_storage.context().controller_address());
 
         LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}, resources: {}}}",
-                    child_rpc, std::quoted(adhoc_info->uuid()),
+                    child_rpc, std::quoted(adhoc_metadata->uuid()),
                     adhoc_storage.type(), adhoc_storage.get_resources());
 
-        if(const auto call_rv = endp->call(rpc.name(), adhoc_info->uuid(),
+        if(const auto call_rv = endp->call(rpc.name(), adhoc_metadata->uuid(),
                                            adhoc_storage.type(),
                                            adhoc_storage.get_resources());
            call_rv.has_value()) {
@@ -388,9 +389,10 @@ rpc_server::terminate_adhoc_storage(const network::request& req,
      * information about the instance to terminate.
      * @return
      */
-    const auto terminate_helper = [&](const auto& adhoc_info) -> error_code {
-        assert(adhoc_info);
-        const auto adhoc_storage = adhoc_info->adhoc_storage();
+    const auto terminate_helper =
+            [&](const auto& adhoc_metadata) -> error_code {
+        assert(adhoc_metadata);
+        const auto adhoc_storage = adhoc_metadata->adhoc_storage();
         const auto endp = lookup(adhoc_storage.context().controller_address());
 
         if(!endp) {
@@ -402,9 +404,9 @@ rpc_server::terminate_adhoc_storage(const network::request& req,
                 rpc.add_child(adhoc_storage.context().controller_address());
 
         LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}}}", child_rpc,
-                    std::quoted(adhoc_info->uuid()), adhoc_storage.type());
+                    std::quoted(adhoc_metadata->uuid()), adhoc_storage.type());
 
-        if(const auto call_rv = endp->call(rpc.name(), adhoc_info->uuid(),
+        if(const auto call_rv = endp->call(rpc.name(), adhoc_metadata->uuid(),
                                            adhoc_storage.type());
            call_rv.has_value()) {
 

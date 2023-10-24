@@ -38,7 +38,8 @@ namespace scord {
 
 struct job_manager {
 
-    tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
+    tl::expected<std::shared_ptr<scord::internal::job_metadata>,
+                 scord::error_code>
     create(scord::slurm_job_id slurm_id, scord::job::resources job_resources,
            scord::job::requirements job_requirements) {
 
@@ -50,7 +51,7 @@ struct job_manager {
         if(const auto it = m_jobs.find(id); it == m_jobs.end()) {
             const auto& [it_job, inserted] = m_jobs.emplace(
                     id,
-                    std::make_shared<scord::internal::job_info>(
+                    std::make_shared<scord::internal::job_metadata>(
                             scord::job{id, slurm_id}, std::move(job_resources),
                             std::move(job_requirements)));
 
@@ -81,7 +82,8 @@ struct job_manager {
         return scord::error_code::no_such_entity;
     }
 
-    tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
+    tl::expected<std::shared_ptr<scord::internal::job_metadata>,
+                 scord::error_code>
     find(scord::job_id id) {
 
         abt::shared_lock lock(m_jobs_mutex);
@@ -94,7 +96,8 @@ struct job_manager {
         return tl::make_unexpected(scord::error_code::no_such_entity);
     }
 
-    tl::expected<std::shared_ptr<scord::internal::job_info>, scord::error_code>
+    tl::expected<std::shared_ptr<scord::internal::job_metadata>,
+                 scord::error_code>
     remove(scord::job_id id) {
 
         abt::unique_lock lock(m_jobs_mutex);
@@ -112,7 +115,7 @@ struct job_manager {
 private:
     mutable abt::shared_mutex m_jobs_mutex;
     std::unordered_map<scord::job_id,
-                       std::shared_ptr<scord::internal::job_info>>
+                       std::shared_ptr<scord::internal::job_metadata>>
             m_jobs;
 };
 

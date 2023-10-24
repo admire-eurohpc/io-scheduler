@@ -29,6 +29,15 @@
 #include <net/utilities.hpp>
 #include "rpc_server.hpp"
 
+template <typename T, typename E>
+constexpr std::optional<T>
+value_or_none(tl::expected<T, E>&& e) {
+    if(e.has_value()) {
+        return e.value();
+    }
+    return std::nullopt;
+}
+
 using namespace std::literals;
 
 namespace scord {
@@ -42,6 +51,7 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
 #define EXPAND(rpc_name) "ADM_" #rpc_name##s, &rpc_server::rpc_name
 
     provider::define(EXPAND(ping));
+    provider::define(EXPAND(query));
     provider::define(EXPAND(register_job));
     provider::define(EXPAND(update_job));
     provider::define(EXPAND(remove_job));
@@ -75,6 +85,42 @@ rpc_server::ping(const network::request& req) {
 
     LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc,
                 scord::error_code::success);
+
+    req.respond(resp);
+}
+
+void
+rpc_server::query(const network::request& req, slurm_job_id job_id) {
+
+    using network::get_address;
+    using network::rpc_info;
+    using response_type = network::response_with_value<scord::job_info>;
+
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+
+    LOGGER_INFO("rpc {:>} body: {{slurm_job_id: {}}}", rpc, job_id);
+
+    const auto rv =
+            m_job_manager.find_by_slurm_id(job_id)
+                    .or_else([&](auto&& ec) {
+                        LOGGER_ERROR("Error retrieving job metadata: {}", ec);
+                    })
+                    .and_then([&](auto&& job_metadata)
+                                      -> tl::expected<job_info, error_code> {
+                        if(!job_metadata->resources()) {
+                            return tl::make_unexpected(
+                                    error_code::no_resources);
+                        }
+                        return job_info{job_metadata->io_procs()};
+                    });
+
+    const response_type resp =
+            rv ? response_type{rpc.id(), error_code::success, rv.value()}
+               : response_type{rpc.id(), rv.error()};
+
+    LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                "rpc {:<} body: {{retval: {}, job_info: {}}}", rpc,
+                resp.error_code(), resp.value_or_none());
 
     req.respond(resp);
 }

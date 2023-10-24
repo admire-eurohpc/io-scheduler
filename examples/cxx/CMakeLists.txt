@@ -121,8 +121,3 @@ if(SCORD_BUILD_TESTS)
       )
   endforeach()
 endif()
-
-# Install ADM_ping_cxx as a convenience tool
-install(TARGETS ADM_ping_cxx
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )

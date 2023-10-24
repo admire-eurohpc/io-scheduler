@@ -33,6 +33,8 @@
 
 using namespace std::literals;
 
+constexpr auto default_ping_timeout = 4s;
+
 namespace api {
 
 struct remote_procedure {
@@ -62,7 +64,9 @@ ping(const server& srv) {
 
         LOGGER_INFO("rpc {:<} body: {{}}", rpc);
 
-        if(const auto call_rv = endp.call(rpc.name()); call_rv.has_value()) {
+        if(const auto call_rv =
+                   endp.timed_call(rpc.name(), default_ping_timeout);
+           call_rv.has_value()) {
 
             const network::generic_response resp{call_rv.value()};
 
@@ -76,6 +80,43 @@ ping(const server& srv) {
 
     LOGGER_ERROR("rpc call failed");
     return scord::error_code::other;
+}
+
+tl::expected<scord::job_info, scord::error_code>
+query(const server& srv, slurm_job_id job_id) {
+
+    using response_type = network::response_with_value<scord::job_info>;
+
+    network::client rpc_client{srv.protocol()};
+
+    const auto rpc = network::rpc_info::create(RPC_NAME(), srv.address());
+
+    if(const auto& lookup_rv = rpc_client.lookup(srv.address());
+       lookup_rv.has_value()) {
+        const auto& endp = lookup_rv.value();
+
+        LOGGER_INFO("rpc {:<} body: {{slurm_job_id: {}}}", rpc, job_id);
+
+        if(const auto& call_rv = endp.call(rpc.name(), job_id);
+           call_rv.has_value()) {
+
+            const response_type resp{call_rv.value()};
+
+            LOGGER_EVAL(
+                    resp.error_code(), INFO, ERROR,
+                    "rpc {:>} body: {{retval: {}, job_info: {}}} [op_id: {}]",
+                    rpc, resp.error_code(), resp.value(), resp.op_id());
+
+            if(!resp.error_code()) {
+                return tl::make_unexpected(resp.error_code());
+            }
+
+            return resp.value();
+        }
+    }
+
+    LOGGER_ERROR("rpc call failed");
+    return tl::make_unexpected(scord::error_code::other);
 }
 
 tl::expected<scord::job, scord::error_code>

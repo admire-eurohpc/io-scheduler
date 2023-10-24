@@ -46,6 +46,9 @@ private:
     ping(const network::request& req);
 
     void
+    query(const network::request& req, scord::job_id job_id);
+
+    void
     register_job(const network::request& req,
                  const scord::job::resources& job_resources,
                  const scord::job::requirements& job_requirements,

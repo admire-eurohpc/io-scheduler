@@ -295,12 +295,12 @@ Which should produce output similar to the following:
 [2021-11-19 10:30:30.066151] [scord] [131119] [info]
 [2021-11-19 10:30:30.066161] [scord] [131119] [info] [[ Start up successful, awaiting requests... ]]
 ```
-Now we can use one of the example programs to send a `ping` RPC to Scord:
+
+Now we can use the `scord_ping` CLI program packaged with the service to
+send a `ping` RPC to Scord:
 
 ```bash
-
-cd $HOME/scord/build/examples
-./ADM_ping ofi+tcp://192.168.0.111:52000
+scord_ping ofi+tcp://192.168.0.111:52000
 ```
 
 And the server logs should update with an entry similar the following one:

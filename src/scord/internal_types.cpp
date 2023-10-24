@@ -44,6 +44,14 @@ job_metadata::resources() const {
     return m_resources;
 }
 
+std::uint32_t
+job_metadata::io_procs() const {
+    if(m_resources) {
+        return m_resources->nodes().size();
+    }
+    return 0;
+}
+
 void
 job_metadata::update(scord::job::resources resources) {
     m_resources = std::move(resources);

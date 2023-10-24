@@ -208,6 +208,15 @@ ping(const server& srv) {
     }
 }
 
+job_info
+query(const server& srv, slurm_job_id id) {
+    return detail::query(srv, id)
+            .or_else([](auto ec) {
+                throw std::runtime_error(
+                        fmt::format("ADM_query() error: {}", ec.message()));
+            })
+            .value();
+}
 
 scord::job
 register_job(const server& srv, const job::resources& resources,

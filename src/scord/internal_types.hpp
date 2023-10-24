@@ -43,6 +43,9 @@ struct job_metadata {
     std::optional<scord::job::resources>
     resources() const;
 
+    std::uint32_t
+    io_procs() const;
+
     std::optional<scord::job::requirements>
     requirements() const {
         return m_requirements;

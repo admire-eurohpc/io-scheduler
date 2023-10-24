@@ -98,6 +98,11 @@ public:
     }
 
     constexpr auto
+    value_or_none() const noexcept {
+        return m_value;
+    }
+
+    constexpr auto
     has_value() const noexcept {
         return m_value.has_value();
     }

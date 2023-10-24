@@ -38,7 +38,7 @@ namespace scord {
 
 struct pfs_storage_manager {
 
-    tl::expected<std::shared_ptr<scord::internal::pfs_storage_info>,
+    tl::expected<std::shared_ptr<scord::internal::pfs_storage_metadata>,
                  scord::error_code>
     create(enum scord::pfs_storage::type type, const std::string& name,
            const scord::pfs_storage::ctx& ctx) {
@@ -51,7 +51,7 @@ struct pfs_storage_manager {
         if(const auto it = m_pfs_storages.find(id);
            it == m_pfs_storages.end()) {
             const auto& [it_pfs, inserted] = m_pfs_storages.emplace(
-                    id, std::make_shared<scord::internal::pfs_storage_info>(
+                    id, std::make_shared<scord::internal::pfs_storage_metadata>(
                                 scord::pfs_storage{type, name, id, ctx}));
 
             if(!inserted) {
@@ -82,7 +82,7 @@ struct pfs_storage_manager {
         return scord::error_code::no_such_entity;
     }
 
-    tl::expected<std::shared_ptr<scord::internal::pfs_storage_info>,
+    tl::expected<std::shared_ptr<scord::internal::pfs_storage_metadata>,
                  scord::error_code>
     find(std::uint64_t id) {
 
@@ -118,7 +118,7 @@ struct pfs_storage_manager {
 private:
     mutable abt::shared_mutex m_pfs_storages_mutex;
     std::unordered_map<std::uint64_t,
-                       std::shared_ptr<scord::internal::pfs_storage_info>>
+                       std::shared_ptr<scord::internal::pfs_storage_metadata>>
             m_pfs_storages;
 };
 

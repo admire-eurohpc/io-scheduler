@@ -32,10 +32,10 @@
 
 namespace scord::internal {
 
-struct job_info {
+struct job_metadata {
 
-    job_info(scord::job job, scord::job::resources resources,
-             scord::job::requirements requirements);
+    job_metadata(scord::job job, scord::job::resources resources,
+                 scord::job::requirements requirements);
 
     scord::job
     job() const;
@@ -56,9 +56,10 @@ struct job_info {
     std::optional<scord::job::requirements> m_requirements;
 };
 
-struct adhoc_storage_info {
+struct adhoc_storage_metadata {
 
-    adhoc_storage_info(std::string uuid, scord::adhoc_storage adhoc_storage);
+    adhoc_storage_metadata(std::string uuid,
+                           scord::adhoc_storage adhoc_storage);
 
     scord::adhoc_storage const&
     adhoc_storage() const;
@@ -70,23 +71,23 @@ struct adhoc_storage_info {
     update(scord::adhoc_storage::resources new_resources);
 
     scord::error_code
-    add_client_info(std::shared_ptr<scord::internal::job_info> job_info);
+    add_client_info(std::shared_ptr<scord::internal::job_metadata> job_info);
 
     void
     remove_client_info();
 
-    std::shared_ptr<scord::internal::job_info>
+    std::shared_ptr<scord::internal::job_metadata>
     client_info() const;
 
     std::string m_uuid;
     scord::adhoc_storage m_adhoc_storage;
-    std::shared_ptr<scord::internal::job_info> m_client_info;
+    std::shared_ptr<scord::internal::job_metadata> m_client_info;
     mutable scord::abt::shared_mutex m_info_mutex;
 };
 
-struct pfs_storage_info {
+struct pfs_storage_metadata {
 
-    explicit pfs_storage_info(scord::pfs_storage pfs_storage);
+    explicit pfs_storage_metadata(scord::pfs_storage pfs_storage);
 
     scord::pfs_storage
     pfs_storage() const;
@@ -95,7 +96,7 @@ struct pfs_storage_info {
     update(scord::pfs_storage::ctx pfs_context);
 
     scord::pfs_storage m_pfs_storage;
-    std::shared_ptr<scord::internal::job_info> m_client_info;
+    std::shared_ptr<scord::internal::job_metadata> m_client_info;
 };
 
 } // namespace scord::internal

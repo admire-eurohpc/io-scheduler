@@ -74,7 +74,7 @@ namespace scord {
 
 struct adhoc_storage_manager {
 
-    tl::expected<std::shared_ptr<scord::internal::adhoc_storage_info>,
+    tl::expected<std::shared_ptr<scord::internal::adhoc_storage_metadata>,
                  scord::error_code>
     create(enum scord::adhoc_storage::type type, const std::string& name,
            const scord::adhoc_storage::ctx& ctx,
@@ -88,10 +88,11 @@ struct adhoc_storage_manager {
         if(const auto it = m_adhoc_storages.find(id);
            it == m_adhoc_storages.end()) {
             const auto& [it_adhoc, inserted] = m_adhoc_storages.emplace(
-                    id, std::make_shared<scord::internal::adhoc_storage_info>(
-                                ::generate_adhoc_uuid(type),
-                                scord::adhoc_storage{type, name, id, ctx,
-                                                     resources}));
+                    id,
+                    std::make_shared<scord::internal::adhoc_storage_metadata>(
+                            ::generate_adhoc_uuid(type),
+                            scord::adhoc_storage{type, name, id, ctx,
+                                                 resources}));
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
@@ -121,7 +122,7 @@ struct adhoc_storage_manager {
         return scord::error_code::no_such_entity;
     }
 
-    tl::expected<std::shared_ptr<scord::internal::adhoc_storage_info>,
+    tl::expected<std::shared_ptr<scord::internal::adhoc_storage_metadata>,
                  scord::error_code>
     find(std::uint64_t id) {
 
@@ -156,7 +157,7 @@ struct adhoc_storage_manager {
 
     scord::error_code
     add_client_info(std::uint64_t adhoc_id,
-                    std::shared_ptr<scord::internal::job_info> job_info) {
+                    std::shared_ptr<scord::internal::job_metadata> job_info) {
 
         if(auto am_result = find(adhoc_id); am_result.has_value()) {
             const auto adhoc_storage_info = am_result.value();
@@ -181,7 +182,7 @@ struct adhoc_storage_manager {
 private:
     mutable abt::shared_mutex m_adhoc_storages_mutex;
     std::unordered_map<std::uint64_t,
-                       std::shared_ptr<scord::internal::adhoc_storage_info>>
+                       std::shared_ptr<scord::internal::adhoc_storage_metadata>>
             m_adhoc_storages;
 };
 

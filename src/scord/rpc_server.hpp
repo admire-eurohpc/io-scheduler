@@ -33,10 +33,12 @@
 #include "adhoc_storage_manager.hpp"
 #include "pfs_storage_manager.hpp"
 #include "transfer_manager.hpp"
+#include <sw/redis++/redis++.h>
 
 namespace cargo {
 class transfer;
 }
+
 
 namespace scord {
 
@@ -45,7 +47,9 @@ class rpc_server : public network::server,
 
 public:
     rpc_server(std::string name, std::string address, bool daemonize,
-               std::filesystem::path rundir);
+               std::filesystem::path rundir, std::string redis_address);
+    void
+    init_redis();
 
 private:
     void
@@ -106,7 +110,6 @@ private:
                       const std::vector<scord::qos::limit>& limits,
                       enum scord::transfer::mapping mapping);
 
-
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;
     pfs_storage_manager m_pfs_manager;
@@ -120,8 +123,7 @@ private:
 
 public:
     /**
-     * @brief Generates scheduling information, a set of pairs (contact point,
-     * and action)
+     * @brief Generates scheduling information,
      *
      * It causes a lock-unlock of the transfer_manager structure.
      * Is a thread
@@ -130,6 +132,8 @@ public:
      */
     void
     scheduler_update();
+    std::string m_redis_address;
+    std::optional<sw::redis::Redis> m_redis;
 };
 
 } // namespace scord

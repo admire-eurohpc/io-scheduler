@@ -167,6 +167,15 @@ option(SCORD_BUILD_EXAMPLES "Build examples (disabled by default)" OFF)
 
 option(SCORD_BUILD_TESTS "Build tests (disabled by default)" OFF)
 
+### REDIS_ADDRESS
+set(REDIS_ADDRESS
+  "tcp://127.0.0.1:6379"
+  CACHE STRING
+  "Define a redis address (default: tcp://127.0.0.1:6379)"
+)
+
+message(STATUS "[${PROJECT_NAME}] Redis address: ${REDIS_ADDRESS}")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ##############################################################################
@@ -305,6 +314,8 @@ find_package(RedisPlusPlus 1.3.3 REQUIRED)
 message(STATUS "[${PROJECT_NAME}] Checking for Cargo")
 find_package(Cargo 0.3.1 REQUIRED)
 
+message(STATUS "[${PROJECT_NAME}] Checking for Hiredis")
+find_package(hiredis REQUIRED)
 
 # ##############################################################################
 # Process subdirectories

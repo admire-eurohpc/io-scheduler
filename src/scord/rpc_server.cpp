@@ -112,11 +112,14 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
 
 void
 rpc_server::init_redis() {
+
     try {
         m_redis = sw::redis::Redis(m_redis_address);
+        // Try the connection
+        m_redis.value().dbsize();
     } catch(const sw::redis::Error& e) {
-        LOGGER_ERROR("Redis not initialized at address {}", m_redis_address);
-        m_redis = {};
+        LOGGER_CRITICAL("Redis not initialized at address {}", m_redis_address);
+        m_redis = std::nullopt;
     }
 }
 void
@@ -238,7 +241,8 @@ rpc_server::register_job(const network::request& req,
             const auto timestamp =
                     std::chrono::system_clock::now().time_since_epoch().count();
             auto name = ec->get()->adhoc_storage().name();
-            std::string type = fmt::format("{}",ec->get()->adhoc_storage().type());
+            std::string type =
+                    fmt::format("{}", ec->get()->adhoc_storage().type());
 
             std::unordered_map<std::string, std::string> m = {
                     {"timestamp", std::to_string(timestamp)},

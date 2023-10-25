@@ -303,8 +303,6 @@ struct adhoc_storage {
     name() const;
     type
     type() const;
-    std::string
-    type_tostr() const;
     std::uint64_t
     id() const;
     adhoc_storage::ctx const&

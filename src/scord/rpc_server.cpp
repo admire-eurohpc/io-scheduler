@@ -238,7 +238,7 @@ rpc_server::register_job(const network::request& req,
             const auto timestamp =
                     std::chrono::system_clock::now().time_since_epoch().count();
             auto name = ec->get()->adhoc_storage().name();
-            auto type = ec->get()->adhoc_storage().type_tostr();
+            std::string type = fmt::format("{}",ec->get()->adhoc_storage().type());
 
             std::unordered_map<std::string, std::string> m = {
                     {"timestamp", std::to_string(timestamp)},

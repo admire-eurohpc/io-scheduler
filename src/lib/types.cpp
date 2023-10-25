@@ -867,23 +867,6 @@ adhoc_storage::type() const {
     return m_pimpl->type();
 }
 
-std::string
-adhoc_storage::type_tostr() const {
-    switch(m_pimpl->type()) {
-        case adhoc_storage::type::hercules:
-            return "Hercules";
-        case adhoc_storage::type::dataclay:
-            return "DataClay";
-        case adhoc_storage::type::gekkofs:
-            return "GekkoFS";
-        case adhoc_storage::type::expand:
-            return "Expand";
-        default:
-            return "Unknown";
-    }
-    return "Unknown";
-}
-
 std::uint64_t
 adhoc_storage::id() const {
     return m_pimpl->id();

@@ -74,7 +74,8 @@ struct adhoc_storage_metadata {
     update(scord::adhoc_storage::resources new_resources);
 
     scord::error_code
-    add_client_info(std::shared_ptr<scord::internal::job_metadata> job_info);
+    add_client_info(
+            std::shared_ptr<scord::internal::job_metadata> job_metadata_ptr);
 
     void
     remove_client_info();
@@ -85,7 +86,7 @@ struct adhoc_storage_metadata {
     std::string m_uuid;
     scord::adhoc_storage m_adhoc_storage;
     std::shared_ptr<scord::internal::job_metadata> m_client_info;
-    mutable scord::abt::shared_mutex m_info_mutex;
+    mutable scord::abt::shared_mutex m_mutex;
 };
 
 struct pfs_storage_metadata {

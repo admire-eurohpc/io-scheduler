@@ -78,9 +78,9 @@ adhoc_storage_metadata::update(scord::adhoc_storage::resources new_resources) {
 
 scord::error_code
 adhoc_storage_metadata::add_client_info(
-        std::shared_ptr<scord::internal::job_metadata> job_info) {
+        std::shared_ptr<scord::internal::job_metadata> job_metadata_ptr) {
 
-    scord::abt::unique_lock lock(m_info_mutex);
+    scord::abt::unique_lock lock(m_mutex);
 
     if(m_client_info) {
         LOGGER_ERROR("adhoc storage {} already has a client",
@@ -88,20 +88,20 @@ adhoc_storage_metadata::add_client_info(
         return error_code::adhoc_in_use;
     }
 
-    m_client_info = std::move(job_info);
+    m_client_info = std::move(job_metadata_ptr);
 
     return error_code::success;
 }
 
 void
 adhoc_storage_metadata::remove_client_info() {
-    scord::abt::unique_lock lock(m_info_mutex);
+    scord::abt::unique_lock lock(m_mutex);
     m_client_info.reset();
 }
 
 std::shared_ptr<scord::internal::job_metadata>
 adhoc_storage_metadata::client_info() const {
-    scord::abt::shared_lock lock(m_info_mutex);
+    scord::abt::shared_lock lock(m_mutex);
     return m_client_info;
 }
 

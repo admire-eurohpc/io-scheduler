@@ -113,8 +113,8 @@ struct adhoc_storage_manager {
 
         if(const auto it = m_adhoc_storages.find(id);
            it != m_adhoc_storages.end()) {
-            const auto current_adhoc_info = it->second;
-            current_adhoc_info->update(std::move(new_resources));
+            const auto adhoc_metadata_ptr = it->second;
+            adhoc_metadata_ptr->update(std::move(new_resources));
             return scord::error_code::success;
         }
 
@@ -156,12 +156,14 @@ struct adhoc_storage_manager {
     }
 
     scord::error_code
-    add_client_info(std::uint64_t adhoc_id,
-                    std::shared_ptr<scord::internal::job_metadata> job_info) {
+    add_client_info(
+            std::uint64_t adhoc_id,
+            std::shared_ptr<scord::internal::job_metadata> job_metadata_ptr) {
 
         if(auto am_result = find(adhoc_id); am_result.has_value()) {
-            const auto adhoc_storage_info = am_result.value();
-            return adhoc_storage_info->add_client_info(std::move(job_info));
+            const auto adhoc_metadata_ptr = am_result.value();
+            return adhoc_metadata_ptr->add_client_info(
+                    std::move(job_metadata_ptr));
         }
 
         return scord::error_code::no_such_entity;
@@ -170,8 +172,8 @@ struct adhoc_storage_manager {
     scord::error_code
     remove_client_info(std::uint64_t adhoc_id) {
         if(auto am_result = find(adhoc_id); am_result.has_value()) {
-            const auto adhoc_storage_info = *am_result;
-            adhoc_storage_info->remove_client_info();
+            const auto adhoc_metadata_ptr = *am_result;
+            adhoc_metadata_ptr->remove_client_info();
             return scord::error_code::success;
         }
 

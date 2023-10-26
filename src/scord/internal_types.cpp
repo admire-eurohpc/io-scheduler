@@ -29,10 +29,13 @@
 
 namespace scord::internal {
 
-job_metadata::job_metadata(scord::job job, scord::job::resources resources,
-                           scord::job::requirements requirements)
+job_metadata::job_metadata(
+        scord::job job, scord::job::resources resources,
+        scord::job::requirements requirements,
+        std::shared_ptr<internal::adhoc_storage_metadata> adhoc_metadata_ptr)
     : m_job(std::move(job)), m_resources(std::move(resources)),
-      m_requirements(std::move(requirements)) {}
+      m_requirements(std::move(requirements)),
+      m_adhoc_metadata_ptr(std::move(adhoc_metadata_ptr)) {}
 
 scord::job
 job_metadata::job() const {
@@ -69,6 +72,11 @@ adhoc_storage_metadata::adhoc_storage() const {
 std::string const&
 adhoc_storage_metadata::uuid() const {
     return m_uuid;
+}
+
+std::string const&
+adhoc_storage_metadata::controller_address() const {
+    return m_adhoc_storage.context().controller_address();
 }
 
 void

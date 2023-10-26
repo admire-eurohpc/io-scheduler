@@ -35,7 +35,9 @@ namespace scord::internal {
 struct job_metadata {
 
     job_metadata(scord::job job, scord::job::resources resources,
-                 scord::job::requirements requirements);
+                 scord::job::requirements requirements,
+                 std::shared_ptr<internal::adhoc_storage_metadata>
+                         adhoc_metadata_ptr);
 
     scord::job
     job() const;
@@ -51,12 +53,18 @@ struct job_metadata {
         return m_requirements;
     }
 
+    std::shared_ptr<internal::adhoc_storage_metadata>
+    adhoc_storage_metadata() const {
+        return m_adhoc_metadata_ptr;
+    }
+
     void
     update(scord::job::resources resources);
 
     scord::job m_job;
     std::optional<scord::job::resources> m_resources;
     std::optional<scord::job::requirements> m_requirements;
+    std::shared_ptr<internal::adhoc_storage_metadata> m_adhoc_metadata_ptr;
 };
 
 struct adhoc_storage_metadata {
@@ -69,6 +77,9 @@ struct adhoc_storage_metadata {
 
     std::string const&
     uuid() const;
+
+    std::string const&
+    controller_address() const;
 
     void
     update(scord::adhoc_storage::resources new_resources);

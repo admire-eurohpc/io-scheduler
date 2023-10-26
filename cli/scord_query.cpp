@@ -84,10 +84,9 @@ main(int argc, char* argv[]) {
 
         fmt::print(stdout,
                    "Job metadata:\n"
-                   "  adhoc_controller_address: {}\n"
+                   "  adhoc_controller: {}\n"
                    "  io_procs: {}\n",
                    info.adhoc_controller_address(), info.io_procs());
-
 
     } catch(const std::exception& ex) {
         fmt::print(stderr, "Error: {}\n", ex.what());

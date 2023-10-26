@@ -111,7 +111,10 @@ rpc_server::query(const network::request& req, slurm_job_id job_id) {
                             return tl::make_unexpected(
                                     error_code::no_resources);
                         }
-                        return job_info{job_metadata_ptr->io_procs()};
+                        return job_info{
+                                job_metadata_ptr->adhoc_storage_metadata()
+                                        ->controller_address(),
+                                job_metadata_ptr->io_procs()};
                     });
 
     const response_type resp =
@@ -144,21 +147,38 @@ rpc_server::register_job(const network::request& req,
     scord::error_code ec;
     std::optional<scord::job_id> job_id;
 
-    if(const auto jm_result =
-               m_job_manager.create(slurm_id, job_resources, job_requirements);
+    std::shared_ptr<internal::adhoc_storage_metadata> adhoc_metadata_ptr;
+
+    // If the job requires an adhoc storage instance, find the appropriate
+    // adhoc_storage metadata so that we can associate it with the job_metadata
+    // we are about to create
+    if(job_requirements.adhoc_storage()) {
+        const auto adhoc_id = job_requirements.adhoc_storage()->id();
+        if(const auto am_result = m_adhoc_manager.find(adhoc_id);
+           am_result.has_value()) {
+            adhoc_metadata_ptr = am_result.value();
+        } else {
+            LOGGER_ERROR(
+                    "rpc id: {} error_msg: \"Error finding adhoc_storage: {}\"",
+                    rpc.id(), am_result.error());
+            ec = am_result.error();
+        }
+
+        if(!ec) {
+            goto respond;
+        }
+    }
+
+    if(const auto jm_result = m_job_manager.create(
+               slurm_id, job_resources, job_requirements, adhoc_metadata_ptr);
        jm_result.has_value()) {
 
         const auto& job_metadata_ptr = jm_result.value();
 
         // if the job requires an adhoc storage instance, inform the appropriate
         // adhoc_storage instance (if registered)
-        if(job_requirements.adhoc_storage()) {
-            const auto adhoc_id = job_requirements.adhoc_storage()->id();
-            ec = m_adhoc_manager.add_client_info(adhoc_id, job_metadata_ptr);
-
-            if(!ec) {
-                goto respond;
-            }
+        if(adhoc_metadata_ptr) {
+            adhoc_metadata_ptr->add_client_info(job_metadata_ptr);
         }
 
         job_id = job_metadata_ptr->job().id();

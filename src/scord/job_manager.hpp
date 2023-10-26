@@ -41,7 +41,9 @@ struct job_manager {
     tl::expected<std::shared_ptr<scord::internal::job_metadata>,
                  scord::error_code>
     create(scord::slurm_job_id slurm_id, scord::job::resources job_resources,
-           scord::job::requirements job_requirements) {
+           scord::job::requirements job_requirements,
+           std::shared_ptr<scord::internal::adhoc_storage_metadata>
+                   adhoc_metadata_ptr) {
 
         static std::atomic_uint64_t current_id;
         scord::job_id id = current_id++;
@@ -53,7 +55,8 @@ struct job_manager {
                     id,
                     std::make_shared<scord::internal::job_metadata>(
                             scord::job{id, slurm_id}, std::move(job_resources),
-                            std::move(job_requirements)));
+                            std::move(job_requirements),
+                            std::move(adhoc_metadata_ptr)));
 
             m_slurm_to_scord.emplace(slurm_id, id);
 

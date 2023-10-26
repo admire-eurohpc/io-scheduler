@@ -242,7 +242,7 @@ struct adhoc_storage {
         explicit ctx(ADM_adhoc_context_t ctx);
         explicit operator ADM_adhoc_context_t() const;
 
-        std::string
+        std::string const&
         controller_address() const;
         execution_mode
         exec_mode() const;
@@ -292,7 +292,7 @@ struct adhoc_storage {
     type() const;
     std::uint64_t
     id() const;
-    adhoc_storage::ctx
+    adhoc_storage::ctx const&
     context() const;
 
     adhoc_storage::resources
@@ -474,8 +474,15 @@ class job_info {
 
 public:
     job_info() = default;
-    constexpr explicit job_info(std::uint32_t procs_for_io)
-        : m_procs_for_io(procs_for_io) {}
+    explicit job_info(std::string adhoc_controller_address,
+                      std::uint32_t procs_for_io)
+        : m_adhoc_address(std::move(adhoc_controller_address)),
+          m_procs_for_io(procs_for_io) {}
+
+    constexpr std::string const&
+    adhoc_controller_address() const {
+        return m_adhoc_address;
+    }
 
     /**
      * @brief Get the number of processes that should be used for I/O.
@@ -491,9 +498,11 @@ private:
     template <class Archive>
     void
     serialize(Archive& ar) {
+        ar & m_adhoc_address;
         ar & m_procs_for_io;
     }
 
+    std::string m_adhoc_address;
     std::uint32_t m_procs_for_io;
 };
 
@@ -670,7 +679,8 @@ struct fmt::formatter<scord::job_info> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const scord::job_info& ji, FormatContext& ctx) const {
-        return format_to(ctx.out(), "{{io_procs: {}}}", ji.io_procs());
+        return format_to(ctx.out(), "{{adhoc_controller: {}, io_procs: {}}}",
+                         ji.adhoc_controller_address(), ji.io_procs());
     }
 };
 

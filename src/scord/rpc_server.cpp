@@ -248,6 +248,7 @@ rpc_server::register_job(const network::request& req,
                     {"timestamp", std::to_string(timestamp)},
                     {"job_id", std::to_string(job_id.value())},
                     {"AdhocID", std::to_string(adhoc_id)},
+                    {"AdhocUUID", ec->get()->uuid()},
                     {"AdhocName", name},
                     {"Type", type},     // Lustre // Gekko
                     {"Deployed", "No"}, // No // Yes

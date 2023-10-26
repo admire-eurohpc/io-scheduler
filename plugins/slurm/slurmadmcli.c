@@ -488,7 +488,7 @@ end:
     }
 
     if(scord_job) {
-        ADM_remove_job(scord_server, scord_job);
+        ADM_job_destroy(scord_job);
     }
 
     if(scord_reqs) {

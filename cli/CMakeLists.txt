@@ -51,3 +51,8 @@ target_link_libraries(scord_query
 install(TARGETS scord_query
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+set_target_properties(
+  scord_query PROPERTIES __INSTALLED_PATH
+                         ${CMAKE_INSTALL_FULL_BINDIR}/scord_query
+)

@@ -27,7 +27,8 @@ find_package(Slurm REQUIRED)
 
 add_library(slurm-plugin SHARED)
 
-get_target_property(SCORD_CTL_BIN scord-ctl SCORD_CTL_BINARY)
+get_target_property(SCORDCTL_PROGRAM scord-ctl __INSTALLED_PATH)
+get_target_property(SCORD_QUERY_PROGRAM scord_query __INSTALLED_PATH)
 
 configure_file(defaults.h.in defaults.h @ONLY)
 
@@ -63,6 +64,9 @@ find_program(MPIEXEC_EXECUTABLE
   NAMES mpiexec mpiexec.hydra mpiexec.mpd mpirun
   PATH_SUFFIXES bin sbin
   DOC "MPI launcher executable")
+
+set(SCORD_SERVICE_ADDRESS
+  ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
 
 configure_file(scord_common.sh.in scord_common.sh @ONLY)
 configure_file(scord_prolog.sh.in scord_prolog.sh @ONLY)

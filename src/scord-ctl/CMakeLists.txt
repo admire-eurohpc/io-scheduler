@@ -44,16 +44,9 @@ target_link_libraries(
                     libscord_cxx_types fmt::fmt CLI11::CLI11 ryml::ryml
 )
 
-set(SCORD_CTL_BIN "${CMAKE_INSTALL_FULL_BINDIR}/scord-ctl")
-
-define_property(
-  TARGET PROPERTY SCORD_CTL_BINARY
-  BRIEF_DOCS "Path to scord-ctl binary"
-  FULL_DOCS "Path to scord-ctl binary"
-)
-
 set_target_properties(
-  scord-ctl PROPERTIES SCORD_CTL_BINARY ${CMAKE_INSTALL_FULL_BINDIR}/scord-ctl
+  scord-ctl PROPERTIES __INSTALLED_PATH
+                       ${CMAKE_INSTALL_FULL_BINDIR}/scord-ctl
 )
 
 install(TARGETS scord-ctl DESTINATION ${CMAKE_INSTALL_BINDIR})

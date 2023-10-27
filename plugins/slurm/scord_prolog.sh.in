@@ -147,7 +147,7 @@ USER_CONFIG_DIRECTORY="${XDG_CONFIG_HOME:-$USER_HOME/.config}"
 CARGO_CONFIG_DIRECTORY="$USER_CONFIG_DIRECTORY/cargo"
 SYSTEMD_USER_DIRECTORY="$USER_CONFIG_DIRECTORY/systemd/user"
 
-[[ ! -d "$USER_CONFIG_DIRECTORY" ]] && run_as "$SLURM_JOB_USER"  mkdir -p "$USER_CONFIG_DIRECTORY"
+[[ ! -d "$USER_CONFIG_DIRECTORY" ]] && run_as "$SLURM_JOB_USER" mkdir -p "$USER_CONFIG_DIRECTORY"
 [[ ! -d "$CARGO_CONFIG_DIRECTORY" ]] && run_as "$SLURM_JOB_USER" mkdir -p "$CARGO_CONFIG_DIRECTORY"
 [[ ! -d "$SYSTEMD_USER_DIRECTORY" ]] && run_as "$SLURM_JOB_USER" mkdir -p "$SYSTEMD_USER_DIRECTORY"
 
@@ -174,9 +174,14 @@ fi
 # generate a specific configuration file each Cargo service.
 CARGO_ID=$(echo "cargo_$SLURM_JOB_ID.$SLURM_JOB_UID" | sha256sum | awk '{ print $1 }')
 CARGO_CONFIG_FILE=$CARGO_CONFIG_DIRECTORY/$CARGO_ID.cfg
-CARGO_NUM_NODES=1 #TODO: ask scord
 CARGO_MASTER_ADDRESS="$SCORDCTL_PROTO://$ADDRESS:$CARGO_PORT"
 CARGO_INSTANCE_NAME=$(systemd-escape --template cargo@.service "$CARGO_ID")
+
+if ! CARGO_NUM_NODES=$(@SCORD_QUERY_PROGRAM@ -s @SCORD_SERVICE_ADDRESS@ "$SLURM_JOB_ID" | grep io_procs | awk '{ print $2 }'); then
+  echo "Failed to determine the number of I/O processes for job $SLURM_JOB_ID"
+else
+  CARGO_NUM_NODES=${#hostnames[@]}
+fi
 
 cat <<EOT >>"$CARGO_CONFIG_FILE"
 CARGO_ID=$CARGO_ID

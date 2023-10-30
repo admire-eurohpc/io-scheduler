@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 LABEL Description="Debian-based environment suitable to build scord"
 
@@ -32,10 +32,11 @@ RUN apt-get update && \
         libyaml-dev libcurl4-openssl-dev procps \
         # genopts dependencies
         python3-venv \
-        # redis-plus-plus dependencies \
-        libhiredis-dev \
         # Slurm plugin dependencies \
         libslurm-dev \
+        # Cargo dependencies \
+        libboost-dev \
+        libboost-mpi-dev \
         # tests dependencies \
         python3-pip && \
     ### install cmake 3.23.1 ###################################################
@@ -55,11 +56,14 @@ RUN apt-get update && \
     git clone https://github.com/mercury-hpc/mercury --recurse-submodules && \
     git clone https://github.com/mochi-hpc/mochi-margo --recurse-submodules && \
 #    cd mochi-margo && git reset --hard v0.9.9 && cd .. && \
+    git clone https://github.com/redis/hiredis.git --recurse-submodules && \
+    cd hiredis && git checkout v1.2.0 && cd .. && \
     git clone https://github.com/sewenew/redis-plus-plus --recurse-submodules && \
     git clone https://github.com/francielizanon/agios --recurse-submodules && \
     cd agios && git checkout development && cd .. && \
     git clone https://github.com/USCiLab/cereal --recurse-submodules && \
     git clone https://github.com/mochi-hpc/mochi-thallium --recurse-submodules && \
+    git clone https://storage.bsc.es/gitlab/hpc/cargo.git && \
     cd mochi-thallium && \
     export LD_LIBRARY_PATH=${DEPS_INSTALL_PATH}/lib:${DEPS_INSTALL_PATH}/lib64 && \
     export PKG_CONFIG_PATH=${DEPS_INSTALL_PATH}/lib/pkgconfig:${DEPS_INSTALL_PATH}/lib64/pkgconfig && \
@@ -121,6 +125,15 @@ RUN apt-get update && \
     make -j install && \
     cd .. && rm -rf build && cd && \
     \
+    ### hiredis
+    cd deps/hiredis && \
+    mkdir build && cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_PATH} \
+          -DCMAKE_BUILD_TYPE:STRING=Release \
+          .. && \
+    make install -j && \
+    cd .. && rm -rf build && cd && \
+    \
     ### redis-plus-plus
     cd deps/redis-plus-plus && \
     mkdir build && cd build && \
@@ -161,8 +174,17 @@ RUN apt-get update && \
     make -j install && \
     cd .. && rm -rf build && cd && \
     \
+    ### Cargo \
+    cd deps/cargo && \
+    mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_PATH} \
+          .. && \
+    make -j install && \
+    cd .. && rm -rf build && cd && \
+    \
     ### python packages for testing scripts\
-    pip install lark loguru && \
+    pip install lark loguru --break-system-packages && \
     \
     ### Cleanup
     # Clean apt cache to reduce image layer size

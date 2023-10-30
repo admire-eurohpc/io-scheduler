@@ -27,6 +27,7 @@
 #include <net/endpoint.hpp>
 #include <net/serialization.hpp>
 #include <net/utilities.hpp>
+#include <cargo/cargo.hpp>
 #include "rpc_server.hpp"
 
 template <typename T, typename E>
@@ -611,17 +612,72 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
                 "limits: {}, mapping: {}}}",
                 rpc, job_id, sources, targets, limits, mapping);
 
-    scord::error_code ec;
+    const auto jm_result = m_job_manager.find(job_id);
 
-    std::optional<std::uint64_t> tx_id;
+    if(!jm_result) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error finding job: {}\"",
+                     rpc.id(), job_id);
+        const auto resp = response_with_id{rpc.id(), jm_result.error()};
+        LOGGER_ERROR("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
+        req.respond(resp);
+        return;
+    }
 
-    // TODO: generate a global ID for the transfer and contact Cargo to
-    // actually request it
-    tx_id = 42;
+    const auto& job_metadata_ptr = jm_result.value();
 
-    const auto resp = response_with_id{rpc.id(), ec, tx_id};
+    if(!job_metadata_ptr->adhoc_storage_metadata()) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Job has no adhoc storage\"",
+                     rpc.id(), job_id);
+        const auto resp = response_with_id{rpc.id(), error_code::no_resources};
+        LOGGER_ERROR("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
+        req.respond(resp);
+        return;
+    }
 
-    LOGGER_INFO("rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc, ec, tx_id);
+    const auto data_stager_address =
+            job_metadata_ptr->adhoc_storage_metadata()->data_stager_address();
+
+    // Transform the `scord::dataset`s into `cargo::dataset`s and contact the
+    // Cargo service associated with the job's adhoc storage instance to
+    // execute the transfers.
+    cargo::server srv{data_stager_address};
+
+    std::vector<cargo::dataset> inputs;
+    std::vector<cargo::dataset> outputs;
+
+    // TODO: check type of storage tier to enable parallel transfers
+    std::transform(sources.cbegin(), sources.cend(), std::back_inserter(inputs),
+                   [](const auto& src) { return cargo::dataset{src.id()}; });
+
+    std::transform(targets.cbegin(), targets.cend(),
+                   std::back_inserter(outputs),
+                   [](const auto& tgt) { return cargo::dataset{tgt.id()}; });
+
+    const auto cargo_tx = cargo::transfer_datasets(srv, inputs, outputs);
+
+    // Register the transfer into the `tranfer_manager`.
+    // We embed the generated `cargo::transfer` object into
+    // scord's `transfer_metadata` so that we can later query the Cargo
+    // service for the transfer's status.
+    const auto rv =
+            m_transfer_manager.create(cargo_tx, limits)
+                    .or_else([&](auto&& ec) {
+                        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating "
+                                     "transfer: {}\"",
+                                     rpc.id(), ec);
+                    })
+                    .and_then([&](auto&& transfer_metadata_ptr)
+                                      -> tl::expected<transfer_id, error_code> {
+                        return transfer_metadata_ptr->id();
+                    });
+
+    const auto resp =
+            rv ? response_with_id{rpc.id(), error_code::success, rv.value()}
+               : response_with_id{rpc.id(), rv.error()};
+
+    LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                "rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc,
+                resp.error_code(), resp.value_or_none());
 
     req.respond(resp);
 }

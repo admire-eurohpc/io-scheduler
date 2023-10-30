@@ -79,6 +79,11 @@ adhoc_storage_metadata::controller_address() const {
     return m_adhoc_storage.context().controller_address();
 }
 
+std::string const&
+adhoc_storage_metadata::data_stager_address() const {
+    return m_adhoc_storage.context().data_stager_address();
+}
+
 void
 adhoc_storage_metadata::update(scord::adhoc_storage::resources new_resources) {
     m_adhoc_storage.update(std::move(new_resources));

@@ -26,7 +26,7 @@
 add_executable(scord)
 
 target_sources(scord PRIVATE scord.cpp
-  job_manager.hpp adhoc_storage_manager.hpp
+  job_manager.hpp adhoc_storage_manager.hpp transfer_manager.hpp
   pfs_storage_manager.hpp ${CMAKE_CURRENT_BINARY_DIR}/defaults.hpp
   internal_types.hpp internal_types.cpp rpc_server.hpp rpc_server.cpp)
 
@@ -51,6 +51,7 @@ target_link_libraries(
   CLI11::CLI11
   RedisPlusPlus::RedisPlusPlus
   ryml::ryml
+  cargo::cargo
 )
 
 install(TARGETS scord DESTINATION ${CMAKE_INSTALL_BINDIR})

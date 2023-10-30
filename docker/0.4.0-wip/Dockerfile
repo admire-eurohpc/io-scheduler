@@ -18,8 +18,6 @@ RUN apt-get update && \
         clang \
         libc++-dev \
         procps \
-        # AGIOS dependencies
-        libconfig-dev \
         # Mercury dependencies
         libltdl-dev \
         lbzip2 \
@@ -59,8 +57,6 @@ RUN apt-get update && \
     git clone https://github.com/redis/hiredis.git --recurse-submodules && \
     cd hiredis && git checkout v1.2.0 && cd .. && \
     git clone https://github.com/sewenew/redis-plus-plus --recurse-submodules && \
-    git clone https://github.com/francielizanon/agios --recurse-submodules && \
-    cd agios && git checkout development && cd .. && \
     git clone https://github.com/USCiLab/cereal --recurse-submodules && \
     git clone https://github.com/mochi-hpc/mochi-thallium --recurse-submodules && \
     git clone https://storage.bsc.es/gitlab/hpc/cargo.git && \
@@ -136,15 +132,6 @@ RUN apt-get update && \
     \
     ### redis-plus-plus
     cd deps/redis-plus-plus && \
-    mkdir build && cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_PATH} \
-          -DCMAKE_BUILD_TYPE:STRING=Release \
-          .. && \
-    make install -j && \
-    cd .. && rm -rf build && cd && \
-    \
-    ### agios
-    cd deps/agios && \
     mkdir build && cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_PATH} \
           -DCMAKE_BUILD_TYPE:STRING=Release \

@@ -34,7 +34,6 @@
 #include "rpc_server.hpp"
 #include "defaults.hpp"
 
-#include <agios.h>
 #include <ryml.hpp>
 #include <ryml_std.hpp>
 

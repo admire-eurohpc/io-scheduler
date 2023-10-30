@@ -136,7 +136,6 @@ and need to be available in the system:
 - [Thallium](https://github.com/mochi-hpc/mochi-thallium) version 0.10.1 or
  later.
 - [libconfig-dev] version 1.4.9 or later.
-- [agios](https://github.com/francielizanon/agios) (development branch)
 - [redis-plus-plus](https://github.com/sewenew/redis-plus-plus) version 1.3.
 3 or later, and its dependencies:
   - [hiredis](https://github.com/redis/hiredis) version 0.14.1 or later.

@@ -41,7 +41,9 @@ struct job_manager {
     tl::expected<std::shared_ptr<scord::internal::job_metadata>,
                  scord::error_code>
     create(scord::slurm_job_id slurm_id, scord::job::resources job_resources,
-           scord::job::requirements job_requirements) {
+           scord::job::requirements job_requirements,
+           std::shared_ptr<scord::internal::adhoc_storage_metadata>
+                   adhoc_metadata_ptr) {
 
         static std::atomic_uint64_t current_id;
         scord::job_id id = current_id++;
@@ -53,7 +55,10 @@ struct job_manager {
                     id,
                     std::make_shared<scord::internal::job_metadata>(
                             scord::job{id, slurm_id}, std::move(job_resources),
-                            std::move(job_requirements)));
+                            std::move(job_requirements),
+                            std::move(adhoc_metadata_ptr)));
+
+            m_slurm_to_scord.emplace(slurm_id, id);
 
             if(!inserted) {
                 LOGGER_ERROR("{}: Emplace failed", __FUNCTION__);
@@ -98,12 +103,29 @@ struct job_manager {
 
     tl::expected<std::shared_ptr<scord::internal::job_metadata>,
                  scord::error_code>
+    find_by_slurm_id(scord::slurm_job_id slurm_id) {
+
+        abt::shared_lock lock(m_jobs_mutex);
+
+        if(auto it = m_slurm_to_scord.find(slurm_id);
+           it != m_slurm_to_scord.end()) {
+            return find(it->second);
+        }
+
+        LOGGER_ERROR("Slurm job '{}' was not registered or was already deleted",
+                     slurm_id);
+        return tl::make_unexpected(scord::error_code::no_such_entity);
+    }
+
+    tl::expected<std::shared_ptr<scord::internal::job_metadata>,
+                 scord::error_code>
     remove(scord::job_id id) {
 
         abt::unique_lock lock(m_jobs_mutex);
 
         if(const auto it = m_jobs.find(id); it != m_jobs.end()) {
             auto nh = m_jobs.extract(it);
+            m_slurm_to_scord.erase(nh.mapped()->job().slurm_id());
             return nh.mapped();
         }
 
@@ -117,6 +139,7 @@ private:
     std::unordered_map<scord::job_id,
                        std::shared_ptr<scord::internal::job_metadata>>
             m_jobs;
+    std::unordered_map<scord::slurm_job_id, scord::job_id> m_slurm_to_scord;
 };
 
 } // namespace scord

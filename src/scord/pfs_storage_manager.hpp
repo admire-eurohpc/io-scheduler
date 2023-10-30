@@ -73,8 +73,8 @@ struct pfs_storage_manager {
 
         if(const auto it = m_pfs_storages.find(id);
            it != m_pfs_storages.end()) {
-            const auto current_pfs_info = it->second;
-            current_pfs_info->update(std::move(new_ctx));
+            const auto pfs_metadata_ptr = it->second;
+            pfs_metadata_ptr->update(std::move(new_ctx));
             return scord::error_code::success;
         }
 

@@ -50,6 +50,7 @@ struct error_code {
     static const error_code adhoc_dir_create_failed;
     static const error_code adhoc_dir_exists;
     static const error_code subprocess_error;
+    static const error_code no_resources;
     static const error_code other;
 
     constexpr error_code() : m_value(ADM_SUCCESS) {}
@@ -121,6 +122,7 @@ constexpr error_code error_code::adhoc_dir_create_failed{
         ADM_EADHOC_DIR_CREATE_FAILED};
 constexpr error_code error_code::adhoc_dir_exists{ADM_EADHOC_DIR_EXISTS};
 constexpr error_code error_code::subprocess_error{ADM_ESUBPROCESS_ERROR};
+constexpr error_code error_code::no_resources{ADM_ENO_RESOURCES};
 constexpr error_code error_code::other{ADM_EOTHER};
 
 using job_id = std::uint64_t;
@@ -240,7 +242,7 @@ struct adhoc_storage {
         explicit ctx(ADM_adhoc_context_t ctx);
         explicit operator ADM_adhoc_context_t() const;
 
-        std::string
+        std::string const&
         controller_address() const;
         execution_mode
         exec_mode() const;
@@ -290,7 +292,7 @@ struct adhoc_storage {
     type() const;
     std::uint64_t
     id() const;
-    adhoc_storage::ctx
+    adhoc_storage::ctx const&
     context() const;
 
     adhoc_storage::resources
@@ -465,6 +467,45 @@ private:
     serialize(Archive& ar);
 };
 
+/**
+ * Information about a job.
+ */
+class job_info {
+
+public:
+    job_info() = default;
+    explicit job_info(std::string adhoc_controller_address,
+                      std::uint32_t procs_for_io)
+        : m_adhoc_address(std::move(adhoc_controller_address)),
+          m_procs_for_io(procs_for_io) {}
+
+    constexpr std::string const&
+    adhoc_controller_address() const {
+        return m_adhoc_address;
+    }
+
+    /**
+     * @brief Get the number of processes that should be used for I/O.
+     * @return The number of processes that should be used for I/O.
+     */
+    constexpr std::uint32_t
+    io_procs() const {
+        return m_procs_for_io;
+    }
+
+private:
+    friend class cereal::access;
+    template <class Archive>
+    void
+    serialize(Archive& ar) {
+        ar & m_adhoc_address;
+        ar & m_procs_for_io;
+    }
+
+    std::string m_adhoc_address;
+    std::uint32_t m_procs_for_io;
+};
+
 struct transfer {
 
     enum class mapping : std::underlying_type<ADM_transfer_mapping_t>::type {
@@ -629,6 +670,17 @@ struct fmt::formatter<scord::error_code> : formatter<std::string_view> {
     auto
     format(const scord::error_code& ec, FormatContext& ctx) const {
         return formatter<std::string_view>::format(ec.name(), ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<scord::job_info> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const scord::job_info& ji, FormatContext& ctx) const {
+        return format_to(ctx.out(), "{{adhoc_controller: {}, io_procs: {}}}",
+                         ji.adhoc_controller_address(), ji.io_procs());
     }
 };
 
@@ -876,6 +928,17 @@ struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
                          "access_type: {}, walltime: {}, should_flush: {}}}",
                          std::quoted(c.controller_address()), c.exec_mode(),
                          c.access_type(), c.walltime(), c.should_flush());
+    }
+};
+
+template <>
+struct fmt::formatter<std::nullopt_t> : formatter<std::string_view> {
+
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::nullopt_t& /*t*/, FormatContext& ctx) const {
+        return formatter<std::string_view>::format("none", ctx);
     }
 };
 

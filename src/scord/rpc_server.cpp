@@ -29,6 +29,15 @@
 #include <net/utilities.hpp>
 #include "rpc_server.hpp"
 
+template <typename T, typename E>
+constexpr std::optional<T>
+value_or_none(tl::expected<T, E>&& e) {
+    if(e.has_value()) {
+        return e.value();
+    }
+    return std::nullopt;
+}
+
 using namespace std::literals;
 
 namespace scord {
@@ -42,6 +51,7 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
 #define EXPAND(rpc_name) "ADM_" #rpc_name##s, &rpc_server::rpc_name
 
     provider::define(EXPAND(ping));
+    provider::define(EXPAND(query));
     provider::define(EXPAND(register_job));
     provider::define(EXPAND(update_job));
     provider::define(EXPAND(remove_job));
@@ -80,6 +90,45 @@ rpc_server::ping(const network::request& req) {
 }
 
 void
+rpc_server::query(const network::request& req, slurm_job_id job_id) {
+
+    using network::get_address;
+    using network::rpc_info;
+    using response_type = network::response_with_value<scord::job_info>;
+
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+
+    LOGGER_INFO("rpc {:>} body: {{slurm_job_id: {}}}", rpc, job_id);
+
+    const auto rv =
+            m_job_manager.find_by_slurm_id(job_id)
+                    .or_else([&](auto&& ec) {
+                        LOGGER_ERROR("Error retrieving job metadata: {}", ec);
+                    })
+                    .and_then([&](auto&& job_metadata_ptr)
+                                      -> tl::expected<job_info, error_code> {
+                        if(!job_metadata_ptr->resources()) {
+                            return tl::make_unexpected(
+                                    error_code::no_resources);
+                        }
+                        return job_info{
+                                job_metadata_ptr->adhoc_storage_metadata()
+                                        ->controller_address(),
+                                job_metadata_ptr->io_procs()};
+                    });
+
+    const response_type resp =
+            rv ? response_type{rpc.id(), error_code::success, rv.value()}
+               : response_type{rpc.id(), rv.error()};
+
+    LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                "rpc {:<} body: {{retval: {}, job_info: {}}}", rpc,
+                resp.error_code(), resp.value_or_none());
+
+    req.respond(resp);
+}
+
+void
 rpc_server::register_job(const network::request& req,
                          const scord::job::resources& job_resources,
                          const scord::job::requirements& job_requirements,
@@ -98,24 +147,41 @@ rpc_server::register_job(const network::request& req,
     scord::error_code ec;
     std::optional<scord::job_id> job_id;
 
-    if(const auto jm_result =
-               m_job_manager.create(slurm_id, job_resources, job_requirements);
+    std::shared_ptr<internal::adhoc_storage_metadata> adhoc_metadata_ptr;
+
+    // If the job requires an adhoc storage instance, find the appropriate
+    // adhoc_storage metadata so that we can associate it with the job_metadata
+    // we are about to create
+    if(job_requirements.adhoc_storage()) {
+        const auto adhoc_id = job_requirements.adhoc_storage()->id();
+        if(const auto am_result = m_adhoc_manager.find(adhoc_id);
+           am_result.has_value()) {
+            adhoc_metadata_ptr = am_result.value();
+        } else {
+            LOGGER_ERROR(
+                    "rpc id: {} error_msg: \"Error finding adhoc_storage: {}\"",
+                    rpc.id(), am_result.error());
+            ec = am_result.error();
+        }
+
+        if(!ec) {
+            goto respond;
+        }
+    }
+
+    if(const auto jm_result = m_job_manager.create(
+               slurm_id, job_resources, job_requirements, adhoc_metadata_ptr);
        jm_result.has_value()) {
 
-        const auto& job_metadata = jm_result.value();
+        const auto& job_metadata_ptr = jm_result.value();
 
         // if the job requires an adhoc storage instance, inform the appropriate
         // adhoc_storage instance (if registered)
-        if(job_requirements.adhoc_storage()) {
-            const auto adhoc_id = job_requirements.adhoc_storage()->id();
-            ec = m_adhoc_manager.add_client_info(adhoc_id, job_metadata);
-
-            if(!ec) {
-                goto respond;
-            }
+        if(adhoc_metadata_ptr) {
+            adhoc_metadata_ptr->add_client_info(job_metadata_ptr);
         }
 
-        job_id = job_metadata->job().id();
+        job_id = job_metadata_ptr->job().id();
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error creating job: {}\"",
                      rpc.id(), jm_result.error());
@@ -174,10 +240,10 @@ rpc_server::remove_job(const network::request& req, scord::job_id job_id) {
     if(jm_result) {
         // if the job was using an adhoc storage instance, inform the
         // appropriate adhoc_storage that the job is no longer its client
-        const auto& job_metadata = jm_result.value();
+        const auto& job_metadata_ptr = jm_result.value();
 
         if(const auto adhoc_storage =
-                   job_metadata->requirements()->adhoc_storage();
+                   job_metadata_ptr->requirements()->adhoc_storage();
            adhoc_storage.has_value()) {
             ec = m_adhoc_manager.remove_client_info(adhoc_storage->id());
         }
@@ -217,8 +283,8 @@ rpc_server::register_adhoc_storage(
     if(const auto am_result =
                m_adhoc_manager.create(type, name, ctx, resources);
        am_result.has_value()) {
-        const auto& adhoc_storage_info = am_result.value();
-        adhoc_id = adhoc_storage_info->adhoc_storage().id();
+        const auto& adhoc_metadata_ptr = am_result.value();
+        adhoc_id = adhoc_metadata_ptr->adhoc_storage().id();
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error creating adhoc_storage: "
                      "{}\"",
@@ -310,10 +376,10 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
      * information about the instance to deploy.
      * @return
      */
-    const auto deploy_helper = [&](const auto& adhoc_metadata)
+    const auto deploy_helper = [&](const auto& adhoc_metadata_ptr)
             -> tl::expected<std::filesystem::path, error_code> {
-        assert(adhoc_metadata);
-        const auto adhoc_storage = adhoc_metadata->adhoc_storage();
+        assert(adhoc_metadata_ptr);
+        const auto adhoc_storage = adhoc_metadata_ptr->adhoc_storage();
         const auto endp = lookup(adhoc_storage.context().controller_address());
 
         if(!endp) {
@@ -325,12 +391,12 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
                 rpc.add_child(adhoc_storage.context().controller_address());
 
         LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}, resources: {}}}",
-                    child_rpc, std::quoted(adhoc_metadata->uuid()),
+                    child_rpc, std::quoted(adhoc_metadata_ptr->uuid()),
                     adhoc_storage.type(), adhoc_storage.get_resources());
 
-        if(const auto call_rv = endp->call(rpc.name(), adhoc_metadata->uuid(),
-                                           adhoc_storage.type(),
-                                           adhoc_storage.get_resources());
+        if(const auto call_rv = endp->call(
+                   rpc.name(), adhoc_metadata_ptr->uuid(), adhoc_storage.type(),
+                   adhoc_storage.get_resources());
            call_rv.has_value()) {
 
             const response_type resp{call_rv.value()};
@@ -390,9 +456,9 @@ rpc_server::terminate_adhoc_storage(const network::request& req,
      * @return
      */
     const auto terminate_helper =
-            [&](const auto& adhoc_metadata) -> error_code {
-        assert(adhoc_metadata);
-        const auto adhoc_storage = adhoc_metadata->adhoc_storage();
+            [&](const auto& adhoc_metadata_ptr) -> error_code {
+        assert(adhoc_metadata_ptr);
+        const auto adhoc_storage = adhoc_metadata_ptr->adhoc_storage();
         const auto endp = lookup(adhoc_storage.context().controller_address());
 
         if(!endp) {
@@ -404,10 +470,12 @@ rpc_server::terminate_adhoc_storage(const network::request& req,
                 rpc.add_child(adhoc_storage.context().controller_address());
 
         LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}}}", child_rpc,
-                    std::quoted(adhoc_metadata->uuid()), adhoc_storage.type());
+                    std::quoted(adhoc_metadata_ptr->uuid()),
+                    adhoc_storage.type());
 
-        if(const auto call_rv = endp->call(rpc.name(), adhoc_metadata->uuid(),
-                                           adhoc_storage.type());
+        if(const auto call_rv =
+                   endp->call(rpc.name(), adhoc_metadata_ptr->uuid(),
+                              adhoc_storage.type());
            call_rv.has_value()) {
 
             const response_type resp{call_rv.value()};
@@ -457,8 +525,8 @@ rpc_server::register_pfs_storage(const network::request& req,
 
     if(const auto pm_result = m_pfs_manager.create(type, name, ctx);
        pm_result.has_value()) {
-        const auto& adhoc_storage_info = pm_result.value();
-        pfs_id = adhoc_storage_info->pfs_storage().id();
+        const auto& adhoc_metadata_ptr = pm_result.value();
+        pfs_id = adhoc_metadata_ptr->pfs_storage().id();
     } else {
         LOGGER_ERROR("rpc id: {} error_msg: \"Error creating pfs_storage: {}\"",
                      rpc.id(), pm_result.error());

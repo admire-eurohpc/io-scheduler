@@ -29,10 +29,13 @@
 
 namespace scord::internal {
 
-job_metadata::job_metadata(scord::job job, scord::job::resources resources,
-                           scord::job::requirements requirements)
+job_metadata::job_metadata(
+        scord::job job, scord::job::resources resources,
+        scord::job::requirements requirements,
+        std::shared_ptr<internal::adhoc_storage_metadata> adhoc_metadata_ptr)
     : m_job(std::move(job)), m_resources(std::move(resources)),
-      m_requirements(std::move(requirements)) {}
+      m_requirements(std::move(requirements)),
+      m_adhoc_metadata_ptr(std::move(adhoc_metadata_ptr)) {}
 
 scord::job
 job_metadata::job() const {
@@ -42,6 +45,14 @@ job_metadata::job() const {
 std::optional<scord::job::resources>
 job_metadata::resources() const {
     return m_resources;
+}
+
+std::uint32_t
+job_metadata::io_procs() const {
+    if(m_resources) {
+        return m_resources->nodes().size();
+    }
+    return 0;
 }
 
 void
@@ -63,6 +74,11 @@ adhoc_storage_metadata::uuid() const {
     return m_uuid;
 }
 
+std::string const&
+adhoc_storage_metadata::controller_address() const {
+    return m_adhoc_storage.context().controller_address();
+}
+
 void
 adhoc_storage_metadata::update(scord::adhoc_storage::resources new_resources) {
     m_adhoc_storage.update(std::move(new_resources));
@@ -70,9 +86,9 @@ adhoc_storage_metadata::update(scord::adhoc_storage::resources new_resources) {
 
 scord::error_code
 adhoc_storage_metadata::add_client_info(
-        std::shared_ptr<scord::internal::job_metadata> job_info) {
+        std::shared_ptr<scord::internal::job_metadata> job_metadata_ptr) {
 
-    scord::abt::unique_lock lock(m_info_mutex);
+    scord::abt::unique_lock lock(m_mutex);
 
     if(m_client_info) {
         LOGGER_ERROR("adhoc storage {} already has a client",
@@ -80,20 +96,20 @@ adhoc_storage_metadata::add_client_info(
         return error_code::adhoc_in_use;
     }
 
-    m_client_info = std::move(job_info);
+    m_client_info = std::move(job_metadata_ptr);
 
     return error_code::success;
 }
 
 void
 adhoc_storage_metadata::remove_client_info() {
-    scord::abt::unique_lock lock(m_info_mutex);
+    scord::abt::unique_lock lock(m_mutex);
     m_client_info.reset();
 }
 
 std::shared_ptr<scord::internal::job_metadata>
 adhoc_storage_metadata::client_info() const {
-    scord::abt::shared_lock lock(m_info_mutex);
+    scord::abt::shared_lock lock(m_mutex);
     return m_client_info;
 }
 

@@ -53,6 +53,7 @@ typedef enum {
     ADM_EADHOC_DIR_CREATE_FAILED,
     ADM_EADHOC_DIR_EXISTS,
     ADM_ESUBPROCESS_ERROR,
+    ADM_ENO_RESOURCES,
     ADM_ETIMEOUT,
     ADM_EOTHER,
     ADM_ERR_MAX = 512
@@ -384,6 +385,18 @@ ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
  */
 ADM_return_t
 ADM_job_requirements_destroy(ADM_job_requirements_t reqs);
+
+/**
+ * Destroy a ADM_job_t created by ADM_job_create().
+ *
+ * @remark This function is not actually part of the public API, but it is
+ * useful to have for internal purposes
+ *
+ * @param[in] reqs The ADM_job_t to destroy.
+ * @return ADM_SUCCESS or corresponding error code.
+ */
+ADM_return_t
+ADM_job_destroy(ADM_job_t job);
 
 
 /* ----------------------------------------------------- */

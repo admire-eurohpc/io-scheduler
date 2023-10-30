@@ -46,6 +46,9 @@ namespace scord {
 void
 ping(const server& srv);
 
+job_info
+query(const server& srv, slurm_job_id job_id);
+
 scord::job
 register_job(const server& srv, const job::resources& job_resources,
              const job::requirements& job_requirements,

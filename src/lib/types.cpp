@@ -583,7 +583,7 @@ adhoc_storage::ctx::operator ADM_adhoc_context_t() const {
             m_should_flush);
 }
 
-std::string
+std::string const&
 adhoc_storage::ctx::controller_address() const {
     return m_controller_address;
 }
@@ -640,7 +640,7 @@ public:
         return m_id;
     }
 
-    adhoc_storage::ctx
+    adhoc_storage::ctx const&
     context() const {
         return m_ctx;
     }
@@ -740,7 +740,7 @@ adhoc_storage::id() const {
     return m_pimpl->id();
 }
 
-adhoc_storage::ctx
+adhoc_storage::ctx const&
 adhoc_storage::context() const {
     return m_pimpl->context();
 }

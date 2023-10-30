@@ -46,6 +46,9 @@ private:
     ping(const network::request& req);
 
     void
+    query(const network::request& req, scord::job_id job_id);
+
+    void
     register_job(const network::request& req,
                  const scord::job::resources& job_resources,
                  const scord::job::requirements& job_requirements,
@@ -71,11 +74,11 @@ private:
     remove_adhoc_storage(const network::request& req, std::uint64_t adhoc_id);
 
     void
-    deploy_adhoc_storage(const network::request& adhoc_metadata,
+    deploy_adhoc_storage(const network::request& adhoc_metadata_ptr,
                          std::uint64_t adhoc_id);
 
     void
-    terminate_adhoc_storage(const network::request& adhoc_metadata,
+    terminate_adhoc_storage(const network::request& adhoc_metadata_ptr,
                             std::uint64_t adhoc_id);
 
     void

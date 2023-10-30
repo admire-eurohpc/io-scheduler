@@ -142,3 +142,11 @@ function(mark_variables_as_advanced)
     mark_as_advanced(${_var})
   endforeach()
 endfunction()
+
+# Define a custom target property so that we can store and retrieve the
+# installed path of a target.
+define_property(
+  TARGET PROPERTY __INSTALLED_PATH
+  BRIEF_DOCS "Full path to a target's installed location"
+  FULL_DOCS "Full path to a target's installed location"
+)

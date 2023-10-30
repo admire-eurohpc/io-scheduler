@@ -53,6 +53,25 @@ public:
         }
     }
 
+    template <typename Rep, typename Period, typename... Args>
+    inline std::optional<thallium::packed_data<>>
+    timed_call(const std::string& rpc_name,
+               const std::chrono::duration<Rep, Period>& timeout,
+               Args&&... args) const {
+
+        using namespace std::chrono_literals;
+
+        try {
+            const auto rpc = m_engine.define(rpc_name);
+            return std::make_optional(
+                    rpc.on(m_endpoint)
+                            .timed(timeout, std::forward<Args>(args)...));
+        } catch(const std::exception& ex) {
+            LOGGER_ERROR("endpoint::timed_call() failed: {}", ex.what());
+            return std::nullopt;
+        }
+    }
+
     auto
     endp() const {
         return m_endpoint;

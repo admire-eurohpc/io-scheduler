@@ -157,6 +157,12 @@ set(SCORD_CTL_BIND_PORT
   )
 message(STATUS "[${PROJECT_NAME}] server bind port: ${SCORD_CTL_BIND_PORT}")
 
+set(CARGO_PORT
+  "62000"
+  CACHE STRING
+  "Define the port through wich we should commmunicate with Cargo"
+  )
+
 option(SCORD_BUILD_EXAMPLES "Build examples (disabled by default)" OFF)
 
 option(SCORD_BUILD_TESTS "Build tests (disabled by default)" OFF)
@@ -299,6 +305,10 @@ mark_variables_as_advanced(REGEX "^(FETCHCONTENT|fmt|FMT|spdlog|SPDLOG)_.*$")
 message(STATUS "[${PROJECT_NAME}] Checking for Redis Plus Plus")
 find_package(RedisPlusPlus 1.3.3 REQUIRED)
 
+### Cargo: required for transferring datasets between storage tiers
+message(STATUS "[${PROJECT_NAME}] Checking for Cargo")
+find_package(Cargo 0.2.0 REQUIRED)
+
 
 # ##############################################################################
 # Process subdirectories
@@ -309,6 +319,7 @@ add_compile_options("-Wall" "-Wextra" "-Werror" "$<$<CONFIG:RELEASE>:-O3>")
 add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:SCORD_DEBUG_BUILD>")
 add_compile_definitions("$<$<CONFIG:DEBUG,ASan>:LOGGER_ENABLE_DEBUG>")
 
+add_subdirectory(cli)
 add_subdirectory(etc)
 add_subdirectory(src)
 add_subdirectory(plugins)

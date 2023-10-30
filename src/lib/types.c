@@ -919,15 +919,6 @@ ADM_job_create(uint64_t id, uint64_t slurm_id) {
     return adm_job;
 }
 
-/**
- * Destroy a ADM_job_t created by ADM_job_create().
- *
- * @remark This function is not actually part of the public API, but it is
- * useful to have for internal purposes
- *
- * @param[in] reqs The ADM_job_t to destroy.
- * @return ADM_SUCCESS or corresponding error code.
- */
 ADM_return_t
 ADM_job_destroy(ADM_job_t job) {
     ADM_return_t ret = ADM_SUCCESS;

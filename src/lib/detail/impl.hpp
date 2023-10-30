@@ -34,6 +34,9 @@ namespace scord::detail {
 scord::error_code
 ping(const server& srv);
 
+tl::expected<scord::job_info, scord::error_code>
+query(const server& srv, slurm_job_id job_id);
+
 tl::expected<scord::job, scord::error_code>
 register_job(const server& srv, const job::resources& job_resources,
              const job::requirements& job_requirements,

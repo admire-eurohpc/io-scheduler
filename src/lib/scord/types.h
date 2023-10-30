@@ -536,6 +536,8 @@ ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res);
  *
  * @param[in] ctl_address The address of the control node for the
  * adhoc storage system
+ * @param[in] stager_address The address of the data stager for the
+ * adhoc storage system
  * @param[in] exec_mode The adhoc storage system execution mode
  * @param[in] access_type The adhoc storage system execution type
  * @param[in] walltime The adhoc storage system walltime
@@ -544,7 +546,8 @@ ADM_adhoc_resources_destroy(ADM_adhoc_resources_t res);
  * @return A valid ADM_ADHOC_CONTEXT if successful. NULL otherwise.
  */
 ADM_adhoc_context_t
-ADM_adhoc_context_create(const char* ctl_address, ADM_adhoc_mode_t exec_mode,
+ADM_adhoc_context_create(const char* ctl_address, const char* stager_address,
+                         ADM_adhoc_mode_t exec_mode,
                          ADM_adhoc_access_t access_type, uint32_t walltime,
                          bool should_flush);
 

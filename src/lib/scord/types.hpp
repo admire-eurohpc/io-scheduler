@@ -236,14 +236,19 @@ struct adhoc_storage {
 
         ctx() = default;
 
-        ctx(std::string controller_address, execution_mode exec_mode,
-            access_type access_type, std::uint32_t walltime, bool should_flush);
+        ctx(std::string controller_address, std::string data_stager_address,
+            execution_mode exec_mode, access_type access_type,
+            std::uint32_t walltime, bool should_flush);
 
         explicit ctx(ADM_adhoc_context_t ctx);
         explicit operator ADM_adhoc_context_t() const;
 
         std::string const&
         controller_address() const;
+
+        std::string const&
+        data_stager_address() const;
+
         execution_mode
         exec_mode() const;
         enum access_type
@@ -257,6 +262,7 @@ struct adhoc_storage {
         void
         serialize(Archive&& ar) {
             ar & m_controller_address;
+            ar & m_data_stager_address;
             ar & m_exec_mode;
             ar & m_access_type;
             ar & m_walltime;
@@ -265,6 +271,7 @@ struct adhoc_storage {
 
     private:
         std::string m_controller_address;
+        std::string m_data_stager_address;
         execution_mode m_exec_mode;
         enum access_type m_access_type;
         std::uint32_t m_walltime;
@@ -923,11 +930,13 @@ struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const {
-        return format_to(ctx.out(),
-                         "{{controller: {}, execution_mode: {}, "
-                         "access_type: {}, walltime: {}, should_flush: {}}}",
-                         std::quoted(c.controller_address()), c.exec_mode(),
-                         c.access_type(), c.walltime(), c.should_flush());
+        return format_to(
+                ctx.out(),
+                "{{controller: {}, data_stager: {}, execution_mode: {}, "
+                "access_type: {}, walltime: {}, should_flush: {}}}",
+                std::quoted(c.controller_address()),
+                std::quoted(c.data_stager_address()), c.exec_mode(),
+                c.access_type(), c.walltime(), c.should_flush());
     }
 };
 

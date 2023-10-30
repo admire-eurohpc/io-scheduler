@@ -18,11 +18,16 @@ process_args(int argc, char* argv[], test_info_t test_info, cli_args_t* args) {
         ++required_args;
     }
 
+    if(test_info.requires_data_stager) {
+        ++required_args;
+    }
+
     if(argc != required_args) {
         fprintf(stderr, "ERROR: missing arguments\n");
-        fprintf(stderr, "Usage: %s%s%s\n", test_info.name,
+        fprintf(stderr, "Usage: %s%s%s%s\n", test_info.name,
                 test_info.requires_server ? " <SERVER_ADDRESS>" : "",
-                test_info.requires_controller ? " <CONTROLLER_ADDRESS>" : "");
+                test_info.requires_controller ? " <CONTROLLER_ADDRESS>" : "",
+                test_info.requires_data_stager ? " <DATA_STAGER_ADDRESS>" : "");
         return -1;
     }
 

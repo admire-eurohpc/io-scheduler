@@ -85,6 +85,8 @@ struct adm_dataset_info {
 struct adm_adhoc_context {
     /** The address to the node responsible for this adhoc storage system */
     const char* c_ctl_address;
+    /** The address to the data stager for this adhoc storage system */
+    const char* c_stager_address;
     /** The adhoc storage system execution mode */
     ADM_adhoc_mode_t c_mode;
     /** The adhoc storage system access type */

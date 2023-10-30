@@ -29,11 +29,10 @@
 int
 main(int argc, char* argv[]) {
 
-    test_info test_info{
-            .name = TESTNAME,
-            .requires_server = true,
-            .requires_controller = true,
-    };
+    test_info test_info{.name = TESTNAME,
+                        .requires_server = true,
+                        .requires_controller = true,
+                        .requires_data_stager = true};
 
     const auto cli_args = process_args(argc, argv, test_info);
 

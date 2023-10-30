@@ -15,17 +15,24 @@ process_args(int argc, char* argv[], const test_info& test_info) {
         ++required_args;
     }
 
+    if(test_info.requires_data_stager) {
+        ++required_args;
+    }
+
     if(argc != required_args) {
         fmt::print(stderr, "ERROR: missing arguments\n");
-        fmt::print(stderr, "Usage: {}{}{}\n", test_info.name,
+        fmt::print(stderr, "Usage: {}{}{}{}\n", test_info.name,
                    test_info.requires_server ? " <SERVER_ADDRESS>" : "",
-                   test_info.requires_controller ? " <CONTROLLER_ADDRESS>"
-                                                 : "");
+                   test_info.requires_controller ? " <CONTROLLER_ADDRESS>" : "",
+                   test_info.requires_data_stager ? " <DATA_STAGER_ADDRESS>"
+                                                  : "");
         exit(EXIT_FAILURE);
     }
 
     return cli_args{test_info.requires_server ? std::string{argv[1]} : ""s,
-                    test_info.requires_controller ? std::string{argv[2]} : ""s};
+                    test_info.requires_controller ? std::string{argv[2]} : ""s,
+                    test_info.requires_data_stager ? std::string{argv[3]}
+                                                   : ""s};
 }
 
 std::vector<scord::node>

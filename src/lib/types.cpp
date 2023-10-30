@@ -562,22 +562,24 @@ adhoc_storage::resources::nodes() const {
 }
 
 adhoc_storage::ctx::ctx(std::string controller_address,
+                        std::string data_stager_address,
                         adhoc_storage::execution_mode exec_mode,
                         adhoc_storage::access_type access_type,
                         std::uint32_t walltime, bool should_flush)
     : m_controller_address(std::move(controller_address)),
+      m_data_stager_address(std::move(data_stager_address)),
       m_exec_mode(exec_mode), m_access_type(access_type), m_walltime(walltime),
       m_should_flush(should_flush) {}
 
 adhoc_storage::ctx::ctx(ADM_adhoc_context_t ctx)
-    : adhoc_storage::ctx(ctx->c_ctl_address,
+    : adhoc_storage::ctx(ctx->c_ctl_address, ctx->c_stager_address,
                          static_cast<execution_mode>(ctx->c_mode),
                          static_cast<enum access_type>(ctx->c_access),
                          ctx->c_walltime, ctx->c_should_bg_flush) {}
 
 adhoc_storage::ctx::operator ADM_adhoc_context_t() const {
     return ADM_adhoc_context_create(
-            m_controller_address.c_str(),
+            m_controller_address.c_str(), m_data_stager_address.c_str(),
             static_cast<ADM_adhoc_mode_t>(m_exec_mode),
             static_cast<ADM_adhoc_access_t>(m_access_type), m_walltime,
             m_should_flush);
@@ -586,6 +588,11 @@ adhoc_storage::ctx::operator ADM_adhoc_context_t() const {
 std::string const&
 adhoc_storage::ctx::controller_address() const {
     return m_controller_address;
+}
+
+std::string const&
+adhoc_storage::ctx::data_stager_address() const {
+    return m_data_stager_address;
 }
 
 adhoc_storage::execution_mode

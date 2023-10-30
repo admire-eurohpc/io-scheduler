@@ -84,6 +84,7 @@ typedef struct {
 typedef struct {
     scord_server_info_t scord_info;
     scord_server_info_t scordctl_info;
+    scord_server_info_t cargo_info;
 } scord_plugin_config_t;
 
 
@@ -97,7 +98,12 @@ static scord_plugin_config_t default_cfg = {
                           .proto = SCORDCTL_PROTO_DEFAULT,
                           .port = SCORDCTL_PORT_DEFAULT,
                           .prog = SCORDCTL_PROG_DEFAULT,
-                          .tmpdir = SCORDCTL_TMPDIR_DEFAULT}};
+                          .tmpdir = SCORDCTL_TMPDIR_DEFAULT},
+        .cargo_info = {.addr = NULL,
+                       .proto = CARGO_PROTO_DEFAULT,
+                       .port = CARGO_PORT_DEFAULT,
+                       .prog = CARGO_PROG_DEFAULT,
+                       .tmpdir = NULL}};
 
 static int
 process_opts(int tag, const char* optarg, int remote);
@@ -305,6 +311,8 @@ process_config(int ac, char** av, scord_plugin_config_t* cfg) {
                              &cfg->scordctl_info.port),
             EXPAND_SCORD_OPT("scordctl_tmpdir", TYPE_STR,
                              &cfg->scordctl_info.tmpdir),
+            EXPAND_SCORD_OPT("cargo_prog", TYPE_STR, &cfg->cargo_info.prog),
+            EXPAND_SCORD_OPT("cargo_port", TYPE_INT, &cfg->cargo_info.port),
     };
 
 #undef EXPAND_SCORD_OPT
@@ -389,6 +397,12 @@ scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
         return -1;
     }
 
+    /* The Cargo master will also typically reside on the first node of the
+     * allocation */
+    cfg.cargo_info.addr = margo_address_create(cfg.cargo_info.proto,
+                                               ADM_node_get_hostname(ctl_node),
+                                               cfg.cargo_info.port);
+
     slurm_debug("%s: %s: scord_info:", plugin_name, __func__);
     slurm_debug("%s: %s:   addr: \"%s\",", plugin_name, __func__,
                 cfg.scord_info.addr);
@@ -404,6 +418,14 @@ scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
                 cfg.scordctl_info.proto);
     slurm_debug("%s: %s:   port: %d,", plugin_name, __func__,
                 cfg.scordctl_info.port);
+
+    slurm_debug("%s: %s: cargo_info:", plugin_name, __func__);
+    slurm_debug("%s: %s:   addr: \"%s\",", plugin_name, __func__,
+                cfg.cargo_info.addr);
+    slurm_debug("%s: %s:   proto: \"%s\",", plugin_name, __func__,
+                cfg.cargo_info.proto);
+    slurm_debug("%s: %s:   port: %d,", plugin_name, __func__,
+                cfg.cargo_info.port);
 
     /* Register the job with the scord server */
     scord_server = ADM_server_create(cfg.scord_info.proto, cfg.scord_info.addr);
@@ -443,9 +465,9 @@ scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
         goto end;
     }
 
-    adhoc_ctx = ADM_adhoc_context_create(cfg.scordctl_info.addr, adhoc_mode,
-                                         ADM_ADHOC_ACCESS_RDWR, adhoc_walltime,
-                                         false);
+    adhoc_ctx = ADM_adhoc_context_create(
+            cfg.scordctl_info.addr, cfg.cargo_info.addr, adhoc_mode,
+            ADM_ADHOC_ACCESS_RDWR, adhoc_walltime, false);
     if(!adhoc_ctx) {
         slurm_error("%s: adhoc_context creation failed", plugin_name);
         rc = -1;

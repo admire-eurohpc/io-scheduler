@@ -38,6 +38,7 @@ main(int argc, char* argv[]) {
             .name = TESTNAME,
             .requires_server = true,
             .requires_controller = true,
+            .requires_data_stager = true,
     };
 
     const auto cli_args = process_args(argc, argv, test_info);
@@ -53,7 +54,7 @@ main(int argc, char* argv[]) {
     const auto gkfs_storage = scord::register_adhoc_storage(
             server, "foobar", scord::adhoc_storage::type::gekkofs,
             scord::adhoc_storage::ctx{
-                    cli_args.controller_address,
+                    cli_args.controller_address, cli_args.data_stager_address,
                     scord::adhoc_storage::execution_mode::separate_new,
                     scord::adhoc_storage::access_type::read_write, 100, false},
             scord::adhoc_storage::resources{adhoc_nodes});

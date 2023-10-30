@@ -84,9 +84,9 @@ main(int argc, char* argv[]) {
     }
 
     // 3. the adhoc storage execution context
-    adhoc_ctx = ADM_adhoc_context_create(cli_args.controller_address,
-                                         ADM_ADHOC_MODE_SEPARATE_NEW,
-                                         ADM_ADHOC_ACCESS_RDWR, 100, false);
+    adhoc_ctx = ADM_adhoc_context_create(
+            cli_args.controller_address, cli_args.data_stager_address,
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 100, false);
 
     if(adhoc_ctx == NULL) {
         fprintf(stderr, "Fatal error preparing adhoc context\n");
@@ -124,9 +124,9 @@ main(int argc, char* argv[]) {
         goto cleanup;
     }
 
-    new_adhoc_ctx = ADM_adhoc_context_create(cli_args.controller_address,
-                                             ADM_ADHOC_MODE_SEPARATE_NEW,
-                                             ADM_ADHOC_ACCESS_RDWR, 200, false);
+    new_adhoc_ctx = ADM_adhoc_context_create(
+            cli_args.controller_address, cli_args.data_stager_address,
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 200, false);
 
     if(new_adhoc_ctx == NULL) {
         fprintf(stderr, "Fatal error preparing new adhoc context\n");

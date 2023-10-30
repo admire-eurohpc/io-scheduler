@@ -33,6 +33,7 @@ main(int argc, char* argv[]) {
             .name = TESTNAME,
             .requires_server = true,
             .requires_controller = false,
+            .requires_data_stager = false,
     };
 
     const auto cli_args = process_args(argc, argv, test_info);

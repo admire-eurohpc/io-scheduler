@@ -12,11 +12,13 @@ struct test_info {
     std::string name;
     bool requires_server;
     bool requires_controller;
+    bool requires_data_stager;
 };
 
 struct cli_args {
     std::string server_address;
     std::string controller_address;
+    std::string data_stager_address;
 };
 
 cli_args

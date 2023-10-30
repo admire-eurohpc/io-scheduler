@@ -11,11 +11,13 @@ typedef struct {
     const char* name;
     bool requires_server;
     bool requires_controller;
+    bool requires_data_stager;
 } test_info_t;
 
 typedef struct {
     const char* server_address;
     const char* controller_address;
+    const char* data_stager_address;
 } cli_args_t;
 
 int

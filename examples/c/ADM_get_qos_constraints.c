@@ -65,8 +65,8 @@ main(int argc, char* argv[]) {
     assert(adhoc_resources);
 
     ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
-            cli_args.controller_address, ADM_ADHOC_MODE_SEPARATE_NEW,
-            ADM_ADHOC_ACCESS_RDWR, 100, false);
+            cli_args.controller_address, cli_args.data_stager_address,
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 100, false);
     assert(ctx);
 
     const char* name = "adhoc_storage_42";

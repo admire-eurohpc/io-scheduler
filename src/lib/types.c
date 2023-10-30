@@ -676,12 +676,18 @@ ADM_data_operation_destroy(ADM_data_operation_t op) {
 }
 
 ADM_adhoc_context_t
-ADM_adhoc_context_create(const char* ctl_address, ADM_adhoc_mode_t exec_mode,
+ADM_adhoc_context_create(const char* ctl_address, const char* stager_address,
+                         ADM_adhoc_mode_t exec_mode,
                          ADM_adhoc_access_t access_type, uint32_t walltime,
                          bool should_flush) {
 
     if(!ctl_address) {
         LOGGER_ERROR("The address to the controller cannot be NULL");
+        return NULL;
+    }
+
+    if(!stager_address) {
+        LOGGER_ERROR("The address to the stager cannot be NULL");
         return NULL;
     }
 
@@ -698,6 +704,11 @@ ADM_adhoc_context_create(const char* ctl_address, ADM_adhoc_mode_t exec_mode,
     adm_adhoc_context->c_ctl_address =
             (const char*) calloc(n + 1, sizeof(char));
     strcpy((char*) adm_adhoc_context->c_ctl_address, ctl_address);
+
+    n = strlen(stager_address);
+    adm_adhoc_context->c_stager_address =
+            (const char*) calloc(n + 1, sizeof(char));
+    strcpy((char*) adm_adhoc_context->c_stager_address, stager_address);
 
     adm_adhoc_context->c_mode = exec_mode;
     adm_adhoc_context->c_access = access_type;

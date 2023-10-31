@@ -234,7 +234,7 @@ register_adhoc_storage(const server& srv, const std::string& name,
 
         LOGGER_INFO("rpc {:<} body: {{name: {}, type: {}, adhoc_ctx: {}, "
                     "adhoc_resources: {}}}",
-                    rpc, name, type, ctx, resources);
+                    rpc, std::quoted(name), type, ctx, resources);
 
         if(const auto& call_rv =
                    endp.call(rpc.name(), name, type, ctx, resources);
@@ -336,7 +336,7 @@ register_pfs_storage(const server& srv, const std::string& name,
         const auto& endp = lookup_rv.value();
 
         LOGGER_INFO("rpc {:<} body: {{name: {}, type: {}, pfs_ctx: {}}}", rpc,
-                    name, type, ctx);
+                    std::quoted(name), type, ctx);
 
         if(const auto& call_rv = endp.call(rpc.name(), name, type, ctx);
            call_rv.has_value()) {

@@ -276,7 +276,7 @@ rpc_server::register_adhoc_storage(
 
     LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, adhoc_ctx: {}, "
                 "adhoc_resources: {}}}",
-                rpc, name, type, ctx, resources);
+                rpc, std::quoted(name), type, ctx, resources);
 
     scord::error_code ec;
     std::optional<std::uint64_t> adhoc_id;
@@ -518,8 +518,8 @@ rpc_server::register_pfs_storage(const network::request& req,
 
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, pfs_ctx: {}}}", rpc, name,
-                type, ctx);
+    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, pfs_ctx: {}}}", rpc,
+                std::quoted(name), type, ctx);
 
     scord::error_code ec;
     std::optional<std::uint64_t> pfs_id = 0;

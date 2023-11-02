@@ -27,11 +27,6 @@
 #include <scord/scord.h>
 #include "common.h"
 
-#define NADHOC_NODES      25
-#define N_NEW_ADHOC_NODES 10
-#define NINPUTS           10
-#define NOUTPUTS          5
-
 int
 main(int argc, char* argv[]) {
 

@@ -28,11 +28,6 @@
 #include <assert.h>
 #include "common.h"
 
-#define NJOB_NODES   50
-#define NADHOC_NODES 25
-#define NINPUTS      10
-#define NOUTPUTS     5
-
 int
 main(int argc, char* argv[]) {
 
@@ -55,10 +50,15 @@ main(int argc, char* argv[]) {
     assert(job_nodes);
     ADM_node_t* adhoc_nodes = prepare_nodes(NADHOC_NODES);
     assert(adhoc_nodes);
-    ADM_dataset_t* inputs = prepare_datasets("input-dataset-%d", NINPUTS);
+    ADM_dataset_route_t* inputs =
+            prepare_routes("%s-input-dataset-%d", NINPUTS);
     assert(inputs);
-    ADM_dataset_t* outputs = prepare_datasets("output-dataset-%d", NOUTPUTS);
+    ADM_dataset_route_t* outputs =
+            prepare_routes("%s-output-dataset-%d", NOUTPUTS);
     assert(outputs);
+    ADM_dataset_route_t* expected_outputs =
+            prepare_routes("%s-exp-output-dataset-%d", NEXPOUTPUTS);
+    assert(expected_outputs);
 
     ADM_adhoc_resources_t adhoc_resources =
             ADM_adhoc_resources_create(adhoc_nodes, NADHOC_NODES);
@@ -90,7 +90,8 @@ main(int argc, char* argv[]) {
     assert(job_resources);
 
     ADM_job_requirements_t reqs = ADM_job_requirements_create(
-            inputs, NINPUTS, outputs, NOUTPUTS, adhoc_storage);
+            inputs, NINPUTS, outputs, NOUTPUTS, expected_outputs, NEXPOUTPUTS,
+            adhoc_storage);
     assert(reqs);
 
     uint64_t slurm_job_id = 42;

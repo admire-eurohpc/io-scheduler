@@ -50,8 +50,10 @@ main(int argc, char* argv[]) {
 
     const auto job_nodes = prepare_nodes(NJOB_NODES);
     const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
-    const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
-    const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
+    const auto inputs = prepare_routes("{}-input-dataset-{}", NINPUTS);
+    const auto outputs = prepare_routes("{}-output-dataset-{}", NOUTPUTS);
+    const auto expected_outputs =
+            prepare_routes("{}-exp-output-dataset-{}", NEXPOUTPUTS);
 
     const auto sources = prepare_datasets("source-dataset-{}", NSOURCES);
     const auto targets = prepare_datasets("target-dataset-{}", NTARGETS);
@@ -73,7 +75,8 @@ main(int argc, char* argv[]) {
                 server, name, scord::adhoc_storage::type::gekkofs,
                 adhoc_storage_ctx, adhoc_resources);
 
-        scord::job::requirements reqs(inputs, outputs, adhoc_storage);
+        scord::job::requirements reqs(inputs, outputs, expected_outputs,
+                                      adhoc_storage);
 
         const auto job = scord::register_job(
                 server, scord::job::resources{job_nodes}, reqs, 0);

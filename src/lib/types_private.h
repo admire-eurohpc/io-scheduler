@@ -45,6 +45,11 @@ struct adm_dataset {
     const char* d_id;
 };
 
+struct adm_dataset_route {
+    ADM_dataset_t d_src;
+    ADM_dataset_t d_dst;
+};
+
 struct adm_job {
     uint64_t j_id;
     uint64_t j_slurm_id;
@@ -129,9 +134,11 @@ struct adm_data_operation {
 
 struct adm_job_requirements {
     /** An array of input datasets */
-    ADM_dataset_list_t r_inputs;
+    ADM_dataset_route_list_t r_inputs;
     /** An array of output datasets */
-    ADM_dataset_list_t r_outputs;
+    ADM_dataset_route_list_t r_outputs;
+    /** An array of expected output datasets */
+    ADM_dataset_route_list_t r_expected_outputs;
     /** An optional definition for a specific storage instance */
     ADM_adhoc_storage_t r_adhoc_storage;
 };
@@ -145,6 +152,13 @@ struct adm_job_resources {
 struct adm_dataset_list {
     /** An array of datasets */
     struct adm_dataset* l_datasets;
+    /** The length of the array */
+    size_t l_length;
+};
+
+struct adm_dataset_route_list {
+    /** An array of dataset routes */
+    struct adm_dataset_route* l_routes;
     /** The length of the array */
     size_t l_length;
 };

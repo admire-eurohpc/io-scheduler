@@ -114,6 +114,52 @@ destroy_datasets(ADM_dataset_t datasets[], size_t n) {
     free(datasets);
 }
 
+ADM_dataset_route_t*
+prepare_routes(const char* pattern, size_t n) {
+
+    ADM_dataset_route_t* routes = calloc(n, sizeof(ADM_dataset_route_t));
+
+    if(!routes) {
+        return NULL;
+    }
+
+    for(size_t i = 0; i < n; ++i) {
+        size_t len = snprintf(NULL, 0, pattern, "XXX", i);
+        char* id = (char*) alloca(len + 1);
+        snprintf(id, len + 1, pattern, "src", i);
+        ADM_dataset_t src = ADM_dataset_create(id);
+        snprintf(id, len + 1, pattern, "dst", i);
+        ADM_dataset_t dst = ADM_dataset_create(id);
+
+        if(!src || !dst) {
+            return NULL;
+        }
+
+        routes[i] = ADM_dataset_route_create(src, dst);
+        if(!routes[i]) {
+            return NULL;
+        }
+    }
+
+    return routes;
+}
+
+void
+destroy_routes(ADM_dataset_route_t routes[], size_t n) {
+
+    if(!routes) {
+        return;
+    }
+
+    for(size_t i = 0; i < n; ++i) {
+        if(routes[i]) {
+            ADM_dataset_route_destroy(routes[i]);
+        }
+    }
+
+    free(routes);
+}
+
 ADM_qos_limit_t*
 prepare_qos_limits(size_t n) {
 

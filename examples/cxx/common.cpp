@@ -57,6 +57,19 @@ prepare_datasets(const std::string& pattern, size_t n) {
     return datasets;
 }
 
+std::vector<scord::dataset_route>
+prepare_routes(const std::string& pattern, size_t n) {
+    std::vector<scord::dataset_route> routes;
+    routes.reserve(n);
+    for(size_t i = 0; i < n; ++i) {
+        routes.emplace_back(
+                scord::dataset{fmt::format(fmt::runtime(pattern), "src", i)},
+                scord::dataset{fmt::format(fmt::runtime(pattern), "dst", i)});
+    }
+
+    return routes;
+}
+
 std::vector<scord::qos::limit>
 prepare_qos_limits(size_t n) {
 

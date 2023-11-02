@@ -26,11 +26,6 @@
 #include <scord/scord.hpp>
 #include "common.hpp"
 
-#define NJOB_NODES   50
-#define NADHOC_NODES 25
-#define NINPUTS      10
-#define NOUTPUTS     5
-
 int
 main(int argc, char* argv[]) {
 
@@ -48,8 +43,10 @@ main(int argc, char* argv[]) {
     const auto job_nodes = prepare_nodes(NJOB_NODES);
     const auto new_job_nodes = prepare_nodes(NJOB_NODES * 2);
     const auto adhoc_nodes = prepare_nodes(NADHOC_NODES);
-    const auto inputs = prepare_datasets("input-dataset-{}", NINPUTS);
-    const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
+    const auto inputs = prepare_routes("{}-input-dataset-{}", NINPUTS);
+    const auto outputs = prepare_routes("{}-output-dataset-{}", NOUTPUTS);
+    const auto expected_outputs =
+            prepare_routes("{}-exp-output-dataset-{}", NEXPOUTPUTS);
 
     const auto gkfs_storage = scord::register_adhoc_storage(
             server, "foobar", scord::adhoc_storage::type::gekkofs,
@@ -59,7 +56,8 @@ main(int argc, char* argv[]) {
                     scord::adhoc_storage::access_type::read_write, 100, false},
             scord::adhoc_storage::resources{adhoc_nodes});
 
-    scord::job::requirements reqs{inputs, outputs, gkfs_storage};
+    scord::job::requirements reqs{inputs, outputs, expected_outputs,
+                                  gkfs_storage};
 
     const auto new_inputs = prepare_datasets("input-new-dataset-{}", NINPUTS);
     const auto new_outputs =

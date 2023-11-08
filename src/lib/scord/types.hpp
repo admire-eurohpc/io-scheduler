@@ -51,6 +51,7 @@ struct error_code {
     static const error_code adhoc_dir_exists;
     static const error_code subprocess_error;
     static const error_code no_resources;
+    static const error_code timeout;
     static const error_code other;
 
     constexpr error_code() : m_value(ADM_SUCCESS) {}
@@ -89,6 +90,7 @@ struct error_code {
             ADM_ERROR_CASE(ADM_EADHOC_DIR_CREATE_FAILED);
             ADM_ERROR_CASE(ADM_EADHOC_DIR_EXISTS);
             ADM_ERROR_CASE(ADM_ESUBPROCESS_ERROR);
+            ADM_ERROR_CASE(ADM_ETIMEOUT);
             ADM_ERROR_CASE(ADM_EOTHER);
             ADM_ERROR_DEFAULT_MSG("INVALID_ERROR_VALUE");
         }
@@ -123,6 +125,7 @@ constexpr error_code error_code::adhoc_dir_create_failed{
 constexpr error_code error_code::adhoc_dir_exists{ADM_EADHOC_DIR_EXISTS};
 constexpr error_code error_code::subprocess_error{ADM_ESUBPROCESS_ERROR};
 constexpr error_code error_code::no_resources{ADM_ENO_RESOURCES};
+constexpr error_code error_code::timeout{ADM_ETIMEOUT};
 constexpr error_code error_code::other{ADM_EOTHER};
 
 using job_id = std::uint64_t;

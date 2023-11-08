@@ -34,6 +34,7 @@ main(int argc, char* argv[]) {
             .name = TESTNAME,
             .requires_server = true,
             .requires_controller = true,
+            .requires_data_stager = true,
     };
 
     cli_args_t cli_args;
@@ -195,10 +196,10 @@ cleanup:
     ADM_server_destroy(server);
 
     ADM_job_requirements_destroy(reqs);
-    destroy_routes(outputs, NOUTPUTS);
     destroy_routes(inputs, NINPUTS);
+    destroy_routes(outputs, NOUTPUTS);
     destroy_routes(expected_outputs, NEXPOUTPUTS);
-    ADM_job_resources_destroy(job_resources);
+    ADM_job_resources_destroy(job_resources); 
     destroy_nodes(job_nodes, NJOB_NODES);
 
     ADM_adhoc_context_destroy(adhoc_ctx);

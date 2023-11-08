@@ -157,7 +157,7 @@ set(SCORD_CTL_BIND_PORT
   )
 message(STATUS "[${PROJECT_NAME}] server bind port: ${SCORD_CTL_BIND_PORT}")
 
-set(CARGO_PORT
+set(CARGO_BIND_PORT
   "62000"
   CACHE STRING
   "Define the port through wich we should commmunicate with Cargo"

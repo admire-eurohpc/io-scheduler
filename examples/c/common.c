@@ -22,7 +22,8 @@ process_args(int argc, char* argv[], test_info_t test_info, cli_args_t* args) {
         ++required_args;
     }
 
-    if(argc != required_args) {
+    /* We accept more arguments than required */
+    if(argc < required_args) {
         fprintf(stderr, "ERROR: missing arguments\n");
         fprintf(stderr, "Usage: %s%s%s%s\n", test_info.name,
                 test_info.requires_server ? " <SERVER_ADDRESS>" : "",
@@ -33,6 +34,7 @@ process_args(int argc, char* argv[], test_info_t test_info, cli_args_t* args) {
 
     args->server_address = test_info.requires_server ? argv[1] : NULL;
     args->controller_address = test_info.requires_controller ? argv[2] : NULL;
+    args->data_stager_address = test_info.requires_data_stager? argv[3] : NULL;
 
     return 0;
 }

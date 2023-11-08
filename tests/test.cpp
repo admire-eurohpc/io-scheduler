@@ -46,6 +46,10 @@ SCENARIO("Error messages can be printed", "[lib][ADM_strerror]") {
                     "Cannot allocate memory");
         }
 
+        WHEN("The error number is ADM_ETIMEOUT") {
+            REQUIRE(std::string{ADM_strerror(ADM_ETIMEOUT)} ==
+                    "Timeout");
+        }
         WHEN("The error number is ADM_EOTHER") {
             REQUIRE(std::string{ADM_strerror(ADM_EOTHER)} ==
                     "Undetermined error");

@@ -35,6 +35,7 @@ main(int argc, char** argv) {
             .name = TESTNAME,
             .requires_server = true,
             .requires_controller = true,
+            .requires_data_stager = true,
     };
 
     cli_args_t cli_args;

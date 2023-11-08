@@ -36,6 +36,9 @@ if(SCORD_BUILD_TESTS)
   set(SCORD_ADDRESS_STRING
     ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${SCORD_BIND_PORT})
 
+  set(DATA_STAGER_ADDRESS_STRING
+    ${SCORD_TRANSPORT_PROTOCOL}://${SCORD_BIND_ADDRESS}:${CARGO_BIND_PORT})
+
   add_test(start_scord_daemon
     ${CMAKE_SOURCE_DIR}/scripts/runner.sh start scord.pid
            ${CMAKE_BINARY_DIR}/src/scord/scord -f -c ${CMAKE_CURRENT_BINARY_DIR}/scord.conf
@@ -72,6 +75,20 @@ if(SCORD_BUILD_TESTS)
     )
 
   set_tests_properties(stop_scord_ctl PROPERTIES FIXTURES_CLEANUP scord_ctl)
+
+
+  add_test(start_cargo
+    ${CMAKE_SOURCE_DIR}/scripts/runner.sh start cargo.pid
+           mpirun --allow-run-as-root -n 2 ${CARGO_BIN_INSTALL_DIR}/cargo -l ${CARGO_ADDRESS_STRING}
+  )
+  set_tests_properties(start_cargo
+    PROPERTIES FIXTURES_SETUP cargo)
+
+  add_test(stop_cargo
+    ${CMAKE_SOURCE_DIR}/scripts/runner.sh stop TERM cargo.pid)
+
+  set_tests_properties(stop_cargo
+    PROPERTIES FIXTURES_CLEANUP cargo)
 
 endif()
 

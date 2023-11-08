@@ -332,8 +332,8 @@ ADM_dataset_route_destroy(ADM_dataset_route_t route) {
     if(route->d_dst) {
         ADM_dataset_destroy(route->d_dst);
     }
-
-    free(route);
+    /* This causes a double free */
+    //free(route);
     return ret;
 }
 

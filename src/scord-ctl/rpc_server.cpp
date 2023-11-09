@@ -44,6 +44,8 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
 
     provider::define(EXPAND(ping));
     provider::define(EXPAND(deploy_adhoc_storage));
+    provider::define(EXPAND(expand_adhoc_storage));
+    provider::define(EXPAND(shrink_adhoc_storage));
     provider::define(EXPAND(terminate_adhoc_storage));
 
 #undef EXPAND
@@ -195,6 +197,128 @@ respond:
 
     req.respond(resp);
 }
+
+void
+rpc_server::expand_adhoc_storage(
+        const network::request& req, const std::string& adhoc_uuid,
+        enum scord::adhoc_storage::type adhoc_type,
+        const scord::adhoc_storage::resources& adhoc_resources) {
+
+    using network::generic_response;
+    using network::get_address;
+    using network::rpc_info;
+
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+    std::optional<std::filesystem::path> adhoc_dir;
+
+    LOGGER_INFO("rpc {:>} body: {{uuid: {}, type: {}, resources: {}}}", rpc,
+                std::quoted(adhoc_uuid), adhoc_type, adhoc_resources);
+
+    auto ec = scord::error_code::success;
+
+    if(!m_config.has_value() || m_config->adhoc_storage_configs().empty()) {
+        LOGGER_WARN("No adhoc storage configurations available");
+        ec = scord::error_code::snafu;
+        goto respond;
+    }
+
+    if(const auto it = m_config->adhoc_storage_configs().find(adhoc_type);
+       it != m_config->adhoc_storage_configs().end()) {
+        const auto& adhoc_cfg = it->second;
+
+        LOGGER_DEBUG("deploy \"{:e}\" (ID: {})", adhoc_type, adhoc_uuid);
+
+        // 1. Construct the expand command for the adhoc storage instance
+        std::vector<std::string> hostnames;
+        std::ranges::transform(
+                adhoc_resources.nodes(), std::back_inserter(hostnames),
+                [](const auto& node) { return node.hostname(); });
+
+        const auto cmd = adhoc_cfg.expand_command().eval(adhoc_uuid, hostnames);
+
+        // 4. Execute the startup command
+        try {
+            LOGGER_DEBUG("[{}] exec: {}", adhoc_uuid, cmd);
+            cmd.exec();
+        } catch(const std::exception& ex) {
+            LOGGER_ERROR("[{}] Failed to execute expand command: {}",
+                         adhoc_uuid, ex.what());
+            ec = scord::error_code::subprocess_error;
+        }
+    } else {
+        LOGGER_WARN(
+                "Failed to find adhoc storage configuration for type '{:e}'",
+                adhoc_type);
+        ec = scord::error_code::adhoc_type_unsupported;
+    }
+
+respond:
+    const generic_response resp{rpc.id(), ec};
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
+    req.respond(resp);
+}
+
+
+void
+rpc_server::shrink_adhoc_storage(
+        const network::request& req, const std::string& adhoc_uuid,
+        enum scord::adhoc_storage::type adhoc_type,
+        const scord::adhoc_storage::resources& adhoc_resources) {
+
+    using network::generic_response;
+    using network::get_address;
+    using network::rpc_info;
+
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+    std::optional<std::filesystem::path> adhoc_dir;
+
+    LOGGER_INFO("rpc {:>} body: {{uuid: {}, type: {}, resources: {}}}", rpc,
+                std::quoted(adhoc_uuid), adhoc_type, adhoc_resources);
+
+    auto ec = scord::error_code::success;
+
+    if(!m_config.has_value() || m_config->adhoc_storage_configs().empty()) {
+        LOGGER_WARN("No adhoc storage configurations available");
+        ec = scord::error_code::snafu;
+        goto respond;
+    }
+
+    if(const auto it = m_config->adhoc_storage_configs().find(adhoc_type);
+       it != m_config->adhoc_storage_configs().end()) {
+        const auto& adhoc_cfg = it->second;
+
+        LOGGER_DEBUG("deploy \"{:e}\" (ID: {})", adhoc_type, adhoc_uuid);
+
+        // 1. Construct the expand command for the adhoc storage instance
+        std::vector<std::string> hostnames;
+        std::ranges::transform(
+                adhoc_resources.nodes(), std::back_inserter(hostnames),
+                [](const auto& node) { return node.hostname(); });
+
+        const auto cmd = adhoc_cfg.shrink_command().eval(adhoc_uuid, hostnames);
+
+        // 4. Execute the startup command
+        try {
+            LOGGER_DEBUG("[{}] exec: {}", adhoc_uuid, cmd);
+            cmd.exec();
+        } catch(const std::exception& ex) {
+            LOGGER_ERROR("[{}] Failed to execute shrink command: {}",
+                         adhoc_uuid, ex.what());
+            ec = scord::error_code::subprocess_error;
+        }
+    } else {
+        LOGGER_WARN(
+                "Failed to find adhoc storage configuration for type '{:e}'",
+                adhoc_type);
+        ec = scord::error_code::adhoc_type_unsupported;
+    }
+
+respond:
+    const generic_response resp{rpc.id(), ec};
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
+    req.respond(resp);
+}
+
 
 void
 rpc_server::terminate_adhoc_storage(

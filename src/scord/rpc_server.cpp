@@ -315,6 +315,22 @@ rpc_server::update_adhoc_storage(
     LOGGER_INFO("rpc {:>} body: {{adhoc_id: {}, new_resources: {}}}", rpc,
                 adhoc_id, new_resources);
 
+
+    const auto pre_ec = m_adhoc_manager.find(adhoc_id);
+
+    if(!pre_ec) {
+        LOGGER_ERROR(
+                "rpc id: {} error_msg: \"Error updating adhoc_storage: {}\"",
+                rpc.id(), scord::error_code::no_such_entity);
+    }
+
+    const auto old_resources_size = pre_ec.value()
+                                            .get()
+                                            ->adhoc_storage()
+                                            .get_resources()
+                                            .nodes()
+                                            .size();
+
     const auto ec = m_adhoc_manager.update(adhoc_id, new_resources);
 
     if(!ec) {
@@ -323,9 +339,69 @@ rpc_server::update_adhoc_storage(
                 rpc.id(), ec);
     }
 
-    const auto resp = generic_response{rpc.id(), ec};
+    bool expand = new_resources.nodes().size() > old_resources_size;
 
-    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
+    /**
+     * @brief Helper lambda to contact the adhoc controller and prompt it to
+     * update an adhoc storage instance
+     * @param adhoc_storage The relevant `adhoc_storage` object with
+     * information about the instance to deploy.
+     * @return
+     */
+    const auto update_helper = [&](const auto& adhoc_metadata_ptr)
+            -> tl::expected<error_code, error_code> {
+        assert(adhoc_metadata_ptr);
+        const auto adhoc_storage = adhoc_metadata_ptr->adhoc_storage();
+        const auto endp = lookup(adhoc_storage.context().controller_address());
+
+        if(!endp) {
+            LOGGER_ERROR("endpoint lookup failed");
+            return tl::make_unexpected(scord::error_code::snafu);
+        }
+
+        // const auto child_rpc =
+        //       rpc.add_child(adhoc_storage.context().controller_address());
+
+        auto name = "ADM_expand_adhoc_storage";
+        if(!expand) {
+            name = "ADM_shrink_adhoc_storage";
+        }
+
+        const auto child_rpc = rpc_info::create(
+                name, adhoc_storage.context().controller_address());
+
+        LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}, resources: {}}}",
+                    child_rpc, std::quoted(adhoc_metadata_ptr->uuid()),
+                    adhoc_storage.type(), adhoc_storage.get_resources());
+
+        if(const auto call_rv = endp->call(
+                   child_rpc.name(), adhoc_metadata_ptr->uuid(),
+                   adhoc_storage.type(), adhoc_storage.get_resources());
+           call_rv.has_value()) {
+
+            const network::generic_response resp{call_rv.value()};
+
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", child_rpc,
+                        resp.error_code(), resp.op_id());
+
+            return resp.error_code();
+        }
+
+        LOGGER_ERROR("rpc call failed");
+        return tl::make_unexpected(error_code::snafu);
+    };
+
+    const auto rv =
+            m_adhoc_manager.find(adhoc_id)
+                    .or_else([](auto&&) {
+                        LOGGER_ERROR("adhoc storage instance not found");
+                    })
+                    .and_then(update_helper);
+
+    const auto resp = generic_response(rpc.id(), rv.value());
+
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, rv.value());
 
     req.respond(resp);
 }

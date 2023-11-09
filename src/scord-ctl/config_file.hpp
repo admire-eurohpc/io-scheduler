@@ -46,9 +46,14 @@ public:
      * storage.
      * @param shutdown_command The command to be executed to stop the adhoc
      * storage.
+     * @param expand_command The command to be executed to expand the adhoc
+     * storage.
+     * @param shrink_command The command to be executed to shrink the adhoc
+     * storage.
      */
     adhoc_storage_config(std::filesystem::path working_directory,
-                         command startup_command, command shutdown_command);
+                         command startup_command, command shutdown_command,
+                         command expand_command, command shrink_command);
 
     /**
      * @brief Get the directory where the adhoc storage will run.
@@ -74,10 +79,30 @@ public:
     const command&
     shutdown_command() const;
 
+
+    /**
+     * @brief Get the command to be executed to expand the adhoc storage.
+     *
+     * @return The command to be executed to expand the adhoc storage.
+     */
+    const command&
+    expand_command() const;
+
+
+    /**
+     * @brief Get the command to be executed to shrink the adhoc storage.
+     *
+     * @return The command to be executed to shrink the adhoc storage.
+     */
+    const command&
+    shrink_command() const;
+
 private:
     std::filesystem::path m_working_directory;
     command m_startup_command;
     command m_shutdown_command;
+    command m_expand_command;
+    command m_shrink_command;
 };
 
 #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 11

@@ -109,6 +109,8 @@ public:
     static constexpr std::array<std::string_view, 3> keywords = {
             "{ADHOC_ID}", "{ADHOC_DIRECTORY}", "{ADHOC_NODES}"};
 
+    static constexpr std::array<std::string_view, 2> keywords_malleability = {
+            "{ADHOC_ID}", "{ADHOC_NODES}"};
     /**
      * @brief Construct a command.
      *
@@ -150,6 +152,20 @@ public:
     command
     eval(const std::string& adhoc_id,
          const std::filesystem::path& adhoc_directory,
+         const std::vector<std::string>& adhoc_nodes) const;
+
+
+    /**
+     * @brief Return a copy of the current `command` where all the keywords in
+     * its command line template have been replaced with string
+     * representations of the arguments provided.
+     *
+     * @param adhoc_id The ID of the adhoc storage system.
+     * @param adhoc_nodes The nodes where the adhoc storage will run.
+     * @return The evaluated command.
+     */
+    command
+    eval(const std::string& adhoc_id,
          const std::vector<std::string>& adhoc_nodes) const;
 
     /**

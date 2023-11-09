@@ -27,6 +27,7 @@
 #include <net/endpoint.hpp>
 #include <net/serialization.hpp>
 #include <net/utilities.hpp>
+#include <cargo/cargo.hpp>
 #include "rpc_server.hpp"
 
 template <typename T, typename E>
@@ -275,7 +276,7 @@ rpc_server::register_adhoc_storage(
 
     LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, adhoc_ctx: {}, "
                 "adhoc_resources: {}}}",
-                rpc, name, type, ctx, resources);
+                rpc, std::quoted(name), type, ctx, resources);
 
     scord::error_code ec;
     std::optional<std::uint64_t> adhoc_id;
@@ -314,6 +315,22 @@ rpc_server::update_adhoc_storage(
     LOGGER_INFO("rpc {:>} body: {{adhoc_id: {}, new_resources: {}}}", rpc,
                 adhoc_id, new_resources);
 
+
+    const auto pre_ec = m_adhoc_manager.find(adhoc_id);
+
+    if(!pre_ec) {
+        LOGGER_ERROR(
+                "rpc id: {} error_msg: \"Error updating adhoc_storage: {}\"",
+                rpc.id(), scord::error_code::no_such_entity);
+    }
+
+    const auto old_resources_size = pre_ec.value()
+                                            .get()
+                                            ->adhoc_storage()
+                                            .get_resources()
+                                            .nodes()
+                                            .size();
+
     const auto ec = m_adhoc_manager.update(adhoc_id, new_resources);
 
     if(!ec) {
@@ -322,9 +339,69 @@ rpc_server::update_adhoc_storage(
                 rpc.id(), ec);
     }
 
-    const auto resp = generic_response{rpc.id(), ec};
+    bool expand = new_resources.nodes().size() > old_resources_size;
 
-    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
+    /**
+     * @brief Helper lambda to contact the adhoc controller and prompt it to
+     * update an adhoc storage instance
+     * @param adhoc_storage The relevant `adhoc_storage` object with
+     * information about the instance to deploy.
+     * @return
+     */
+    const auto update_helper = [&](const auto& adhoc_metadata_ptr)
+            -> tl::expected<error_code, error_code> {
+        assert(adhoc_metadata_ptr);
+        const auto adhoc_storage = adhoc_metadata_ptr->adhoc_storage();
+        const auto endp = lookup(adhoc_storage.context().controller_address());
+
+        if(!endp) {
+            LOGGER_ERROR("endpoint lookup failed");
+            return tl::make_unexpected(scord::error_code::snafu);
+        }
+
+        // const auto child_rpc =
+        //       rpc.add_child(adhoc_storage.context().controller_address());
+
+        auto name = "ADM_expand_adhoc_storage";
+        if(!expand) {
+            name = "ADM_shrink_adhoc_storage";
+        }
+
+        const auto child_rpc = rpc_info::create(
+                name, adhoc_storage.context().controller_address());
+
+        LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}, resources: {}}}",
+                    child_rpc, std::quoted(adhoc_metadata_ptr->uuid()),
+                    adhoc_storage.type(), adhoc_storage.get_resources());
+
+        if(const auto call_rv = endp->call(
+                   child_rpc.name(), adhoc_metadata_ptr->uuid(),
+                   adhoc_storage.type(), adhoc_storage.get_resources());
+           call_rv.has_value()) {
+
+            const network::generic_response resp{call_rv.value()};
+
+            LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                        "rpc {:>} body: {{retval: {}}} [op_id: {}]", child_rpc,
+                        resp.error_code(), resp.op_id());
+
+            return resp.error_code();
+        }
+
+        LOGGER_ERROR("rpc call failed");
+        return tl::make_unexpected(error_code::snafu);
+    };
+
+    const auto rv =
+            m_adhoc_manager.find(adhoc_id)
+                    .or_else([](auto&&) {
+                        LOGGER_ERROR("adhoc storage instance not found");
+                    })
+                    .and_then(update_helper);
+
+    const auto resp = generic_response(rpc.id(), rv.value());
+
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, rv.value());
 
     req.respond(resp);
 }
@@ -517,8 +594,8 @@ rpc_server::register_pfs_storage(const network::request& req,
 
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, pfs_ctx: {}}}", rpc, name,
-                type, ctx);
+    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, pfs_ctx: {}}}", rpc,
+                std::quoted(name), type, ctx);
 
     scord::error_code ec;
     std::optional<std::uint64_t> pfs_id = 0;
@@ -611,17 +688,72 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
                 "limits: {}, mapping: {}}}",
                 rpc, job_id, sources, targets, limits, mapping);
 
-    scord::error_code ec;
+    const auto jm_result = m_job_manager.find(job_id);
 
-    std::optional<std::uint64_t> tx_id;
+    if(!jm_result) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error finding job: {}\"",
+                     rpc.id(), job_id);
+        const auto resp = response_with_id{rpc.id(), jm_result.error()};
+        LOGGER_ERROR("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
+        req.respond(resp);
+        return;
+    }
 
-    // TODO: generate a global ID for the transfer and contact Cargo to
-    // actually request it
-    tx_id = 42;
+    const auto& job_metadata_ptr = jm_result.value();
 
-    const auto resp = response_with_id{rpc.id(), ec, tx_id};
+    if(!job_metadata_ptr->adhoc_storage_metadata()) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Job has no adhoc storage\"",
+                     rpc.id(), job_id);
+        const auto resp = response_with_id{rpc.id(), error_code::no_resources};
+        LOGGER_ERROR("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
+        req.respond(resp);
+        return;
+    }
 
-    LOGGER_INFO("rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc, ec, tx_id);
+    const auto data_stager_address =
+            job_metadata_ptr->adhoc_storage_metadata()->data_stager_address();
+
+    // Transform the `scord::dataset`s into `cargo::dataset`s and contact the
+    // Cargo service associated with the job's adhoc storage instance to
+    // execute the transfers.
+    cargo::server srv{data_stager_address};
+
+    std::vector<cargo::dataset> inputs;
+    std::vector<cargo::dataset> outputs;
+
+    // TODO: check type of storage tier to enable parallel transfers
+    std::transform(sources.cbegin(), sources.cend(), std::back_inserter(inputs),
+                   [](const auto& src) { return cargo::dataset{src.id()}; });
+
+    std::transform(targets.cbegin(), targets.cend(),
+                   std::back_inserter(outputs),
+                   [](const auto& tgt) { return cargo::dataset{tgt.id()}; });
+
+    const auto cargo_tx = cargo::transfer_datasets(srv, inputs, outputs);
+
+    // Register the transfer into the `tranfer_manager`.
+    // We embed the generated `cargo::transfer` object into
+    // scord's `transfer_metadata` so that we can later query the Cargo
+    // service for the transfer's status.
+    const auto rv =
+            m_transfer_manager.create(cargo_tx, limits)
+                    .or_else([&](auto&& ec) {
+                        LOGGER_ERROR("rpc id: {} error_msg: \"Error creating "
+                                     "transfer: {}\"",
+                                     rpc.id(), ec);
+                    })
+                    .and_then([&](auto&& transfer_metadata_ptr)
+                                      -> tl::expected<transfer_id, error_code> {
+                        return transfer_metadata_ptr->id();
+                    });
+
+    const auto resp =
+            rv ? response_with_id{rpc.id(), error_code::success, rv.value()}
+               : response_with_id{rpc.id(), rv.error()};
+
+    LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                "rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc,
+                resp.error_code(), resp.value_or_none());
 
     req.respond(resp);
 }

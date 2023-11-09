@@ -18,16 +18,23 @@ process_args(int argc, char* argv[], test_info_t test_info, cli_args_t* args) {
         ++required_args;
     }
 
-    if(argc != required_args) {
+    if(test_info.requires_data_stager) {
+        ++required_args;
+    }
+
+    /* We accept more arguments than required */
+    if(argc < required_args) {
         fprintf(stderr, "ERROR: missing arguments\n");
-        fprintf(stderr, "Usage: %s%s%s\n", test_info.name,
+        fprintf(stderr, "Usage: %s%s%s%s\n", test_info.name,
                 test_info.requires_server ? " <SERVER_ADDRESS>" : "",
-                test_info.requires_controller ? " <CONTROLLER_ADDRESS>" : "");
+                test_info.requires_controller ? " <CONTROLLER_ADDRESS>" : "",
+                test_info.requires_data_stager ? " <DATA_STAGER_ADDRESS>" : "");
         return -1;
     }
 
     args->server_address = test_info.requires_server ? argv[1] : NULL;
     args->controller_address = test_info.requires_controller ? argv[2] : NULL;
+    args->data_stager_address = test_info.requires_data_stager? argv[3] : NULL;
 
     return 0;
 }
@@ -107,6 +114,52 @@ destroy_datasets(ADM_dataset_t datasets[], size_t n) {
     }
 
     free(datasets);
+}
+
+ADM_dataset_route_t*
+prepare_routes(const char* pattern, size_t n) {
+
+    ADM_dataset_route_t* routes = calloc(n, sizeof(ADM_dataset_route_t));
+
+    if(!routes) {
+        return NULL;
+    }
+
+    for(size_t i = 0; i < n; ++i) {
+        size_t len = snprintf(NULL, 0, pattern, "XXX", i);
+        char* id = (char*) alloca(len + 1);
+        snprintf(id, len + 1, pattern, "src", i);
+        ADM_dataset_t src = ADM_dataset_create(id);
+        snprintf(id, len + 1, pattern, "dst", i);
+        ADM_dataset_t dst = ADM_dataset_create(id);
+
+        if(!src || !dst) {
+            return NULL;
+        }
+
+        routes[i] = ADM_dataset_route_create(src, dst);
+        if(!routes[i]) {
+            return NULL;
+        }
+    }
+
+    return routes;
+}
+
+void
+destroy_routes(ADM_dataset_route_t routes[], size_t n) {
+
+    if(!routes) {
+        return;
+    }
+
+    for(size_t i = 0; i < n; ++i) {
+        if(routes[i]) {
+            ADM_dataset_route_destroy(routes[i]);
+        }
+    }
+
+    free(routes);
 }
 
 ADM_qos_limit_t*

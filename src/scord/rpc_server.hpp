@@ -31,6 +31,11 @@
 #include "job_manager.hpp"
 #include "adhoc_storage_manager.hpp"
 #include "pfs_storage_manager.hpp"
+#include "transfer_manager.hpp"
+
+namespace cargo {
+class transfer;
+}
 
 namespace scord {
 
@@ -103,6 +108,7 @@ private:
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;
     pfs_storage_manager m_pfs_manager;
+    transfer_manager<cargo::transfer> m_transfer_manager;
 };
 
 } // namespace scord

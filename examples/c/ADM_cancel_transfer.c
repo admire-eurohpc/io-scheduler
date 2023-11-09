@@ -28,11 +28,6 @@
 #include <assert.h>
 #include "common.h"
 
-#define NJOB_NODES   50
-#define NADHOC_NODES 25
-#define NINPUTS      10
-#define NOUTPUTS     5
-
 int
 main(int argc, char* argv[]) {
 
@@ -40,6 +35,7 @@ main(int argc, char* argv[]) {
             .name = TESTNAME,
             .requires_server = true,
             .requires_controller = true,
+            .requires_data_stager = true,
     };
 
     cli_args_t cli_args;
@@ -55,10 +51,15 @@ main(int argc, char* argv[]) {
     assert(job_nodes);
     ADM_node_t* adhoc_nodes = prepare_nodes(NADHOC_NODES);
     assert(adhoc_nodes);
-    ADM_dataset_t* inputs = prepare_datasets("input-dataset-%d", NINPUTS);
+    ADM_dataset_route_t* inputs =
+            prepare_routes("%s-input-dataset-%d", NINPUTS);
     assert(inputs);
-    ADM_dataset_t* outputs = prepare_datasets("output-dataset-%d", NOUTPUTS);
+    ADM_dataset_route_t* outputs =
+            prepare_routes("%s-output-dataset-%d", NOUTPUTS);
     assert(outputs);
+    ADM_dataset_route_t* expected_outputs =
+            prepare_routes("%s-exp-output-dataset-%d", NEXPOUTPUTS);
+    assert(expected_outputs);
 
     ADM_job_resources_t job_resources =
             ADM_job_resources_create(job_nodes, NJOB_NODES);
@@ -69,8 +70,8 @@ main(int argc, char* argv[]) {
     assert(adhoc_resources);
 
     ADM_adhoc_context_t ctx = ADM_adhoc_context_create(
-            cli_args.controller_address, ADM_ADHOC_MODE_SEPARATE_NEW,
-            ADM_ADHOC_ACCESS_RDWR, 100, false);
+            cli_args.controller_address, cli_args.data_stager_address,
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 100, false);
     assert(ctx);
 
     const char* name = "adhoc_storage_42";
@@ -90,7 +91,8 @@ main(int argc, char* argv[]) {
     }
 
     ADM_job_requirements_t reqs = ADM_job_requirements_create(
-            inputs, NINPUTS, outputs, NOUTPUTS, adhoc_storage);
+            inputs, NINPUTS, outputs, NOUTPUTS, expected_outputs, NEXPOUTPUTS,
+            adhoc_storage);
     assert(reqs);
 
     uint64_t slurm_job_id = 42;
@@ -143,7 +145,8 @@ main(int argc, char* argv[]) {
 cleanup:
     ADM_remove_job(server, job);
     ADM_server_destroy(server);
-    destroy_datasets(inputs, NINPUTS);
-    destroy_datasets(outputs, NOUTPUTS);
+    destroy_routes(inputs, NINPUTS);
+    destroy_routes(outputs, NOUTPUTS);
+    destroy_routes(expected_outputs, NEXPOUTPUTS);
     exit(exit_status);
 }

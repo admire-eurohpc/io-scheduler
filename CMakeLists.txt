@@ -157,7 +157,7 @@ set(SCORD_CTL_BIND_PORT
   )
 message(STATUS "[${PROJECT_NAME}] server bind port: ${SCORD_CTL_BIND_PORT}")
 
-set(CARGO_PORT
+set(CARGO_BIND_PORT
   "62000"
   CACHE STRING
   "Define the port through wich we should commmunicate with Cargo"
@@ -303,7 +303,7 @@ find_package(RedisPlusPlus 1.3.3 REQUIRED)
 
 ### Cargo: required for transferring datasets between storage tiers
 message(STATUS "[${PROJECT_NAME}] Checking for Cargo")
-find_package(Cargo 0.2.0 REQUIRED)
+find_package(Cargo 0.3.1 REQUIRED)
 
 
 # ##############################################################################

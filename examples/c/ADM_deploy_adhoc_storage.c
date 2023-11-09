@@ -27,10 +27,6 @@
 #include <scord/scord.h>
 #include "common.h"
 
-#define NADHOC_NODES 25
-#define NINPUTS      10
-#define NOUTPUTS     5
-
 int
 main(int argc, char* argv[]) {
 
@@ -38,6 +34,7 @@ main(int argc, char* argv[]) {
             .name = TESTNAME,
             .requires_server = true,
             .requires_controller = true,
+            .requires_data_stager = true,
     };
 
     cli_args_t cli_args;
@@ -82,9 +79,9 @@ main(int argc, char* argv[]) {
     }
 
     // 3. the adhoc storage execution context
-    adhoc_ctx = ADM_adhoc_context_create(cli_args.controller_address,
-                                         ADM_ADHOC_MODE_SEPARATE_NEW,
-                                         ADM_ADHOC_ACCESS_RDWR, 100, false);
+    adhoc_ctx = ADM_adhoc_context_create(
+            cli_args.controller_address, cli_args.data_stager_address,
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 100, false);
 
     if(adhoc_ctx == NULL) {
         fprintf(stderr, "Fatal error preparing adhoc context\n");
@@ -115,9 +112,9 @@ main(int argc, char* argv[]) {
     // system, let's prepare a new execution context for the adhoc
     // storage system
 
-    new_adhoc_ctx = ADM_adhoc_context_create(cli_args.controller_address,
-                                             ADM_ADHOC_MODE_SEPARATE_NEW,
-                                             ADM_ADHOC_ACCESS_RDWR, 200, false);
+    new_adhoc_ctx = ADM_adhoc_context_create(
+            cli_args.controller_address, cli_args.data_stager_address,
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 200, false);
 
     if(new_adhoc_ctx == NULL) {
         fprintf(stderr, "Fatal error preparing new adhoc context\n");

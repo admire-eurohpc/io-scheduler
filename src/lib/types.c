@@ -264,6 +264,79 @@ ADM_dataset_destroy(ADM_dataset_t dataset) {
     return ret;
 }
 
+ADM_dataset_route_t
+ADM_dataset_route_create(ADM_dataset_t source, ADM_dataset_t destination) {
+
+    struct adm_dataset_route* adm_dataset_route =
+            (struct adm_dataset_route*) malloc(
+                    sizeof(struct adm_dataset_route));
+
+    if(!adm_dataset_route) {
+        LOGGER_ERROR("Could not allocate ADM_dataset_route_t");
+        return NULL;
+    }
+
+    adm_dataset_route->d_src = ADM_dataset_create(source->d_id);
+
+    if(!adm_dataset_route->d_src) {
+        LOGGER_ERROR("Could not allocate ADM_dataset_t");
+        return NULL;
+    }
+
+    adm_dataset_route->d_dst = ADM_dataset_create(destination->d_id);
+
+    if(!adm_dataset_route->d_dst) {
+        LOGGER_ERROR("Could not allocate ADM_dataset_t");
+        return NULL;
+    }
+
+    return adm_dataset_route;
+}
+
+ADM_dataset_route_t
+ADM_dataset_route_copy(ADM_dataset_route_t dst, const ADM_dataset_route_t src) {
+
+    if(!src || !dst) {
+        return NULL;
+    }
+
+    // copy all primitive types
+    *dst = *src;
+
+    // duplicate copy any pointer types
+    if(src->d_src) {
+        dst->d_src = ADM_dataset_create(src->d_src->d_id);
+    }
+
+    if(src->d_dst) {
+        dst->d_dst = ADM_dataset_create(src->d_dst->d_id);
+    }
+
+    return dst;
+}
+
+ADM_return_t
+ADM_dataset_route_destroy(ADM_dataset_route_t route) {
+
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!route) {
+        LOGGER_ERROR("Invalid ADM_dataset_route_t");
+        return ADM_EBADARGS;
+    }
+
+    if(route->d_src) {
+        ADM_dataset_destroy(route->d_src);
+    }
+
+    if(route->d_dst) {
+        ADM_dataset_destroy(route->d_dst);
+    }
+    /* This causes a double free */
+    //free(route);
+    return ret;
+}
+
 ADM_qos_entity_t
 ADM_qos_entity_create(ADM_qos_scope_t scope, void* data) {
 
@@ -442,6 +515,70 @@ ADM_dataset_list_destroy(ADM_dataset_list_t list) {
             free((void*) list->l_datasets[i].d_id);
         }
         free(list->l_datasets);
+    }
+
+    free(list);
+    return ret;
+}
+
+ADM_dataset_route_list_t
+ADM_dataset_route_list_create(ADM_dataset_route_t routes[], size_t length) {
+
+    ADM_dataset_route_list_t p = (ADM_dataset_route_list_t) malloc(sizeof(*p));
+
+    if(!p) {
+        LOGGER_ERROR("Could not allocate ADM_dataset_route_list_t");
+        return NULL;
+    }
+
+    const char* error_msg = NULL;
+
+    p->l_length = length;
+    p->l_routes = (struct adm_dataset_route*) calloc(
+            length, sizeof(struct adm_dataset_route));
+
+    if(!p->l_routes) {
+        error_msg = "Could not allocate ADM_dataset_route_list_t";
+        goto cleanup_on_error;
+    }
+
+    for(size_t i = 0; i < length; ++i) {
+        if(!ADM_dataset_route_copy(&p->l_routes[i], routes[i])) {
+            error_msg = "Could not allocate ADM_dataset_route_list_t";
+            goto cleanup_on_error;
+        };
+    }
+
+    return p;
+
+cleanup_on_error:
+    if(p->l_routes) {
+        free(p->l_routes);
+    }
+    free(p);
+
+    LOGGER_ERROR(error_msg);
+
+    return NULL;
+}
+
+ADM_return_t
+ADM_dataset_route_list_destroy(ADM_dataset_route_list_t list) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!list) {
+        LOGGER_ERROR("Invalid ADM_dataset_route_list_t");
+        return ADM_EBADARGS;
+    }
+
+    // We cannot call ADM_dataset_route_destroy here because adm_dataset_routes
+    // are stored as a consecutive array in memory. Thus, we free
+    // the dataset route ids themselves and then the array.
+    if(list->l_routes) {
+        for(size_t i = 0; i < list->l_length; ++i) {
+            ADM_dataset_route_destroy(&list->l_routes[i]);
+        }
+        free(list->l_routes);
     }
 
     free(list);
@@ -676,12 +813,18 @@ ADM_data_operation_destroy(ADM_data_operation_t op) {
 }
 
 ADM_adhoc_context_t
-ADM_adhoc_context_create(const char* ctl_address, ADM_adhoc_mode_t exec_mode,
+ADM_adhoc_context_create(const char* ctl_address, const char* stager_address,
+                         ADM_adhoc_mode_t exec_mode,
                          ADM_adhoc_access_t access_type, uint32_t walltime,
                          bool should_flush) {
 
     if(!ctl_address) {
         LOGGER_ERROR("The address to the controller cannot be NULL");
+        return NULL;
+    }
+
+    if(!stager_address) {
+        LOGGER_ERROR("The address to the stager cannot be NULL");
         return NULL;
     }
 
@@ -698,6 +841,11 @@ ADM_adhoc_context_create(const char* ctl_address, ADM_adhoc_mode_t exec_mode,
     adm_adhoc_context->c_ctl_address =
             (const char*) calloc(n + 1, sizeof(char));
     strcpy((char*) adm_adhoc_context->c_ctl_address, ctl_address);
+
+    n = strlen(stager_address);
+    adm_adhoc_context->c_stager_address =
+            (const char*) calloc(n + 1, sizeof(char));
+    strcpy((char*) adm_adhoc_context->c_stager_address, stager_address);
 
     adm_adhoc_context->c_mode = exec_mode;
     adm_adhoc_context->c_access = access_type;
@@ -810,8 +958,10 @@ ADM_job_resources_destroy(ADM_job_resources_t res) {
 
 
 ADM_job_requirements_t
-ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
-                            ADM_dataset_t outputs[], size_t outputs_len,
+ADM_job_requirements_create(ADM_dataset_route_t inputs[], size_t inputs_len,
+                            ADM_dataset_route_t outputs[], size_t outputs_len,
+                            ADM_dataset_route_t expected_outputs[],
+                            size_t expected_outputs_len,
                             ADM_adhoc_storage_t adhoc_storage) {
 
     struct adm_job_requirements* adm_job_reqs =
@@ -823,26 +973,36 @@ ADM_job_requirements_create(ADM_dataset_t inputs[], size_t inputs_len,
         return NULL;
     }
 
-    ADM_dataset_list_t inputs_list = NULL;
-    ADM_dataset_list_t outputs_list = NULL;
+    ADM_dataset_route_list_t inputs_list = NULL;
+    ADM_dataset_route_list_t outputs_list = NULL;
+    ADM_dataset_route_list_t expected_outputs_list = NULL;
     const char* error_msg = NULL;
 
-    inputs_list = ADM_dataset_list_create(inputs, inputs_len);
+    inputs_list = ADM_dataset_route_list_create(inputs, inputs_len);
 
     if(!inputs_list) {
         error_msg = "Could not allocate ADM_job_requirements_t";
         goto cleanup_on_error;
     }
 
-    outputs_list = ADM_dataset_list_create(outputs, outputs_len);
+    outputs_list = ADM_dataset_route_list_create(outputs, outputs_len);
 
     if(!outputs_list) {
         error_msg = "Could not allocate ADM_job_requirements_t";
         goto cleanup_on_error;
     }
 
+    expected_outputs_list = ADM_dataset_route_list_create(expected_outputs,
+                                                          expected_outputs_len);
+
+    if(!expected_outputs_list) {
+        error_msg = "Could not allocate ADM_job_requirements_t";
+        goto cleanup_on_error;
+    }
+
     adm_job_reqs->r_inputs = inputs_list;
     adm_job_reqs->r_outputs = outputs_list;
+    adm_job_reqs->r_expected_outputs = expected_outputs_list;
 
     if(!adhoc_storage) {
         return adm_job_reqs;
@@ -878,11 +1038,15 @@ ADM_job_requirements_destroy(ADM_job_requirements_t reqs) {
     }
 
     if(reqs->r_inputs) {
-        ADM_dataset_list_destroy(reqs->r_inputs);
+        ADM_dataset_route_list_destroy(reqs->r_inputs);
     }
 
     if(reqs->r_outputs) {
-        ADM_dataset_list_destroy(reqs->r_outputs);
+        ADM_dataset_route_list_destroy(reqs->r_outputs);
+    }
+
+    if(reqs->r_expected_outputs) {
+        ADM_dataset_route_list_destroy(reqs->r_expected_outputs);
     }
 
     if(reqs->r_adhoc_storage) {

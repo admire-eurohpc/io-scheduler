@@ -51,6 +51,7 @@ struct error_code {
     static const error_code adhoc_dir_exists;
     static const error_code subprocess_error;
     static const error_code no_resources;
+    static const error_code timeout;
     static const error_code other;
 
     constexpr error_code() : m_value(ADM_SUCCESS) {}
@@ -89,6 +90,7 @@ struct error_code {
             ADM_ERROR_CASE(ADM_EADHOC_DIR_CREATE_FAILED);
             ADM_ERROR_CASE(ADM_EADHOC_DIR_EXISTS);
             ADM_ERROR_CASE(ADM_ESUBPROCESS_ERROR);
+            ADM_ERROR_CASE(ADM_ETIMEOUT);
             ADM_ERROR_CASE(ADM_EOTHER);
             ADM_ERROR_DEFAULT_MSG("INVALID_ERROR_VALUE");
         }
@@ -123,6 +125,7 @@ constexpr error_code error_code::adhoc_dir_create_failed{
 constexpr error_code error_code::adhoc_dir_exists{ADM_EADHOC_DIR_EXISTS};
 constexpr error_code error_code::subprocess_error{ADM_ESUBPROCESS_ERROR};
 constexpr error_code error_code::no_resources{ADM_ENO_RESOURCES};
+constexpr error_code error_code::timeout{ADM_ETIMEOUT};
 constexpr error_code error_code::other{ADM_EOTHER};
 
 using job_id = std::uint64_t;
@@ -190,6 +193,7 @@ private:
 };
 
 struct dataset;
+struct dataset_route;
 
 struct adhoc_storage {
 
@@ -236,14 +240,19 @@ struct adhoc_storage {
 
         ctx() = default;
 
-        ctx(std::string controller_address, execution_mode exec_mode,
-            access_type access_type, std::uint32_t walltime, bool should_flush);
+        ctx(std::string controller_address, std::string data_stager_address,
+            execution_mode exec_mode, access_type access_type,
+            std::uint32_t walltime, bool should_flush);
 
         explicit ctx(ADM_adhoc_context_t ctx);
         explicit operator ADM_adhoc_context_t() const;
 
         std::string const&
         controller_address() const;
+
+        std::string const&
+        data_stager_address() const;
+
         execution_mode
         exec_mode() const;
         enum access_type
@@ -257,6 +266,7 @@ struct adhoc_storage {
         void
         serialize(Archive&& ar) {
             ar & m_controller_address;
+            ar & m_data_stager_address;
             ar & m_exec_mode;
             ar & m_access_type;
             ar & m_walltime;
@@ -265,6 +275,7 @@ struct adhoc_storage {
 
     private:
         std::string m_controller_address;
+        std::string m_data_stager_address;
         execution_mode m_exec_mode;
         enum access_type m_access_type;
         std::uint32_t m_walltime;
@@ -409,17 +420,21 @@ struct job {
     struct requirements {
 
         requirements();
-        requirements(std::vector<scord::dataset> inputs,
-                     std::vector<scord::dataset> outputs);
-        requirements(std::vector<scord::dataset> inputs,
-                     std::vector<scord::dataset> outputs,
+        requirements(std::vector<scord::dataset_route> inputs,
+                     std::vector<scord::dataset_route> outputs,
+                     std::vector<scord::dataset_route> expected_outputs);
+        requirements(std::vector<scord::dataset_route> inputs,
+                     std::vector<scord::dataset_route> outputs,
+                     std::vector<scord::dataset_route> expected_outputs,
                      scord::adhoc_storage adhoc_storage);
         explicit requirements(ADM_job_requirements_t reqs);
 
-        std::vector<scord::dataset>
+        std::vector<scord::dataset_route> const&
         inputs() const;
-        std::vector<scord::dataset>
+        std::vector<scord::dataset_route> const&
         outputs() const;
+        std::vector<scord::dataset_route> const&
+        expected_outputs() const;
         std::optional<scord::adhoc_storage>
         adhoc_storage() const;
 
@@ -430,12 +445,14 @@ struct job {
         serialize(Archive& ar) {
             ar & m_inputs;
             ar & m_outputs;
+            ar & m_expected_outputs;
             ar & m_adhoc_storage;
         }
 
     private:
-        std::vector<scord::dataset> m_inputs;
-        std::vector<scord::dataset> m_outputs;
+        std::vector<scord::dataset_route> m_inputs;
+        std::vector<scord::dataset_route> m_outputs;
+        std::vector<scord::dataset_route> m_expected_outputs;
         std::optional<scord::adhoc_storage> m_adhoc_storage;
     };
 
@@ -656,6 +673,33 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
+struct dataset_route {
+    dataset_route();
+    explicit dataset_route(scord::dataset src, scord::dataset dst);
+    explicit dataset_route(ADM_dataset_route_t route);
+    dataset_route(const dataset_route&) noexcept;
+    dataset_route(dataset_route&&) noexcept;
+    dataset_route&
+    operator=(const dataset_route&) noexcept;
+    dataset_route&
+    operator=(dataset_route&&) noexcept;
+    ~dataset_route();
+
+    scord::dataset const&
+    source() const;
+
+    scord::dataset const&
+    destination() const;
+
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
 } // namespace scord
 
 
@@ -714,6 +758,31 @@ struct fmt::formatter<std::vector<scord::dataset>>
     template <typename FormatContext>
     auto
     format(const std::vector<scord::dataset>& v, FormatContext& ctx) const {
+        const auto str = fmt::format("[{}]", fmt::join(v, ", "));
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<scord::dataset_route> : formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const scord::dataset_route& r, FormatContext& ctx) const {
+        const auto str = fmt::format("{{src: {}, dst: {}}}", r.source(),
+                                     r.destination());
+        return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<std::vector<scord::dataset_route>>
+    : fmt::formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const std::vector<scord::dataset_route>& v,
+           FormatContext& ctx) const {
         const auto str = fmt::format("[{}]", fmt::join(v, ", "));
         return formatter<std::string_view>::format(str, ctx);
     }
@@ -923,11 +992,13 @@ struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const {
-        return format_to(ctx.out(),
-                         "{{controller: {}, execution_mode: {}, "
-                         "access_type: {}, walltime: {}, should_flush: {}}}",
-                         std::quoted(c.controller_address()), c.exec_mode(),
-                         c.access_type(), c.walltime(), c.should_flush());
+        return format_to(
+                ctx.out(),
+                "{{controller: {}, data_stager: {}, execution_mode: {}, "
+                "access_type: {}, walltime: {}, should_flush: {}}}",
+                std::quoted(c.controller_address()),
+                std::quoted(c.data_stager_address()), c.exec_mode(),
+                c.access_type(), c.walltime(), c.should_flush());
     }
 };
 
@@ -1045,8 +1116,10 @@ struct fmt::formatter<scord::job::requirements> : formatter<std::string_view> {
     auto
     format(const scord::job::requirements& r, FormatContext& ctx) const {
         return formatter<std::string_view>::format(
-                fmt::format("{{inputs: {}, outputs: {}, adhoc_storage: {}}}",
-                            r.inputs(), r.outputs(), r.adhoc_storage()),
+                fmt::format("{{inputs: {}, outputs: {}, "
+                            "expected_outputs: {}, adhoc_storage: {}}}",
+                            r.inputs(), r.outputs(), r.expected_outputs(),
+                            r.adhoc_storage()),
                 ctx);
     }
 };

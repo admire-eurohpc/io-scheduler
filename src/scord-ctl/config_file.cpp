@@ -195,6 +195,9 @@ parse_adhoc_config_node(const ryml::ConstNodeRef& node) {
     std::filesystem::path working_directory;
     std::optional<scord_ctl::command> startup_command;
     std::optional<scord_ctl::command> shutdown_command;
+    std::optional<scord_ctl::command> expand_command;
+    std::optional<scord_ctl::command> shrink_command;
+
 
     for(const auto& child : node) {
 
@@ -212,6 +215,10 @@ parse_adhoc_config_node(const ryml::ConstNodeRef& node) {
             startup_command = ::parse_command_node(child);
         } else if(child.key() == "shutdown") {
             shutdown_command = ::parse_command_node(child);
+        } else if(child.key() == "expand") {
+            expand_command = ::parse_command_node(child);
+        } else if(child.key() == "shrink") {
+            shrink_command = ::parse_command_node(child);
         } else {
             fmt::print(stderr, "WARNING: Unknown key: '{}'. Ignored.\n",
                        child.key());
@@ -222,7 +229,8 @@ parse_adhoc_config_node(const ryml::ConstNodeRef& node) {
         throw std::runtime_error{"missing required `working_directory` key"};
     }
 
-    return {working_directory, *startup_command, *shutdown_command};
+    return {working_directory, *startup_command, *shutdown_command,
+            *expand_command, *shrink_command};
 }
 
 /**
@@ -302,10 +310,13 @@ namespace scord_ctl::config {
 
 adhoc_storage_config::adhoc_storage_config(
         std::filesystem::path working_directory, command startup_command,
-        command shutdown_command)
+        command shutdown_command, command expand_command,
+        command shrink_command)
     : m_working_directory(std::move(working_directory)),
       m_startup_command(std::move(startup_command)),
-      m_shutdown_command(std::move(shutdown_command)) {}
+      m_shutdown_command(std::move(shutdown_command)),
+      m_expand_command(std::move(expand_command)),
+      m_shrink_command(std::move(shrink_command)) {}
 
 const std::filesystem::path&
 adhoc_storage_config::working_directory() const {
@@ -320,6 +331,16 @@ adhoc_storage_config::startup_command() const {
 const command&
 adhoc_storage_config::shutdown_command() const {
     return m_shutdown_command;
+}
+
+const command&
+adhoc_storage_config::expand_command() const {
+    return m_expand_command;
+}
+
+const command&
+adhoc_storage_config::shrink_command() const {
+    return m_shrink_command;
 }
 
 config_file::config_file(const std::filesystem::path& path) {

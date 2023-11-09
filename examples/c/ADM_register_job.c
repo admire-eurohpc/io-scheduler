@@ -27,11 +27,6 @@
 #include <scord/scord.h>
 #include "common.h"
 
-#define NJOB_NODES   50
-#define NADHOC_NODES 25
-#define NINPUTS      10
-#define NOUTPUTS     5
-
 int
 main(int argc, char* argv[]) {
 
@@ -39,6 +34,7 @@ main(int argc, char* argv[]) {
             .name = TESTNAME,
             .requires_server = true,
             .requires_controller = true,
+            .requires_data_stager = true,
     };
 
     cli_args_t cli_args;
@@ -63,8 +59,9 @@ main(int argc, char* argv[]) {
     ADM_job_resources_t job_resources = NULL;
     ADM_job_requirements_t reqs = NULL;
     uint64_t slurm_job_id = 42;
-    ADM_dataset_t* inputs = NULL;
-    ADM_dataset_t* outputs = NULL;
+    ADM_dataset_route_t* inputs = NULL;
+    ADM_dataset_route_t* outputs = NULL;
+    ADM_dataset_route_t* expected_outputs = NULL;
 
     // Let's prepare all the information required by the API calls.
     // ADM_register_job() often requires an adhoc storage to have been
@@ -88,9 +85,9 @@ main(int argc, char* argv[]) {
     }
 
     // 3. the adhoc storage execution context
-    adhoc_ctx = ADM_adhoc_context_create(cli_args.controller_address,
-                                         ADM_ADHOC_MODE_SEPARATE_NEW,
-                                         ADM_ADHOC_ACCESS_RDWR, 100, false);
+    adhoc_ctx = ADM_adhoc_context_create(
+            cli_args.controller_address, cli_args.data_stager_address,
+            ADM_ADHOC_MODE_SEPARATE_NEW, ADM_ADHOC_ACCESS_RDWR, 100, false);
 
     if(adhoc_ctx == NULL) {
         fprintf(stderr, "Fatal error preparing adhoc context\n");
@@ -137,21 +134,29 @@ main(int argc, char* argv[]) {
     }
 
     // 2. the job's requirements
-    inputs = prepare_datasets("input-dataset-%d", NINPUTS);
+    inputs = prepare_routes("%s-input-dataset-%d", NINPUTS);
 
     if(inputs == NULL) {
         fprintf(stderr, "Fatal error preparing input datasets\n");
         goto cleanup;
     }
 
-    outputs = prepare_datasets("output-dataset-%d", NOUTPUTS);
+    outputs = prepare_routes("%s-output-dataset-%d", NOUTPUTS);
 
     if(outputs == NULL) {
         fprintf(stderr, "Fatal error preparing output datasets\n");
         goto cleanup;
     }
 
+    expected_outputs = prepare_routes("%s-exp-output-dataset-%d", NEXPOUTPUTS);
+
+    if(expected_outputs == NULL) {
+        fprintf(stderr, "Fatal error preparing expected output datasets\n");
+        goto cleanup;
+    }
+
     if((reqs = ADM_job_requirements_create(inputs, NINPUTS, outputs, NOUTPUTS,
+                                           expected_outputs, NEXPOUTPUTS,
                                            adhoc_storage)) == NULL) {
         fprintf(stderr, "ADM_job_requirements_create() failed");
         goto cleanup;
@@ -191,9 +196,10 @@ cleanup:
     ADM_server_destroy(server);
 
     ADM_job_requirements_destroy(reqs);
-    destroy_datasets(outputs, NOUTPUTS);
-    destroy_datasets(inputs, NINPUTS);
-    ADM_job_resources_destroy(job_resources);
+    destroy_routes(inputs, NINPUTS);
+    destroy_routes(outputs, NOUTPUTS);
+    destroy_routes(expected_outputs, NEXPOUTPUTS);
+    ADM_job_resources_destroy(job_resources); 
     destroy_nodes(job_nodes, NJOB_NODES);
 
     ADM_adhoc_context_destroy(adhoc_ctx);

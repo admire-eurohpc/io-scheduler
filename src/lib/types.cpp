@@ -232,14 +232,20 @@ private:
 
 job::requirements::requirements() = default;
 
-job::requirements::requirements(std::vector<scord::dataset> inputs,
-                                std::vector<scord::dataset> outputs)
-    : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)) {}
-
-job::requirements::requirements(std::vector<scord::dataset> inputs,
-                                std::vector<scord::dataset> outputs,
-                                scord::adhoc_storage adhoc_storage)
+job::requirements::requirements(
+        std::vector<scord::dataset_route> inputs,
+        std::vector<scord::dataset_route> outputs,
+        std::vector<scord::dataset_route> expected_outputs)
     : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)),
+      m_expected_outputs(std::move(expected_outputs)) {}
+
+job::requirements::requirements(
+        std::vector<scord::dataset_route> inputs,
+        std::vector<scord::dataset_route> outputs,
+        std::vector<scord::dataset_route> expected_outputs,
+        scord::adhoc_storage adhoc_storage)
+    : m_inputs(std::move(inputs)), m_outputs(std::move(outputs)),
+      m_expected_outputs(std::move(expected_outputs)),
       m_adhoc_storage(std::move(adhoc_storage)) {}
 
 job::requirements::requirements(ADM_job_requirements_t reqs) {
@@ -247,13 +253,23 @@ job::requirements::requirements(ADM_job_requirements_t reqs) {
     m_inputs.reserve(reqs->r_inputs->l_length);
 
     for(size_t i = 0; i < reqs->r_inputs->l_length; ++i) {
-        m_inputs.emplace_back(reqs->r_inputs->l_datasets[i].d_id);
+        m_inputs.emplace_back(dataset{reqs->r_inputs->l_routes[i].d_src},
+                              dataset{reqs->r_inputs->l_routes[i].d_dst});
     }
 
     m_outputs.reserve(reqs->r_outputs->l_length);
 
     for(size_t i = 0; i < reqs->r_outputs->l_length; ++i) {
-        m_outputs.emplace_back(reqs->r_outputs->l_datasets[i].d_id);
+        m_outputs.emplace_back(dataset{reqs->r_inputs->l_routes[i].d_src},
+                               dataset{reqs->r_inputs->l_routes[i].d_dst});
+    }
+
+    m_expected_outputs.reserve(reqs->r_expected_outputs->l_length);
+
+    for(size_t i = 0; i < reqs->r_expected_outputs->l_length; ++i) {
+        m_expected_outputs.emplace_back(
+                dataset{reqs->r_expected_outputs->l_routes[i].d_src},
+                dataset{reqs->r_expected_outputs->l_routes[i].d_dst});
     }
 
     if(reqs->r_adhoc_storage) {
@@ -261,14 +277,19 @@ job::requirements::requirements(ADM_job_requirements_t reqs) {
     }
 }
 
-std::vector<scord::dataset>
+std::vector<scord::dataset_route> const&
 job::requirements::inputs() const {
     return m_inputs;
 }
 
-std::vector<scord::dataset>
+std::vector<scord::dataset_route> const&
 job::requirements::outputs() const {
     return m_outputs;
+}
+
+std::vector<scord::dataset_route> const&
+job::requirements::expected_outputs() const {
+    return m_expected_outputs;
 }
 
 std::optional<scord::adhoc_storage>
@@ -528,6 +549,110 @@ template void
 dataset::serialize<network::serialization::input_archive>(
         network::serialization::input_archive&);
 
+class dataset_route::impl {
+public:
+    impl() = default;
+    explicit impl(dataset src, dataset dst)
+        : m_source(std::move(src)), m_destination(std::move(dst)) {}
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+    ~impl() = default;
+
+    dataset const&
+    source() const {
+        return m_source;
+    }
+
+    dataset const&
+    destination() const {
+        return m_destination;
+    }
+
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_source));
+        ar(SCORD_SERIALIZATION_NVP(m_destination));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_source));
+        ar(SCORD_SERIALIZATION_NVP(m_destination));
+    }
+
+private:
+    dataset m_source;
+    dataset m_destination;
+};
+
+dataset_route::dataset_route() = default;
+
+dataset_route::dataset_route(dataset src, dataset dst)
+    : m_pimpl(std::make_unique<dataset_route::impl>(std::move(src),
+                                                    std::move(dst))) {}
+
+dataset_route::dataset_route(ADM_dataset_route_t dataset_route)
+    : dataset_route::dataset_route(dataset{dataset_route->d_src},
+                                   dataset{dataset_route->d_dst}) {}
+
+dataset_route::dataset_route(const dataset_route& other) noexcept
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+dataset_route::dataset_route(dataset_route&&) noexcept = default;
+
+dataset_route&
+dataset_route::operator=(const dataset_route& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+dataset_route&
+dataset_route::operator=(dataset_route&&) noexcept = default;
+
+dataset_route::~dataset_route() = default;
+
+dataset const&
+dataset_route::source() const {
+    return m_pimpl->source();
+}
+
+dataset const&
+dataset_route::destination() const {
+    return m_pimpl->destination();
+}
+
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+dataset_route::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+dataset_route::impl::save<network::serialization::output_archive>(
+        network::serialization::output_archive&) const;
+
+template void
+dataset_route::impl::load<network::serialization::input_archive>(
+        network::serialization::input_archive&);
+
+template void
+dataset_route::serialize<network::serialization::output_archive>(
+        network::serialization::output_archive&);
+
+template void
+dataset_route::serialize<network::serialization::input_archive>(
+        network::serialization::input_archive&);
+
 adhoc_storage::resources::resources(std::vector<scord::node> nodes)
     : m_nodes(std::move(nodes)) {}
 
@@ -562,22 +687,24 @@ adhoc_storage::resources::nodes() const {
 }
 
 adhoc_storage::ctx::ctx(std::string controller_address,
+                        std::string data_stager_address,
                         adhoc_storage::execution_mode exec_mode,
                         adhoc_storage::access_type access_type,
                         std::uint32_t walltime, bool should_flush)
     : m_controller_address(std::move(controller_address)),
+      m_data_stager_address(std::move(data_stager_address)),
       m_exec_mode(exec_mode), m_access_type(access_type), m_walltime(walltime),
       m_should_flush(should_flush) {}
 
 adhoc_storage::ctx::ctx(ADM_adhoc_context_t ctx)
-    : adhoc_storage::ctx(ctx->c_ctl_address,
+    : adhoc_storage::ctx(ctx->c_ctl_address, ctx->c_stager_address,
                          static_cast<execution_mode>(ctx->c_mode),
                          static_cast<enum access_type>(ctx->c_access),
                          ctx->c_walltime, ctx->c_should_bg_flush) {}
 
 adhoc_storage::ctx::operator ADM_adhoc_context_t() const {
     return ADM_adhoc_context_create(
-            m_controller_address.c_str(),
+            m_controller_address.c_str(), m_data_stager_address.c_str(),
             static_cast<ADM_adhoc_mode_t>(m_exec_mode),
             static_cast<ADM_adhoc_access_t>(m_access_type), m_walltime,
             m_should_flush);
@@ -586,6 +713,11 @@ adhoc_storage::ctx::operator ADM_adhoc_context_t() const {
 std::string const&
 adhoc_storage::ctx::controller_address() const {
     return m_controller_address;
+}
+
+std::string const&
+adhoc_storage::ctx::data_stager_address() const {
+    return m_data_stager_address;
 }
 
 adhoc_storage::execution_mode

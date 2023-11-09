@@ -22,7 +22,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later                                    #
 ################################################################################
 
-list(APPEND ADHOC_SCRIPTS "${CMAKE_CURRENT_SOURCE_DIR}/gekkofs.sh")
+list(APPEND ADHOC_SCRIPTS "${CMAKE_CURRENT_SOURCE_DIR}/gekkofs.sh" 
+"${CMAKE_CURRENT_SOURCE_DIR}/expand.sh"
+"${CMAKE_CURRENT_SOURCE_DIR}/dataclay.sh"
+"${CMAKE_CURRENT_SOURCE_DIR}/hercules.sh")
 
 # copy adhoc scripts to the build directory so that they can be used  by tests
 foreach (ADHOC_SCRIPT ${ADHOC_SCRIPTS})

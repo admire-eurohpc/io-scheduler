@@ -57,6 +57,18 @@ private:
             const scord::adhoc_storage::resources& adhoc_resources);
 
     void
+    expand_adhoc_storage(
+            const network::request& req, const std::string& adhoc_uuid,
+            enum scord::adhoc_storage::type adhoc_type,
+            const scord::adhoc_storage::resources& adhoc_resources);
+
+    void
+    shrink_adhoc_storage(
+            const network::request& req, const std::string& adhoc_uuid,
+            enum scord::adhoc_storage::type adhoc_type,
+            const scord::adhoc_storage::resources& adhoc_resources);
+
+    void
     terminate_adhoc_storage(const network::request& req,
                             const std::string& adhoc_uuid,
                             enum scord::adhoc_storage::type adhoc_type);

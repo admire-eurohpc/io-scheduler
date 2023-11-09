@@ -83,9 +83,10 @@ if(SCORD_BUILD_TESTS)
 
     add_test(run_${TEST_NAME} ${example}
       ${SCORD_ADDRESS_STRING}
-      ${SCORD_CTL_ADDRESS_STRING})
+      ${SCORD_CTL_ADDRESS_STRING}
+      ${DATA_STAGER_ADDRESS_STRING})
     set_tests_properties(run_${TEST_NAME}
-      PROPERTIES FIXTURES_REQUIRED "scord_daemon;scord_ctl"
+      PROPERTIES FIXTURES_REQUIRED "scord_daemon;scord_ctl;cargo"
       ENVIRONMENT "${TEST_ENV}")
 
     add_test(validate_${TEST_NAME}

@@ -81,6 +81,9 @@ struct adhoc_storage_metadata {
     std::string const&
     controller_address() const;
 
+    std::string const&
+    data_stager_address() const;
+
     void
     update(scord::adhoc_storage::resources new_resources);
 
@@ -113,6 +116,44 @@ struct pfs_storage_metadata {
     scord::pfs_storage m_pfs_storage;
     std::shared_ptr<scord::internal::job_metadata> m_client_info;
 };
+
+template <typename TransferHandle>
+struct transfer_metadata {
+    transfer_metadata(transfer_id id, TransferHandle&& handle,
+                      std::vector<scord::qos::limit> qos)
+        : m_id(id), m_handle(handle), m_qos(std::move(qos)) {}
+
+    transfer_id
+    id() const {
+        return m_id;
+    }
+
+    TransferHandle
+    transfer() const {
+        return m_handle;
+    }
+
+    std::vector<scord::qos::limit> const&
+    qos() const {
+        return m_qos;
+    }
+
+    float
+    measured_bandwidth() const {
+        return m_measured_bandwidth;
+    }
+
+    void
+    update(float bandwidth) {
+        m_measured_bandwidth = bandwidth;
+    }
+
+    transfer_id m_id;
+    TransferHandle m_handle;
+    std::vector<scord::qos::limit> m_qos;
+    float m_measured_bandwidth = -1.0;
+};
+
 
 } // namespace scord::internal
 

@@ -79,7 +79,7 @@ if(SCORD_BUILD_TESTS)
 
   add_test(start_cargo
     ${CMAKE_SOURCE_DIR}/scripts/runner.sh start cargo.pid
-           mpirun --allow-run-as-root -n 2 ${CARGO_BIN_INSTALL_DIR}/cargo -l ${CARGO_ADDRESS_STRING}
+           mpirun --allow-run-as-root -n 2 ${CARGO_BIN_INSTALL_DIR}/cargo -l ${DATA_STAGER_ADDRESS_STRING} -o ${TEST_DIRECTORY}/cargo.log
   )
   set_tests_properties(start_cargo
     PROPERTIES FIXTURES_SETUP cargo)

@@ -303,7 +303,7 @@ find_package(RedisPlusPlus 1.3.3 REQUIRED)
 
 ### Cargo: required for transferring datasets between storage tiers
 message(STATUS "[${PROJECT_NAME}] Checking for Cargo")
-find_package(Cargo 0.2.0 REQUIRED)
+find_package(Cargo 0.3.1 REQUIRED)
 
 
 # ##############################################################################

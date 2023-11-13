@@ -213,7 +213,7 @@ message(STATUS "[${PROJECT_NAME}] Downloading and building {fmt}")
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt
-  GIT_TAG d141cdbeb0fb422a3fb7173b285fd38e0d1772dc # v8.0.1
+  GIT_TAG a33701196adfad74917046096bf5a2aa0ab0bb50 # v9.1.0
   GIT_SHALLOW ON
   GIT_PROGRESS ON
 )
@@ -226,7 +226,7 @@ message(STATUS "[${PROJECT_NAME}] Downloading and building spdlog")
 FetchContent_Declare(
   spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog
-  GIT_TAG eb3220622e73a4889eee355ffa37972b3cac3df5 # v1.9.2
+  GIT_TAG 7e635fca68d014934b4af8a1cf874f63989352b7 # v1.12.0
   GIT_SHALLOW ON
   GIT_PROGRESS ON
 )
@@ -280,7 +280,7 @@ if (SCORD_BUILD_TESTS)
   FetchContent_Declare(
     Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG 605a34765aa5d5ecbf476b4598a862ada971b0cc # v3.0.1
+    GIT_TAG 6e79e682b726f524310d55dec8ddac4e9c52fb5f # v3.4.0
     GIT_SHALLOW ON
     GIT_PROGRESS ON
   )

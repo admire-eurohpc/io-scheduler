@@ -1150,7 +1150,7 @@ private:
                 return scord::transfer(entity->e_transfer);
             default:
                 throw std::runtime_error(fmt::format(
-                        "Unexpected scope value: {}", entity->e_scope));
+                        "Unexpected scope value: {}", (int)entity->e_scope));
         }
     }
 

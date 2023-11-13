@@ -275,9 +275,9 @@ rpc_server::register_adhoc_storage(
 
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, adhoc_ctx: {}, "
+    LOGGER_INFO("rpc {:>} body: {{name: {:?}, type: {}, adhoc_ctx: {}, "
                 "adhoc_resources: {}}}",
-                rpc, std::quoted(name), type, ctx, resources);
+                rpc, name, type, ctx, resources);
 
     scord::error_code ec;
     std::optional<std::uint64_t> adhoc_id;
@@ -371,8 +371,8 @@ rpc_server::update_adhoc_storage(
         const auto child_rpc = rpc_info::create(
                 name, adhoc_storage.context().controller_address());
 
-        LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}, resources: {}}}",
-                    child_rpc, std::quoted(adhoc_metadata_ptr->uuid()),
+        LOGGER_INFO("rpc {:<} body: {{uuid: {:?}, type: {}, resources: {}}}",
+                    child_rpc, adhoc_metadata_ptr->uuid(),
                     adhoc_storage.type(), adhoc_storage.get_resources());
 
         if(const auto call_rv = endp->call(
@@ -468,8 +468,8 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
         const auto child_rpc =
                 rpc.add_child(adhoc_storage.context().controller_address());
 
-        LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}, resources: {}}}",
-                    child_rpc, std::quoted(adhoc_metadata_ptr->uuid()),
+        LOGGER_INFO("rpc {:<} body: {{uuid: {:?}, type: {}, resources: {}}}",
+                    child_rpc, adhoc_metadata_ptr->uuid(),
                     adhoc_storage.type(), adhoc_storage.get_resources());
 
         if(const auto call_rv = endp->call(
@@ -547,8 +547,8 @@ rpc_server::terminate_adhoc_storage(const network::request& req,
         const auto child_rpc =
                 rpc.add_child(adhoc_storage.context().controller_address());
 
-        LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}}}", child_rpc,
-                    std::quoted(adhoc_metadata_ptr->uuid()),
+        LOGGER_INFO("rpc {:<} body: {{uuid: {:?}, type: {}}}", child_rpc,
+                    adhoc_metadata_ptr->uuid(),
                     adhoc_storage.type());
 
         if(const auto call_rv =
@@ -595,8 +595,8 @@ rpc_server::register_pfs_storage(const network::request& req,
 
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, pfs_ctx: {}}}", rpc,
-                std::quoted(name), type, ctx);
+    LOGGER_INFO("rpc {:>} body: {{name: {:?}, type: {}, pfs_ctx: {}}}", rpc,
+                name, type, ctx);
 
     scord::error_code ec;
     std::optional<std::uint64_t> pfs_id = 0;
@@ -755,19 +755,6 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
     LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                 "rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc,
                 resp.error_code(), resp.value_or_none());
-
-    // TODO: create a transfer in transfer manager
-    // We need the contact point, and different qos
-
-    if(const auto transfer_result =
-               m_transfer_manager.create(tx_id.value(), contact_point, limits);
-       !transfer_result.has_value()) {
-        LOGGER_ERROR(
-                "rpc id: {} error_msg: \"Error creating transfer_storage: {}\"",
-                rpc.id(), transfer_result.error());
-        ec = transfer_result.error();
-    }
-
 
     req.respond(resp);
 }

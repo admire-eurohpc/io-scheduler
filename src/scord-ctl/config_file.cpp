@@ -24,6 +24,7 @@
 
 #include <ryml_std.hpp>
 #include <ryml.hpp>
+#include <fmt/std.h>
 #include <fmt/ostream.h>
 #include <fstream>
 #include "config_file.hpp"
@@ -87,7 +88,7 @@ to_adhoc_storage_type(const ryml::csubstr& type) {
         throw std::runtime_error{
                 fmt::format("Unsupported adhoc storage type '{}' in "
                             "configuration file",
-                            type)};
+                            type.data())};
     }
 
     return valid_types.at(type);
@@ -155,7 +156,7 @@ parse_command_node(const ryml::ConstNodeRef& node) {
             ::validate_command(cmdline);
         } else {
             fmt::print(stderr, "WARNING: Unknown key: '{}'. Ignored.\n",
-                       child.key());
+                       child.key().data());
         }
     }
 
@@ -221,7 +222,7 @@ parse_adhoc_config_node(const ryml::ConstNodeRef& node) {
             shrink_command = ::parse_command_node(child);
         } else {
             fmt::print(stderr, "WARNING: Unknown key: '{}'. Ignored.\n",
-                       child.key());
+                       child.key().data());
         }
     }
 
@@ -297,7 +298,7 @@ parse_config_node(const ryml::ConstNodeRef& node) {
             adhoc_configs = ::parse_adhoc_storage_node(child);
         } else {
             fmt::print(stderr, "WARNING: Unknown key: '{}'. Ignored.\n",
-                       child.key());
+                       child.key().data());
         }
     }
 

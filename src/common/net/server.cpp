@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <string>
 #include <system_error>
+#include <fmt/std.h>
 #include <fmt/format.h>
 
 #ifdef SCORD_DEBUG_BUILD

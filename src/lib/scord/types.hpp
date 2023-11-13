@@ -29,7 +29,9 @@
 #include <cstdint>
 #include <vector>
 #include <filesystem>
+#include <fmt/core.h>
 #include <fmt/format.h>
+#include <fmt/std.h>
 #include <utils/ctype_ptr.hpp>
 #include <optional>
 #include <cereal/access.hpp>
@@ -712,7 +714,7 @@ struct fmt::formatter<scord::error_code> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::error_code& ec, FormatContext& ctx) const {
+    format(const scord::error_code& ec, FormatContext& ctx) const -> format_context::iterator {
         return formatter<std::string_view>::format(ec.name(), ctx);
     }
 };
@@ -722,7 +724,7 @@ struct fmt::formatter<scord::job_info> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::job_info& ji, FormatContext& ctx) const {
+    format(const scord::job_info& ji, FormatContext& ctx) const -> format_context::iterator {
         return format_to(ctx.out(), "{{adhoc_controller: {}, io_procs: {}}}",
                          ji.adhoc_controller_address(), ji.io_procs());
     }
@@ -733,7 +735,7 @@ struct fmt::formatter<scord::job> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::job& j, FormatContext& ctx) const {
+    format(const scord::job& j, FormatContext& ctx) const -> format_context::iterator {
         return formatter<std::string_view>::format(
                 fmt::format("{{id: {}, slurm_id: {}}}", j.id(), j.slurm_id()),
                 ctx);
@@ -745,8 +747,8 @@ struct fmt::formatter<scord::dataset> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::dataset& d, FormatContext& ctx) const {
-        const auto str = fmt::format("{{id: {}}}", std::quoted(d.id()));
+    format(const scord::dataset& d, FormatContext& ctx) const -> format_context::iterator {
+        const auto str = fmt::format("{{id: {:?}}}", d.id());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
@@ -757,7 +759,7 @@ struct fmt::formatter<std::vector<scord::dataset>>
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::vector<scord::dataset>& v, FormatContext& ctx) const {
+    format(const std::vector<scord::dataset>& v, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("[{}]", fmt::join(v, ", "));
         return formatter<std::string_view>::format(str, ctx);
     }
@@ -768,7 +770,7 @@ struct fmt::formatter<scord::dataset_route> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::dataset_route& r, FormatContext& ctx) const {
+    format(const scord::dataset_route& r, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("{{src: {}, dst: {}}}", r.source(),
                                      r.destination());
         return formatter<std::string_view>::format(str, ctx);
@@ -782,7 +784,7 @@ struct fmt::formatter<std::vector<scord::dataset_route>>
     template <typename FormatContext>
     auto
     format(const std::vector<scord::dataset_route>& v,
-           FormatContext& ctx) const {
+           FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("[{}]", fmt::join(v, ", "));
         return formatter<std::string_view>::format(str, ctx);
     }
@@ -793,7 +795,7 @@ struct fmt::formatter<scord::node::type> : fmt::formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::node::type& t, FormatContext& ctx) const {
+    format(const scord::node::type& t, FormatContext& ctx) const -> format_context::iterator {
 
         using scord::node;
         std::string_view name = "unknown";
@@ -817,9 +819,9 @@ struct fmt::formatter<scord::node> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::node& n, FormatContext& ctx) const {
-        const auto str = fmt::format("{{hostname: {}, type: {}}}",
-                                     std::quoted(n.hostname()), n.get_type());
+    format(const scord::node& n, FormatContext& ctx) const -> format_context::iterator {
+        const auto str = fmt::format("{{hostname: {:?}, type: {}}}",
+                                    n.hostname(), n.get_type());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
@@ -830,7 +832,7 @@ struct fmt::formatter<std::vector<scord::node>>
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::vector<scord::node>& v, FormatContext& ctx) const {
+    format(const std::vector<scord::node>& v, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("[{}]", fmt::join(v, ", "));
         return formatter<std::string_view>::format(str, ctx);
     }
@@ -841,7 +843,7 @@ struct fmt::formatter<scord::transfer::mapping> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::transfer::mapping& m, FormatContext& ctx) const {
+    format(const scord::transfer::mapping& m, FormatContext& ctx) const -> format_context::iterator {
 
         using mapping = scord::transfer::mapping;
 
@@ -868,7 +870,7 @@ struct fmt::formatter<scord::transfer> : fmt::formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::transfer& tx, FormatContext& ctx) const {
+    format(const scord::transfer& tx, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("{{id: {}}}", tx.id());
         return formatter<std::string_view>::format(str, ctx);
     }
@@ -897,7 +899,7 @@ struct fmt::formatter<enum scord::adhoc_storage::type> {
 
     template <typename FormatContext>
     auto
-    format(const enum scord::adhoc_storage::type& t, FormatContext& ctx) const {
+    format(const enum scord::adhoc_storage::type& t, FormatContext& ctx) const -> format_context::iterator {
 
         using scord::adhoc_storage;
         std::string_view name = "unknown";
@@ -932,7 +934,7 @@ struct fmt::formatter<scord::adhoc_storage::execution_mode>
     template <typename FormatContext>
     auto
     format(const scord::adhoc_storage::execution_mode& exec_mode,
-           FormatContext& ctx) const {
+           FormatContext& ctx) const -> format_context::iterator {
 
         using execution_mode = scord::adhoc_storage::execution_mode;
 
@@ -964,7 +966,7 @@ struct fmt::formatter<scord::adhoc_storage::access_type>
     template <typename FormatContext>
     auto
     format(const scord::adhoc_storage::access_type& type,
-           FormatContext& ctx) const {
+           FormatContext& ctx) const -> format_context::iterator {
 
         using access_type = scord::adhoc_storage::access_type;
 
@@ -991,13 +993,13 @@ struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const {
+    format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const -> format_context::iterator {
         return format_to(
                 ctx.out(),
-                "{{controller: {}, data_stager: {}, execution_mode: {}, "
+                "{{controller: {:?}, data_stager: {:?}, execution_mode: {}, "
                 "access_type: {}, walltime: {}, should_flush: {}}}",
-                std::quoted(c.controller_address()),
-                std::quoted(c.data_stager_address()), c.exec_mode(),
+                c.controller_address(),
+                c.data_stager_address(), c.exec_mode(),
                 c.access_type(), c.walltime(), c.should_flush());
     }
 };
@@ -1008,7 +1010,7 @@ struct fmt::formatter<std::nullopt_t> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::nullopt_t& /*t*/, FormatContext& ctx) const {
+    format(const std::nullopt_t& /*t*/, FormatContext& ctx) const -> format_context::iterator {
         return formatter<std::string_view>::format("none", ctx);
     }
 };
@@ -1019,7 +1021,7 @@ struct fmt::formatter<std::optional<T>> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::optional<T>& v, FormatContext& ctx) const {
+    format(const std::optional<T>& v, FormatContext& ctx) const -> format_context::iterator {
         return formatter<std::string_view>::format(
                 v ? fmt::format("{}", v.value()) : "none", ctx);
     }
@@ -1030,10 +1032,10 @@ struct fmt::formatter<scord::adhoc_storage> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::adhoc_storage& s, FormatContext& ctx) const {
+    format(const scord::adhoc_storage& s, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format(
-                "{{type: {}, id: {}, name: {}, context: {}}}", s.type(), s.id(),
-                std::quoted(s.name()), s.context());
+                "{{type: {}, id: {}, name: {:?}, context: {}}}", s.type(), s.id(),
+                s.name(), s.context());
         return formatter<std::string_view>::format(str, ctx);
     }
 };
@@ -1044,7 +1046,7 @@ struct fmt::formatter<scord::adhoc_storage::resources>
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::adhoc_storage::resources& r, FormatContext& ctx) const {
+    format(const scord::adhoc_storage::resources& r, FormatContext& ctx) const -> format_context::iterator {
 
         const auto str = fmt::format("{{nodes: {}}}", r.nodes());
 
@@ -1058,7 +1060,7 @@ struct fmt::formatter<enum scord::pfs_storage::type>
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const enum scord::pfs_storage::type& t, FormatContext& ctx) const {
+    format(const enum scord::pfs_storage::type& t, FormatContext& ctx) const -> format_context::iterator {
 
         using scord::pfs_storage;
         std::string_view name = "unknown";
@@ -1081,7 +1083,7 @@ struct fmt::formatter<scord::pfs_storage::ctx> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::pfs_storage::ctx& c, FormatContext& ctx) const {
+    format(const scord::pfs_storage::ctx& c, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("{{mount_point: {}}}", c.mount_point());
         return formatter<std::string_view>::format(str, ctx);
     }
@@ -1092,7 +1094,7 @@ struct fmt::formatter<scord::pfs_storage> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::pfs_storage& s, FormatContext& ctx) const {
+    format(const scord::pfs_storage& s, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("{{context: {}}}", s.context());
         return formatter<std::string_view>::format(str, ctx);
     }
@@ -1103,7 +1105,7 @@ struct fmt::formatter<scord::job::resources> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::job::resources& r, FormatContext& ctx) const {
+    format(const scord::job::resources& r, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("{{nodes: {}}}", r.nodes());
         return formatter<std::string_view>::format(str, ctx);
     }
@@ -1114,7 +1116,7 @@ struct fmt::formatter<scord::job::requirements> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::job::requirements& r, FormatContext& ctx) const {
+    format(const scord::job::requirements& r, FormatContext& ctx) const -> format_context::iterator {
         return formatter<std::string_view>::format(
                 fmt::format("{{inputs: {}, outputs: {}, "
                             "expected_outputs: {}, adhoc_storage: {}}}",
@@ -1129,7 +1131,7 @@ struct fmt::formatter<scord::qos::scope> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::qos::scope& s, FormatContext& ctx) const {
+    format(const scord::qos::scope& s, FormatContext& ctx) const -> format_context::iterator {
 
         using scope = scord::qos::scope;
 
@@ -1161,7 +1163,7 @@ struct fmt::formatter<std::optional<scord::qos::entity>>
     template <typename FormatContext>
     auto
     format(const std::optional<scord::qos::entity>& e,
-           FormatContext& ctx) const {
+           FormatContext& ctx) const -> format_context::iterator {
 
         if(!e) {
             return formatter<std::string_view>::format("none", ctx);
@@ -1195,7 +1197,7 @@ struct fmt::formatter<scord::qos::subclass> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::qos::subclass& sc, FormatContext& ctx) const {
+    format(const scord::qos::subclass& sc, FormatContext& ctx) const -> format_context::iterator {
 
         using subclass = scord::qos::subclass;
 
@@ -1219,7 +1221,7 @@ struct fmt::formatter<scord::qos::limit> : formatter<std::string_view> {
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const scord::qos::limit& l, FormatContext& ctx) const {
+    format(const scord::qos::limit& l, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("{{entity: {}, subclass: {}, value: {}}}",
                                      l.entity(), l.subclass(), l.value());
         return formatter<std::string_view>::format(str, ctx);
@@ -1232,7 +1234,7 @@ struct fmt::formatter<std::vector<scord::qos::limit>>
     // parse is inherited from formatter<string_view>.
     template <typename FormatContext>
     auto
-    format(const std::vector<scord::qos::limit>& l, FormatContext& ctx) const {
+    format(const std::vector<scord::qos::limit>& l, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("[{}]", fmt::join(l, ", "));
         return formatter<std::string_view>::format(str, ctx);
     }

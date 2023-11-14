@@ -80,10 +80,12 @@ main(int argc, char* argv[]) {
 
         const auto job = scord::register_job(
                 server, scord::job::resources{job_nodes}, reqs, 0);
+
         const auto transfer = scord::transfer_datasets(
                 server, job, sources, targets, qos_limits, mapping);
 
         scord::transfer_update(server, transfer.id(), 10.0f);
+        
         fmt::print(stdout, "ADM_transfer_update() remote procedure completed "
                            "successfully\n");
         exit(EXIT_SUCCESS);

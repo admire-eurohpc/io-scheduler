@@ -116,6 +116,23 @@ struct transfer_manager {
         return tl::make_unexpected(scord::error_code::no_such_entity);
     }
 
+    std::unordered_map<
+            scord::transfer_id,
+            std::shared_ptr<scord::internal::transfer_metadata<TransferHandle>>>
+    transfer() {
+        return m_transfer;
+    }
+
+    void
+    lock() {
+        m_transfer_mutex.lock();
+    }
+
+    void
+    unlock() {
+        m_transfer_mutex.unlock();
+    }
+
 private:
     mutable abt::shared_mutex m_transfer_mutex;
     std::unordered_map<

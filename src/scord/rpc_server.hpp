@@ -127,7 +127,7 @@ private:
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;
     pfs_storage_manager m_pfs_manager;
-    transfer_manager m_transfer_manager;
+    transfer_manager<cargo::transfer> m_transfer_manager;
 
 
 public:
@@ -143,10 +143,7 @@ public:
     std::vector<std::pair<std::string, int>>
     scheduler_update();
 
-    job_manager m_job_manager;
-    adhoc_storage_manager m_adhoc_manager;
-    pfs_storage_manager m_pfs_manager;
-    transfer_manager<cargo::transfer> m_transfer_manager;
+  
 };
 
 } // namespace scord

@@ -756,20 +756,6 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
     LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                 "rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc,
                 resp.error_code(), resp.value_or_none());
-
-    // TODO: create a transfer in transfer manager
-    // We need the contact point, and different qos
-
-    if(const auto transfer_result =
-               m_transfer_manager.create(tx_id.value(), stager_address, limits);
-       !transfer_result.has_value()) {
-        LOGGER_ERROR(
-                "rpc id: {} error_msg: \"Error creating transfer_storage: {}\"",
-                rpc.id(), transfer_result.error());
-        ec = transfer_result.error();
-    }
-
-
     req.respond(resp);
 }
 
@@ -830,7 +816,7 @@ rpc_server::scheduler_update() {
 
     for(const auto& tr_unit : transfer) {
         const auto tr_info = tr_unit.second.get();
-        auto bw = tr_info->obtained_bw();
+        auto bw = tr_info->measured_bandwidth();
         if(bw == -1) {
             continue;
         }
@@ -841,22 +827,22 @@ rpc_server::scheduler_update() {
         auto qos = tr_info->qos().front().value();
         if(bw + bw * threshold > qos) {
             // Send decrease / slow signal to cargo
-            LOGGER_DEBUG("Action for unit {} --> Decrease {}", tr_unit.first,
-                         tr_info->contact_point());
-            std::pair<std::string, int> entity =
-                    std::make_pair(tr_info->contact_point(), -1);
-            return_set.push_back(entity);
+            LOGGER_DEBUG("Action for unit {} --> Decrease", tr_unit.first
+                        );
+            
+           tr_info->update(20);
+          //  std::pair<std::string, int> entity =
+            //        std::make_pair(tr_info->contact_point(), -1);
+            //return_set.push_back(entity);
 
         } else if(bw - bw * threshold < qos) {
             // Send increase / speed up signal to cargo
-            LOGGER_DEBUG("Action for unit {} --> Increase {}", tr_unit.first,
-                         tr_info->contact_point());
-            std::pair<std::string, int> entity =
+            LOGGER_DEBUG("Action for unit {} --> Increase", tr_unit.first
+                         );
+            /*std::pair<std::string, int> entity =
                     std::make_pair(tr_info->contact_point(), +1);
-            return_set.push_back(entity);
+            return_set.push_back(entity);*/
         }
-        // Remove from next computations
-        tr_info->obtained_bw(-1);
     }
     m_transfer_manager.unlock();
     return return_set;

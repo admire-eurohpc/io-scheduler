@@ -49,7 +49,7 @@ struct transfer_manager {
 
         abt::unique_lock lock(m_transfer_mutex);
 
-        if(const auto it = m_transfer.find(tx_id); it == m_transfer.end()) {
+        if(const auto it = m_transfer.find(id); it == m_transfer.end()) {
             const auto& [it_transfer, inserted] = m_transfer.emplace(
                     id, std::make_shared<
                                 internal::transfer_metadata<TransferHandle>>(
@@ -105,32 +105,15 @@ struct transfer_manager {
 
         abt::unique_lock lock(m_transfer_mutex);
 
-        if(m_transfer.count(id) != 0) {
-            m_transfer.erase(id);
-            return scord::error_code::success;
+        if(const auto it = m_transfer.find(id); it != m_transfer.end()) {
+            auto nh = m_transfer.extract(it);
+            return nh.mapped();
         }
-
 
         LOGGER_ERROR("Transfer '{}' was not registered or was already deleted",
                      id);
 
-        return scord::error_code::no_such_entity;
-    }
-
-    std::unordered_map<scord::transfer_id,
-                       std::shared_ptr<scord::internal::transfer_info>>
-    transfer() {
-        return m_transfer;
-    }
-
-    void
-    lock() {
-        m_transfer_mutex.lock();
-    }
-
-    void
-    unlock() {
-        m_transfer_mutex.unlock();
+        return tl::make_unexpected(scord::error_code::no_such_entity);
     }
 
 private:

@@ -822,11 +822,6 @@ ADM_adhoc_context_create(const char* ctl_address, const char* stager_address,
         LOGGER_ERROR("The address to the controller cannot be NULL");
         return NULL;
     }
-    /* We may continue if there is no transfers.. */
-    if(!stg_address) {
-        LOGGER_ERROR("The stager address is null");
-    }
-
 
     if(!stager_address) {
         LOGGER_ERROR("The address to the stager cannot be NULL");

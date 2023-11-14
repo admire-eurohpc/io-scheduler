@@ -50,8 +50,6 @@ main(int argc, char* argv[]) {
     const auto outputs = prepare_datasets("output-dataset-{}", NOUTPUTS);
 
     std::string name = "adhoc_storage_42";
-     
-
     const auto adhoc_storage_ctx = scord::adhoc_storage::ctx{
             cli_args.controller_address,
             cli_args.data_stager_address,

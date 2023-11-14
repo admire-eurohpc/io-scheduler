@@ -48,7 +48,6 @@ main(int argc, char* argv[]) {
 
     // adhoc information
     const char* adhoc_name = "adhoc_storage_42";
-    
 
     ADM_node_t* adhoc_nodes = NULL;
     ADM_node_t* new_adhoc_nodes = NULL;

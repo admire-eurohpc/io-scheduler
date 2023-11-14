@@ -122,12 +122,12 @@ struct fmt::formatter<network::rpc_info> {
     template <typename FormatContext>
     auto
     format(const network::rpc_info& rpc, FormatContext& ctx) const -> format_context::iterator {
-        format_to(ctx.out(), "{}{} id: {} name: {:?} ", m_outbound ? "<=" : "=>",
+        fmt::format_to(ctx.out(), "{}{} id: {} name: {:?} ", m_outbound ? "<=" : "=>",
                   rpc.pid() ? fmt::format(" pid: {}", *rpc.pid()) : "",
                   rpc.id(), rpc.name());
-        return m_outbound ? format_to(ctx.out(), "to: {:?}",
+        return m_outbound ? fmt::format_to(ctx.out(), "to: {:?}",
                                       rpc.address())
-                          : format_to(ctx.out(), "from: {:?}",
+                          : fmt::format_to(ctx.out(), "from: {:?}",
                                       rpc.address());
     }
 };

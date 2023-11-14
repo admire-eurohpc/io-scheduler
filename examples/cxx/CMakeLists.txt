@@ -56,7 +56,7 @@ foreach(example IN LISTS cxx_examples_with_controller cxx_examples_without_contr
   add_executable(${example}_cxx)
   target_sources(${example}_cxx PRIVATE ${example}.cpp)
   target_link_libraries(${example}_cxx
-    PUBLIC fmt::fmt libscord cxx_examples_common)
+    PUBLIC fmt::fmt spdlog::spdlog libscord cxx_examples_common)
   set_target_properties(${example}_cxx PROPERTIES OUTPUT_NAME ${example})
 endforeach()
 

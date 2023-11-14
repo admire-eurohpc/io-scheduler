@@ -52,7 +52,7 @@ list(APPEND c_examples_without_controller
 
 add_library(c_examples_common STATIC)
 target_sources(c_examples_common PUBLIC common.h PRIVATE common.c)
-target_link_libraries(c_examples_common libscord_c_types)
+target_link_libraries(c_examples_common libscord_c_types spdlog::spdlog fmt::fmt)
 
 foreach(example IN LISTS c_examples_with_controller c_examples_without_controller)
   add_executable(${example}_c)

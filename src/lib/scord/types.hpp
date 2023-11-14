@@ -725,7 +725,7 @@ struct fmt::formatter<scord::job_info> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const scord::job_info& ji, FormatContext& ctx) const -> format_context::iterator {
-        return format_to(ctx.out(), "{{adhoc_controller: {}, io_procs: {}}}",
+        return fmt::format_to(ctx.out(), "{{adhoc_controller: {}, io_procs: {}}}",
                          ji.adhoc_controller_address(), ji.io_procs());
     }
 };
@@ -923,7 +923,7 @@ struct fmt::formatter<enum scord::adhoc_storage::type> {
                 break;
         }
 
-        return format_to(ctx.out(), "{}", name);
+        return fmt::format_to(ctx.out(), "{}", name);
     }
 };
 
@@ -994,7 +994,7 @@ struct fmt::formatter<scord::adhoc_storage::ctx> : formatter<std::string_view> {
     template <typename FormatContext>
     auto
     format(const scord::adhoc_storage::ctx& c, FormatContext& ctx) const -> format_context::iterator {
-        return format_to(
+        return fmt::format_to(
                 ctx.out(),
                 "{{controller: {:?}, data_stager: {:?}, execution_mode: {}, "
                 "access_type: {}, walltime: {}, should_flush: {}}}",

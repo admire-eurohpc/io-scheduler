@@ -70,12 +70,12 @@ rpc_server::print_configuration() const {
 
         if(const auto& env = command.env(); env.has_value()) {
             for(const auto& [k, v] : *env) {
-                LOGGER_INFO("          - {} = {}", k, std::quoted(v));
+                LOGGER_INFO("          - {} = {:?}", k, (v));
             }
         }
 
         LOGGER_INFO("        - command:");
-        LOGGER_INFO("            {}", std::quoted(command.cmdline()));
+        LOGGER_INFO("            {:?}", (command.cmdline()));
     };
 
     LOGGER_INFO("  - adhoc storage configurations:");
@@ -126,8 +126,8 @@ rpc_server::deploy_adhoc_storage(
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
     std::optional<std::filesystem::path> adhoc_dir;
 
-    LOGGER_INFO("rpc {:>} body: {{uuid: {}, type: {}, resources: {}}}", rpc,
-                std::quoted(adhoc_uuid), adhoc_type, adhoc_resources);
+    LOGGER_INFO("rpc {:>} body: {{uuid: {:?}, type: {}, resources: {}}}", rpc,
+                (adhoc_uuid), adhoc_type, adhoc_resources);
 
     auto ec = scord::error_code::success;
 
@@ -211,8 +211,8 @@ rpc_server::expand_adhoc_storage(
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
     std::optional<std::filesystem::path> adhoc_dir;
 
-    LOGGER_INFO("rpc {:>} body: {{uuid: {}, type: {}, resources: {}}}", rpc,
-                std::quoted(adhoc_uuid), adhoc_type, adhoc_resources);
+    LOGGER_INFO("rpc {:>} body: {{uuid: {:?}, type: {}, resources: {}}}", rpc,
+                (adhoc_uuid), adhoc_type, adhoc_resources);
 
     auto ec = scord::error_code::success;
 
@@ -272,8 +272,8 @@ rpc_server::shrink_adhoc_storage(
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
     std::optional<std::filesystem::path> adhoc_dir;
 
-    LOGGER_INFO("rpc {:>} body: {{uuid: {}, type: {}, resources: {}}}", rpc,
-                std::quoted(adhoc_uuid), adhoc_type, adhoc_resources);
+    LOGGER_INFO("rpc {:>} body: {{uuid: {:?}, type: {}, resources: {}}}", rpc,
+                (adhoc_uuid), adhoc_type, adhoc_resources);
 
     auto ec = scord::error_code::success;
 
@@ -331,8 +331,8 @@ rpc_server::terminate_adhoc_storage(
 
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc {:>} body: {{uuid: {}, type: {}}}", rpc,
-                std::quoted(adhoc_uuid), adhoc_type);
+    LOGGER_INFO("rpc {:>} body: {{uuid: {:?}, type: {}}}", rpc, (adhoc_uuid),
+                adhoc_type);
 
     auto ec = scord::error_code::success;
 

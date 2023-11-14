@@ -105,6 +105,10 @@ private:
                       const std::vector<scord::qos::limit>& limits,
                       enum scord::transfer::mapping mapping);
 
+    void
+    transfer_update(const network::request& req, uint64_t transfer_id,
+                    float obtained_bw);
+
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;
     pfs_storage_manager m_pfs_manager;

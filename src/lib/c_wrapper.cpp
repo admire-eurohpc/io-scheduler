@@ -246,6 +246,15 @@ ADM_transfer_datasets(ADM_server_t server, ADM_job_t job,
 }
 
 ADM_return_t
+ADM_transfer_update(ADM_server_t server, uint64_t transfer_id,
+                    float obtained_bw) {
+
+    return scord::detail::transfer_update(scord::server{server}, transfer_id,
+                                          obtained_bw);
+}
+
+
+ADM_return_t
 ADM_set_dataset_information(ADM_server_t server, ADM_job_t job,
                             ADM_dataset_t target, ADM_dataset_info_t info) {
 

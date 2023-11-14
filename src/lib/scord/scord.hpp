@@ -98,6 +98,9 @@ transfer_datasets(const server& srv, const job& job,
                   const std::vector<qos::limit>& limits,
                   transfer::mapping mapping);
 
+void
+transfer_update(const server& srv, uint64_t transfer_id, float obtained_bw);
+
 ADM_return_t
 set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,
                         ADM_dataset_info_t info);

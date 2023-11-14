@@ -65,6 +65,7 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
     provider::define(EXPAND(update_pfs_storage));
     provider::define(EXPAND(remove_pfs_storage));
     provider::define(EXPAND(transfer_datasets));
+    provider::define(EXPAND(transfer_update));
 
 #undef EXPAND
 }
@@ -274,9 +275,9 @@ rpc_server::register_adhoc_storage(
 
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, adhoc_ctx: {}, "
+    LOGGER_INFO("rpc {:>} body: {{name: {:?}, type: {}, adhoc_ctx: {}, "
                 "adhoc_resources: {}}}",
-                rpc, std::quoted(name), type, ctx, resources);
+                rpc, name, type, ctx, resources);
 
     scord::error_code ec;
     std::optional<std::uint64_t> adhoc_id;
@@ -370,8 +371,8 @@ rpc_server::update_adhoc_storage(
         const auto child_rpc = rpc_info::create(
                 name, adhoc_storage.context().controller_address());
 
-        LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}, resources: {}}}",
-                    child_rpc, std::quoted(adhoc_metadata_ptr->uuid()),
+        LOGGER_INFO("rpc {:<} body: {{uuid: {:?}, type: {}, resources: {}}}",
+                    child_rpc, adhoc_metadata_ptr->uuid(),
                     adhoc_storage.type(), adhoc_storage.get_resources());
 
         if(const auto call_rv = endp->call(
@@ -467,8 +468,8 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
         const auto child_rpc =
                 rpc.add_child(adhoc_storage.context().controller_address());
 
-        LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}, resources: {}}}",
-                    child_rpc, std::quoted(adhoc_metadata_ptr->uuid()),
+        LOGGER_INFO("rpc {:<} body: {{uuid: {:?}, type: {}, resources: {}}}",
+                    child_rpc, adhoc_metadata_ptr->uuid(),
                     adhoc_storage.type(), adhoc_storage.get_resources());
 
         if(const auto call_rv = endp->call(
@@ -546,8 +547,8 @@ rpc_server::terminate_adhoc_storage(const network::request& req,
         const auto child_rpc =
                 rpc.add_child(adhoc_storage.context().controller_address());
 
-        LOGGER_INFO("rpc {:<} body: {{uuid: {}, type: {}}}", child_rpc,
-                    std::quoted(adhoc_metadata_ptr->uuid()),
+        LOGGER_INFO("rpc {:<} body: {{uuid: {:?}, type: {}}}", child_rpc,
+                    adhoc_metadata_ptr->uuid(),
                     adhoc_storage.type());
 
         if(const auto call_rv =
@@ -594,8 +595,8 @@ rpc_server::register_pfs_storage(const network::request& req,
 
     const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
 
-    LOGGER_INFO("rpc {:>} body: {{name: {}, type: {}, pfs_ctx: {}}}", rpc,
-                std::quoted(name), type, ctx);
+    LOGGER_INFO("rpc {:>} body: {{name: {:?}, type: {}, pfs_ctx: {}}}", rpc,
+                name, type, ctx);
 
     scord::error_code ec;
     std::optional<std::uint64_t> pfs_id = 0;
@@ -757,5 +758,43 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
 
     req.respond(resp);
 }
+
+
+void
+rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
+                            float obtained_bw) {
+
+    using network::get_address;
+    using network::response_with_id;
+    using network::rpc_info;
+
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+
+    LOGGER_INFO("rpc {:>} body: {{transfer_id: {}, obtained_bw: {}}}", rpc,
+                transfer_id, obtained_bw);
+
+    scord::error_code ec;
+
+    // TODO: generate a global ID for the transfer and contact Cargo to
+    // actually request it
+
+    const auto resp = response_with_id{rpc.id(), ec, transfer_id};
+
+    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
+
+    // TODO: create a transfer in transfer manager
+    // We need the contact point, and different qos
+
+    ec = m_transfer_manager.update(transfer_id, obtained_bw);
+    if(ec.no_such_entity) {
+        LOGGER_ERROR(
+                "rpc id: {} error_msg: \"Error updating transfer_storage\"",
+                rpc.id());
+    }
+
+
+    req.respond(resp);
+}
+
 
 } // namespace scord

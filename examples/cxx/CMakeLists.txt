@@ -30,7 +30,7 @@ list(APPEND cxx_examples_with_controller
   ADM_deploy_adhoc_storage ADM_terminate_adhoc_storage
   # transfers
   ADM_transfer_datasets ADM_get_transfer_priority ADM_set_transfer_priority
-  ADM_cancel_transfer ADM_get_pending_transfers
+  ADM_cancel_transfer ADM_get_pending_transfers ADM_transfer_update
   # qos
   ADM_set_qos_constraints ADM_get_qos_constraints
   # data operations
@@ -56,7 +56,7 @@ foreach(example IN LISTS cxx_examples_with_controller cxx_examples_without_contr
   add_executable(${example}_cxx)
   target_sources(${example}_cxx PRIVATE ${example}.cpp)
   target_link_libraries(${example}_cxx
-    PUBLIC fmt::fmt libscord cxx_examples_common)
+    PUBLIC fmt::fmt spdlog::spdlog libscord cxx_examples_common)
   set_target_properties(${example}_cxx PROPERTIES OUTPUT_NAME ${example})
 endforeach()
 

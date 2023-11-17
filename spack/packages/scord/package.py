@@ -83,18 +83,19 @@ class Scord(CMakePackage):
     # specific dependencies
     # v0.2.0+
     depends_on("argobots@1.1", when='@0.2.0:')
-    depends_on("mochi-margo@0.9.8", when='@0.2.0:')
-    depends_on("mochi-thallium@0.10.1", when='@0.2.0:')
+    depends_on("mochi-margo@0.9.8:", when='@0.2.0:')
+    depends_on("mochi-thallium@0.10.1:", when='@0.2.0:')
     depends_on("boost@1.71 +program_options", when='@0.2.0:')
     depends_on("redis-plus-plus@1.3.3:", when='@0.2.0:')
+    depends_on("cargo@0.3.2:", when='@0.3.1:')
 
     with when("@0.2.0: +ofi"):
         depends_on("libfabric@1.14.0 fabrics=sockets,tcp,rxm")
-        depends_on("mercury@2.1.0 +ofi")
+        depends_on("mercury@2.1.0: +ofi")
 
     with when("@0.2.0: +ucx"):
         depends_on("ucx@1.12.0")
-        depends_on("mercury@2.1.0 +ucx")
+        depends_on("mercury@2.1.0: +ucx")
 
     def cmake_args(self):
         """Setup scord CMake arguments"""

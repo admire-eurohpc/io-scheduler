@@ -30,7 +30,7 @@ list(APPEND cxx_examples_with_controller
   ADM_deploy_adhoc_storage ADM_terminate_adhoc_storage
   # transfers
   ADM_transfer_datasets ADM_get_transfer_priority ADM_set_transfer_priority
-  ADM_cancel_transfer ADM_get_pending_transfers ADM_transfer_update
+  ADM_cancel_transfer ADM_get_pending_transfers
   # qos
   ADM_set_qos_constraints ADM_get_qos_constraints
   # data operations

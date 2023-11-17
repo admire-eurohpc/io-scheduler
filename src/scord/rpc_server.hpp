@@ -106,28 +106,16 @@ private:
                       const std::vector<scord::qos::limit>& limits,
                       enum scord::transfer::mapping mapping);
 
-    void
-    transfer_update(const network::request& req, uint64_t transfer_id,
-                    float obtained_bw);
-
-    /**
-     * @brief Function that schedules transfers
-     *
-     * @param arg , is a pointer to rpc_server to access structures.
-     */
-    static void
-    scheduler_runnable(void* arg);
-    /**
-     * @brief Starts the scheduler thread for transfers
-     *
-     */
-    void
-    start_scheduler();
 
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;
     pfs_storage_manager m_pfs_manager;
     transfer_manager<cargo::transfer> m_transfer_manager;
+
+    // Dedicated execution stream for the MPI listener ULT
+    thallium::managed<thallium::xstream> m_scheduler_ess;
+    // ULT for the MPI listener
+    thallium::managed<thallium::thread> m_scheduler_ult;
 
 
 public:
@@ -136,14 +124,12 @@ public:
      * and action)
      *
      * It causes a lock-unlock of the transfer_manager structure.
+     * Is a thread
      *
-     * @return a vector with a string contact_point and an action encoded in a
-     * integer (-1, or 1)
+     * @return none
      */
-    std::vector<std::pair<std::string, int>>
+    void
     scheduler_update();
-
-  
 };
 
 } // namespace scord

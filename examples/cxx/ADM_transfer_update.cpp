@@ -75,6 +75,19 @@ main(int argc, char* argv[]) {
                 server, name, scord::adhoc_storage::type::gekkofs,
                 adhoc_storage_ctx, adhoc_resources);
 
+
+        std::vector <scord::dataset> ins;
+        std::vector <scord::dataset> outs;
+
+        scord::dataset in1;
+        scord::dataset out1;
+
+        in1 = scord::dataset("lustre:/tmp/input-dataset-1");
+        out1 = scord::dataset("gekkofs:/tmp/input-dataset-cp");
+ 
+        ins.push_back (in1);
+        outs.push_back (out1);
+        
         scord::job::requirements reqs(inputs, outputs, expected_outputs,
                                       adhoc_storage);
 
@@ -82,9 +95,9 @@ main(int argc, char* argv[]) {
                 server, scord::job::resources{job_nodes}, reqs, 0);
 
         const auto transfer = scord::transfer_datasets(
-                server, job, sources, targets, qos_limits, mapping);
+                server, job, ins, outs, qos_limits, mapping);
 
-        scord::transfer_update(server, transfer.id(), 10.0f);
+        // scord::transfer_update(server, transfer.id(), 10.0f);
         
         fmt::print(stdout, "ADM_transfer_update() remote procedure completed "
                            "successfully\n");

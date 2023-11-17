@@ -110,6 +110,7 @@ private:
 
 protected:
     thallium::engine m_network_engine;
+    std::atomic<bool> m_shutting_down;
 
 private:
     scord::utils::signal_listener m_signal_listener;

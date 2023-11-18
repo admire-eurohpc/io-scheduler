@@ -30,7 +30,7 @@ list(APPEND cxx_examples_with_controller
   ADM_deploy_adhoc_storage ADM_terminate_adhoc_storage
   # transfers
   ADM_transfer_datasets ADM_get_transfer_priority ADM_set_transfer_priority
-  ADM_cancel_transfer ADM_get_pending_transfers ADM_transfer_update
+  ADM_cancel_transfer ADM_get_pending_transfers
   # qos
   ADM_set_qos_constraints ADM_get_qos_constraints
   # data operations
@@ -77,7 +77,7 @@ if(SCORD_BUILD_TESTS)
       ${SCORD_CTL_ADDRESS_STRING}
       ${DATA_STAGER_ADDRESS_STRING})
     set_tests_properties(run_${TEST_NAME}
-      PROPERTIES FIXTURES_REQUIRED "scord_daemon;scord_ctl"
+      PROPERTIES FIXTURES_REQUIRED "scord_daemon;scord_ctl;cargo"
       ENVIRONMENT "${TEST_ENV}")
 
     add_test(validate_${TEST_NAME}

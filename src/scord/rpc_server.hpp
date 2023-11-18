@@ -26,6 +26,7 @@
 #define SCORD_RPC_SERVER_HPP
 
 #include <string>
+#include <vector>
 #include <filesystem>
 #include <net/server.hpp>
 #include "job_manager.hpp"
@@ -105,14 +106,30 @@ private:
                       const std::vector<scord::qos::limit>& limits,
                       enum scord::transfer::mapping mapping);
 
-    void
-    transfer_update(const network::request& req, uint64_t transfer_id,
-                    float obtained_bw);
 
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;
     pfs_storage_manager m_pfs_manager;
     transfer_manager<cargo::transfer> m_transfer_manager;
+
+    // Dedicated execution stream for the MPI listener ULT
+    thallium::managed<thallium::xstream> m_scheduler_ess;
+    // ULT for the MPI listener
+    thallium::managed<thallium::thread> m_scheduler_ult;
+
+
+public:
+    /**
+     * @brief Generates scheduling information, a set of pairs (contact point,
+     * and action)
+     *
+     * It causes a lock-unlock of the transfer_manager structure.
+     * Is a thread
+     *
+     * @return none
+     */
+    void
+    scheduler_update();
 };
 
 } // namespace scord

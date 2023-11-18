@@ -29,6 +29,7 @@
 #include <net/utilities.hpp>
 #include <cargo/cargo.hpp>
 #include "rpc_server.hpp"
+#include <abt_cxx/shared_mutex.hpp>
 
 template <typename T, typename E>
 constexpr std::optional<T>
@@ -41,13 +42,45 @@ value_or_none(tl::expected<T, E>&& e) {
 
 using namespace std::literals;
 
+namespace {
+cargo::dataset
+dataset_process(std::string id) {
+
+    cargo::dataset::type type = cargo::dataset::type::posix;
+    if(id.find("lustre:") != std::string::npos) {
+        id = id.substr(strlen("lustre:"));
+        type = cargo::dataset::type::parallel;
+    } else if(id.find("gekkofs:") != std::string::npos) {
+        id = id.substr(strlen("gekkofs:"));
+        type = cargo::dataset::type::posix;
+    } else if(id.find("hercules:") != std::string::npos) {
+        id = id.substr(strlen("hercules:"));
+        type = cargo::dataset::type::hercules;
+    } else if(id.find("expand:") != std::string::npos) {
+        id = id.substr(strlen("expand:"));
+        type = cargo::dataset::type::expand;
+    } else if(id.find("dataclay:") != std::string::npos) {
+        id = id.substr(strlen("dataclay:"));
+        type = cargo::dataset::type::dataclay;
+    } else
+        type = cargo::dataset::type::posix;
+
+    return cargo::dataset{id, type};
+}
+} // namespace
 namespace scord {
 
 rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
                        std::filesystem::path rundir)
     : server::server(std::move(name), std::move(address), std::move(daemonize),
                      std::move(rundir)),
-      provider::provider(m_network_engine, 0) {
+      provider::provider(m_network_engine, 0),
+      m_scheduler_ess(thallium::xstream::create()),
+      m_scheduler_ult(
+              m_scheduler_ess->make_thread([this]() { scheduler_update(); })) {
+
+    ;
+
 
 #define EXPAND(rpc_name) "ADM_" #rpc_name##s, &rpc_server::rpc_name
 
@@ -65,10 +98,16 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
     provider::define(EXPAND(update_pfs_storage));
     provider::define(EXPAND(remove_pfs_storage));
     provider::define(EXPAND(transfer_datasets));
-    provider::define(EXPAND(transfer_update));
 
 #undef EXPAND
+    m_network_engine.push_prefinalize_callback([this]() {
+        m_scheduler_ult->join();
+        m_scheduler_ult = thallium::managed<thallium::thread>{};
+        m_scheduler_ess->join();
+        m_scheduler_ess = thallium::managed<thallium::xstream>{};
+    });
 }
+
 
 #define RPC_NAME() ("ADM_"s + __FUNCTION__)
 
@@ -372,8 +411,8 @@ rpc_server::update_adhoc_storage(
                 name, adhoc_storage.context().controller_address());
 
         LOGGER_INFO("rpc {:<} body: {{uuid: {:?}, type: {}, resources: {}}}",
-                    child_rpc, adhoc_metadata_ptr->uuid(),
-                    adhoc_storage.type(), adhoc_storage.get_resources());
+                    child_rpc, adhoc_metadata_ptr->uuid(), adhoc_storage.type(),
+                    adhoc_storage.get_resources());
 
         if(const auto call_rv = endp->call(
                    child_rpc.name(), adhoc_metadata_ptr->uuid(),
@@ -469,8 +508,8 @@ rpc_server::deploy_adhoc_storage(const network::request& req,
                 rpc.add_child(adhoc_storage.context().controller_address());
 
         LOGGER_INFO("rpc {:<} body: {{uuid: {:?}, type: {}, resources: {}}}",
-                    child_rpc, adhoc_metadata_ptr->uuid(),
-                    adhoc_storage.type(), adhoc_storage.get_resources());
+                    child_rpc, adhoc_metadata_ptr->uuid(), adhoc_storage.type(),
+                    adhoc_storage.get_resources());
 
         if(const auto call_rv = endp->call(
                    rpc.name(), adhoc_metadata_ptr->uuid(), adhoc_storage.type(),
@@ -548,8 +587,7 @@ rpc_server::terminate_adhoc_storage(const network::request& req,
                 rpc.add_child(adhoc_storage.context().controller_address());
 
         LOGGER_INFO("rpc {:<} body: {{uuid: {:?}, type: {}}}", child_rpc,
-                    adhoc_metadata_ptr->uuid(),
-                    adhoc_storage.type());
+                    adhoc_metadata_ptr->uuid(), adhoc_storage.type());
 
         if(const auto call_rv =
                    endp->call(rpc.name(), adhoc_metadata_ptr->uuid(),
@@ -724,11 +762,11 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
 
     // TODO: check type of storage tier to enable parallel transfers
     std::transform(sources.cbegin(), sources.cend(), std::back_inserter(inputs),
-                   [](const auto& src) { return cargo::dataset{src.id()}; });
+                   [](const auto& src) { return ::dataset_process(src.id()); });
 
     std::transform(targets.cbegin(), targets.cend(),
                    std::back_inserter(outputs),
-                   [](const auto& tgt) { return cargo::dataset{tgt.id()}; });
+                   [](const auto& tgt) { return ::dataset_process(tgt.id()); });
 
     const auto cargo_tx = cargo::transfer_datasets(srv, inputs, outputs);
 
@@ -755,45 +793,72 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
     LOGGER_EVAL(resp.error_code(), INFO, ERROR,
                 "rpc {:<} body: {{retval: {}, tx_id: {}}}", rpc,
                 resp.error_code(), resp.value_or_none());
-
     req.respond(resp);
 }
 
 
+/* Scheduling is done each 0.5 s*/
 void
-rpc_server::transfer_update(const network::request& req, uint64_t transfer_id,
-                            float obtained_bw) {
+rpc_server::scheduler_update() {
+    std::vector<std::pair<std::string, int>> return_set;
+    const auto threshold = 0.1f;
+    while(!m_shutting_down) {
+        thallium::thread::self().sleep(m_network_engine, 500);
+        m_transfer_manager.lock();
+        const auto transfer = m_transfer_manager.transfer();
+        std::vector<scord::transfer_id> v_ids;
+        for(const auto& tr_unit : transfer) {
+            const auto tr_info = tr_unit.second.get();
 
-    using network::get_address;
-    using network::response_with_id;
-    using network::rpc_info;
+            // Contact for transfer status
+            const auto status = tr_info->transfer().status();
 
-    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+            switch(status.state()) {
+                case cargo::transfer_state::completed:
+                    LOGGER_INFO("Completed");
+                    v_ids.push_back(tr_unit.first);
+                    continue;
+                    break;
+                case cargo::transfer_state::failed:
+                    LOGGER_INFO("Failed");
+                    v_ids.push_back(tr_unit.first);
+                    continue;
+                    break;
+                case cargo::transfer_state::pending:
+                    continue;
+                    break;
+                case cargo::transfer_state::running:
+                    break;
+            }
 
-    LOGGER_INFO("rpc {:>} body: {{transfer_id: {}, obtained_bw: {}}}", rpc,
-                transfer_id, obtained_bw);
+            tr_info->update(status.bw());
+            auto bw = tr_info->measured_bandwidth();
+            uint64_t qos = 0;
+            try {
+                qos = tr_info->qos().front().value();
+            } catch(const std::exception& e) {
+                continue;
+            }
 
-    scord::error_code ec;
+            if(bw == -1) {
+                continue;
+            }
 
-    // TODO: generate a global ID for the transfer and contact Cargo to
-    // actually request it
+            if(bw + bw * threshold > qos) {
+                // Send decrease / slow signal to cargo
+                tr_info->transfer().bw_control(+1);
+            } else if(bw - bw * threshold < qos) {
+                // Send increase / speed up signal to cargo
+                tr_info->transfer().bw_control(-1);
+            }
+        }
+        m_transfer_manager.unlock();
 
-    const auto resp = response_with_id{rpc.id(), ec, transfer_id};
-
-    LOGGER_INFO("rpc {:<} body: {{retval: {}}}", rpc, ec);
-
-    // TODO: create a transfer in transfer manager
-    // We need the contact point, and different qos
-
-    ec = m_transfer_manager.update(transfer_id, obtained_bw);
-    if(ec.no_such_entity) {
-        LOGGER_ERROR(
-                "rpc id: {} error_msg: \"Error updating transfer_storage\"",
-                rpc.id());
+        // Remove all failed/done transfers
+        for(const auto id : v_ids) {
+            m_transfer_manager.remove(id);
+        }
     }
-
-
-    req.respond(resp);
 }
 
 

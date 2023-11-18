@@ -84,8 +84,8 @@ if(SCORD_BUILD_TESTS)
   set_tests_properties(start_cargo
     PROPERTIES FIXTURES_SETUP cargo)
 
-  add_test(stop_cargo
-    ${CMAKE_SOURCE_DIR}/scripts/runner.sh stop TERM cargo.pid)
+
+ add_test(stop_cargo ${CARGO_BIN_INSTALL_DIR}/cargo_shutdown --server ${DATA_STAGER_ADDRESS_STRING})
 
   set_tests_properties(stop_cargo
     PROPERTIES FIXTURES_CLEANUP cargo)

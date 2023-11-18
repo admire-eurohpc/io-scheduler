@@ -46,7 +46,7 @@ namespace {
 cargo::dataset
 dataset_process(std::string id) {
 
-    cargo::dataset::type type = cargo::dataset::type::none;
+    cargo::dataset::type type = cargo::dataset::type::posix;
     if(id.find("lustre:") != std::string::npos) {
         id = id.substr(strlen("lustre:"));
         type = cargo::dataset::type::parallel;
@@ -812,9 +812,6 @@ rpc_server::scheduler_update() {
 
             // Contact for transfer status
             const auto status = tr_info->transfer().status();
-            tr_info->update(status.bw());
-            auto bw = tr_info->measured_bandwidth();
-            auto qos = tr_info->qos().front().value();
 
             switch(status.state()) {
                 case cargo::transfer_state::completed:
@@ -833,6 +830,16 @@ rpc_server::scheduler_update() {
                 case cargo::transfer_state::running:
                     break;
             }
+
+            tr_info->update(status.bw());
+            auto bw = tr_info->measured_bandwidth();
+            uint64_t qos = 0;
+            try {
+                qos = tr_info->qos().front().value();
+            } catch(const std::exception& e) {
+                continue;
+            }
+
             if(bw == -1) {
                 continue;
             }

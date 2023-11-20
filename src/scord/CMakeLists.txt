@@ -50,6 +50,7 @@ target_link_libraries(
   fmt::fmt
   CLI11::CLI11
   RedisPlusPlus::RedisPlusPlus
+  hiredis::hiredis
   ryml::ryml
   cargo::cargo
 )

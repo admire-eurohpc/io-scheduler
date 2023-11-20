@@ -115,6 +115,7 @@ main(int argc, char* argv[]) {
         std::optional<fs::path> output_file;
         std::optional<fs::path> rundir;
         std::optional<std::string> address;
+        std::optional<std::string> redis_address;
     } cli_args;
 
     const auto progname = fs::path{argv[0]}.filename().string();
@@ -171,6 +172,8 @@ main(int argc, char* argv[]) {
     global_settings->add_option("--rundir", cli_args.rundir);
     global_settings->add_option("--address", cli_args.address);
 
+    global_settings->add_option("--redisaddress", cli_args.redis_address);
+
     CLI11_PARSE(app, argc, argv);
 
     // ->required(true) doesn't work with configurable subcommands
@@ -184,8 +187,9 @@ main(int argc, char* argv[]) {
 
     try {
         scord::rpc_server srv(progname, *cli_args.address, !cli_args.foreground,
-                              cli_args.rundir.value_or(fs::current_path()));
+                              cli_args.rundir.value_or(fs::current_path()), *cli_args.redis_address);
         srv.configure_logger(cli_args.log_type, cli_args.output_file);
+        srv.init_redis();
         return srv.run();
     } catch(const std::exception& ex) {
         fmt::print(stderr,

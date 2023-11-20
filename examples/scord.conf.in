@@ -11,3 +11,6 @@ global_settings:
 
   # address to bind to
   address: "@SCORD_TRANSPORT_PROTOCOL@://@SCORD_BIND_ADDRESS@:@SCORD_BIND_PORT@"
+
+  # redis connection
+  redisaddress : "@REDIS_ADDRESS@"

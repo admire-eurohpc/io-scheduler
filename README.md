@@ -135,10 +135,9 @@ and need to be available in the system:
   - [JSON-C](https://github.com/json-c/json-c) version 0.13.1.
 - [Thallium](https://github.com/mochi-hpc/mochi-thallium) version 0.10.1 or
  later.
-- [libconfig-dev] version 1.4.9 or later.
 - [redis-plus-plus](https://github.com/sewenew/redis-plus-plus) version 1.3.
 3 or later, and its dependencies:
-  - [hiredis](https://github.com/redis/hiredis) version 0.14.1 or later.
+  - [hiredis](https://github.com/redis/hiredis) version 1.1.0 or later.
 
 The following libraries are also required by Scord, but will be
 automatically downloaded and compiled by the project as part of the standard
@@ -320,3 +319,16 @@ Once finished, the server can be stopped by pressing Ctrl+C:
 [2021-11-19 13:19:26.552280] [scord] [158733] [info]
 [2021-11-19 13:19:26.552289] [scord] [158733] [info] [Stopped]
 ```
+
+## CLI utils
+Scord has 3 command-line utils : scord-ping, scord-query and scord-adhoc.
+
+scord-adhoc can be used when the slurm integration is not available and the user wants to try `scord-adhocfs-cargo` integration:
+
+The next command will copy `/tmp/temporal` to `/tmp/temporal2` using `cargo`, and will try to deploy an `adhocfs` (using gekkofs.sh script)
+
+```
+scord_adhoc --server tcp://127.0.0.1:52000  --controller tcp://127.0.0.1:52001 --stager tcp://127.0.0.1:62000 --slurm_id 10 --adhocfs gekkofs --function create --inputs lustre:/tmp/temporal,gekkofs:/tmp/temporal2
+```
+
+As the slurm integration is not ready, all the three servers must be launched manually. This also enables the possibility to use `cargo` with `LD_PRELOAD` that is not available within slurm (as v0.3.2) and use adhocfs.

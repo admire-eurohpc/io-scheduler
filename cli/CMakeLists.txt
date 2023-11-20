@@ -56,3 +56,24 @@ set_target_properties(
   scord_query PROPERTIES __INSTALLED_PATH
                          ${CMAKE_INSTALL_FULL_BINDIR}/scord_query
 )
+
+
+# scord_adhoc: creates an adhocfs with cargo transfers
+add_executable(scord_adhoc)
+
+target_sources(scord_adhoc
+  PRIVATE
+  scord_adhoc.cpp
+)
+
+target_link_libraries(scord_adhoc
+  PUBLIC fmt::fmt CLI11::CLI11 libscord)
+
+install(TARGETS scord_adhoc
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+set_target_properties(
+  scord_adhoc PROPERTIES __INSTALLED_PATH
+                         ${CMAKE_INSTALL_FULL_BINDIR}/scord_adhoc
+)

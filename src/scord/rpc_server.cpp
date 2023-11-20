@@ -258,8 +258,7 @@ rpc_server::register_job(const network::request& req,
 
             };
 
-            m_redis.value().hmset(std::to_string(slurm_id), m.begin(),
-                                  m.end());
+            m_redis.value().hmset(std::to_string(slurm_id), m.begin(), m.end());
         }
 
     } else {
@@ -913,9 +912,9 @@ rpc_server::scheduler_update() {
             tr_info->update(status.bw());
             auto bw = tr_info->measured_bandwidth();
             uint64_t qos = 0;
-            try {
+            if(!tr_info->qos().empty()) {
                 qos = tr_info->qos().front().value();
-            } catch(const std::exception& e) {
+            } else {
                 continue;
             }
 

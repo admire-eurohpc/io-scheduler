@@ -23,7 +23,7 @@
 from spack.package import *
 
 
-class Hiredis(MakefilePackage):
+class Hiredis(CMakePackage):
     """A minimalistic C client library for the Redis database."""
 
     homepage = "https://github.com/redis/hiredis"
@@ -37,3 +37,4 @@ class Hiredis(MakefilePackage):
     def edit(self, spec, prefix):
         env['PREFIX'] = prefix
         env['USE_SSL'] = '1'
+

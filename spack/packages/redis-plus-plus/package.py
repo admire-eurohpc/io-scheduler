@@ -34,4 +34,4 @@ class RedisPlusPlus(CMakePackage):
 
     depends_on('cmake@3.2:', type='build')
 
-    depends_on('hiredis@1.1.0:', when='@1.3.3:')
+    depends_on('hiredis@1.2.0:', when='@1.3.3:')

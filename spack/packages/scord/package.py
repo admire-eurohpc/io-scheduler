@@ -53,7 +53,7 @@ class Scord(CMakePackage):
     version("0.3.1",
             sha256="860bb115780082bab1ef99aa161e4bbb2907704ddea48526cabd7b814c2601b3")
     version("0.3.2",
-            sha256="75375e162b3efb293a0b4acf9c78246ccda329941850b20f11dad0beb2fb98f4")
+            sha256="74c51915315e01d8479701d340331641f42c5f5cfae0c08bdea6c2f0b01da665")
 
     # build variants
     variant('build_type',

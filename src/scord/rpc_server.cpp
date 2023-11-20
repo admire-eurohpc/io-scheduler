@@ -258,7 +258,7 @@ rpc_server::register_job(const network::request& req,
 
             };
 
-            m_redis.value().hmset(std::to_string(slurm_id.value()), m.begin(),
+            m_redis.value().hmset(std::to_string(slurm_id), m.begin(),
                                   m.end());
         }
 

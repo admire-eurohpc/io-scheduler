@@ -92,10 +92,6 @@ class Scord(CMakePackage):
     depends_on("cargo@0.3.2:", when='@0.3.1:')
     depends_on("slurm", when='@0.3.1:')
 
-# slurm:
-#   externals:
-#    - spec: "slurm@23.02.6"
-#      prefix: "opt/slurm-23.02.6/"
 
     with when("@0.2.0: +ofi"):
         depends_on("libfabric@1.14.0 fabrics=sockets,tcp,rxm")

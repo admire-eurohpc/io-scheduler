@@ -68,32 +68,27 @@ The following cache variables may also be set:
   The path to the Slurm library.
 
 #]=======================================================================]
+find_package(PkgConfig)
+pkg_check_modules(PC_SLURM QUIET SLURM)
 
 find_path(
   SLURM_INCLUDE_DIR
   NAMES slurm/slurm.h
-  PATHS 
-    ENV SLURM
-    ENV SLURM_PATH
+  PATHS
     ENV SLURM_ROOT
-    ENV CPATH
-    ENV C_INCLUDE_PATH
-    ENV CPLUS_INCLUDE_PATH
+    "/opt/slurm"
   PATH_SUFFIXES include
 )
 
 find_library(SLURM_LIBRARY NAMES slurm
-PATHS 
-    ENV SLURM
-    ENV SLURM_PATH
-    ENV SLURM_ROOT
+
+PATHS  
+    ENV SLURM_ROOT 
     ENV LD_LIBRARY_PATH
-    ENV LIBRARY_PATH
-    ENV PATH
+    "/opt/slurm"
   PATH_SUFFIXES
     "lib"
     "lib64"
-
 )
 
 mark_as_advanced(SLURM_INCLUDE_DIR SLURM_LIBRARY)

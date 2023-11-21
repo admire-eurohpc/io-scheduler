@@ -30,7 +30,7 @@ cmake_minimum_required(VERSION 3.19)
 
 project(
   scord
-  VERSION 0.3.1
+  VERSION 0.3.3
   LANGUAGES C CXX
 )
 

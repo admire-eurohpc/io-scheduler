@@ -87,11 +87,11 @@ class Scord(CMakePackage):
     # specific dependencies
     # v0.2.0+
     depends_on("argobots@1.1", when='@0.2.0:')
-    depends_on("mochi-margo@0.9.8:", when='@0.2.0:')
-    depends_on("mochi-thallium@0.10.1:", when='@0.2.0:')
+    depends_on("mochi-margo@0.14.1:", when='@0.2.0:')
+    depends_on("mochi-thallium@0.11.3:", when='@0.2.0:')
     depends_on("boost@1.71 +program_options", when='@0.2.0:')
     depends_on("redis-plus-plus@1.3.3:", when='@0.2.0:')
-    depends_on("cargo@0.3.2:", when='@0.3.1:')
+    depends_on("cargo@0.3.3:", when='@0.3.1:')
     depends_on("slurm", when='@0.3.1:')
 
 

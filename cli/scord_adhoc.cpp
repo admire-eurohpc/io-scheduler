@@ -179,7 +179,7 @@ main(int argc, char* argv[]) {
                     srv, adhoc_name, type, ctx, resources);
 
             auto path = deploy_adhoc_storage(srv, adhoc_storage);
-            fmt::print("{}\n", path);
+            fmt::print("{},{}\n", path, adhoc_storage.id());
 
             /* Separate inputs into vector of inputs */
 

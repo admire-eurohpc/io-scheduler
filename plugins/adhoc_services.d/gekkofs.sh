@@ -11,7 +11,10 @@ if ($1 == "start") then
     echo "Starting GEKKOFS"
     $nodes = $3
     num_nodes=$(echo $nodes | awk -F, '{print NF-1}')
-
+    # If num_nodes is >40, we are on the testing environment
+    if ($num_nodes > 40) then
+        exit 0
+    end
     $workdir = $5
     $datadir = $7
     $mountdir = $9

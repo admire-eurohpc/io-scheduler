@@ -92,6 +92,7 @@ class Scord(CMakePackage):
     depends_on("boost@1.71 +program_options", when='@0.2.0:')
     depends_on("redis-plus-plus@1.3.3:", when='@0.2.0:')
     depends_on("cargo@0.3.3:", when='@0.3.1:')
+    depends_on("cargo@0.3.4:", when='@0.3.4:')
     depends_on("slurm", when='@0.3.1:')
 
 

@@ -56,7 +56,7 @@ class Scord(CMakePackage):
             sha256="74c51915315e01d8479701d340331641f42c5f5cfae0c08bdea6c2f0b01da665")
     version("0.3.3",
             sha256="a8b5a8d05858bee91b9675ca6c929f4c16b5b2562f4e6a8dba3ce0aacb721f48")
-    version("0.3.4", branch="rnou/adhoc-integration")
+    version("0.3.4", branch="rnou/adhoc_integration")
     # build variants
     variant('build_type',
             default='Release',

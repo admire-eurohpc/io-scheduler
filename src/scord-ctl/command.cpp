@@ -195,6 +195,38 @@ command::as_vector() const {
 
     return tmp;
 }
+// Function to join two sets of environment variables
+char**
+joinEnvironments(char** env1, const char** env2) {
+    // Count the number of variables in each environment
+    int count1 = 0;
+    while(env1[count1] != nullptr) {
+        ++count1;
+    }
+
+    int count2 = 0;
+    while(env2[count2] != nullptr) {
+        ++count2;
+    }
+
+    // Allocate memory for the combined environment
+    char** combinedEnv = new char*[count1 + count2 + 1];
+
+    // Copy the variables from the first environment
+    for(int i = 0; i < count1; ++i) {
+        combinedEnv[i] = strdup(env1[i]);
+    }
+
+    // Copy the variables from the second environment
+    for(int i = 0; i < count2; ++i) {
+        combinedEnv[count1 + i] = strdup(env2[i]);
+    }
+
+    // Null-terminate the combined environment
+    combinedEnv[count1 + count2] = nullptr;
+
+    return combinedEnv;
+}
 
 void
 command::exec() const {
@@ -207,8 +239,11 @@ command::exec() const {
 
     switch(const auto pid = ::fork()) {
         case 0: {
+
+            // Join the environments
+            char** combinedEnv = joinEnvironments(environ, envp.get());
             ::execvpe(argv[0], const_cast<char* const*>(argv.get()),
-                      const_cast<char* const*>(envp.get()));
+                      const_cast<char* const*>(combinedEnv));
             // We cannot use the default logger in the child process because it
             // is not fork-safe, and even though we received a copy of the
             // global logger, it is not valid because the child process does

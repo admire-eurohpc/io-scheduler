@@ -20,6 +20,13 @@ if [ "$1" == "start" ]; then
     sleep 4
 elif [ "$1" == "stop" ]; then
     echo "Stopping GEKKOFS"
+    
+    nodes=$3
+    num_nodes=$(echo $nodes | awk -F, '{print NF}')
+    # If num_nodes is greater than 40, we are on the testing environment
+    if [ $num_nodes -gt 40 ]; then
+        exit 0
+    fi
     srun -N $num_nodes -n $num_nodes --oversubscribe --cpus-per-task=1 --mem-per-task=1 pkill -9 gkfs_daemon
 elif [ "$1" == "expand" ]; then
     echo "Expand command"

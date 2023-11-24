@@ -143,10 +143,7 @@ rpc_server::deploy_adhoc_storage(
         const auto& adhoc_cfg = it->second;
 
         LOGGER_DEBUG("deploy \"{:e}\" (ID: {})", adhoc_type, adhoc_uuid);
-        for (int i = 0; environ[i] != nullptr; ++i) {
-        std::cout << environ[i] << std::endl;
-    }
-
+ 
         // 1. Create a working directory for the adhoc storage instance
         adhoc_dir = adhoc_cfg.working_directory() / adhoc_uuid;
 

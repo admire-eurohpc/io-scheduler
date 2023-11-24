@@ -4,11 +4,9 @@ echo "GEKKOFS Script Called" $HOSTNAME $SLURM_JOBID
 
 if [ "$1" == "start" ]; then
     echo "Starting GEKKOFS"
-    . /beegfs/home/r.nou/spack/share/spack/setup-env.sh
-    spack load gekkofs
-    spack load slurm@23.02.6
+
     nodes=$3
-    num_nodes=$(echo $nodes | awk -F, '{print NF-1}')
+    num_nodes=$(echo $nodes | awk -F, '{print NF}')
     # If num_nodes is greater than 40, we are on the testing environment
     if [ $num_nodes -gt 40 ]; then
         exit 0
@@ -16,19 +14,17 @@ if [ "$1" == "start" ]; then
     workdir=$5
     datadir=$7
     mountdir=$9
-
-    mkdir -p $workdir
-    /opt/slurm/bin/srun -N $num_nodes -n $num_nodes --oversubscribe --cpus-per-task=1 --mem-per-cpu=1 --export=ALL bash -c "gkfs_daemon --rootdir $datadir --mountdir $mountdir" &
-   sleep 2
+    unset SLURM_CPU_BIND SLURM_CPU_BIND_LIST SLURM_CPU_BIND_TYPE SLURM_CPU_BIND_VERBOSE
+    
+    srun -N $num_nodes -n $num_nodes --oversubscribe --cpus-per-task=1 --mem-per-cpu=1 --export=ALL bash -c "gkfs_daemon --rootdir $datadir --mountdir $mountdir" &
+    sleep 4
 elif [ "$1" == "stop" ]; then
     echo "Stopping GEKKOFS"
-    . /beegfs/home/r.nou/spack/share/spack/setup-env.sh
-    spack load gekkofs
-    spack load slurm@23.02.6
-    /opt/slurm/bin/srun -N $num_nodes -n $num_nodes --oversubscribe --cpus-per-task=1 --mem-per-task=1 pkill -9 gkfs_daemon
-else
-    echo "Unknown command"
-    exit 1
+    srun -N $num_nodes -n $num_nodes --oversubscribe --cpus-per-task=1 --mem-per-task=1 pkill -9 gkfs_daemon
+elif [ "$1" == "expand" ]; then
+    echo "Expand command"
+elif [ "$1" == "shrink" ]; then
+    echo "shrink command"
 fi
 
 exit 0

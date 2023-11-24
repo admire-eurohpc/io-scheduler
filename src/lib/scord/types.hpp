@@ -561,6 +561,43 @@ private:
     std::unique_ptr<impl> m_pimpl;
 };
 
+struct transfer_state {
+
+enum class type : std::underlying_type<ADM_transfer_state_t>::type {
+    queued = ADM_TRANSFER_QUEUED,
+    running = ADM_TRANSFER_RUNNING,
+    finished = ADM_TRANSFER_FINISHED,
+    failed = ADM_TRANSFER_FAILED,
+    cancelled = ADM_TRANSFER_CANCELLED
+    };
+    transfer_state();
+    explicit transfer_state(transfer_state::type type);
+    explicit transfer_state(ADM_transfer_status_t adm_transfer_state);
+    explicit operator ADM_transfer_status_t() const;
+
+    transfer_state(const transfer_state&) noexcept;
+    transfer_state(transfer_state&&) noexcept;
+    transfer_state&
+    operator=(const transfer_state&) noexcept;
+    transfer_state&
+    operator=(transfer_state&&) noexcept;
+
+    ~transfer_state();
+
+    transfer_state::type
+    status() const;
+
+    // The implementation for this must be deferred until
+    // after the declaration of the PIMPL class
+    template <class Archive>
+    void
+    serialize(Archive& ar);
+
+private:
+    class impl;
+    std::unique_ptr<impl> m_pimpl;
+};
+
 namespace qos {
 
 enum class subclass : std::underlying_type<ADM_qos_class_t>::type {
@@ -1237,6 +1274,38 @@ struct fmt::formatter<std::vector<scord::qos::limit>>
     format(const std::vector<scord::qos::limit>& l, FormatContext& ctx) const -> format_context::iterator {
         const auto str = fmt::format("[{}]", fmt::join(l, ", "));
         return formatter<std::string_view>::format(str, ctx);
+    }
+};
+
+template <>
+struct fmt::formatter<scord::transfer_state> : fmt::formatter<std::string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto
+    format(const scord::transfer_state& t, FormatContext& ctx) const -> format_context::iterator {
+
+        using scord::node;
+        std::string_view name = "unknown";
+
+        switch(t.status()){
+            case scord::transfer_state::type::queued:
+                name = "queued";
+                break;
+            case scord::transfer_state::type::running:
+                name = "running";
+                break;
+            case scord::transfer_state::type::finished:
+                name = "finished";
+                break;
+            case scord::transfer_state::type::failed:
+                name = "failed";
+                break;
+            case scord::transfer_state::type::cancelled:
+                name = "cancelled";
+                break;        
+        }
+
+        return formatter<std::string_view>::format(name, ctx);
     }
 };
 

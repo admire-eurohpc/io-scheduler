@@ -86,6 +86,10 @@ transfer_datasets(const server& srv, const job& job,
                   const std::vector<qos::limit>& limits,
                   transfer::mapping mapping);
 
+tl::expected<transfer_state, error_code>
+query_transfer(const server& srv, const job& job, const transfer& transfer);
+
+
 
 } // namespace scord::detail
 

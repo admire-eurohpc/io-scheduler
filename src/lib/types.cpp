@@ -462,6 +462,100 @@ template void
 transfer::serialize<network::serialization::input_archive>(
         network::serialization::input_archive&);
 
+
+class transfer_state::impl {
+
+public:
+    impl() = default;
+    explicit impl(transfer_state::type type) : m_type(type) {}
+
+    impl(const impl& rhs) = default;
+    impl(impl&& rhs) = default;
+    impl&
+    operator=(const impl& other) noexcept = default;
+    impl&
+    operator=(impl&&) noexcept = default;
+
+    transfer_state::type
+    status() const {
+        return m_type;
+    }
+
+    template <class Archive>
+    void
+    load(Archive& ar) {
+        ar(SCORD_SERIALIZATION_NVP(m_type));
+    }
+
+    template <class Archive>
+    void
+    save(Archive& ar) const {
+        ar(SCORD_SERIALIZATION_NVP(m_type));
+    }
+
+private:
+    transfer_state::type m_type;
+};
+
+transfer_state::transfer_state() = default;
+
+transfer_state::transfer_state(transfer_state::type type)
+    : m_pimpl(std::make_unique<transfer_state::impl>(type)) {}
+
+transfer_state::transfer_state(ADM_transfer_status_t adm_transfer_state)
+    : transfer_state::transfer_state(static_cast<transfer_state::type>(adm_transfer_state->s_state)) {}
+
+transfer_state::operator ADM_transfer_status_t() const {
+    return ADM_transfer_status_create((ADM_transfer_state_t)m_pimpl->status());
+}
+
+transfer_state::transfer_state(transfer_state&&) noexcept = default;
+
+transfer_state&
+transfer_state::operator=(transfer_state&&) noexcept = default;
+
+transfer_state::transfer_state(const transfer_state& other) noexcept
+    : m_pimpl(std::make_unique<impl>(*other.m_pimpl)) {}
+
+transfer_state&
+transfer_state::operator=(const transfer_state& other) noexcept {
+    this->m_pimpl = std::make_unique<impl>(*other.m_pimpl);
+    return *this;
+}
+
+transfer_state::~transfer_state() = default;
+
+transfer_state::type
+transfer_state::status() const {
+    return m_pimpl->status();
+}
+
+// since the PIMPL class is fully defined at this point, we can now
+// define the serialization function
+template <class Archive>
+inline void
+transfer_state::serialize(Archive& ar) {
+    ar(SCORD_SERIALIZATION_NVP(m_pimpl));
+}
+
+//  we must also explicitly instantiate our template functions for
+//  serialization in the desired archives
+template void
+transfer_state::impl::save<network::serialization::output_archive>(
+        network::serialization::output_archive&) const;
+
+template void
+transfer_state::impl::load<network::serialization::input_archive>(
+        network::serialization::input_archive&);
+
+template void
+transfer_state::serialize<network::serialization::output_archive>(
+        network::serialization::output_archive&);
+
+template void
+transfer_state::serialize<network::serialization::input_archive>(
+        network::serialization::input_archive&);
+
 class dataset::impl {
 public:
     impl() = default;
@@ -1213,6 +1307,7 @@ scord::transfer
 entity::data<scord::transfer>() const {
     return m_pimpl->data<scord::transfer>();
 }
+
 
 // since the PIMPL class is fully defined at this point, we can now
 // define the serialization function

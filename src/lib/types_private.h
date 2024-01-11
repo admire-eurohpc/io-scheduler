@@ -183,6 +183,9 @@ ADM_job_create(uint64_t id, uint64_t slurm_id);
 ADM_transfer_t
 ADM_transfer_create(uint64_t id);
 
+ADM_transfer_status_t
+ADM_transfer_status_create(ADM_transfer_state_t type);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

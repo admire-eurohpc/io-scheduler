@@ -98,6 +98,9 @@ transfer_datasets(const server& srv, const job& job,
                   const std::vector<qos::limit>& limits,
                   transfer::mapping mapping);
 
+scord::transfer_state
+query_transfer(const server& srv, const job& job, const transfer& transfer);
+
 void
 transfer_update(const server& srv, uint64_t transfer_id, float obtained_bw);
 

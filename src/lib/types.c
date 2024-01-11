@@ -1144,6 +1144,54 @@ ADM_transfer_destroy(ADM_transfer_t tx) {
     return ret;
 }
 
+/**
+ * Initialize a transfer state
+ * 
+ * @remark This function is not actually part of the public API, but it is
+ * useful to have for internal purposes
+ *
+ * @param [in] type A Transfer status
+ * @return A valid TRANSFER STATUS or NULL in case of failure.
+ */
+ADM_transfer_status_t
+ADM_transfer_status_create(ADM_transfer_state_t type) {
+
+    struct adm_transfer_status* adm_transfer_state =
+            (struct adm_transfer_status*) malloc(sizeof(struct adm_transfer_status));
+
+    if(!adm_transfer_state) {
+        LOGGER_ERROR("Could not allocate ADM_transfer_t");
+        return NULL;
+    }
+
+    adm_transfer_state->s_state = type;
+
+    return adm_transfer_state;
+}
+
+
+/**
+ * Destroy a ADM_transfer_status_t created by ADM_transfer_status_create().
+ *
+ * @remark This function is not actually part of the public API, but it is
+ * useful to have for internal purposes
+ *
+ * @param[in] tx The ADM_transfer_status_t to destroy.
+ * @return ADM_SUCCESS or corresponding error code.
+ */
+ADM_return_t
+ADM_transfer_status_destroy(ADM_transfer_status_t tx) {
+    ADM_return_t ret = ADM_SUCCESS;
+
+    if(!tx) {
+        LOGGER_ERROR("Invalid ADM_transfer_status_t");
+        return ADM_EBADARGS;
+    }
+
+    free(tx);
+    return ret;
+}
+
 ADM_qos_limit_list_t
 ADM_qos_limit_list_create(ADM_qos_limit_t limits[], size_t length) {
 

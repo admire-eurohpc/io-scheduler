@@ -97,6 +97,7 @@ rpc_server::rpc_server(std::string name, std::string address, bool daemonize,
     provider::define(EXPAND(update_pfs_storage));
     provider::define(EXPAND(remove_pfs_storage));
     provider::define(EXPAND(transfer_datasets));
+    provider::define(EXPAND(query_transfer));
 
 #undef EXPAND
     m_network_engine.push_prefinalize_callback([this]() {
@@ -875,13 +876,82 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
 }
 
 
+void
+rpc_server::query_transfer(const network::request& req, scord::job_id job_id, scord::transfer_id tx_id) {
+
+    using network::get_address;
+    using network::response_with_value;
+    using network::rpc_info;
+    using response_with_status = response_with_value<scord::transfer_state>;
+    const auto rpc = rpc_info::create(RPC_NAME(), get_address(req));
+
+    LOGGER_INFO("rpc {:>} body: {{job_id: {}, tx_id{}}}",
+                rpc, job_id, tx_id);
+
+    const auto jm_result = m_job_manager.find(job_id);
+
+    if(!jm_result) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Error finding job: {}\"",
+                     rpc.id(), job_id);
+        const auto resp = response_with_status{rpc.id(), jm_result.error()};
+        LOGGER_ERROR("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
+        req.respond(resp);
+        return;
+    }
+
+    const auto& job_metadata_ptr = jm_result.value();
+
+    if(!job_metadata_ptr->adhoc_storage_metadata()) {
+        LOGGER_ERROR("rpc id: {} error_msg: \"Job has no adhoc storage\"",
+                     rpc.id(), job_id);
+        const auto resp = response_with_status{rpc.id(), error_code::no_resources};
+        LOGGER_ERROR("rpc {:<} body: {{retval: {}}}", rpc, resp.error_code());
+        req.respond(resp);
+        return;
+    }
+
+    const auto data_stager_address =
+            job_metadata_ptr->adhoc_storage_metadata()->data_stager_address();
+
+    // Transform the `scord::dataset`s into `cargo::dataset`s and contact the
+    // Cargo service associated with the job's adhoc storage instance to
+    // execute the transfers.
+    cargo::server srv{data_stager_address};
+
+    // Register the transfer into the `tranfer_manager`.
+    // We embed the generated `cargo::transfer` object into
+    // scord's `transfer_metadata` so that we can later query the Cargo
+    // service for the transfer's status.
+    const auto rv =
+            m_transfer_manager.find(tx_id)
+                    .or_else([&](auto&& ec) {
+                        LOGGER_ERROR("rpc id: {} error_msg: \"Error finding "
+                                     "transfer: {}\"",
+                                     rpc.id(), ec);
+                    })
+                    .and_then([&](auto&& transfer_metadata_ptr)
+                                      -> tl::expected<scord::transfer_state, error_code> {
+                        return scord::transfer_state(static_cast<scord::transfer_state::type>(transfer_metadata_ptr->transfer().status().state()));
+                    });
+
+    const auto resp =
+            rv ? response_with_status{rpc.id(), error_code::success, rv.value()}
+               : response_with_status{rpc.id(), rv.error()};
+              
+
+    LOGGER_EVAL(resp.error_code(), INFO, ERROR,
+                "rpc {:<} body: {{retval: {}, status: {}}}", rpc,
+                resp.error_code(), resp.value_or_none());
+    req.respond(resp);
+}
+
 /* Scheduling is done each 0.5 s*/
 void
 rpc_server::scheduler_update() {
     std::vector<std::pair<std::string, int>> return_set;
     const auto threshold = 0.1f;
     while(!m_shutting_down) {
-        thallium::thread::self().sleep(m_network_engine, 500);
+        thallium::thread::self().sleep(m_network_engine, 1000);
         m_transfer_manager.lock();
         const auto transfer = m_transfer_manager.transfer();
         std::vector<scord::transfer_id> v_ids;

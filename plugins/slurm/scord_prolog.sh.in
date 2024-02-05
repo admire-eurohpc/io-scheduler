@@ -143,7 +143,7 @@ fi
 # stored (note that $HOME is not set when this prolog script is being executed).
 # shellcheck disable=SC2016
 USER_HOME=$(run_as "$SLURM_JOB_USER" echo '$HOME')
-USER_CONFIG_DIRECTORY="${XDG_CONFIG_HOME:-$USER_HOME/.config}"
+USER_CONFIG_DIRECTORY="$USER_HOME/.config"
 CARGO_CONFIG_DIRECTORY="$USER_CONFIG_DIRECTORY/cargo"
 SYSTEMD_USER_DIRECTORY="$USER_CONFIG_DIRECTORY/systemd/user"
 
@@ -189,16 +189,16 @@ CARGO_HOSTS=$hostnames_csv
 CARGO_NUM_NODES=$CARGO_NUM_NODES
 CARGO_ADDRESS=$CARGO_MASTER_ADDRESS
 EOT
-
+CUID=$(id -u $SLURM_JOB_USER)
 chown "$SLURM_JOB_USER":"$SLURM_JOB_GROUP" "$CARGO_CONFIG_FILE"
 
-if ! run_as "$SLURM_JOB_USER" systemctl --user start "$CARGO_INSTANCE_NAME"; then
+if ! run_as "$SLURM_JOB_USER" DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$CUID/bus systemctl --user start "$CARGO_INSTANCE_NAME"; then
   exit 1
 fi
 
 sleep 1s
 
-if ! run_as "$SLURM_JOB_USER" systemctl --user is-active --quiet "$CARGO_INSTANCE_NAME"; then
+if ! run_as "$SLURM_JOB_USER" DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$CUID/bus systemctl --user is-active --quiet "$CARGO_INSTANCE_NAME"; then
   echo "Cargo data stager failed to start"
   exit 1
 fi

@@ -377,6 +377,18 @@ transfer_datasets(const server& srv, const job& job,
     return rv.value();
 }
 
+scord::transfer_state 
+query_transfer(const server& srv, const job& job, const transfer& transfer) {
+
+    const auto rv = detail::query_transfer(srv, job, transfer);
+
+    if(!rv) {
+        throw std::runtime_error(fmt::format(
+                "ADM_query_transfer() error: {}", ADM_strerror(rv.error())));
+    }
+
+    return rv.value();
+}
 
 ADM_return_t
 set_dataset_information(const server& srv, ADM_job_t job, ADM_dataset_t target,

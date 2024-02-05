@@ -109,6 +109,10 @@ private:
                       const std::vector<scord::dataset>& targets,
                       const std::vector<scord::qos::limit>& limits,
                       enum scord::transfer::mapping mapping);
+    
+    void
+    query_transfer(const network::request& req, scord::job_id job_id,
+                   scord::transfer_id transfer_id);
 
     job_manager m_job_manager;
     adhoc_storage_manager m_adhoc_manager;

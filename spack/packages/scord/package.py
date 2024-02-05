@@ -35,7 +35,7 @@ class Scord(CMakePackage):
 
     homepage = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler"
     url = ("https://storage.bsc.es/gitlab/eu/admire/io-scheduler/-/archive/"
-           "v0.3.3/io-scheduler-v0.3.3.tar.gz")
+           "v0.3.4/io-scheduler-v0.3.4.tar.gz")
     git = "https://storage.bsc.es/gitlab/eu/admire/io-scheduler.git"
 
     maintainers("alberto-miranda")
@@ -56,7 +56,7 @@ class Scord(CMakePackage):
             sha256="74c51915315e01d8479701d340331641f42c5f5cfae0c08bdea6c2f0b01da665")
     version("0.3.3",
             sha256="a8b5a8d05858bee91b9675ca6c929f4c16b5b2562f4e6a8dba3ce0aacb721f48")
-
+    version("0.3.4", sha256="e5e6a46d174db266e1caa2689cd17d88a7dc0623429c5efba20a374383f54a12")
     # build variants
     variant('build_type',
             default='Release',
@@ -92,6 +92,7 @@ class Scord(CMakePackage):
     depends_on("boost@1.71 +program_options", when='@0.2.0:')
     depends_on("redis-plus-plus@1.3.3:", when='@0.2.0:')
     depends_on("cargo@0.3.3:", when='@0.3.1:')
+    depends_on("cargo@0.3.4:", when='@0.3.4:')
     depends_on("slurm", when='@0.3.1:')
 
 

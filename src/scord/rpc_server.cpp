@@ -881,7 +881,8 @@ rpc_server::scheduler_update() {
     std::vector<std::pair<std::string, int>> return_set;
     const auto threshold = 0.1f;
     while(!m_shutting_down) {
-        thallium::thread::self().sleep(m_network_engine, 500);
+        sleep(1);
+        //thallium::thread::self().sleep(m_network_engine, 500);
         m_transfer_manager.lock();
         const auto transfer = m_transfer_manager.transfer();
         std::vector<scord::transfer_id> v_ids;

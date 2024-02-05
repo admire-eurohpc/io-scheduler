@@ -114,8 +114,8 @@ private:
     adhoc_storage_manager m_adhoc_manager;
     pfs_storage_manager m_pfs_manager;
     transfer_manager<cargo::transfer> m_transfer_manager;
-
-    // Dedicated execution stream for the MPI listener ULT
+    
+    // Dedicated execution stream for the Scheduler listener ULT
     thallium::managed<thallium::xstream> m_scheduler_ess;
     // ULT for the MPI listener
     thallium::managed<thallium::thread> m_scheduler_ult;

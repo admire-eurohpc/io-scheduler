@@ -30,7 +30,7 @@
 #include <slurm/spank.h>
 #include <scord/types.h>
 
-hostlist_t
+hostlist_t *
 get_slurm_hostlist(spank_t sp);
 
 typedef struct scord_nodelist {
@@ -39,7 +39,7 @@ typedef struct scord_nodelist {
 }* scord_nodelist_t;
 
 scord_nodelist_t
-scord_nodelist_create(hostlist_t hostlist);
+scord_nodelist_create(hostlist_t* hostlist);
 
 int
 scord_nodelist_get_nodecount(scord_nodelist_t nodelist);

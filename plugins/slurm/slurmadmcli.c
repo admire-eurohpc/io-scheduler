@@ -740,7 +740,7 @@ slurm_spank_user_init(spank_t sp, int ac, char** av) {
     slurm_debug("%s: %s: job id: %d", plugin_name, __func__, jobid);
 
     /* list of job nodes */
-    hostlist_t hostlist = get_slurm_hostlist(sp);
+    hostlist_t*hostlist = get_slurm_hostlist(sp);
     if(!hostlist) {
         slurm_error("%s: failed to retrieve hostlist", plugin_name);
         return -1;

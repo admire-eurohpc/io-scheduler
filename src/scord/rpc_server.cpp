@@ -164,9 +164,13 @@ rpc_server::query(const network::request& req, slurm_job_id job_id) {
                             return tl::make_unexpected(
                                     error_code::no_resources);
                         }
+
+                        
+
                         return job_info{
                                 job_metadata_ptr->adhoc_storage_metadata()
                                         ->controller_address(),
+                                job_metadata_ptr->adhoc_storage_metadata()->uuid(),
                                 job_metadata_ptr->io_procs()};
                     });
 

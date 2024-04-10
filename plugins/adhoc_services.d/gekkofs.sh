@@ -15,8 +15,8 @@ if [ "$1" == "start" ]; then
     datadir=$7
     mountdir=$9
     unset SLURM_CPU_BIND SLURM_CPU_BIND_LIST SLURM_CPU_BIND_TYPE SLURM_CPU_BIND_VERBOSE
-    srun -N $num_nodes -n $num_nodes --oversubscribe --cpus-per-task=1 --mem-per-cpu=1 --export=ALL bash -c "mkdir -p $mountdir; mkdir -p $datadir" 
-    srun -N $num_nodes -n $num_nodes --oversubscribe --cpus-per-task=4 --mem-per-cpu=1 --export=ALL bash -c "gkfs_daemon --rootdir $datadir --mountdir $mountdir" &
+    srun -N $num_nodes -n $num_nodes --oversubscribe --overlap --cpus-per-task=1 --mem-per-cpu=1 --export=ALL bash -c "mkdir -p $mountdir; mkdir -p $datadir" 
+    srun -N $num_nodes -n $num_nodes --oversubscribe --overlap --cpus-per-task=4 --mem-per-cpu=1 --export=ALL bash -c "gkfs_daemon --rootdir $datadir --mountdir $mountdir" &
     sleep 4
 elif [ "$1" == "stop" ]; then
     echo "Stopping GEKKOFS"
@@ -28,7 +28,7 @@ elif [ "$1" == "stop" ]; then
         exit 0
     fi
     unset SLURM_CPU_BIND SLURM_CPU_BIND_LIST SLURM_CPU_BIND_TYPE SLURM_CPU_BIND_VERBOSE
-    srun -N $num_nodes -n $num_nodes --oversubscribe --cpus-per-task=1 --mem-per-cpu=1 pkill -9 gkfs_daemon
+    srun -N $num_nodes -n $num_nodes --overlap --oversubscribe --cpus-per-task=1 --mem-per-cpu=1 --export=ALL bash -c "pkill -9 gkfs_daemon"
 elif [ "$1" == "expand" ]; then
     echo "Expand command"
 elif [ "$1" == "shrink" ]; then

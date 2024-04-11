@@ -33,6 +33,8 @@
 
 #include <scord/scord.h>
 #include <scord/utils.h>
+#include <scord/types.h>
+#include <types_private.h>
 #include "defaults.h"
 #include "utils.h"
 
@@ -436,8 +438,8 @@ process_config(int ac, char** av, scord_plugin_config_t* cfg) {
 }
 
 static int
-scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
-                   uint32_t jobid) {
+scord_register_job(spank_t sp, scord_plugin_config_t cfg,
+                   scord_nodelist_t nodelist, uint32_t jobid) {
 
     int rc = 0;
     int nnodes = 0;
@@ -450,6 +452,7 @@ scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
     ADM_adhoc_storage_t adhoc_storage = NULL;
     ADM_job_requirements_t scord_reqs = NULL;
     ADM_job_t scord_job = NULL;
+    ADM_transfer_t transfer = NULL;
     char* adhoc_path = NULL;
 
     /* First determine the node on which to launch scord-ctl (typically the
@@ -574,6 +577,48 @@ scord_register_job(scord_plugin_config_t cfg, scord_nodelist_t nodelist,
     if(ADM_deploy_adhoc_storage(scord_server, adhoc_storage, &adhoc_path) !=
        ADM_SUCCESS) {
         slurm_error("%s: adhoc storage deployment failed", plugin_name);
+        rc = -1;
+        goto end;
+    }
+
+    // define the environment variables for the job
+    switch(adhoc_type) {
+        case ADM_ADHOC_STORAGE_GEKKOFS:
+            spank_setenv(sp, "ADHOC_TYPE", "gekkofs", 1);
+         
+            spank_setenv(sp, "LIBGKFS_HOSTS_FILE", "/tmp/gekkofs/gkfs_hosts.txt", 1);
+            break;
+        case ADM_ADHOC_STORAGE_EXPAND:
+            spank_setenv(sp, "ADHOC_TYPE", "expand", 1);
+            break;
+        case ADM_ADHOC_STORAGE_DATACLAY:
+            spank_setenv(sp, "ADHOC_TYPE", "dataclay", 1);
+            break;
+        case ADM_ADHOC_STORAGE_HERCULES:
+            spank_setenv(sp, "ADHOC_TYPE", "hercules", 1);
+            break;
+        
+    }
+    spank_setenv(sp, "ADHOC_PATH", adhoc_path, 1);
+
+
+    // divide input_datasets into sources and targets
+    ADM_dataset_t * sources = malloc((input_datasets_count) * sizeof(ADM_dataset_t));
+    ADM_dataset_t * targets = malloc((input_datasets_count) * sizeof(ADM_dataset_t));;
+
+    for (unsigned int i = 0; i < input_datasets_count; i++) {
+        //ADM_dataset_route_list_t r_inputs;
+        sources[i] = scord_reqs->r_inputs->l_routes[i].d_src;
+        targets[i] = scord_reqs->r_inputs->l_routes[i].d_dst;
+    }
+   
+    if (ADM_transfer_datasets(scord_server, scord_job, sources,
+                                input_datasets_count,
+                                targets,
+                                input_datasets_count, 0, 0,
+    ADM_MAPPING_ONE_TO_ONE, &transfer)!=
+       ADM_SUCCESS) {
+        slurm_error("%s: adhoc storage transfer failed", plugin_name);
         rc = -1;
         goto end;
     }
@@ -740,7 +785,7 @@ slurm_spank_user_init(spank_t sp, int ac, char** av) {
     slurm_debug("%s: %s: job id: %d", plugin_name, __func__, jobid);
 
     /* list of job nodes */
-    hostlist_t*hostlist = get_slurm_hostlist(sp);
+    hostlist_t* hostlist = get_slurm_hostlist(sp);
     if(!hostlist) {
         slurm_error("%s: failed to retrieve hostlist", plugin_name);
         return -1;
@@ -760,7 +805,7 @@ slurm_spank_user_init(spank_t sp, int ac, char** av) {
         goto cleanup;
     }
 
-    if((ec = scord_register_job(cfg, nodelist, jobid)) != 0) {
+    if((ec = scord_register_job(sp, cfg, nodelist, jobid)) != 0) {
         slurm_error("%s: failed to register job with scord", plugin_name);
         ec = -1;
         goto cleanup;

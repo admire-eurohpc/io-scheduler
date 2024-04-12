@@ -953,11 +953,11 @@ scord_unregister_job(spank_t sp, scord_plugin_config_t cfg,
     }
 
     // remove_adhoc_storage
-
-    ADM_remove_adhoc_storage(scord_server, adhoc_storage);
-    // remove all the files (this should be done on all the nodes.. TODO)
+    ADM_terminate_adhoc_storage(scord_server, adhoc_storage);
+    // ADM_remove_adhoc_storage(scord_server, adhoc_storage);
+    //  remove all the files (this should be done on all the nodes.. TODO)
     remove_dir_content(adhoc_path);
-
+    rmdir(adhoc_path);
     // remove job
     ADM_remove_job(scord_server, scord_job);
 

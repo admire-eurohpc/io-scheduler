@@ -44,6 +44,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#if SLURM_VERSION_NUMBER > SLURM_VERSION_NUM(23,0,0)
+#define POINTER *
+#else
+#define POINTER 
+#endif
 /**
  * Slurm SPANK plugin to handle the ADMIRE adhoc storage CLI. Options are
  * forwarded to scord on srun, salloc and sbatch. See the struct spank_option
@@ -805,7 +810,7 @@ slurm_spank_user_init(spank_t sp, int ac, char** av) {
     slurm_debug("%s: %s: job id: %d", plugin_name, __func__, jobid);
 
     /* list of job nodes */
-    hostlist_t* hostlist = get_slurm_hostlist(sp);
+    hostlist_t POINTER hostlist = get_slurm_hostlist(sp);
     if(!hostlist) {
         slurm_error("%s: failed to retrieve hostlist", plugin_name);
         return -1;
@@ -1060,7 +1065,7 @@ slurm_spank_exit(spank_t sp, int ac, char** av) {
     slurm_info("%s: %s: job id: %d", plugin_name, __func__, jobid);
 
     /* list of job nodes */
-    hostlist_t* hostlist = get_slurm_hostlist(sp);
+    hostlist_t POINTER hostlist = get_slurm_hostlist(sp);
     if(!hostlist) {
         slurm_info("%s: failed to retrieve hostlist", plugin_name);
         return -1;

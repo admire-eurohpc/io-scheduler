@@ -32,7 +32,7 @@
 
 extern const char plugin_name[];
 
-hostlist_t *
+hostlist_t POINTER
 get_slurm_hostlist(spank_t sp) {
 
     /* get list of nodes. /!\ at this point env SLURM_NODELIST is
@@ -72,7 +72,7 @@ get_slurm_hostlist(spank_t sp) {
 
     slurm_debug("%s: SLURM_NODELIST=%s", plugin_name, nodelist);
 
-    hostlist_t * hl = NULL;
+    hostlist_t POINTER hl = NULL;
     hl = slurm_hostlist_create(nodelist);
 
     if(!hl) {
@@ -84,7 +84,7 @@ get_slurm_hostlist(spank_t sp) {
 }
 
 scord_nodelist_t
-scord_nodelist_create(hostlist_t* hostlist) {
+scord_nodelist_create(hostlist_t POINTER hostlist) {
 
     ADM_node_t* nodes = NULL;
     char* host = NULL;

@@ -30,7 +30,7 @@ cmake_minimum_required(VERSION 3.19)
 
 project(
   scord
-  VERSION 0.3.4
+  VERSION 0.3.6
   LANGUAGES C CXX
 )
 
@@ -312,7 +312,7 @@ find_package(RedisPlusPlus 1.3.3 REQUIRED)
 
 ### Cargo: required for transferring datasets between storage tiers
 message(STATUS "[${PROJECT_NAME}] Checking for Cargo")
-find_package(Cargo 0.3.1 REQUIRED)
+find_package(Cargo 0.3.6 REQUIRED)
 
 message(STATUS "[${PROJECT_NAME}] Checking for Hiredis")
 find_package(hiredis REQUIRED)

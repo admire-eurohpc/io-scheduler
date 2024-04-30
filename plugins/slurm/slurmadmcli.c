@@ -1032,7 +1032,8 @@ slurm_spank_exit(spank_t sp, int ac, char** av) {
 
     /* Get relative for the node executing id. Job registration is only done
      * by the node with ID 0 */
-
+    spank_context_t sctx = spank_context();
+    if(sctx != S_CTX_REMOTE) return 0;
     uint32_t nodeid;
 
     if((rc = spank_get_item(sp, S_JOB_NODEID, &nodeid)) != ESPANK_SUCCESS) {

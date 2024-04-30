@@ -493,9 +493,9 @@ class job_info {
 
 public:
     job_info() = default;
-    explicit job_info(std::string adhoc_controller_address,
+    explicit job_info(std::string adhoc_controller_address,std::string uuid,
                       std::uint32_t procs_for_io)
-        : m_adhoc_address(std::move(adhoc_controller_address)),
+        : m_adhoc_address(std::move(adhoc_controller_address)), m_uuid(std::move(uuid)),
           m_procs_for_io(procs_for_io) {}
 
     constexpr std::string const&
@@ -512,16 +512,23 @@ public:
         return m_procs_for_io;
     }
 
+    constexpr std::string const&
+    uuid() const {
+        return m_uuid;
+    }
+
 private:
     friend class cereal::access;
     template <class Archive>
     void
     serialize(Archive& ar) {
         ar & m_adhoc_address;
+        ar & m_uuid;
         ar & m_procs_for_io;
     }
 
     std::string m_adhoc_address;
+    std::string m_uuid;
     std::uint32_t m_procs_for_io;
 };
 

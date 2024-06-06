@@ -62,8 +62,11 @@ dataset_process(std::string id) {
     } else if(id.find("dataclay:") != std::string::npos) {
         id = id.substr(strlen("dataclay:"));
         type = cargo::dataset::type::dataclay;
-    } else
+    } else if(id.find("posix:") != std::string::npos) {
+        id = id.substr(strlen("posix:"));
         type = cargo::dataset::type::posix;
+    }
+    else type = cargo::dataset::type::none;
 
     return cargo::dataset{id, type};
 }
@@ -850,7 +853,7 @@ rpc_server::transfer_datasets(const network::request& req, scord::job_id job_id,
     std::transform(targets.cbegin(), targets.cend(),
                    std::back_inserter(outputs),
                    [](const auto& tgt) { return ::dataset_process(tgt.id()); });
-
+    
     const auto cargo_tx = cargo::transfer_datasets(srv, inputs, outputs);
 
     // Register the transfer into the `tranfer_manager`.

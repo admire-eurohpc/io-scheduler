@@ -117,7 +117,7 @@ main(int argc, char* argv[]) {
     ADM_transfer_t tx;
 
     ret = ADM_transfer_datasets(server, job, sources, NSOURCES, targets,
-                                NTARGETS, limits, NLIMITS, mapping, &tx);
+                                NTARGETS, limits, NLIMITS, mapping, &tx, false);
 
     if(ret != ADM_SUCCESS) {
         fprintf(stderr,

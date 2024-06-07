@@ -176,11 +176,21 @@ CARGO_ID=$(echo "cargo_$SLURM_JOB_ID.$SLURM_JOB_UID" | sha256sum | awk '{ print 
 CARGO_CONFIG_FILE=$CARGO_CONFIG_DIRECTORY/$CARGO_ID.cfg
 CARGO_MASTER_ADDRESS="$SCORDCTL_PROTO://$ADDRESS:$CARGO_PORT"
 CARGO_INSTANCE_NAME=$(systemd-escape --template cargo@.service "$CARGO_ID")
+# This will fail always as we do not have the job registered in this moment
 
-if ! CARGO_NUM_NODES=$(@SCORD_QUERY_PROGRAM@ -s @SCORD_SERVICE_ADDRESS@ "$SLURM_JOB_ID" | grep io_procs | awk '{ print $2 }'); then
-  echo "Failed to determine the number of I/O processes for job $SLURM_JOB_ID"
-else
-  CARGO_NUM_NODES=${#hostnames[@]}
+#if ! CARGO_NUM_NODES=$(@SCORD_QUERY_PROGRAM@ -s @SCORD_SERVICE_ADDRESS@ "$SLURM_JOB_ID" | grep io_procs | awk '{ print $2 }'); then
+#  echo "Failed to determine the number of I/O processes for job $SLURM_JOB_ID"
+#else
+CARGO_NUM_NODES=${#hostnames[@]}
+#fi
+# If LIBGKFS_HOSTS_FILE is nor defined then do it
+if [ -z "$LIBGKFS_HOSTS_FILE" ]; then
+    LIBGKFS_HOSTS_FILE=/tmp/gekkofs/gkfs_hosts.txt
+fi
+
+# if number of CARGO_NUM_NODES is below 2, use 2, they will be colocated
+if [ $CARGO_NUM_NODES -lt 2 ]; then
+    CARGO_NUM_NODES=2
 fi
 
 cat <<EOT >>"$CARGO_CONFIG_FILE"
@@ -188,6 +198,7 @@ CARGO_ID=$CARGO_ID
 CARGO_HOSTS=$hostnames_csv
 CARGO_NUM_NODES=$CARGO_NUM_NODES
 CARGO_ADDRESS=$CARGO_MASTER_ADDRESS
+LIBGKFS_HOSTS_FILE=$LIBGKFS_HOSTS_FILE
 EOT
 CUID=$(id -u $SLURM_JOB_USER)
 chown "$SLURM_JOB_USER":"$SLURM_JOB_GROUP" "$CARGO_CONFIG_FILE"

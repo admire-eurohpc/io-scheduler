@@ -108,8 +108,8 @@ CARGO_CONFIG_FILE=$CONFIG_DIRECTORY/$CARGO_ID.cfg
 CARGO_SERVICE_NAME=$(systemd-escape --template cargo@.service "$CARGO_ID")
 
 echo "Shutting down Cargo data stager for job $SLURM_JOB_ID (user: $SLURM_JOB_USER)"
-
-if ! run_as "$SLURM_JOB_USER" systemctl --user stop "$CARGO_SERVICE_NAME"; then
+CUID=$(id -u $SLURM_JOB_USER)
+if ! run_as "$SLURM_JOB_USER" DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$CUID/bus systemctl --user stop "$CARGO_SERVICE_NAME"; then
   exit 1
 fi
 

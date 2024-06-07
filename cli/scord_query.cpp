@@ -31,6 +31,7 @@ struct query_config {
     std::string progname;
     std::string server_address;
     std::uint32_t job_id{};
+    bool verbose{};
 };
 
 query_config
@@ -47,6 +48,7 @@ parse_command_line(int argc, char* argv[]) {
             ->required();
     app.add_option("job_id", cfg.job_id, "Job ID")->required();
 
+    app.add_option("-v, --verbose  ", cfg.verbose, "Enable verbose output");
     try {
         app.parse(argc, argv);
         return cfg;
@@ -81,13 +83,14 @@ main(int argc, char* argv[]) {
 
         scord::job_info info =
                 scord::query(scord::server{protocol, address}, cfg.job_id);
-
+        if (cfg.verbose)
         fmt::print(stdout,
                    "Job metadata:\n"
                    "  adhoc_controller: {}\n"
+                   "  adhoc_uuid: {}\n"
                    "  io_procs: {}\n",
-                   info.adhoc_controller_address(), info.io_procs());
-
+                   info.adhoc_controller_address(), info.uuid(), info.io_procs());
+        else fmt::print(stdout,"{}\n", info.uuid());
     } catch(const std::exception& ex) {
         fmt::print(stderr, "Error: {}\n", ex.what());
         return EXIT_FAILURE;

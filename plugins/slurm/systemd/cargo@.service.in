@@ -7,5 +7,5 @@ EnvironmentFile=%h/.config/cargo/%I.cfg
 ExecStart=@CMAKE_INSTALL_FULL_DATADIR@/@PROJECT_NAME@/slurm/cargoctl start -s ${CARGO_ADDRESS} -H ${CARGO_HOSTS} -n ${CARGO_NUM_NODES}
 ExecStop=@CMAKE_INSTALL_FULL_DATADIR@/@PROJECT_NAME@/slurm/cargoctl stop -s ${CARGO_ADDRESS}
 Restart=no
-PrivateTmp=true
+PrivateTmp=false
 NoNewPrivileges=true

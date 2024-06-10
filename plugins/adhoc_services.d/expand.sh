@@ -76,7 +76,7 @@ get_opts() {
 
 ## default values
 ACTION=""
-HOSTLIST=$(hostname -I)
+HOSTLIST=$(hostname -i)
 DATADIR="/tmp/expand/data"
 SHAREDDIR=""
 DEPLOYMENTFILE=""
@@ -94,7 +94,8 @@ if [ -z "$SHAREDDIR" ]; then
   usage_short
   exit 1
 fi
-
+mkdir -p ${DATADIR}
+mkdir -p ${SHAREDDIR}
 HOSTFILE=${SHAREDDIR}/hostfile.txt
 HOSTFILE_REBUILD=${SHAREDDIR}/hostfile_rebuild.txt
 HOSTFILE_START=${SHAREDDIR}/hostfile_start.txt

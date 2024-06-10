@@ -112,14 +112,13 @@ config:
             command: @CMAKE_INSTALL_FULL_DATADIR@/@PROJECT_NAME@/adhoc_services.d/expand.sh
                         start
                         --hosts {ADHOC_NODES}
-                        --workdir {ADHOC_DIRECTORY}
                         --datadir {ADHOC_DIRECTORY}/data
-                        --mountdir {ADHOC_DIRECTORY}/mnt
+                        --shareddir {ADHOC_DIRECTORY}/mnt
           shutdown:
             environment:
             command: @CMAKE_INSTALL_FULL_DATADIR@/@PROJECT_NAME@/adhoc_services.d/expand.sh
                         stop
-                        --workdir {ADHOC_DIRECTORY}
+                        --shareddir {ADHOC_DIRECTORY}
           expand:
             environment:
             command: @CMAKE_INSTALL_FULL_DATADIR@/@PROJECT_NAME@/adhoc_services.d/expand.sh

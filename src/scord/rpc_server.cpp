@@ -971,12 +971,10 @@ rpc_server::scheduler_update() {
 
             switch(status.state()) {
                 case cargo::transfer_state::completed:
-                    LOGGER_INFO("Completed");
                     v_ids.push_back(tr_unit.first);
                     continue;
                     break;
                 case cargo::transfer_state::failed:
-                    LOGGER_INFO("Failed");
                     v_ids.push_back(tr_unit.first);
                     continue;
                     break;
@@ -999,7 +997,7 @@ rpc_server::scheduler_update() {
             if(bw == -1) {
                 continue;
             }
-
+            LOGGER_INFO("QoS Measured BW : {} vs QOS : {} ", bw, qos);
             if(bw + bw * threshold > qos) {
                 // Send decrease / slow signal to cargo
                 tr_info->transfer().bw_control(+1);

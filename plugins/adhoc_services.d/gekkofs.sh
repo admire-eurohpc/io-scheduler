@@ -42,6 +42,7 @@ elif [ "$1" == "stop" ]; then
     fi
     unset SLURM_CPU_BIND SLURM_CPU_BIND_LIST SLURM_CPU_BIND_TYPE SLURM_CPU_BIND_VERBOSE
     srun -N $num_nodes -n $num_nodes --overlap --oversubscribe --cpus-per-task=1 --mem-per-cpu=1 --export=ALL /usr/bin/bash -c "pkill -9 gkfs_daemon"
+    rm $LIBGKFS_HOSTS_FILE
 elif [ "$1" == "expand" ]; then
     echo "Expand command"
 elif [ "$1" == "shrink" ]; then

@@ -62,8 +62,8 @@ std::vector<scord::qos::limit>
 convert(uint64_t limit, size_t limits_len) {
 
     std::vector<scord::qos::limit> rv(limits_len);
-
-    rv[0] = scord::qos::limit{scord::qos::subclass::bandwidth, limit};
+    if (limits_len >0)
+        rv[0] = scord::qos::limit{scord::qos::subclass::bandwidth, limit};
 
     return rv;
 }

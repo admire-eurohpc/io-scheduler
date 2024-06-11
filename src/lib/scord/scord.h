@@ -251,6 +251,14 @@ ADM_transfer_datasets(ADM_server_t server, ADM_job_t job,
                       ADM_qos_limit_t limits[], size_t limits_len,
                       ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer, bool wait);
 
+
+ADM_return_t
+ADM_transfer_datasets_1(ADM_server_t server, ADM_job_t job,
+                      ADM_dataset_t sources[], size_t sources_len,
+                      ADM_dataset_t targets[], size_t targets_len,
+                      uint64_t limit, size_t limits_len,
+                      ADM_transfer_mapping_t mapping, ADM_transfer_t* transfer, bool wait);
+
 /**
  * Sets the obtained bw for the transfer operation
  *

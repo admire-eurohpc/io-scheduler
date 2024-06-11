@@ -44,10 +44,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#if SLURM_VERSION_NUMBER > SLURM_VERSION_NUM(23,0,0)
+#if SLURM_VERSION_NUMBER > SLURM_VERSION_NUM(23, 0, 0)
 #define POINTER *
 #else
-#define POINTER 
+#define POINTER
 #endif
 /**
  * Slurm SPANK plugin to handle the ADMIRE adhoc storage CLI. Options are
@@ -72,6 +72,8 @@
 #define TAG_DATASET_OUTPUT                 7
 #define TAG_DATASET_EXPECTED_OUTPUT        8
 #define TAG_DATASET_EXPECTED_INOUT_DATASET 9
+#define TAG_QOS_LIMIT                      10
+
 
 // clang-format off
 SPANK_PLUGIN (admire-cli, 1)
@@ -93,6 +95,7 @@ ADM_dataset_route_t* expected_output_datasets = NULL;
 size_t expected_output_datasets_count = 0;
 ADM_dataset_route_t* expected_inout_datasets = NULL;
 size_t expected_inout_datasets_count = 0;
+int64_t limit = 0;
 
 /* server-related options */
 typedef struct {
@@ -241,6 +244,9 @@ struct spank_option spank_opts[] = {
                 TAG_DATASET_EXPECTED_INOUT_DATASET, /* option tag */
                 (spank_opt_cb_f) process_opts       /* callback  */
         },
+        {"adm-qos-limit", "qos-limit-bw",
+         "Define the qos limit for the tranfer operation.", 1, TAG_QOS_LIMIT,
+         (spank_opt_cb_f) process_opts},
         SPANK_OPTIONS_TABLE_END};
 
 int
@@ -361,6 +367,18 @@ process_opts(int tag, const char* optarg, int remote) {
                        &expected_inout_datasets_count) != ADM_SUCCESS) {
                 slurm_error("%s: %s: failed to parse dataset route: %s",
                             plugin_name, __func__, optarg);
+                return -1;
+            }
+            return 0;
+        case TAG_QOS_LIMIT:
+            char* endptr;
+            errno = 0;
+
+            limit = 0;
+
+            limit = strtol(optarg, &endptr, 0);
+            if(errno != 0 || endptr == optarg || *endptr != '\0' ||
+               limit <= 0) {
                 return -1;
             }
             return 0;
@@ -634,13 +652,21 @@ scord_register_job(spank_t sp, scord_plugin_config_t cfg,
             sources[i] = scord_reqs->r_inputs->l_routes[i].d_src;
             targets[i] = scord_reqs->r_inputs->l_routes[i].d_dst;
         }
-        // Unfortunaly we have to sleep or cargo will not find the instance up.
+        // Unfortunaly we have to sleep or cargo will not find the instance
+        // up.
         sleep(5);
 
-        if(ADM_transfer_datasets(
+        int nlimit = 0;
+        if(limit > 0) {
+
+            nlimit = 1;
+        }
+
+        slurm_info("%s: prepared limits %ld", plugin_name, limit);
+        if(ADM_transfer_datasets_1(
                    scord_server, scord_job, sources, input_datasets_count,
-                   targets, input_datasets_count, 0, 0, ADM_MAPPING_ONE_TO_ONE,
-                   &transfer, true) != ADM_SUCCESS) {
+                   targets, input_datasets_count, limit, nlimit,
+                   ADM_MAPPING_ONE_TO_ONE, &transfer, true) != ADM_SUCCESS) {
             slurm_error("%s: adhoc storage transfer failed", plugin_name);
             rc = -1;
             goto end;
@@ -685,9 +711,9 @@ end:
 }
 
 /**
- * Called just after plugins are loaded. In remote context, this is just after
- * job step is initialized. This function is called before any plugin option
- * processing.
+ * Called just after plugins are loaded. In remote context, this is just
+ * after job step is initialized. This function is called before any plugin
+ * option processing.
  *
  * ┌-----------------------┐
  * | Command | Context     |
@@ -727,8 +753,8 @@ slurm_spank_init(spank_t sp, int ac, char** av) {
 
 /**
  * Called in local context only after all options have been processed.
- * This is called after the job ID and step IDs are available. This happens in
- * `srun` after the allocation is made, but before tasks are launched.
+ * This is called after the job ID and step IDs are available. This happens
+ * in `srun` after the allocation is made, but before tasks are launched.
  *
  * ┌-----------------------┐
  * | Command | Context     |
@@ -946,11 +972,17 @@ scord_unregister_job(spank_t sp, scord_plugin_config_t cfg,
             targets[i] = scord_reqs->r_outputs->l_routes[i].d_dst;
         }
 
+      
+        int nlimit = 0;
 
-        if(ADM_transfer_datasets(
+        if(limit > 0) {
+            nlimit = 1;
+        }
+
+        if(ADM_transfer_datasets_1(
                    scord_server, scord_job, sources, output_datasets_count,
-                   targets, output_datasets_count, 0, 0, ADM_MAPPING_ONE_TO_ONE,
-                   &transfer, true) != ADM_SUCCESS) {
+                   targets, output_datasets_count, limit, nlimit,
+                   ADM_MAPPING_ONE_TO_ONE, &transfer, true) != ADM_SUCCESS) {
             slurm_error("%s: adhoc storage transfer failed", plugin_name);
             rc = -1;
             goto end;
@@ -1016,7 +1048,8 @@ slurm_spank_exit(spank_t sp, int ac, char** av) {
     // spank_context_t sctx = spank_context();
 
 
-    //    slurm_debug("%s: %s() registering options", plugin_name, __func__);
+    //    slurm_debug("%s: %s() registering options", plugin_name,
+    //    __func__);
 
     /* register adm/scord options */
     //    struct spank_option* opt = &spank_opts[0];
@@ -1033,7 +1066,8 @@ slurm_spank_exit(spank_t sp, int ac, char** av) {
     /* Get relative for the node executing id. Job registration is only done
      * by the node with ID 0 */
     spank_context_t sctx = spank_context();
-    if(sctx != S_CTX_REMOTE) return 0;
+    if(sctx != S_CTX_REMOTE)
+        return 0;
     uint32_t nodeid;
 
     if((rc = spank_get_item(sp, S_JOB_NODEID, &nodeid)) != ESPANK_SUCCESS) {

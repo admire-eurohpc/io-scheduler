@@ -58,6 +58,16 @@ convert(ADM_qos_limit_t limits[], size_t limits_len) {
     return rv;
 }
 
+std::vector<scord::qos::limit>
+convert(uint64_t limit, size_t limits_len) {
+
+    std::vector<scord::qos::limit> rv(limits_len);
+
+    rv[0] = scord::qos::limit{scord::qos::subclass::bandwidth, limit};
+
+    return rv;
+}
+
 } // namespace
 
 
@@ -246,11 +256,9 @@ ADM_transfer_datasets(ADM_server_t server, ADM_job_t job,
                 scord::server{server}, scord::job{job},
                 scord::transfer{rv.value()});
         if(!rv_wait) {
-            if(rv_wait.error().value() == scord::error_code::no_such_entity)
-            {
+            if(rv_wait.error().value() == scord::error_code::no_such_entity) {
                 return ADM_SUCCESS;
-            }
-            else
+            } else
                 return rv_wait.error();
         }
         auto status = rv_wait.value().status();
@@ -262,10 +270,61 @@ ADM_transfer_datasets(ADM_server_t server, ADM_job_t job,
                     scord::server{server}, scord::job{job},
                     scord::transfer{rv.value()});
             if(!rv_wait) {
-                if(rv_wait.error().value()  == scord::error_code::no_such_entity) {
+                if(rv_wait.error().value() ==
+                   scord::error_code::no_such_entity) {
                     return ADM_SUCCESS;
-                }
-                else
+                } else
+                    return rv_wait.error();
+            }
+            status = rv_wait.value().status();
+        }
+    }
+
+    return ADM_SUCCESS;
+}
+
+ADM_return_t
+ADM_transfer_datasets_1(ADM_server_t server, ADM_job_t job,
+                        ADM_dataset_t sources[], size_t sources_len,
+                        ADM_dataset_t targets[], size_t targets_len,
+                        uint64_t limit, size_t limits_len,
+                        ADM_transfer_mapping_t mapping,
+                        ADM_transfer_t* transfer, bool wait = false) {
+
+    const auto rv = scord::detail::transfer_datasets(
+            scord::server{server}, scord::job{job},
+            ::convert(sources, sources_len), ::convert(targets, targets_len),
+            ::convert(limit, limits_len),
+            static_cast<scord::transfer::mapping>(mapping));
+
+    if(!rv) {
+        return rv.error();
+    }
+
+    *transfer = static_cast<ADM_transfer_t>(rv.value());
+    if(wait) {
+        auto rv_wait = scord::detail::query_transfer(
+                scord::server{server}, scord::job{job},
+                scord::transfer{rv.value()});
+        if(!rv_wait) {
+            if(rv_wait.error().value() == scord::error_code::no_such_entity) {
+                return ADM_SUCCESS;
+            } else
+                return rv_wait.error();
+        }
+        auto status = rv_wait.value().status();
+
+        while(status == scord::transfer_state::type::running or
+              status == scord::transfer_state::type::queued) {
+            sleep(5);
+            rv_wait = scord::detail::query_transfer(
+                    scord::server{server}, scord::job{job},
+                    scord::transfer{rv.value()});
+            if(!rv_wait) {
+                if(rv_wait.error().value() ==
+                   scord::error_code::no_such_entity) {
+                    return ADM_SUCCESS;
+                } else
                     return rv_wait.error();
             }
             status = rv_wait.value().status();
